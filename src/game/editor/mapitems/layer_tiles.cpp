@@ -40,6 +40,9 @@ CLayerTiles::CLayerTiles(CEditor *pEditor, int w, int h) :
 	m_Seed = 0;
 	m_AutoAutoMap = false;
 
+	m_HasKZGame = false; // KZ
+	m_HasKZFront = false; // KZ
+
 	m_pTiles = new CTile[m_Width * m_Height];
 	mem_zero(m_pTiles, (size_t)m_Width * m_Height * sizeof(CTile));
 }
@@ -67,6 +70,9 @@ CLayerTiles::CLayerTiles(const CLayerTiles &Other) :
 	m_HasFront = Other.m_HasFront;
 	m_HasSwitch = Other.m_HasSwitch;
 	m_HasTune = Other.m_HasTune;
+
+	m_HasKZFront = Other.m_HasKZFront; // KZ
+	m_HasKZGame = Other.m_HasKZGame; // KZ
 
 	str_copy(m_aFileName, Other.m_aFileName);
 }
@@ -156,6 +162,10 @@ void CLayerTiles::Render(bool Tileset)
 		Texture = m_pEditor->GetSwitchTexture();
 	else if(m_HasTune)
 		Texture = m_pEditor->GetTuneTexture();
+	else if(m_HasKZGame)
+		Texture = m_pEditor->GetKZGameTexture();
+	else if(m_HasKZFront)
+		Texture = m_pEditor->GetKZFrontTexture();
 	Graphics()->TextureSet(Texture);
 
 	ColorRGBA ColorEnv = ColorRGBA(1.0f, 1.0f, 1.0f, 1.0f);
@@ -179,6 +189,10 @@ void CLayerTiles::Render(bool Tileset)
 			m_pEditor->RenderTools()->RenderSwitchOverlay(static_cast<CLayerSwitch *>(this)->m_pSwitchTile, m_Width, m_Height, 32.0f, OverlayRenderFlags);
 		if(m_HasTune)
 			m_pEditor->RenderTools()->RenderTuneOverlay(static_cast<CLayerTune *>(this)->m_pTuneTile, m_Width, m_Height, 32.0f, OverlayRenderFlags);
+		if(m_HasKZGame)
+			m_pEditor->RenderTools()->RenderKZGameOverlay(static_cast<CLayerKZGame *>(this)->m_pKZTile, m_Width, m_Height, 32.0f, OverlayRenderFlags);
+		if(m_HasKZFront)
+			m_pEditor->RenderTools()->RenderKZFrontOverlay(static_cast<CLayerKZFront *>(this)->m_pKZTile, m_Width, m_Height, 32.0f, OverlayRenderFlags);
 	}
 }
 
@@ -231,7 +245,7 @@ void CLayerTiles::Clamp(RECTi *pRect) const
 
 bool CLayerTiles::IsEntitiesLayer() const
 {
-	return m_pEditor->m_Map.m_pGameLayer.get() == this || m_pEditor->m_Map.m_pTeleLayer.get() == this || m_pEditor->m_Map.m_pSpeedupLayer.get() == this || m_pEditor->m_Map.m_pFrontLayer.get() == this || m_pEditor->m_Map.m_pSwitchLayer.get() == this || m_pEditor->m_Map.m_pTuneLayer.get() == this;
+	return m_pEditor->m_Map.m_pGameLayer.get() == this || m_pEditor->m_Map.m_pTeleLayer.get() == this || m_pEditor->m_Map.m_pSpeedupLayer.get() == this || m_pEditor->m_Map.m_pFrontLayer.get() == this || m_pEditor->m_Map.m_pSwitchLayer.get() == this || m_pEditor->m_Map.m_pTuneLayer.get() == this || m_pEditor->m_Map.m_pKZGameLayer.get() == this || m_pEditor->m_Map.m_pKZFrontLayer.get() == this;
 }
 
 bool CLayerTiles::IsEmpty(const std::shared_ptr<CLayerTiles> &pLayer)
@@ -287,6 +301,8 @@ static void InitGrabbedLayer(std::shared_ptr<T> pLayer, CLayerTiles *pThisLayer)
 	pLayer->m_HasSpeedup = pThisLayer->m_HasSpeedup;
 	pLayer->m_HasSwitch = pThisLayer->m_HasSwitch;
 	pLayer->m_HasTune = pThisLayer->m_HasTune;
+	pLayer->m_HasKZGame = pThisLayer->m_HasKZGame; // KZ
+	pLayer->m_HasKZFront = pThisLayer->m_HasKZFront; // KZ
 	if(pThisLayer->m_pEditor->m_BrushColorEnabled)
 	{
 		pLayer->m_Color = pThisLayer->m_Color;
@@ -485,6 +501,92 @@ int CLayerTiles::BrushGrab(std::shared_ptr<CLayerGroup> pBrush, CUIRect Rect)
 				pGrabbed->m_pTiles[y * pGrabbed->m_Width + x] = GetTile(r.x + x, r.y + y);
 		str_copy(pGrabbed->m_aFileName, m_pEditor->m_aFileName);
 	}
+	else if(this->m_HasKZGame)
+	{
+		std::shared_ptr<CLayerKZGame> pGrabbed = std::make_shared<CLayerKZGame>(m_pEditor, r.w, r.h);
+		InitGrabbedLayer(pGrabbed, this);
+
+		pBrush->AddLayer(pGrabbed);
+
+		for(int y = 0; y < r.h; y++)
+		{
+			for(int x = 0; x < r.w; x++)
+			{
+				// copy the tiles
+				pGrabbed->m_pTiles[y * pGrabbed->m_Width + x] = GetTile(r.x + x, r.y + y);
+
+				// copy the switch data
+				if(!m_pEditor->Input()->KeyIsPressed(KEY_SPACE))
+				{
+					pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x] = static_cast<CLayerKZGame *>(this)->m_pKZTile[(r.y + y) * m_Width + (r.x + x)];					
+					m_pEditor->m_KZGameNumber = pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Number;
+					m_pEditor->m_KZGameValue1 = pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Value1;
+					m_pEditor->m_KZGameValue2 = pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Value2;
+					m_pEditor->m_KZGameValue3 = pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Value3;		
+				}
+				else
+				{
+					const CTile &Tile = pGrabbed->m_pTiles[y * pGrabbed->m_Width + x];
+					
+					pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Index = Tile.m_Index;
+					pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Number = m_pEditor->m_KZGameNumber;
+					pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Value1 = m_pEditor->m_KZGameValue1;
+					pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Value2 = m_pEditor->m_KZGameValue2;
+					pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Value3 = m_pEditor->m_KZGameValue3;
+					pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Flags = Tile.m_Flags;
+				}
+			}
+		}
+
+		pGrabbed->m_Number = m_pEditor->m_KZGameNumber;
+		pGrabbed->m_Value1 = m_pEditor->m_KZGameValue1;
+		pGrabbed->m_Value2 = m_pEditor->m_KZGameValue2;
+		pGrabbed->m_Value3 = m_pEditor->m_KZGameValue3;
+		str_copy(pGrabbed->m_aFileName, m_pEditor->m_aFileName);
+	}
+	else if(this->m_HasKZFront)
+	{
+		std::shared_ptr<CLayerKZFront> pGrabbed = std::make_shared<CLayerKZFront>(m_pEditor, r.w, r.h);
+		InitGrabbedLayer(pGrabbed, this);
+
+		pBrush->AddLayer(pGrabbed);
+
+		for(int y = 0; y < r.h; y++)
+		{
+			for(int x = 0; x < r.w; x++)
+			{
+				// copy the tiles
+				pGrabbed->m_pTiles[y * pGrabbed->m_Width + x] = GetTile(r.x + x, r.y + y);
+
+				// copy the switch data
+				if(!m_pEditor->Input()->KeyIsPressed(KEY_SPACE))
+				{
+					pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x] = static_cast<CLayerKZFront *>(this)->m_pKZTile[(r.y + y) * m_Width + (r.x + x)];					
+					m_pEditor->m_KZFrontNumber = pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Number;
+					m_pEditor->m_KZFrontValue1 = pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Value1;
+					m_pEditor->m_KZFrontValue2 = pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Value2;
+					m_pEditor->m_KZFrontValue3 = pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Value3;		
+				}
+				else
+				{
+					const CTile &Tile = pGrabbed->m_pTiles[y * pGrabbed->m_Width + x];
+					
+					pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Index = Tile.m_Index;
+					pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Number = m_pEditor->m_KZFrontNumber;
+					pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Value1 = m_pEditor->m_KZFrontValue1;
+					pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Value2 = m_pEditor->m_KZFrontValue2;
+					pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Value3 = m_pEditor->m_KZFrontValue3;
+					pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Flags = Tile.m_Flags;
+				}
+			}
+		}
+
+		pGrabbed->m_Number = m_pEditor->m_KZFrontNumber;
+		pGrabbed->m_Value1 = m_pEditor->m_KZFrontValue1;
+		pGrabbed->m_Value2 = m_pEditor->m_KZFrontValue2;
+		pGrabbed->m_Value3 = m_pEditor->m_KZFrontValue3;
+		str_copy(pGrabbed->m_aFileName, m_pEditor->m_aFileName);
+	}
 	else
 	{
 		std::shared_ptr<CLayerTiles> pGrabbed = std::make_shared<CLayerFront>(m_pEditor, r.w, r.h);
@@ -600,7 +702,7 @@ void CLayerTiles::BrushFlipX()
 	if(m_HasTele || m_HasSpeedup || m_HasTune)
 		return;
 
-	bool Rotate = !(m_HasGame || m_HasFront || m_HasSwitch) || m_pEditor->IsAllowPlaceUnusedTiles();
+	bool Rotate = !(m_HasGame || m_HasFront || m_HasSwitch || m_HasKZGame || m_HasKZFront) || m_pEditor->IsAllowPlaceUnusedTiles();
 	for(int y = 0; y < m_Height; y++)
 		for(int x = 0; x < m_Width; x++)
 			if(!Rotate && !IsRotatableTile(m_pTiles[y * m_Width + x].m_Index))
@@ -616,7 +718,7 @@ void CLayerTiles::BrushFlipY()
 	if(m_HasTele || m_HasSpeedup || m_HasTune)
 		return;
 
-	bool Rotate = !(m_HasGame || m_HasFront || m_HasSwitch) || m_pEditor->IsAllowPlaceUnusedTiles();
+	bool Rotate = !(m_HasGame || m_HasFront || m_HasSwitch || m_HasKZGame || m_HasKZFront) || m_pEditor->IsAllowPlaceUnusedTiles();
 	for(int y = 0; y < m_Height; y++)
 		for(int x = 0; x < m_Width; x++)
 			if(!Rotate && !IsRotatableTile(m_pTiles[y * m_Width + x].m_Index))
@@ -637,7 +739,7 @@ void CLayerTiles::BrushRotate(float Amount)
 		CTile *pTempData = new CTile[m_Width * m_Height];
 		mem_copy(pTempData, m_pTiles, (size_t)m_Width * m_Height * sizeof(CTile));
 		CTile *pDst = m_pTiles;
-		bool Rotate = !(m_HasGame || m_HasFront) || m_pEditor->IsAllowPlaceUnusedTiles();
+		bool Rotate = !(m_HasGame || m_HasFront || m_HasKZGame || m_HasKZFront) || m_pEditor->IsAllowPlaceUnusedTiles();
 		for(int x = 0; x < m_Width; ++x)
 			for(int y = m_Height - 1; y >= 0; --y, ++pDst)
 			{

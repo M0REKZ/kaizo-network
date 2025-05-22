@@ -9,6 +9,9 @@
 #include <map>
 #include <vector>
 
+#include <game/mapitems.h> // KZ
+#include <game/gamecore.h> // KZ
+
 class CTile;
 class CLayers;
 class CTeleTile;
@@ -36,21 +39,54 @@ public:
 	CCollision();
 	~CCollision();
 
+	// KZ
+
+	int CheckPointForCore(float x, float y, CCharacterCore* pCore, bool IsHook = false, bool IsWeapon = false) const;
+
+	bool KZGameFound() const { return m_pKZGame != 0; }
+	bool KZFrontFound() const { return m_pKZFront != 0; }
+
+	int GetKZGameWidth() const { return m_KZGameWidth; }
+	int GetKZGameHeight() const { return m_KZGameHeight; }
+	int GetKZFrontWidth() const { return m_KZFrontWidth; }
+	int GetKZFrontHeight() const { return m_KZFrontHeight; }
+
+	CKZTile *GetKZGameTile(int Index) const;
+	CKZTile *GetKZGameTile(int x, int y) const;
+	CKZTile *GetKZGameTile(float x, float y) const;
+	CKZTile *GetKZGameTile(vec2 Pos) const { return GetKZGameTile(Pos.x,Pos.y); }
+	CKZTile *GetKZFrontTile(int Index) const;
+	CKZTile *GetKZFrontTile(int x, int y) const;
+	CKZTile *GetKZFrontTile(float x, float y) const;
+	CKZTile *GetKZFrontTile(vec2 Pos) const { return GetKZGameTile(Pos.x,Pos.y); }
+
+	int GetKZGameTileIndex(float x, float y) const;
+	int GetKZGameTileIndex(int x, int y) const;
+	int GetKZGameTileIndex(vec2 Pos) const { return GetKZGameTileIndex(GetKZGameTileIndex(Pos.x,Pos.y)); }
+	int GetKZGameTileIndex(int Index) const;
+
+	int GetKZFrontTileIndex(float x, float y) const;
+	int GetKZFrontTileIndex(int x, int y) const;
+	int GetKZFrontTileIndex(vec2 Pos) const { return GetKZFrontTileIndex(GetKZFrontTileIndex(Pos.x,Pos.y)); }
+	int GetKZFrontTileIndex(int Index) const;
+
+	// End KZ
+
 	void Init(CLayers *pLayers);
 	void Unload();
 	void FillAntibot(CAntibotMapData *pMapData) const;
 
-	bool CheckPoint(float x, float y) const { return IsSolid(round_to_int(x), round_to_int(y)); }
-	bool CheckPoint(vec2 Pos) const { return CheckPoint(Pos.x, Pos.y); }
-	int GetCollisionAt(float x, float y) const { return GetTile(round_to_int(x), round_to_int(y)); }
+	bool CheckPoint(float x, float y, CCharacterCore *pCore = nullptr, bool IsHook = false, bool IsWeapon = false) const { return IsSolid(round_to_int(x), round_to_int(y)) || CheckPointForCore(x, y, pCore, IsHook, IsWeapon); } // KZ: modified
+	bool CheckPoint(vec2 Pos, CCharacterCore *pCore = nullptr, bool IsHook = false, bool IsWeapon = false) const { return CheckPoint(Pos.x, Pos.y, pCore, IsHook, IsWeapon); } // KZ: modified
+	int GetCollisionAt(float x, float y, CCharacterCore *pCore = nullptr, bool IsHook = false, bool IsWeapon = false) const; // KZ: modified
 	int GetWidth() const { return m_Width; }
 	int GetHeight() const { return m_Height; }
-	int IntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision) const;
-	int IntersectLineTeleWeapon(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, int *pTeleNr = nullptr) const;
-	int IntersectLineTeleHook(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, int *pTeleNr = nullptr) const;
-	void MovePoint(vec2 *pInoutPos, vec2 *pInoutVel, float Elasticity, int *pBounces) const;
-	void MoveBox(vec2 *pInoutPos, vec2 *pInoutVel, vec2 Size, vec2 Elasticity, bool *pGrounded = nullptr) const;
-	bool TestBox(vec2 Pos, vec2 Size) const;
+	int IntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, CCharacterCore *pCore = nullptr, bool IsHook = false, bool IsWeapon = false) const;
+	int IntersectLineTeleWeapon(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, int *pTeleNr = nullptr, CCharacterCore *pCore = nullptr) const;
+	int IntersectLineTeleHook(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, int *pTeleNr = nullptr, CCharacterCore *pCore = nullptr) const;
+	void MovePoint(vec2 *pInoutPos, vec2 *pInoutVel, float Elasticity, int *pBounces, CCharacterCore *pCore = nullptr) const;
+	void MoveBox(vec2 *pInoutPos, vec2 *pInoutVel, vec2 Size, vec2 Elasticity, bool *pGrounded = nullptr, CCharacterCore *pCore = nullptr) const;
+	bool TestBox(vec2 Pos, vec2 Size, CCharacterCore *pCore = nullptr) const;
 
 	// DDRace
 	void SetCollisionAt(float x, float y, int Index);
@@ -165,6 +201,15 @@ private:
 	std::map<int, std::vector<vec2>> m_TeleCheckOuts;
 	// TILE_TELEINEVIL, TILE_TELECHECK, TILE_TELECHECKIN, TILE_TELECHECKINEVIL
 	std::map<int, std::vector<vec2>> m_TeleOthers;
+
+	// KZ
+
+	int m_KZGameWidth;
+	int m_KZGameHeight;
+	int m_KZFrontWidth;
+	int m_KZFrontHeight;
+	CKZTile *m_pKZGame;
+	CKZTile *m_pKZFront;
 };
 
 void ThroughOffset(vec2 Pos0, vec2 Pos1, int *pOffsetX, int *pOffsetY);

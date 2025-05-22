@@ -45,6 +45,22 @@ CEditorBrushDrawAction::CEditorBrushDrawAction(CEditor *pEditor, int Group) :
 					Map.m_pSpeedupLayer->ClearHistory();
 				}
 			}
+			else if(pLayer == Map.m_pKZGameLayer)
+			{
+				if(!Map.m_pKZGameLayer->m_History.empty())
+				{
+					m_KZGameTileChanges = std::map(Map.m_pKZGameLayer->m_History);
+					Map.m_pKZGameLayer->ClearHistory();
+				}
+			}
+			else if(pLayer == Map.m_pKZFrontLayer)
+			{
+				if(!Map.m_pKZFrontLayer->m_History.empty())
+				{
+					m_KZFrontTileChanges = std::map(Map.m_pKZFrontLayer->m_History);
+					Map.m_pKZFrontLayer->ClearHistory();
+				}
+			}
 
 			if(!pLayerTiles->m_TilesHistory.empty())
 			{
@@ -105,6 +121,18 @@ void CEditorBrushDrawAction::SetInfos()
 		m_TotalTilesDrawn += TuneChange.second.size();
 	}
 
+	// Process KZ game tiles
+	for(auto const &KZGameChange : m_KZGameTileChanges)
+	{
+		m_TotalTilesDrawn += KZGameChange.second.size();
+	}
+
+	// Process KZ front tiles
+	for(auto const &KZFrontChange : m_KZFrontTileChanges)
+	{
+		m_TotalTilesDrawn += KZFrontChange.second.size();
+	}
+
 	m_TotalLayers += !m_SpeedupTileChanges.empty();
 	m_TotalLayers += !m_SwitchTileChanges.empty();
 	m_TotalLayers += !m_TeleTileChanges.empty();
@@ -113,7 +141,7 @@ void CEditorBrushDrawAction::SetInfos()
 
 bool CEditorBrushDrawAction::IsEmpty()
 {
-	return m_vTileChanges.empty() && m_SpeedupTileChanges.empty() && m_SwitchTileChanges.empty() && m_TeleTileChanges.empty() && m_TuneTileChanges.empty();
+	return m_vTileChanges.empty() && m_SpeedupTileChanges.empty() && m_SwitchTileChanges.empty() && m_TeleTileChanges.empty() && m_TuneTileChanges.empty() && m_KZGameTileChanges.empty() && m_KZFrontTileChanges.empty();
 }
 
 void CEditorBrushDrawAction::Undo()
@@ -227,6 +255,50 @@ void CEditorBrushDrawAction::Apply(bool Undo)
 			Map.m_pTuneLayer->m_pTuneTile[Index].m_Number = Data.m_Number;
 			Map.m_pTuneLayer->m_pTuneTile[Index].m_Type = Data.m_Type;
 			Map.m_pTuneLayer->m_pTiles[Index].m_Index = Data.m_Index;
+		}
+	}
+
+	// Process KZ game tiles
+	for(auto const &KZGameChange : m_KZGameTileChanges)
+	{
+		int y = KZGameChange.first;
+		auto Line = KZGameChange.second;
+		for(auto &Tile : Line)
+		{
+			int x = Tile.first;
+			int Index = y * Map.m_pKZGameLayer->m_Width + x;
+			SKZTileStateChange State = Tile.second;
+			SKZTileStateChange::SData Data = Undo ? State.m_Previous : State.m_Current;
+
+			Map.m_pKZGameLayer->m_pKZTile[Index].m_Number = Data.m_Number;
+			Map.m_pKZGameLayer->m_pKZTile[Index].m_Index = Data.m_Index;
+			Map.m_pKZGameLayer->m_pKZTile[Index].m_Flags = Data.m_Flags;
+			Map.m_pKZGameLayer->m_pKZTile[Index].m_Value1 = Data.m_Value1;
+			Map.m_pKZGameLayer->m_pKZTile[Index].m_Value2 = Data.m_Value2;
+			Map.m_pKZGameLayer->m_pKZTile[Index].m_Value3 = Data.m_Value3;
+			Map.m_pKZGameLayer->m_pTiles[Index].m_Index = Data.m_Index;
+		}
+	}
+
+	// Process KZ front tiles
+	for(auto const &KZFrontChange : m_KZFrontTileChanges)
+	{
+		int y = KZFrontChange.first;
+		auto Line = KZFrontChange.second;
+		for(auto &Tile : Line)
+		{
+			int x = Tile.first;
+			int Index = y * Map.m_pKZFrontLayer->m_Width + x;
+			SKZTileStateChange State = Tile.second;
+			SKZTileStateChange::SData Data = Undo ? State.m_Previous : State.m_Current;
+
+			Map.m_pKZFrontLayer->m_pKZTile[Index].m_Number = Data.m_Number;
+			Map.m_pKZFrontLayer->m_pKZTile[Index].m_Index = Data.m_Index;
+			Map.m_pKZFrontLayer->m_pKZTile[Index].m_Flags = Data.m_Flags;
+			Map.m_pKZFrontLayer->m_pKZTile[Index].m_Value1 = Data.m_Value1;
+			Map.m_pKZFrontLayer->m_pKZTile[Index].m_Value2 = Data.m_Value2;
+			Map.m_pKZFrontLayer->m_pKZTile[Index].m_Value3 = Data.m_Value3;
+			Map.m_pKZFrontLayer->m_pTiles[Index].m_Index = Data.m_Index;
 		}
 	}
 }
@@ -886,7 +958,7 @@ void CEditorActionEditLayerTilesProp::Undo()
 			pLayerTiles->Resize(m_Previous, pLayerTiles->m_Height);
 
 		RestoreLayer(LAYERTYPE_TILES, pLayerTiles);
-		if(pLayerTiles->m_HasGame || pLayerTiles->m_HasFront || pLayerTiles->m_HasSwitch || pLayerTiles->m_HasSpeedup || pLayerTiles->m_HasTune)
+		if(pLayerTiles->m_HasGame || pLayerTiles->m_HasFront || pLayerTiles->m_HasSwitch || pLayerTiles->m_HasSpeedup || pLayerTiles->m_HasTune || pLayerTiles->m_HasKZGame || pLayerTiles->m_HasKZFront)
 		{
 			if(m_pEditor->m_Map.m_pFrontLayer && !pLayerTiles->m_HasFront)
 				RestoreLayer(LAYERTYPE_FRONT, m_pEditor->m_Map.m_pFrontLayer);
@@ -900,6 +972,10 @@ void CEditorActionEditLayerTilesProp::Undo()
 				RestoreLayer(LAYERTYPE_TUNE, m_pEditor->m_Map.m_pTuneLayer);
 			if(!pLayerTiles->m_HasGame)
 				RestoreLayer(LAYERTYPE_GAME, m_pEditor->m_Map.m_pGameLayer);
+			if(m_pEditor->m_Map.m_pKZGameLayer && !pLayerTiles->m_HasKZGame)
+				RestoreLayer(KZ_LAYERTYPE_GAME, m_pEditor->m_Map.m_pKZGameLayer);
+			if(m_pEditor->m_Map.m_pKZFrontLayer && !pLayerTiles->m_HasKZFront)
+				RestoreLayer(KZ_LAYERTYPE_FRONT, m_pEditor->m_Map.m_pKZFrontLayer);
 		}
 	}
 	else if(m_Prop == ETilesProp::PROP_SHIFT)
@@ -970,7 +1046,7 @@ void CEditorActionEditLayerTilesProp::Redo()
 		else if(m_Prop == ETilesProp::PROP_WIDTH)
 			pLayerTiles->Resize(m_Current, pLayerTiles->m_Height);
 
-		if(pLayerTiles->m_HasGame || pLayerTiles->m_HasFront || pLayerTiles->m_HasSwitch || pLayerTiles->m_HasSpeedup || pLayerTiles->m_HasTune)
+		if(pLayerTiles->m_HasGame || pLayerTiles->m_HasFront || pLayerTiles->m_HasSwitch || pLayerTiles->m_HasSpeedup || pLayerTiles->m_HasTune || pLayerTiles->m_HasKZGame || pLayerTiles->m_HasKZFront)
 		{
 			if(m_pEditor->m_Map.m_pFrontLayer && !pLayerTiles->m_HasFront)
 				m_pEditor->m_Map.m_pFrontLayer->Resize(pLayerTiles->m_Width, pLayerTiles->m_Height);
@@ -984,6 +1060,10 @@ void CEditorActionEditLayerTilesProp::Redo()
 				m_pEditor->m_Map.m_pTuneLayer->Resize(pLayerTiles->m_Width, pLayerTiles->m_Height);
 			if(!pLayerTiles->m_HasGame)
 				m_pEditor->m_Map.m_pGameLayer->Resize(pLayerTiles->m_Width, pLayerTiles->m_Height);
+			if(m_pEditor->m_Map.m_pKZGameLayer && !pLayerTiles->m_HasKZGame)
+				m_pEditor->m_Map.m_pKZGameLayer->Resize(pLayerTiles->m_Width, pLayerTiles->m_Height);
+			if(m_pEditor->m_Map.m_pKZFrontLayer && !pLayerTiles->m_HasKZFront)
+				m_pEditor->m_Map.m_pKZFrontLayer->Resize(pLayerTiles->m_Width, pLayerTiles->m_Height);
 		}
 	}
 	else if(m_Prop == ETilesProp::PROP_SHIFT)
@@ -1073,6 +1153,18 @@ void CEditorActionEditLayerTilesProp::RestoreLayer(int Layer, const std::shared_
 			std::shared_ptr<CLayerTune> pLayerTune = std::static_pointer_cast<CLayerTune>(pLayerTiles);
 			std::shared_ptr<CLayerTune> pSavedLayerTune = std::static_pointer_cast<CLayerTune>(pSavedLayerTiles);
 			mem_copy(pLayerTune->m_pTuneTile, pSavedLayerTune->m_pTuneTile, (size_t)pLayerTiles->m_Width * pLayerTiles->m_Height * sizeof(CTuneTile));
+		}
+		else if(pLayerTiles->m_HasKZGame)
+		{
+			std::shared_ptr<CLayerKZGame> pLayerKZGame = std::static_pointer_cast<CLayerKZGame>(pLayerTiles);
+			std::shared_ptr<CLayerKZGame> pSavedLayerKZGame = std::static_pointer_cast<CLayerKZGame>(pSavedLayerTiles);
+			mem_copy(pLayerKZGame->m_pKZTile, pSavedLayerKZGame->m_pKZTile, (size_t)pLayerTiles->m_Width * pLayerTiles->m_Height * sizeof(CKZTile));
+		}
+		else if(pLayerTiles->m_HasKZFront)
+		{
+			std::shared_ptr<CLayerKZFront> pLayerKZFront = std::static_pointer_cast<CLayerKZFront>(pLayerTiles);
+			std::shared_ptr<CLayerKZFront> pSavedLayerKZFront = std::static_pointer_cast<CLayerKZFront>(pSavedLayerTiles);
+			mem_copy(pLayerKZFront->m_pKZTile, pSavedLayerKZFront->m_pKZTile, (size_t)pLayerTiles->m_Width * pLayerTiles->m_Height * sizeof(CKZTile));
 		}
 	}
 }

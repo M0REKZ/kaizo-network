@@ -175,10 +175,11 @@ public:
 
 class CCharacterCore
 {
+public: // KZ
 	CWorldCore *m_pWorld = nullptr;
 	CCollision *m_pCollision;
 
-public:
+//public: // KZ
 	static constexpr float PhysicalSize() { return 28.0f; };
 	static constexpr vec2 PhysicalSizeVec2() { return vec2(28.0f, 28.0f); };
 	vec2 m_Pos;
@@ -268,11 +269,13 @@ public:
 	bool m_LiveFrozen;
 	CTuningParams m_Tuning;
 
-private:
+//private: // KZ
 	CTeamsCore *m_pTeams;
 	int m_MoveRestrictions;
 	int m_HookedPlayer;
 	static bool IsSwitchActiveCb(int Number, void *pUser);
+
+	bool m_SendCoreThisTick = false;
 };
 
 // input count

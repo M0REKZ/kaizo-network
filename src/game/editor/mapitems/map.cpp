@@ -117,6 +117,8 @@ void CEditorMap::Clean()
 	m_pFrontLayer = nullptr;
 	m_pSwitchLayer = nullptr;
 	m_pTuneLayer = nullptr;
+	m_pKZGameLayer = nullptr;
+	m_pKZFrontLayer = nullptr;
 }
 
 void CEditorMap::CreateDefault(IGraphics::CTextureHandle EntitiesTexture)
@@ -145,6 +147,8 @@ void CEditorMap::CreateDefault(IGraphics::CTextureHandle EntitiesTexture)
 	m_pSpeedupLayer = nullptr;
 	m_pSwitchLayer = nullptr;
 	m_pTuneLayer = nullptr;
+	m_pKZGameLayer = nullptr;
+	m_pKZFrontLayer = nullptr;
 }
 
 void CEditorMap::MakeTeleLayer(const std::shared_ptr<CLayer> &pLayer)
@@ -175,4 +179,16 @@ void CEditorMap::MakeTuneLayer(const std::shared_ptr<CLayer> &pLayer)
 {
 	m_pTuneLayer = std::static_pointer_cast<CLayerTune>(pLayer);
 	m_pTuneLayer->m_pEditor = m_pEditor;
+}
+
+void CEditorMap::MakeKZGameLayer(const std::shared_ptr<CLayer> &pLayer)
+{
+	m_pKZGameLayer = std::static_pointer_cast<CLayerKZGame>(pLayer);
+	m_pKZGameLayer->m_pEditor = m_pEditor;
+}
+
+void CEditorMap::MakeKZFrontLayer(const std::shared_ptr<CLayer> &pLayer)
+{
+	m_pKZFrontLayer = std::static_pointer_cast<CLayerKZFront>(pLayer);
+	m_pKZFrontLayer->m_pEditor = m_pEditor;
 }

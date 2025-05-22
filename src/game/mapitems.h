@@ -4,6 +4,7 @@
 #define GAME_MAPITEMS_H
 
 #include <base/vmath.h>
+#include <game/mapitems_kz.h>
 
 // layer types
 enum
@@ -19,6 +20,8 @@ enum
 	LAYERTYPE_TUNE,
 	LAYERTYPE_SOUNDS_DEPRECATED, // deprecated! do not use this, this is just for compatibility reasons
 	LAYERTYPE_SOUNDS,
+	KZ_LAYERTYPE_GAME, // KZ
+	KZ_LAYERTYPE_FRONT, // KZ
 
 	MAPITEMTYPE_VERSION = 0,
 	MAPITEMTYPE_INFO,

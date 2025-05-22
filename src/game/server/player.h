@@ -235,6 +235,10 @@ public:
 	int m_RescueMode;
 
 	CSaveTee m_LastTeleTee;
+
+	// KZ
+
+	bool m_SentKZWelcomeMsg = false;
 };
 
 #endif

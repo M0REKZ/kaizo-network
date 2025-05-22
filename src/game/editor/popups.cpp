@@ -599,6 +599,31 @@ CUi::EPopupMenuFunctionResult CEditor::PopupGroup(void *pContext, CUIRect View, 
 		}
 	}
 
+	if(pEditor->GetSelectedGroup()->m_GameGroup && !pEditor->m_Map.m_pKZGameLayer)
+	{
+		// new KZ Game layer
+		View.HSplitBottom(5.0f, &View, nullptr);
+		View.HSplitBottom(12.0f, &View, &Button);
+		if(pEditor->DoButton_Editor(&pEditor->m_QuickActionAddKZGameLayer, pEditor->m_QuickActionAddKZGameLayer.Label(), 0, &Button, BUTTONFLAG_LEFT, pEditor->m_QuickActionAddKZGameLayer.Description()))
+		{
+			printf("Adding KZ game layer\n");
+			pEditor->m_QuickActionAddKZGameLayer.Call();
+			return CUi::POPUP_CLOSE_CURRENT;
+		}
+	}
+	
+	if(pEditor->GetSelectedGroup()->m_GameGroup && !pEditor->m_Map.m_pKZFrontLayer)
+	{
+		// new KZ Front layer
+		View.HSplitBottom(5.0f, &View, nullptr);
+		View.HSplitBottom(12.0f, &View, &Button);
+		if(pEditor->DoButton_Editor(&pEditor->m_QuickActionAddKZFrontLayer, pEditor->m_QuickActionAddKZFrontLayer.Label(), 0, &Button, BUTTONFLAG_LEFT, pEditor->m_QuickActionAddKZFrontLayer.Description()))
+		{
+			pEditor->m_QuickActionAddKZFrontLayer.Call();
+			return CUi::POPUP_CLOSE_CURRENT;
+		}
+	}
+
 	// new quad layer
 	View.HSplitBottom(5.0f, &View, nullptr);
 	View.HSplitBottom(12.0f, &View, &Button);
@@ -3262,6 +3287,98 @@ CUi::EPopupMenuFunctionResult CEditor::PopupQuadArt(void *pContext, CUIRect View
 			pEditor->AddQuadArt();
 		}
 		return CUi::POPUP_CLOSE_CURRENT;
+	}
+
+	return CUi::POPUP_KEEP_OPEN;
+}
+
+// KZ
+
+CUi::EPopupMenuFunctionResult CEditor::PopupKZGame(void *pContext, CUIRect View, bool Active)
+{
+	CEditor *pEditor = static_cast<CEditor *>(pContext);
+
+	enum
+	{
+		PROP_NUMBER = 0,
+		PROP_VALUE1,
+		PROP_VALUE2,
+		PROP_VALUE3,
+		NUM_PROPS
+	};
+
+	CProperty aProps[] = {
+		{"Number", pEditor->m_KZGameNumber, PROPTYPE_INT, 1, std::numeric_limits<unsigned char>::max()},
+		{"Value1", pEditor->m_KZGameValue1, PROPTYPE_INT, std::numeric_limits<long long>::min(), std::numeric_limits<long long>::max()},
+		{"Value2", pEditor->m_KZGameValue2, PROPTYPE_INT, std::numeric_limits<long long>::min(), std::numeric_limits<long long>::max()},
+		{"Value3", pEditor->m_KZGameValue3, PROPTYPE_INT, std::numeric_limits<long long>::min(), std::numeric_limits<long long>::max()},
+		{nullptr},
+	};
+
+	static int s_aIds[NUM_PROPS] = {0};
+	long long NewVal = 0;
+	int Prop = pEditor->DoPropertiesWithStateLongLong(&View, aProps, s_aIds, &NewVal).m_Value;
+
+	if(Prop == PROP_NUMBER)
+	{
+		pEditor->m_KZGameNumber = clamp(NewVal, (long long)1, (long long)std::numeric_limits<unsigned char>::max());
+	}
+	else if(Prop == PROP_VALUE1)
+	{
+		pEditor->m_KZGameValue1 = clamp(NewVal, std::numeric_limits<long long>::min(), std::numeric_limits<long long>::max());
+	}
+	else if(Prop == PROP_VALUE2)
+	{
+		pEditor->m_KZGameValue2 = clamp(NewVal, std::numeric_limits<long long>::min(), std::numeric_limits<long long>::max());
+	}
+	else if(Prop == PROP_VALUE3)
+	{
+		pEditor->m_KZGameValue3 = clamp(NewVal, std::numeric_limits<long long>::min(), std::numeric_limits<long long>::max());
+	}
+
+	return CUi::POPUP_KEEP_OPEN;
+}
+
+CUi::EPopupMenuFunctionResult CEditor::PopupKZFront(void *pContext, CUIRect View, bool Active)
+{
+	CEditor *pEditor = static_cast<CEditor *>(pContext);
+
+	enum
+	{
+		PROP_NUMBER = 0,
+		PROP_VALUE1,
+		PROP_VALUE2,
+		PROP_VALUE3,
+		NUM_PROPS
+	};
+
+	CProperty aProps[] = {
+		{"Number", pEditor->m_KZFrontNumber, PROPTYPE_INT, 1, std::numeric_limits<unsigned char>::max()},
+		{"Value1", pEditor->m_KZFrontValue1, PROPTYPE_INT, std::numeric_limits<long long>::min(), std::numeric_limits<long long>::max()},
+		{"Value2", pEditor->m_KZFrontValue2, PROPTYPE_INT, std::numeric_limits<long long>::min(), std::numeric_limits<long long>::max()},
+		{"Value3", pEditor->m_KZFrontValue3, PROPTYPE_INT, std::numeric_limits<long long>::min(), std::numeric_limits<long long>::max()},
+		{nullptr},
+	};
+
+	static int s_aIds[NUM_PROPS] = {0};
+	long long NewVal = 0;
+	int Prop = pEditor->DoPropertiesWithStateLongLong(&View, aProps, s_aIds, &NewVal).m_Value;
+
+	if(Prop == PROP_NUMBER)
+	{
+		pEditor->m_KZFrontNumber = clamp(NewVal, (long long)1, (long long)std::numeric_limits<unsigned char>::max());
+	}
+	else if(Prop == PROP_VALUE1)
+	{
+		pEditor->m_KZFrontValue1 = clamp(NewVal, std::numeric_limits<long long>::min(), std::numeric_limits<long long>::max());
+	}
+	else if(Prop == PROP_VALUE2)
+	{
+		pEditor->m_KZFrontValue2 = clamp(NewVal, std::numeric_limits<long long>::min(), std::numeric_limits<long long>::max());
+	}
+	else if(Prop == PROP_VALUE3)
+	{
+		pEditor->m_KZFrontValue3 = clamp(NewVal, std::numeric_limits<long long>::min(), std::numeric_limits<long long>::max());
 	}
 
 	return CUi::POPUP_KEEP_OPEN;

@@ -215,9 +215,9 @@ void CCharacter::SetDeepFrozen(bool Active)
 
 bool CCharacter::IsGrounded()
 {
-	if(Collision()->CheckPoint(m_Pos.x + GetProximityRadius() / 2, m_Pos.y + GetProximityRadius() / 2 + 5))
+	if(Collision()->CheckPoint(m_Pos.x + GetProximityRadius() / 2, m_Pos.y + GetProximityRadius() / 2 + 5), &m_Core) // KZ added m_Core
 		return true;
-	if(Collision()->CheckPoint(m_Pos.x - GetProximityRadius() / 2, m_Pos.y + GetProximityRadius() / 2 + 5))
+	if(Collision()->CheckPoint(m_Pos.x - GetProximityRadius() / 2, m_Pos.y + GetProximityRadius() / 2 + 5), &m_Core) // KZ added m_Core
 		return true;
 
 	int MoveRestrictionsBelow = Collision()->GetMoveRestrictions(m_Pos + vec2(0, GetProximityRadius() / 2 + 4), 0.0f);
@@ -305,7 +305,7 @@ void CCharacter::HandleNinja()
 			GetTuning(m_TuneZone)->m_GroundElasticityX,
 			GetTuning(m_TuneZone)->m_GroundElasticityY);
 
-		Collision()->MoveBox(&m_Core.m_Pos, &m_Core.m_Vel, vec2(GetProximityRadius(), GetProximityRadius()), GroundElasticity);
+		Collision()->MoveBox(&m_Core.m_Pos, &m_Core.m_Vel, vec2(GetProximityRadius(), GetProximityRadius()), GroundElasticity, nullptr, &m_Core); // KZ added m_Core
 
 		// reset velocity so the client doesn't predict stuff
 		ResetVelocity();
@@ -905,7 +905,7 @@ void CCharacter::TickDeferred()
 		m_Core.Write(&Current);
 
 		// only allow dead reckoning for a top of 3 seconds
-		if(m_Core.m_Reset || m_ReckoningTick + Server()->TickSpeed() * 3 < Server()->Tick() || mem_comp(&Predicted, &Current, sizeof(CNetObj_Character)) != 0)
+		if(m_Core.m_SendCoreThisTick || m_Core.m_Reset || m_ReckoningTick + Server()->TickSpeed() * 3 < Server()->Tick() || mem_comp(&Predicted, &Current, sizeof(CNetObj_Character)) != 0)
 		{
 			m_ReckoningTick = Server()->Tick();
 			m_SendCore = m_Core;
@@ -2274,6 +2274,8 @@ void CCharacter::DDRacePostCoreTick()
 			return;
 	}
 
+	HandleKZTiles();
+
 	// teleport gun
 	if(m_TeleGunTeleport)
 	{
@@ -2539,4 +2541,13 @@ void CCharacter::SwapClients(int Client1, int Client2)
 {
 	const int HookedPlayer = m_Core.HookedPlayer();
 	m_Core.SetHookedPlayer(HookedPlayer == Client1 ? Client2 : HookedPlayer == Client2 ? Client1 : HookedPlayer);
+}
+
+void CCharacter::HandleKZTiles()
+{
+	CKZTile *pKZTile = Collision()->GetKZGameTile(m_Pos);
+	CKZTile *pKZTileFront = Collision()->GetKZFrontTile(m_Pos);
+
+	if(!pKZTile && !pKZTileFront)
+		return;
 }

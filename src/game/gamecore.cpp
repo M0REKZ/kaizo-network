@@ -194,7 +194,7 @@ void CCharacterCore::Tick(bool UseInput, bool DoDeferredTick)
 	m_TriggeredEvents = 0;
 
 	// get ground state
-	const bool Grounded = m_pCollision->CheckPoint(m_Pos.x + PhysicalSize() / 2, m_Pos.y + PhysicalSize() / 2 + 5) || m_pCollision->CheckPoint(m_Pos.x - PhysicalSize() / 2, m_Pos.y + PhysicalSize() / 2 + 5);
+	const bool Grounded = m_pCollision->CheckPoint(m_Pos.x + PhysicalSize() / 2, m_Pos.y + PhysicalSize() / 2 + 5,this) || m_pCollision->CheckPoint(m_Pos.x - PhysicalSize() / 2, m_Pos.y + PhysicalSize() / 2 + 5,this);
 	vec2 TargetDirection = normalize(vec2(m_Input.m_TargetX, m_Input.m_TargetY));
 
 	m_Vel.y += m_Tuning.m_Gravity;
@@ -331,7 +331,7 @@ void CCharacterCore::Tick(bool UseInput, bool DoDeferredTick)
 		bool GoingToRetract = false;
 		bool GoingThroughTele = false;
 		int teleNr = 0;
-		int Hit = m_pCollision->IntersectLineTeleHook(m_HookPos, NewPos, &NewPos, nullptr, &teleNr);
+		int Hit = m_pCollision->IntersectLineTeleHook(m_HookPos, NewPos, &NewPos, nullptr, &teleNr, this);
 
 		if(Hit)
 		{
@@ -541,7 +541,7 @@ void CCharacterCore::Move()
 	m_pCollision->MoveBox(&NewPos, &m_Vel, PhysicalSizeVec2(),
 		vec2(m_Tuning.m_GroundElasticityX,
 			m_Tuning.m_GroundElasticityY),
-		&Grounded);
+		&Grounded,this);
 
 	if(Grounded)
 	{

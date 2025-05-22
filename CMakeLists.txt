@@ -1423,6 +1423,8 @@ set(EXPECTED_DATA
   editor/entities_clear/fng.png
   editor/entities_clear/race.png
   editor/entities_clear/vanilla.png
+  editor/KZ_gamelayer.png
+  editor/KZ_frontlayer.png
   editor/front.png
   editor/speed_arrow.png
   editor/speed_arrow_array.png
@@ -2142,6 +2144,7 @@ set_src(GAME_SHARED GLOB src/game
   alloc.h
   collision.cpp
   collision.h
+  collision_kz.cpp
   gamecore.cpp
   gamecore.h
   layers.cpp
@@ -2156,6 +2159,7 @@ set_src(GAME_SHARED GLOB src/game
   mapitems_ex.cpp
   mapitems_ex.h
   mapitems_ex_types.h
+  mapitems_kz.h
   prng.cpp
   prng.h
   teamscore.cpp
@@ -2485,6 +2489,9 @@ if(CLIENT)
     mapitems/layer_group.h
     mapitems/layer_quads.cpp
     mapitems/layer_quads.h
+    mapitems/layer_kz.cpp
+    mapitems/layer_kzf.cpp
+    mapitems/layer_kz.h
     mapitems/layer_sounds.cpp
     mapitems/layer_sounds.h
     mapitems/layer_speedup.cpp
@@ -2743,6 +2750,8 @@ if(SERVER)
     gamemodes/DDRace.h
     gamemodes/mod.cpp
     gamemodes/mod.h
+    gamemodes/kz/kz.cpp
+    gamemodes/kz/kz.h
     gameworld.cpp
     gameworld.h
     player.cpp

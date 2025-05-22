@@ -116,11 +116,19 @@ void CProjectile::Tick()
 	vec2 CurPos = GetPos(Ct);
 	vec2 ColPos;
 	vec2 NewPos;
-	int Collide = GameServer()->Collision()->IntersectLine(PrevPos, CurPos, &ColPos, &NewPos);
+	//int Collide = GameServer()->Collision()->IntersectLine(PrevPos, CurPos, &ColPos, &NewPos); // KZ
 	CCharacter *pOwnerChar = nullptr;
+	CCharacterCore *pOwnerCore = nullptr; // KZ
 
 	if(m_Owner >= 0)
 		pOwnerChar = GameServer()->GetPlayerChar(m_Owner);
+
+	if(pOwnerChar) // KZ
+	{
+		pOwnerCore = (CCharacterCore *)pOwnerChar->Core();
+	}
+
+	int Collide = GameServer()->Collision()->IntersectLine(PrevPos, CurPos, &ColPos, &NewPos, pOwnerCore); // KZ	
 
 	CCharacter *pTargetChr = nullptr;
 

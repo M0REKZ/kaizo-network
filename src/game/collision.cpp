@@ -14,6 +14,7 @@
 #include <game/mapitems.h>
 
 #include <engine/shared/config.h>
+#include "collision.h"
 
 vec2 ClampVel(int MoveRestriction, vec2 Vel)
 {
@@ -55,6 +56,24 @@ void CCollision::Init(class CLayers *pLayers)
 	m_Width = m_pLayers->GameLayer()->m_Width;
 	m_Height = m_pLayers->GameLayer()->m_Height;
 	m_pTiles = static_cast<CTile *>(m_pLayers->Map()->GetData(m_pLayers->GameLayer()->m_Data));
+
+	if(m_pLayers->KZGameLayer())
+	{
+		unsigned int Size = m_pLayers->Map()->GetDataSize(m_pLayers->KZGameLayer()->m_Data);
+		m_KZGameWidth = m_pLayers->KZGameLayer()->m_Width;
+		m_KZGameHeight = m_pLayers->KZGameLayer()->m_Height;
+		if(Size >= (size_t)m_KZGameWidth * m_KZGameHeight * sizeof(CKZTile))
+			m_pKZGame = static_cast<CKZTile *>(m_pLayers->Map()->GetData(m_pLayers->KZGameLayer()->m_Data));
+	}
+
+	if(m_pLayers->KZFrontLayer())
+	{
+		unsigned int Size = m_pLayers->Map()->GetDataSize(m_pLayers->KZFrontLayer()->m_Data);
+		m_KZFrontWidth = m_pLayers->KZFrontLayer()->m_Width;
+		m_KZFrontHeight = m_pLayers->KZFrontLayer()->m_Height;
+		if(Size >= (size_t)m_KZFrontWidth * m_KZFrontHeight * sizeof(CKZTile))
+			m_pKZFront = static_cast<CKZTile *>(m_pLayers->Map()->GetData(m_pLayers->KZFrontLayer()->m_Data));
+	}
 
 	if(m_pLayers->TeleLayer())
 	{
@@ -169,6 +188,14 @@ void CCollision::Unload()
 	m_pTune = nullptr;
 	delete[] m_pDoor;
 	m_pDoor = nullptr;
+
+	//KZ
+	m_pKZFront = nullptr;
+	m_pKZGame = nullptr;
+	m_KZGameWidth = 0;
+	m_KZGameHeight = 0;
+	m_KZFrontWidth = 0;
+	m_KZFrontHeight = 0;
 }
 
 void CCollision::FillAntibot(CAntibotMapData *pMapData) const
@@ -326,7 +353,7 @@ int CCollision::GetTile(int x, int y) const
 }
 
 // TODO: rewrite this smarter!
-int CCollision::IntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision) const
+int CCollision::IntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, CCharacterCore *pCore, bool IsHook, bool IsWeapon) const
 {
 	float Distance = distance(Pos0, Pos1);
 	int End(Distance + 1);
@@ -339,13 +366,13 @@ int CCollision::IntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *p
 		int ix = round_to_int(Pos.x);
 		int iy = round_to_int(Pos.y);
 
-		if(CheckPoint(ix, iy))
+		if(CheckPoint(ix, iy, pCore, IsHook, IsWeapon))
 		{
 			if(pOutCollision)
 				*pOutCollision = Pos;
 			if(pOutBeforeCollision)
 				*pOutBeforeCollision = Last;
-			return GetCollisionAt(ix, iy);
+			return GetCollisionAt(ix, iy, pCore, IsHook, IsWeapon);
 		}
 
 		Last = Pos;
@@ -357,7 +384,7 @@ int CCollision::IntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *p
 	return 0;
 }
 
-int CCollision::IntersectLineTeleHook(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, int *pTeleNr) const
+int CCollision::IntersectLineTeleHook(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, int *pTeleNr, CCharacterCore *pCore) const
 {
 	float Distance = distance(Pos0, Pos1);
 	int End(Distance + 1);
@@ -390,10 +417,10 @@ int CCollision::IntersectLineTeleHook(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision,
 		}
 
 		int hit = 0;
-		if(CheckPoint(ix, iy))
+		if(CheckPoint(ix, iy, pCore, true))
 		{
 			if(!IsThrough(ix, iy, dx, dy, Pos0, Pos1))
-				hit = GetCollisionAt(ix, iy);
+				hit = GetCollisionAt(ix, iy, pCore, true);
 		}
 		else if(IsHookBlocker(ix, iy, Pos0, Pos1))
 		{
@@ -417,7 +444,7 @@ int CCollision::IntersectLineTeleHook(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision,
 	return 0;
 }
 
-int CCollision::IntersectLineTeleWeapon(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, int *pTeleNr) const
+int CCollision::IntersectLineTeleWeapon(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, int *pTeleNr, CCharacterCore *pCore) const
 {
 	float Distance = distance(Pos0, Pos1);
 	int End(Distance + 1);
@@ -447,13 +474,13 @@ int CCollision::IntersectLineTeleWeapon(vec2 Pos0, vec2 Pos1, vec2 *pOutCollisio
 			return TILE_TELEINWEAPON;
 		}
 
-		if(CheckPoint(ix, iy))
+		if(CheckPoint(ix, iy, pCore, false, true))
 		{
 			if(pOutCollision)
 				*pOutCollision = Pos;
 			if(pOutBeforeCollision)
 				*pOutBeforeCollision = Last;
-			return GetCollisionAt(ix, iy);
+			return GetCollisionAt(ix, iy, pCore, false, true);
 		}
 
 		Last = Pos;
@@ -466,17 +493,17 @@ int CCollision::IntersectLineTeleWeapon(vec2 Pos0, vec2 Pos1, vec2 *pOutCollisio
 }
 
 // TODO: OPT: rewrite this smarter!
-void CCollision::MovePoint(vec2 *pInoutPos, vec2 *pInoutVel, float Elasticity, int *pBounces) const
+void CCollision::MovePoint(vec2 *pInoutPos, vec2 *pInoutVel, float Elasticity, int *pBounces, CCharacterCore *pCore) const
 {
 	if(pBounces)
 		*pBounces = 0;
 
 	vec2 Pos = *pInoutPos;
 	vec2 Vel = *pInoutVel;
-	if(CheckPoint(Pos + Vel))
+	if(CheckPoint(Pos + Vel, pCore))
 	{
 		int Affected = 0;
-		if(CheckPoint(Pos.x + Vel.x, Pos.y))
+		if(CheckPoint(Pos.x + Vel.x, Pos.y, pCore))
 		{
 			pInoutVel->x *= -Elasticity;
 			if(pBounces)
@@ -484,7 +511,7 @@ void CCollision::MovePoint(vec2 *pInoutPos, vec2 *pInoutVel, float Elasticity, i
 			Affected++;
 		}
 
-		if(CheckPoint(Pos.x, Pos.y + Vel.y))
+		if(CheckPoint(Pos.x, Pos.y + Vel.y, pCore))
 		{
 			pInoutVel->y *= -Elasticity;
 			if(pBounces)
@@ -504,21 +531,21 @@ void CCollision::MovePoint(vec2 *pInoutPos, vec2 *pInoutVel, float Elasticity, i
 	}
 }
 
-bool CCollision::TestBox(vec2 Pos, vec2 Size) const
+bool CCollision::TestBox(vec2 Pos, vec2 Size, CCharacterCore *pCore) const
 {
 	Size *= 0.5f;
-	if(CheckPoint(Pos.x - Size.x, Pos.y - Size.y))
+	if(CheckPoint(Pos.x - Size.x, Pos.y - Size.y, pCore))
 		return true;
-	if(CheckPoint(Pos.x + Size.x, Pos.y - Size.y))
+	if(CheckPoint(Pos.x + Size.x, Pos.y - Size.y, pCore))
 		return true;
-	if(CheckPoint(Pos.x - Size.x, Pos.y + Size.y))
+	if(CheckPoint(Pos.x - Size.x, Pos.y + Size.y, pCore))
 		return true;
-	if(CheckPoint(Pos.x + Size.x, Pos.y + Size.y))
+	if(CheckPoint(Pos.x + Size.x, Pos.y + Size.y, pCore))
 		return true;
 	return false;
 }
 
-void CCollision::MoveBox(vec2 *pInoutPos, vec2 *pInoutVel, vec2 Size, vec2 Elasticity, bool *pGrounded) const
+void CCollision::MoveBox(vec2 *pInoutPos, vec2 *pInoutVel, vec2 Size, vec2 Elasticity, bool *pGrounded, CCharacterCore *pCore) const
 {
 	// do the move
 	vec2 Pos = *pInoutPos;
@@ -552,11 +579,11 @@ void CCollision::MoveBox(vec2 *pInoutPos, vec2 *pInoutVel, vec2 Size, vec2 Elast
 				break;
 			}
 
-			if(TestBox(vec2(NewPos.x, NewPos.y), Size))
+			if(TestBox(vec2(NewPos.x, NewPos.y), Size, pCore))
 			{
 				int Hits = 0;
 
-				if(TestBox(vec2(Pos.x, NewPos.y), Size))
+				if(TestBox(vec2(Pos.x, NewPos.y), Size, pCore))
 				{
 					if(pGrounded && ElasticityY > 0 && Vel.y > 0)
 						*pGrounded = true;
@@ -565,7 +592,7 @@ void CCollision::MoveBox(vec2 *pInoutPos, vec2 *pInoutVel, vec2 Size, vec2 Elast
 					Hits++;
 				}
 
-				if(TestBox(vec2(NewPos.x, Pos.y), Size))
+				if(TestBox(vec2(NewPos.x, Pos.y), Size, pCore))
 				{
 					NewPos.x = Pos.x;
 					Vel.x *= -ElasticityX;

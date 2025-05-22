@@ -188,6 +188,10 @@ public:
 	bool m_HasTune;
 	char m_aFileName[IO_MAX_PATH_LENGTH];
 
+	// KZ
+	bool m_HasKZGame;
+	bool m_HasKZFront;
+
 	EditorTileStateChangeHistory<STileStateChange> m_TilesHistory;
 	inline virtual void ClearHistory() { m_TilesHistory.clear(); }
 

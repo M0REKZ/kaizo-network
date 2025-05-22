@@ -1,0 +1,30 @@
+// (c) +KZ
+
+#ifndef GAME_SERVER_GAMEMODES_KZ_KZ_H
+#define GAME_SERVER_GAMEMODES_KZ_KZ_H
+
+#include <game/server/gamemodes/DDRace.h>
+
+class CGameControllerKZ : public CGameControllerDDRace
+{
+public:
+	CGameControllerKZ(class CGameContext *pGameServer);
+	~CGameControllerKZ();
+
+	CScore *Score();
+
+	void HandleCharacterTiles(class CCharacter *pChr, int MapIndex) override;
+	void SetArmorProgress(CCharacter *pCharacter, int Progress) override;
+
+	void OnPlayerConnect(class CPlayer *pPlayer) override;
+	void OnPlayerDisconnect(class CPlayer *pPlayer, const char *pReason) override;
+
+	void OnCharacterSpawn(class CCharacter *pChr) override;
+
+	void OnReset() override;
+
+	void Tick() override;
+
+	void DoTeamChange(class CPlayer *pPlayer, int Team, bool DoChatMsg = true) override;
+};
+#endif // GAME_SERVER_GAMEMODES_DDRACE_H

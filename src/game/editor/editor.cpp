@@ -298,7 +298,7 @@ void CEditor::RenderBackground(CUIRect View, IGraphics::CTextureHandle Texture, 
 	Graphics()->QuadsEnd();
 }
 
-SEditResult<int> CEditor::UiDoValueSelector(void *pId, CUIRect *pRect, const char *pLabel, int Current, int Min, int Max, int Step, float Scale, const char *pToolTip, bool IsDegree, bool IsHex, int Corners, const ColorRGBA *pColor, bool ShowValue)
+SEditResult<long long> CEditor::UiDoValueSelector(void *pId, CUIRect *pRect, const char *pLabel, long long Current, long long Min, long long Max, int Step, float Scale, const char *pToolTip, bool IsDegree, bool IsHex, int Corners, const ColorRGBA *pColor, bool ShowValue)
 {
 	// logic
 	static bool s_DidScroll = false;
@@ -320,7 +320,7 @@ SEditResult<int> CEditor::UiDoValueSelector(void *pId, CUIRect *pRect, const cha
 		if(Inside && ((s_ButtonUsed == 0 && !s_DidScroll && Ui()->DoDoubleClickLogic(pId)) || s_ButtonUsed == 1))
 		{
 			s_pLastTextId = pId;
-			s_NumberInput.SetInteger(Current, Base);
+			s_NumberInput.SetInteger64(Current, Base);
 			s_NumberInput.SelectAll();
 		}
 		s_ButtonUsed = -1;
@@ -334,7 +334,7 @@ SEditResult<int> CEditor::UiDoValueSelector(void *pId, CUIRect *pRect, const cha
 
 		if(Ui()->ConsumeHotkey(CUi::HOTKEY_ENTER) || ((Ui()->MouseButtonClicked(1) || Ui()->MouseButtonClicked(0)) && !Inside))
 		{
-			Current = clamp(s_NumberInput.GetInteger(Base), Min, Max);
+			Current = clamp(s_NumberInput.GetInteger64(Base), Min, Max);
 			Ui()->DisableMouseLock();
 			Ui()->SetActiveItem(nullptr);
 			s_pLastTextId = nullptr;
@@ -433,7 +433,7 @@ SEditResult<int> CEditor::UiDoValueSelector(void *pId, CUIRect *pRect, const cha
 		s_pEditing = nullptr;
 	}
 
-	return SEditResult<int>{State, Current};
+	return SEditResult<long long>{State, Current};
 }
 
 std::shared_ptr<CLayerGroup> CEditor::GetSelectedGroup() const
@@ -1359,6 +1359,18 @@ void CEditor::DoToolbarLayers(CUIRect ToolBar)
 						pfnPopupFunc = PopupTele;
 						Rows = 3;
 						ExtraWidth = 50;
+					}
+					else if(pS == m_Map.m_pKZGameLayer)
+					{
+						pButtonName = "KZ Values";
+						pfnPopupFunc = PopupKZGame;
+						Rows = 4;
+					}
+					else if(pS == m_Map.m_pKZFrontLayer)
+					{
+						pButtonName = "KZ Front Values";
+						pfnPopupFunc = PopupKZFront;
+						Rows = 4;
 					}
 
 					if(pButtonName != nullptr)
@@ -3146,6 +3158,8 @@ void CEditor::DoMapEditor(CUIRect View)
 			m_pTilesetPicker->m_HasFront = pTileLayer->m_HasFront;
 			m_pTilesetPicker->m_HasSwitch = pTileLayer->m_HasSwitch;
 			m_pTilesetPicker->m_HasTune = pTileLayer->m_HasTune;
+			m_pTilesetPicker->m_HasKZGame = pTileLayer->m_HasKZGame;
+			m_pTilesetPicker->m_HasKZFront = pTileLayer->m_HasKZFront;
 
 			m_pTilesetPicker->Render(true);
 
@@ -9496,3 +9510,17 @@ void CEditor::AdjustBrushSpecialTiles(bool UseNextFree, int Adjust)
 }
 
 IEditor *CreateEditor() { return new CEditor; }
+
+IGraphics::CTextureHandle CEditor::GetKZGameTexture()
+{
+	if(!m_KZGameTexture.IsValid())
+		m_KZGameTexture = Graphics()->LoadTexture("editor/KZ_gamelayer.png", IStorage::TYPE_ALL, GetTextureUsageFlag());
+	return m_KZGameTexture;
+}
+
+IGraphics::CTextureHandle CEditor::GetKZFrontTexture()
+{
+	if(!m_KZFrontTexture.IsValid())
+		m_KZFrontTexture = Graphics()->LoadTexture("editor/KZ_frontlayer.png", IStorage::TYPE_ALL, GetTextureUsageFlag());
+	return m_KZFrontTexture;
+}

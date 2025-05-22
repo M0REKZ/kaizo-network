@@ -24,6 +24,7 @@
 #include <game/editor/mapitems/layer_tele.h>
 #include <game/editor/mapitems/layer_tiles.h>
 #include <game/editor/mapitems/layer_tune.h>
+#include <game/editor/mapitems/layer_kz.h> // KZ
 
 #include <engine/console.h>
 #include <engine/editor.h>
@@ -218,22 +219,28 @@ public:
 	void MakeFrontLayer(const std::shared_ptr<CLayer> &pLayer);
 	void MakeSwitchLayer(const std::shared_ptr<CLayer> &pLayer);
 	void MakeTuneLayer(const std::shared_ptr<CLayer> &pLayer);
+
+	// KZ
+	std::shared_ptr<class CLayerKZGame> m_pKZGameLayer;
+	std::shared_ptr<class CLayerKZFront> m_pKZFrontLayer;
+	void MakeKZGameLayer(const std::shared_ptr<CLayer> &pLayer);
+	void MakeKZFrontLayer(const std::shared_ptr<CLayer> &pLayer);
 };
 
 class CProperty
 {
 public:
-	CProperty(const char *pName, int Value, int Type, int Min, int Max) :
+	CProperty(const char *pName, long long Value, int Type, long long Min, long long Max) :
 		m_pName(pName), m_Value(Value), m_Type(Type), m_Min(Min), m_Max(Max) {}
 
 	CProperty(std::nullptr_t) :
 		m_pName(nullptr), m_Value(0), m_Type(0), m_Min(0), m_Max(0) {}
 
 	const char *m_pName;
-	int m_Value;
+	long long m_Value; // unsigned long long KZ
 	int m_Type;
-	int m_Min;
-	int m_Max;
+	long long m_Min;
+	long long m_Max;
 };
 
 enum
@@ -468,6 +475,17 @@ public:
 		m_PreventUnusedTilesWasWarned = false;
 		m_AllowPlaceUnusedTiles = EUnusedEntities::NOT_ALLOWED;
 		m_BrushDrawDestructive = true;
+
+		// KZ
+		m_KZGameNumber = 0;
+		m_KZGameValue1 = 0;
+		m_KZGameValue2 = 0;
+		m_KZGameValue3 = 0;
+
+		m_KZFrontNumber = 0;
+		m_KZFrontValue1 = 0;
+		m_KZFrontValue2 = 0;
+		m_KZFrontValue3 = 0;
 	}
 
 	class CHoverTile
@@ -898,7 +916,7 @@ public:
 
 	void RenderBackground(CUIRect View, IGraphics::CTextureHandle Texture, float Size, float Brightness) const;
 
-	SEditResult<int> UiDoValueSelector(void *pId, CUIRect *pRect, const char *pLabel, int Current, int Min, int Max, int Step, float Scale, const char *pToolTip, bool IsDegree = false, bool IsHex = false, int Corners = IGraphics::CORNER_ALL, const ColorRGBA *pColor = nullptr, bool ShowValue = true);
+	SEditResult<long long> UiDoValueSelector(void *pId, CUIRect *pRect, const char *pLabel, long long Current, long long Min, long long Max, int Step, float Scale, const char *pToolTip, bool IsDegree = false, bool IsHex = false, int Corners = IGraphics::CORNER_ALL, const ColorRGBA *pColor = nullptr, bool ShowValue = true);
 
 	static CUi::EPopupMenuFunctionResult PopupMenuFile(void *pContext, CUIRect View, bool Active);
 	static CUi::EPopupMenuFunctionResult PopupMenuTools(void *pContext, CUIRect View, bool Active);
@@ -1214,6 +1232,33 @@ private:
 	void RedoLastAction();
 
 	std::map<int, CPoint[5]> m_QuadDragOriginalPoints;
+
+	// KZ
+public:
+
+	SEditResult<long long> DoPropertiesWithStateLongLong(CUIRect *pToolBox, CProperty *pProps, int *pIds, long long *pNewVal, const std::vector<ColorRGBA> &vColors = {});
+
+	IGraphics::CTextureHandle m_KZGameTexture;
+	IGraphics::CTextureHandle m_KZFrontTexture;
+
+	void AddKZGameLayer();
+	void AddKZFrontLayer();
+
+	static CUi::EPopupMenuFunctionResult PopupKZGame(void *pContext, CUIRect View, bool Active);
+	static CUi::EPopupMenuFunctionResult PopupKZFront(void *pContext, CUIRect View, bool Active);
+
+	IGraphics::CTextureHandle GetKZGameTexture();
+	IGraphics::CTextureHandle GetKZFrontTexture();
+
+	unsigned char m_KZGameNumber;
+	long long int m_KZGameValue1;
+	long long int m_KZGameValue2;
+	long long int m_KZGameValue3;
+
+	unsigned char m_KZFrontNumber;
+	long long int m_KZFrontValue1;
+	long long int m_KZFrontValue2;
+	long long int m_KZFrontValue3;
 };
 
 // make sure to inline this function

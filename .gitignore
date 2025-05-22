@@ -142,3 +142,6 @@ tags
 *.user
 *.vcxproj
 *.zip
+
+#+KZ
+/cbuild*

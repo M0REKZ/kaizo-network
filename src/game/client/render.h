@@ -21,6 +21,7 @@ class CSwitchTile;
 class CTeleTile;
 class CTile;
 class CTuneTile;
+class CKZTile; // KZ
 namespace client_data7 {
 struct CDataSprite;
 }
@@ -327,6 +328,11 @@ public:
 	void RenderTelemap(CTeleTile *pTele, int w, int h, float Scale, ColorRGBA Color, int RenderFlags) const;
 	void RenderSwitchmap(CSwitchTile *pSwitch, int w, int h, float Scale, ColorRGBA Color, int RenderFlags) const;
 	void RenderTunemap(CTuneTile *pTune, int w, int h, float Scale, ColorRGBA Color, int RenderFlags) const;
+
+	void RenderKZGameOverlay(CKZTile *pKZ, int w, int h, float Scale, int OverlayRenderFlags, float Alpha = 1.0f) const;
+	void RenderKZGameMap(CKZTile *pKZ, int w, int h, float Scale, ColorRGBA Color, int RenderFlags) const;
+	void RenderKZFrontOverlay(CKZTile *pKZ, int w, int h, float Scale, int OverlayRenderFlags, float Alpha = 1.0f) const;
+	void RenderKZFrontMap(CKZTile *pKZ, int w, int h, float Scale, ColorRGBA Color, int RenderFlags) const;
 };
 
 #endif

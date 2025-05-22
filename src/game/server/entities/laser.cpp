@@ -100,6 +100,16 @@ bool CLaser::HitCharacter(vec2 From, vec2 To)
 
 void CLaser::DoBounce()
 {
+	// KZ
+	CCharacter *pOwnerChar = GameServer()->GetPlayerChar(m_Owner); 
+	CCharacterCore *pOwnerCore = nullptr;
+
+	if(pOwnerChar)
+	{
+		pOwnerCore = (CCharacterCore *)pOwnerChar->Core();
+	}
+	// End KZ
+
 	m_EvalTick = Server()->Tick();
 
 	if(m_Energy < 0)
@@ -122,7 +132,7 @@ void CLaser::DoBounce()
 
 	vec2 To = m_Pos + m_Dir * m_Energy;
 
-	Res = GameServer()->Collision()->IntersectLineTeleWeapon(m_Pos, To, &Coltile, &To, &z);
+	Res = GameServer()->Collision()->IntersectLineTeleWeapon(m_Pos, To, &Coltile, &To, &z, pOwnerCore); // KZ added pOwnerCore
 
 	if(Res)
 	{
@@ -141,7 +151,7 @@ void CLaser::DoBounce()
 				f = GameServer()->Collision()->GetTile(round_to_int(Coltile.x), round_to_int(Coltile.y));
 				GameServer()->Collision()->SetCollisionAt(round_to_int(Coltile.x), round_to_int(Coltile.y), TILE_SOLID);
 			}
-			GameServer()->Collision()->MovePoint(&TempPos, &TempDir, 1.0f, nullptr);
+			GameServer()->Collision()->MovePoint(&TempPos, &TempDir, 1.0f, nullptr, pOwnerCore); // KZ added pOwnerCore
 			if(Res == -1)
 			{
 				GameServer()->Collision()->SetCollisionAt(round_to_int(Coltile.x), round_to_int(Coltile.y), f);
@@ -197,7 +207,7 @@ void CLaser::DoBounce()
 		}
 	}
 
-	CCharacter *pOwnerChar = GameServer()->GetPlayerChar(m_Owner);
+	//CCharacter *pOwnerChar = GameServer()->GetPlayerChar(m_Owner); //KZ
 	if(m_Owner >= 0 && m_Energy <= 0 && !m_TeleportCancelled && pOwnerChar &&
 		pOwnerChar->IsAlive() && pOwnerChar->HasTelegunLaser() && m_Type == WEAPON_LASER)
 	{

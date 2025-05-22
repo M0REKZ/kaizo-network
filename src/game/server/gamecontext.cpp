@@ -32,6 +32,7 @@
 #include "entities/character.h"
 #include "gamemodes/DDRace.h"
 #include "gamemodes/mod.h"
+#include "gamemodes/kz/kz.h" // KZ
 #include "player.h"
 #include "score.h"
 
@@ -3969,10 +3970,13 @@ void CGameContext::OnInit(const void *pPersistentData)
 		}
 	}
 
+	/*
 	if(!str_comp(Config()->m_SvGametype, "mod"))
 		m_pController = new CGameControllerMod(this);
 	else
 		m_pController = new CGameControllerDDRace(this);
+	*/
+	m_pController = new CGameControllerKZ(this);
 
 	ReadCensorList();
 
@@ -4081,6 +4085,14 @@ void CGameContext::CreateAllEntities(bool Initial)
 	if(m_Layers.SwitchLayer())
 		pSwitch = static_cast<CSwitchTile *>(Kernel()->RequestInterface<IMap>()->GetData(m_Layers.SwitchLayer()->m_Switch));
 
+	const CKZTile *pKZGame = nullptr;
+	if(m_Layers.KZGameLayer())
+		pKZGame = static_cast<CKZTile *>(Kernel()->RequestInterface<IMap>()->GetData(m_Layers.KZGameLayer()->m_Data));
+
+	const CKZTile *pKZFront = nullptr;
+	if(m_Layers.KZFrontLayer())
+		pKZFront = static_cast<CKZTile *>(Kernel()->RequestInterface<IMap>()->GetData(m_Layers.KZFrontLayer()->m_Data));
+
 	for(int y = 0; y < pTileMap->m_Height; y++)
 	{
 		for(int x = 0; x < pTileMap->m_Width; x++)
@@ -4164,6 +4176,19 @@ void CGameContext::CreateAllEntities(bool Initial)
 				{
 					m_pController->OnEntity(SwitchType - ENTITY_OFFSET, x, y, LAYER_SWITCH, pSwitch[Index].m_Flags, Initial, pSwitch[Index].m_Number);
 				}
+			}
+
+			// KZ
+			if(pKZGame)
+			{
+				const int KZIndex = pKZGame[Index].m_Index;
+				m_pController->OnEntityKZ(KZIndex, x, y, LAYER_GAME, pKZGame[Index].m_Flags, Initial, pKZGame[Index].m_Number, pKZGame[Index].m_Value1, pKZGame[Index].m_Value2, pKZGame[Index].m_Value3);
+			}
+
+			if(pKZFront)
+			{
+				const int KZIndex = pKZFront[Index].m_Index;
+				m_pController->OnEntityKZ(KZIndex, x, y, LAYER_FRONT, pKZFront[Index].m_Flags, Initial, pKZFront[Index].m_Number, pKZFront[Index].m_Value1, pKZFront[Index].m_Value2, pKZFront[Index].m_Value3);
 			}
 		}
 	}

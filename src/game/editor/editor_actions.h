@@ -37,6 +37,8 @@ private:
 	EditorTileStateChangeHistory<SSpeedupTileStateChange> m_SpeedupTileChanges;
 	EditorTileStateChangeHistory<SSwitchTileStateChange> m_SwitchTileChanges;
 	EditorTileStateChangeHistory<STuneTileStateChange> m_TuneTileChanges;
+	EditorTileStateChangeHistory<SKZTileStateChange> m_KZGameTileChanges;
+	EditorTileStateChangeHistory<SKZTileStateChange> m_KZFrontTileChanges;
 
 	int m_TotalTilesDrawn;
 	int m_TotalLayers;

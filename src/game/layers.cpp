@@ -6,6 +6,9 @@
 
 #include <engine/map.h>
 
+#include <base/system.h>
+#include <game/gamecore.h>
+
 CLayers::CLayers()
 {
 	Unload();
@@ -105,6 +108,23 @@ void CLayers::Init(IMap *pMap, bool GameOnly)
 					m_pTuneLayer = pTilemap;
 					IsEntities = true;
 				}
+
+				{ //+KZ KZ
+					char aBuf[30] = {0};
+
+					IntsToStr(pTilemap->m_aName, std::size(pTilemap->m_aName), aBuf, std::size(aBuf));
+					
+					if(!str_comp_nocase(KZ_GAME_LAYER_NAME, aBuf))
+					{
+						m_pKZGameLayer = pTilemap;
+						//IsEntities = true;
+					}
+					else if(!str_comp_nocase(KZ_FRONT_LAYER_NAME, aBuf))
+					{
+						m_pKZFrontLayer = pTilemap;
+						//IsEntities = true;
+					}
+				} //+KZ KZ
 			}
 
 			if(IsEntities)

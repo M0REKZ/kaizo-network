@@ -32,6 +32,11 @@ public:
 	CMapItemLayerTilemap *SwitchLayer() const { return m_pSwitchLayer; }
 	CMapItemLayerTilemap *TuneLayer() const { return m_pTuneLayer; }
 
+	// KZ
+
+	CMapItemLayerTilemap *KZGameLayer() const { return m_pKZGameLayer; }
+	CMapItemLayerTilemap *KZFrontLayer() const { return m_pKZFrontLayer; }
+
 private:
 	int m_GroupsNum;
 	int m_GroupsStart;
@@ -49,6 +54,11 @@ private:
 	CMapItemLayerTilemap *m_pTuneLayer;
 
 	void InitTilemapSkip();
+
+	// KZ
+
+	CMapItemLayerTilemap *m_pKZGameLayer;
+	CMapItemLayerTilemap *m_pKZFrontLayer;
 };
 
 #endif
