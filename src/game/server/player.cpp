@@ -470,7 +470,7 @@ void CPlayer::Snap(int SnappingClient)
 		pDDNetPlayer->m_AuthLevel = AUTHED_NO;
 
 	pDDNetPlayer->m_Flags = 0;
-	if(m_Afk)
+	if(m_Afk || m_PlayerFlags & PLAYERFLAG_IN_MENU) // Raid added in menu
 		pDDNetPlayer->m_Flags |= EXPLAYERFLAG_AFK;
 	if(m_Paused == PAUSE_SPEC)
 		pDDNetPlayer->m_Flags |= EXPLAYERFLAG_SPEC;

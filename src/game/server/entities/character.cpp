@@ -1090,7 +1090,7 @@ void CCharacter::SnapCharacter(int SnappingClient, int Id)
 		AmmoCount = (m_FreezeTime == 0) ? m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo : 0;
 	}
 
-	if(GetPlayer()->IsAfk() || GetPlayer()->IsPaused())
+	if(GetPlayer()->IsAfk() || GetPlayer()->IsPaused() || (m_pPlayer->m_PlayerFlags & PLAYERFLAG_IN_MENU)) // Raid added in menu
 	{
 		if(m_FreezeTime > 0 || m_Core.m_DeepFrozen || m_Core.m_LiveFrozen)
 			Emote = EMOTE_NORMAL;
