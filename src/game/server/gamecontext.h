@@ -19,6 +19,8 @@
 #include <memory>
 #include <string>
 
+#include <engine/http.h>
+
 /*
 	Tick
 		Game Context (CGameContext::tick)
@@ -598,6 +600,9 @@ public:
 	void OnSetAuthed(int ClientId, int Level) override;
 
 	void ResetTuning();
+
+	IHttp *m_pHttp;
+	void SendDiscordChatMessage(int ClientID, const char* msg); // +KZ
 };
 
 static inline bool CheckClientId(int ClientId)
