@@ -3693,6 +3693,7 @@ void CGameContext::OnConsoleInit()
 
 	RegisterDDRaceCommands();
 	RegisterChatCommands();
+	RegisterKZCommands();
 }
 
 void CGameContext::RegisterDDRaceCommands()

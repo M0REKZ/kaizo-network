@@ -34,6 +34,11 @@
 #include "player.h"
 #include "score.h"
 
+void CGameContext::RegisterKZCommands()
+{
+	Console()->Register("rejoin_shutdown", "", CFGFLAG_SERVER, ConRejoinShutdown, this, "Make players rejoin after shutdown");
+}
+
 void CGameContext::SendGameMsg(int GameMsgId, int ClientId) const
 {
 	dbg_assert(
@@ -120,4 +125,21 @@ void CGameContext::SendGameMsg(int GameMsgId, int ParaI1, int ParaI2, int ParaI3
 		}
 		// TODO: 0.6
 	}
+}
+
+void CGameContext::ConRejoinShutdown(IConsole::IResult *pResult, void *pUserData)
+{
+    CGameContext *pSelf = (CGameContext *)pUserData;
+	
+	for(int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if(!pSelf->m_apPlayers[i])
+			continue;
+
+		if(pSelf->m_apPlayers[i]->GetClientVersion() < VERSION_DDNET_REDIRECT)
+			continue;
+		pSelf->Server()->RedirectClient(i,pSelf->Server()->Port());
+	}
+
+	pSelf->Console()->ExecuteLine("shutdown Reserved. Please wait or reconnect to the server.");
 }
