@@ -2738,12 +2738,15 @@ if(SERVER)
     entities/plasma.h
     entities/projectile.cpp
     entities/projectile.h
+    entities/kz/flag.cpp
+    entities/kz/flag.h
     entity.cpp
     entity.h
     eventhandler.cpp
     eventhandler.h
     gamecontext.cpp
     gamecontext.h
+    gamecontext_kz.cpp
     gamecontroller.cpp
     gamecontroller.h
     gamemodes/DDRace.cpp

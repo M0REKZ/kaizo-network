@@ -4,6 +4,7 @@
 #define GAME_SERVER_GAMEMODES_KZ_KZ_H
 
 #include <game/server/gamemodes/DDRace.h>
+#include <game/server/entities/kz/flag.h>
 
 class CGameControllerKZ : public CGameControllerDDRace
 {
@@ -26,5 +27,19 @@ public:
 	void Tick() override;
 
 	void DoTeamChange(class CPlayer *pPlayer, int Team, bool DoChatMsg = true) override;
+
+	//+KZ
+
+	int OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int Weapon) override;
+
+	bool OnEntity(int Index, int x, int y, int Layer, int Flags, bool Initial, int Number = 0) override;
+	virtual void Snap(int SnappingClient) override;
+
+	class CFlag *m_apFlags[2];
+
+	int m_flagstand_temp_i_0; //+KZ from tw_plus
+	int m_flagstand_temp_i_1; //same
+
+	void FlagTick();
 };
 #endif // GAME_SERVER_GAMEMODES_DDRACE_H
