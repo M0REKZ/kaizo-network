@@ -78,6 +78,8 @@ void CGameControllerKZ::Tick()
 	CGameControllerDDRace::Tick();
 
 	FlagTick();
+
+	DoCrown();
 }
 
 void CGameControllerKZ::DoTeamChange(class CPlayer *pPlayer, int Team, bool DoChatMsg)
@@ -259,6 +261,67 @@ void CGameControllerKZ::FlagTick()
 					break;
 				}
 			}
+		}
+	}
+}
+
+void CGameControllerKZ::DoCrown()
+{
+	float besttime = -1.0f;
+	int playercount = 0;
+
+	for(int i = 0; i < SERVER_MAX_CLIENTS;i++)
+	{
+		
+		if(!GameServer()->m_apPlayers[i])
+			continue;
+
+		playercount++;
+
+		if(!GameServer()->GetPlayerChar(i))
+			continue;
+
+		GameServer()->GetPlayerChar(i)->m_EnableCrown = false;
+		
+		CPlayerData *pData = GameServer()->Score()->PlayerData(i);
+
+		if(!pData)
+			continue;
+		
+		if(!pData->m_BestTime)
+			continue;
+
+		if(besttime == -1.0f)
+		{
+			besttime = pData->m_BestTime;
+		}
+		if(besttime >= pData->m_BestTime)
+		{
+			besttime = pData->m_BestTime;
+		}
+		
+	}
+
+	if(playercount > 1)
+	{
+		for(int i = 0; i < SERVER_MAX_CLIENTS;i++)
+		{
+			
+			if(!GameServer()->m_apPlayers[i])
+				continue;
+
+			if(!GameServer()->GetPlayerChar(i))
+				continue;
+
+			GameServer()->GetPlayerChar(i)->m_EnableCrown = false;
+			
+			CPlayerData *pData = GameServer()->Score()->PlayerData(i);
+
+			if(besttime == pData->m_BestTime)
+			{
+				GameServer()->GetPlayerChar(i)->m_EnableCrown = true;
+			}
+			
 		}
 	}
 }

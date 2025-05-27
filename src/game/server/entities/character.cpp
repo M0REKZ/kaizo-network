@@ -44,6 +44,19 @@ CCharacter::CCharacter(CGameWorld *pWorld, CNetObj_PlayerInput LastInput) :
 	{
 		CurrentTimeCp = 0.0f;
 	}
+
+	for(int i = 0; i < 7; i++)
+	{
+		m_aCrown[i] = Server()->SnapNewId();
+	}
+}
+
+CCharacter::~CCharacter()
+{
+	for(int i = 0; i < 7; i++)
+	{
+		Server()->SnapFreeId(m_aCrown[i]);
+	}
 }
 
 void CCharacter::Reset()
@@ -1227,6 +1240,26 @@ void CCharacter::Snap(int SnappingClient)
 
 	if(!IsSnappingCharacterInView(SnappingClient))
 		return;
+
+	CPlayerData *pData = GameServer()->Score()->PlayerData(m_pPlayer->GetCid());
+
+	if(!pData)
+		return;
+
+	vec2 Charpos = m_Pos;
+
+	int SnappingClientVersion = GameServer()->GetClientVersion(SnappingClient);
+
+	if(m_EnableCrown)
+	{
+		GameServer()->SnapLaserObject(CSnapContext(SnappingClientVersion),m_aCrown[0],vec2(Charpos.x,Charpos.y-100),vec2(Charpos.x+10,Charpos.y-80),Server()->Tick(),m_pPlayer->GetCid(),LASERTYPE_RIFLE,0,0);
+		GameServer()->SnapLaserObject(CSnapContext(SnappingClientVersion),m_aCrown[1],vec2(Charpos.x,Charpos.y-100),vec2(Charpos.x-10,Charpos.y-80),Server()->Tick(),m_pPlayer->GetCid(),LASERTYPE_RIFLE,0,0);
+		GameServer()->SnapLaserObject(CSnapContext(SnappingClientVersion),m_aCrown[2],vec2(Charpos.x + 20,Charpos.y-100),vec2(Charpos.x+10,Charpos.y-80),Server()->Tick(),m_pPlayer->GetCid(),LASERTYPE_RIFLE,0,0);
+		GameServer()->SnapLaserObject(CSnapContext(SnappingClientVersion),m_aCrown[3],vec2(Charpos.x - 20,Charpos.y-100),vec2(Charpos.x-10,Charpos.y-80),Server()->Tick(),m_pPlayer->GetCid(),LASERTYPE_RIFLE,0,0);
+		GameServer()->SnapLaserObject(CSnapContext(SnappingClientVersion),m_aCrown[4],vec2(Charpos.x + 20,Charpos.y-100),vec2(Charpos.x+20,Charpos.y-60),Server()->Tick(),m_pPlayer->GetCid(),LASERTYPE_RIFLE,0,0);
+		GameServer()->SnapLaserObject(CSnapContext(SnappingClientVersion),m_aCrown[5],vec2(Charpos.x - 20,Charpos.y-100),vec2(Charpos.x-20,Charpos.y-60),Server()->Tick(),m_pPlayer->GetCid(),LASERTYPE_RIFLE,0,0);
+		GameServer()->SnapLaserObject(CSnapContext(SnappingClientVersion),m_aCrown[6],vec2(Charpos.x-20,Charpos.y-60),vec2(Charpos.x+20,Charpos.y-60),Server()->Tick(),m_pPlayer->GetCid(),LASERTYPE_RIFLE,0,0);
+	}
 
 	SnapCharacter(SnappingClient, Id);
 

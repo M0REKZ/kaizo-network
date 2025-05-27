@@ -41,5 +41,6 @@ public:
 	int m_flagstand_temp_i_1; //same
 
 	void FlagTick();
+	void DoCrown();
 };
 #endif // GAME_SERVER_GAMEMODES_DDRACE_H

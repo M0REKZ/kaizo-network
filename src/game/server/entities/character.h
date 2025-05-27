@@ -32,6 +32,7 @@ class CCharacter : public CEntity
 
 public:
 	CCharacter(CGameWorld *pWorld, CNetObj_PlayerInput LastInput);
+	~CCharacter();
 
 	void Reset() override;
 	void Destroy() override;
@@ -268,7 +269,10 @@ public:
 	CSaveTee &GetLastRescueTeeRef(int Mode = RESCUEMODE_AUTO) { return m_RescueTee[Mode]; }
 	CTuningParams *GetTuning(int Zone) { return Zone ? &TuningList()[Zone] : Tuning(); }
 
+	//+KZ
 	void HandleKZTiles();
+	int m_aCrown[7];
+	bool m_EnableCrown = false;
 };
 
 enum
