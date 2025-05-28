@@ -738,9 +738,3 @@ void IGameController::DoTeamChange(CPlayer *pPlayer, int Team, bool DoChatMsg)
 
 	// OnPlayerInfoChange(pPlayer);
 }
-
-// KZ
-bool IGameController::OnEntityKZ(int Index, int x, int y, int Layer, int Flags, bool Initial, unsigned char Number, long long Value1, long long Value2, long long Value3)
-{
-	return false;
-}

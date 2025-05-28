@@ -611,6 +611,12 @@ public:
 	void RegisterKZCommands();
 
 	static void ConRejoinShutdown(IConsole::IResult *pResult, void *pUserData);
+	static void ConPortalGun(IConsole::IResult *pResult, void *pUserData);
+	static void ConUnPortalGun(IConsole::IResult *pResult, void *pUserData);
+	static void ConGetPortalGun(IConsole::IResult *pResult, void *pUserData);
+	static void ConOrangePortal(IConsole::IResult *pResult, void *pUserData);
+	static void ConBluePortal(IConsole::IResult *pResult, void *pUserData);
+	static void ConResetPortals(IConsole::IResult *pResult, void *pUserData);
 };
 
 static inline bool CheckClientId(int ClientId)

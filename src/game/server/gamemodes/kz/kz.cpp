@@ -11,6 +11,8 @@
 #include <game/server/score.h>
 #include <game/version.h>
 
+#include <game/server/entities/kz/kz_pickup.h>
+
 #define GAME_TYPE_NAME "DDraceNetwork"
 #define TEST_TYPE_NAME "TestDDraceNetwork"
 
@@ -324,4 +326,39 @@ void CGameControllerKZ::DoCrown()
 			
 		}
 	}
+}
+
+bool CGameControllerKZ::OnEntityKZ(int Index, int x, int y, int Layer, int Flags, bool Initial, unsigned char Number, long long Value1, long long Value2, long long Value3)
+{
+	int PickupType = -1;
+	int PickupSubtype = -1;
+
+	if(Index == KZ_TILE_PORTAL_GUN)
+	{
+		PickupType = POWERUP_WEAPON;
+		PickupSubtype = KZ_CUSTOM_WEAPON_PORTAL_GUN;
+	}
+
+	const vec2 Pos(x * 32.0f + 16.0f, y * 32.0f + 16.0f);
+
+	if(PickupType != -1)
+	{
+		if(PickupSubtype != -1)
+		{
+			switch (PickupSubtype)
+			{
+				case KZ_CUSTOM_WEAPON_PORTAL_GUN:
+				{
+					CKZPickup *pPickup = new CKZPickup(&GameServer()->m_World, PickupType, PickupSubtype, Layer, (int)Number);
+					pPickup->m_Pos = Pos;
+					return true;
+				}
+				break;
+			
+
+			}
+		}
+	}
+
+	return false;
 }

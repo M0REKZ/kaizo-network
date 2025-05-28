@@ -2738,8 +2738,16 @@ if(SERVER)
     entities/plasma.h
     entities/projectile.cpp
     entities/projectile.h
+    entities/kz/fdd_stable_projectile.cpp
+    entities/kz/fdd_stable_projectile.h
     entities/kz/flag.cpp
     entities/kz/flag.h
+    entities/kz/kz_pickup.cpp
+    entities/kz/kz_pickup.h
+    entities/kz/portal.cpp
+    entities/kz/portal.h
+    entities/kz/portal_projectile.cpp
+    entities/kz/portal_projectile.h
     entity.cpp
     entity.h
     eventhandler.cpp

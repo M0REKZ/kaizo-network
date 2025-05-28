@@ -150,7 +150,7 @@ public:
 	std::shared_ptr<CScoreLoadBestTimeResult> m_pLoadBestTimeResult;
 
 	// KZ
-	virtual bool OnEntityKZ(int Index, int x, int y, int Layer, int Flags, bool Initial, unsigned char Number = 0, long long Value1 = 0, long long Value2 = 0, long long Value3 = 0);
+	virtual bool OnEntityKZ(int Index, int x, int y, int Layer, int Flags, bool Initial, unsigned char Number = 0, long long Value1 = 0, long long Value2 = 0, long long Value3 = 0) { return false; };
 };
 
 #endif

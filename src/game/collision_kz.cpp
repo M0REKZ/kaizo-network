@@ -140,37 +140,37 @@ CKZTile *CCollision::GetKZFrontTile(float x, float y) const
     return m_pKZFront ? &m_pKZFront[Ny * m_KZFrontWidth + Nx] : nullptr;
 }
 
-int CCollision::GetKZGameTileIndex(float x, float y) const
+unsigned char CCollision::GetKZGameTileIndex(float x, float y) const
 {
 	int Nx = clamp(round_to_int(x) / 32, 0, m_KZGameWidth - 1);
 	int Ny = clamp(round_to_int(y) / 32, 0, m_KZGameHeight - 1);
 	return GetKZGameTileIndex(Ny * m_KZGameWidth + Nx);
 }
 
-int CCollision::GetKZGameTileIndex(int x, int y) const
+unsigned char CCollision::GetKZGameTileIndex(int x, int y) const
 {
 	return GetKZGameTileIndex(y * m_KZGameWidth + x);
 }
 
-int CCollision::GetKZGameTileIndex(int Index) const
+unsigned char CCollision::GetKZGameTileIndex(int Index) const
 {
-	return m_pKZGame[Index].m_Index;
+	return m_pKZGame ? (int)m_pKZGame[Index].m_Index : TILE_AIR;
 }
 
-int CCollision::GetKZFrontTileIndex(float x, float y) const
+unsigned char CCollision::GetKZFrontTileIndex(float x, float y) const
 {
 	int Nx = clamp(round_to_int(x) / 32, 0, m_KZFrontWidth - 1);
 	int Ny = clamp(round_to_int(y) / 32, 0, m_KZFrontHeight - 1);
 	return GetKZFrontTileIndex(Ny * m_KZFrontWidth + Nx);
 }
 
-int CCollision::GetKZFrontTileIndex(int x, int y) const
+unsigned char CCollision::GetKZFrontTileIndex(int x, int y) const
 {
 	return GetKZFrontTileIndex(y * m_KZFrontWidth + x);
 }
 
-int CCollision::GetKZFrontTileIndex(int Index) const
+unsigned char CCollision::GetKZFrontTileIndex(int Index) const
 {
-	return m_pKZFront[Index].m_Index;
+	return m_pKZFront ? (int)m_pKZFront[Index].m_Index : TILE_AIR;
 }
 

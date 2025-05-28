@@ -31,7 +31,7 @@ private:
 	CCollision *m_pCCollision;
 
 	int m_Id;
-	int m_ObjType;
+	//int m_ObjType;
 
 	/*
 		Variable: m_ProximityRadius
@@ -42,6 +42,7 @@ private:
 protected:
 	/* State */
 	bool m_MarkedForDestroy;
+	int m_ObjType; // +KZ moved this here
 
 public: // TODO: Maybe make protected
 	/*

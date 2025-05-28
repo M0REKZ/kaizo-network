@@ -60,15 +60,15 @@ public:
 	CKZTile *GetKZFrontTile(float x, float y) const;
 	CKZTile *GetKZFrontTile(vec2 Pos) const { return GetKZGameTile(Pos.x,Pos.y); }
 
-	int GetKZGameTileIndex(float x, float y) const;
-	int GetKZGameTileIndex(int x, int y) const;
-	int GetKZGameTileIndex(vec2 Pos) const { return GetKZGameTileIndex(GetKZGameTileIndex(Pos.x,Pos.y)); }
-	int GetKZGameTileIndex(int Index) const;
+	unsigned char GetKZGameTileIndex(float x, float y) const;
+	unsigned char GetKZGameTileIndex(int x, int y) const;
+	unsigned char GetKZGameTileIndex(vec2 Pos) const { return GetKZGameTileIndex(Pos.x,Pos.y); }
+	unsigned char GetKZGameTileIndex(int Index) const;
 
-	int GetKZFrontTileIndex(float x, float y) const;
-	int GetKZFrontTileIndex(int x, int y) const;
-	int GetKZFrontTileIndex(vec2 Pos) const { return GetKZFrontTileIndex(GetKZFrontTileIndex(Pos.x,Pos.y)); }
-	int GetKZFrontTileIndex(int Index) const;
+	unsigned char GetKZFrontTileIndex(float x, float y) const;
+	unsigned char GetKZFrontTileIndex(int x, int y) const;
+	unsigned char GetKZFrontTileIndex(vec2 Pos) const { return GetKZFrontTileIndex(Pos.x,Pos.y); }
+	unsigned char GetKZFrontTileIndex(int Index) const;
 
 	// End KZ
 

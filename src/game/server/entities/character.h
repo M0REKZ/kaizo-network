@@ -5,6 +5,7 @@
 
 #include <game/server/entity.h>
 #include <game/server/save.h>
+#include <game/mapitems.h>
 
 class CGameTeams;
 class CGameWorld;
@@ -245,10 +246,10 @@ public:
 	CCharacterCore GetCore() { return m_Core; }
 	void SetCore(CCharacterCore Core) { m_Core = Core; }
 	const CCharacterCore *Core() const { return &m_Core; }
-	bool GetWeaponGot(int Type) { return m_Core.m_aWeapons[Type].m_Got; }
-	void SetWeaponGot(int Type, bool Value) { m_Core.m_aWeapons[Type].m_Got = Value; }
-	int GetWeaponAmmo(int Type) { return m_Core.m_aWeapons[Type].m_Ammo; }
-	void SetWeaponAmmo(int Type, int Value) { m_Core.m_aWeapons[Type].m_Ammo = Value; }
+	bool GetWeaponGot(int Type) { return (Type >= NUM_WEAPONS ? m_aCustomWeapons[Type-KZ_CUSTOM_WEAPONS_START].m_Got : m_Core.m_aWeapons[Type].m_Got); } //modified for custom weapons +KZ
+	void SetWeaponGot(int Type, bool Value) { (Type >= NUM_WEAPONS ? m_aCustomWeapons[Type-KZ_CUSTOM_WEAPONS_START].m_Got = Value : m_Core.m_aWeapons[Type].m_Got = Value); } //modified for custom weapons +KZ
+	int GetWeaponAmmo(int Type) { return (Type >= NUM_WEAPONS ? m_aCustomWeapons[Type-KZ_CUSTOM_WEAPONS_START].m_Ammo : m_Core.m_aWeapons[Type].m_Ammo); } //modified for custom weapons +KZ
+	void SetWeaponAmmo(int Type, int Value) { (Type >= NUM_WEAPONS ? m_aCustomWeapons[Type-KZ_CUSTOM_WEAPONS_START].m_Ammo = Value : m_Core.m_aWeapons[Type].m_Ammo = Value); } //modified for custom weapons +KZ
 	void SetNinjaActivationDir(vec2 ActivationDir) { m_Core.m_Ninja.m_ActivationDir = ActivationDir; }
 	void SetNinjaActivationTick(int ActivationTick) { m_Core.m_Ninja.m_ActivationTick = ActivationTick; }
 	void SetNinjaCurrentMoveTime(int CurrentMoveTime) { m_Core.m_Ninja.m_CurrentMoveTime = CurrentMoveTime; }
@@ -273,6 +274,19 @@ public:
 	void HandleKZTiles();
 	int m_aCrown[7];
 	bool m_EnableCrown = false;
+	bool m_SnapCustomWeapon = false;
+	int m_CustomWeapon = 0;
+	bool m_BluePortal = true;
+	int m_PortalKindId = -1;
+	bool m_AimPressed = false;
+	bool m_Waitingforreleaseaim = false;
+
+	struct
+	{
+		bool m_Got = false;
+		int m_Snap = 0;
+		int m_Ammo = -1;
+	} m_aCustomWeapons[KZ_NUM_CUSTOM_WEAPONS - KZ_CUSTOM_WEAPONS_START];
 };
 
 enum

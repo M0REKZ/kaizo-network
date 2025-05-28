@@ -1,4 +1,9 @@
 // (c) +KZ
+#ifndef GAME_MAPITEMS_KZ_H
+#define GAME_MAPITEMS_KZ_H
+
+#include <game/mapitems.h>
+#include <game/generated/protocol.h>
 
 const char KZ_GAME_LAYER_NAME[9] = {'+','K', 'Z', 'G', 'a', 'm', 'e', (char)27, '\0'};
 const char KZ_FRONT_LAYER_NAME[10] = {'+','K', 'Z', 'F', 'r', 'o', 'n', 't', (char)27, '\0'};
@@ -7,6 +12,17 @@ enum
 {
 	KZ_TILE_SWITCHABLE = 1,
 	KZ_TILE_SOLID_STOPPER,
+	KZ_TILE_PORTAL_GUN,
+	KZ_TILE_PORTAL_ALLOW,
+	KZ_TILE_PORTAL_DISALLOW,
+	KZ_TILE_PORTAL_RESET,
+};
+
+enum
+{
+	KZ_CUSTOM_WEAPONS_START = NUM_WEAPONS,
+	KZ_CUSTOM_WEAPON_PORTAL_GUN = NUM_WEAPONS,
+	KZ_NUM_CUSTOM_WEAPONS,
 };
 
 class CKZTile
@@ -19,3 +35,5 @@ public:
     long long int m_Value2;
     long long int m_Value3;
 };
+
+#endif
