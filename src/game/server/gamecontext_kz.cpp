@@ -44,6 +44,7 @@ void CGameContext::RegisterKZCommands()
 	Console()->Register("orangeportal", "", CFGFLAG_CHAT |  CFGFLAG_SERVER, ConOrangePortal, this, "Use Orange Portal");
 	Console()->Register("blueportal", "", CFGFLAG_CHAT |  CFGFLAG_SERVER, ConBluePortal, this, "Use Blue Portal");
 	Console()->Register("resetportals", "", CFGFLAG_CHAT |  CFGFLAG_SERVER, ConResetPortals, this, "Reset both Portals");
+	Console()->Register("showcrowns", "", CFGFLAG_CHAT |  CFGFLAG_SERVER, ConShowCrowns, this, "Toggle crowns");
 }
 
 void CGameContext::SendGameMsg(int GameMsgId, int ClientId) const
@@ -310,4 +311,21 @@ void CGameContext::ConResetPortals(IConsole::IResult *pResult, void *pUserData)
 			return;
 		}
 	}
+}
+
+void CGameContext::ConShowCrowns(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+
+	int ClientID;
+
+	ClientID = pResult->m_ClientId;
+	
+	if(ClientID < 0 || ClientID >= SERVER_MAX_CLIENTS)
+		return;
+
+	if(!pSelf->m_apPlayers[ClientID])
+		return;
+
+	pSelf->m_apPlayers[ClientID]->m_SendCrowns = !pSelf->m_apPlayers[ClientID]->m_SendCrowns;
 }

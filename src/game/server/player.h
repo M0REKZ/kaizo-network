@@ -239,6 +239,7 @@ public:
 	// KZ
 
 	bool m_SentKZWelcomeMsg = false;
+	bool m_SendCrowns = true;
 };
 
 #endif

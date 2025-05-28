@@ -617,6 +617,7 @@ public:
 	static void ConOrangePortal(IConsole::IResult *pResult, void *pUserData);
 	static void ConBluePortal(IConsole::IResult *pResult, void *pUserData);
 	static void ConResetPortals(IConsole::IResult *pResult, void *pUserData);
+	static void ConShowCrowns(IConsole::IResult *pResult, void *pUserData);
 };
 
 static inline bool CheckClientId(int ClientId)

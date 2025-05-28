@@ -1347,7 +1347,7 @@ void CCharacter::Snap(int SnappingClient)
 
 	//int SnappingClientVersion = GameServer()->GetClientVersion(SnappingClient); +KZ commented
 
-	if(m_EnableCrown)
+	if(m_EnableCrown && ((SnappingClient >= 0 && SnappingClient < SERVER_MAX_CLIENTS) ? (GameServer()->m_apPlayers[SnappingClient] && GameServer()->m_apPlayers[SnappingClient]->m_SendCrowns) : true))
 	{
 		GameServer()->SnapLaserObject(CSnapContext(SnappingClientVersion),m_aCrown[0],vec2(Charpos.x,Charpos.y-100),vec2(Charpos.x+10,Charpos.y-80),Server()->Tick(),m_pPlayer->GetCid(),LASERTYPE_RIFLE,0,0);
 		GameServer()->SnapLaserObject(CSnapContext(SnappingClientVersion),m_aCrown[1],vec2(Charpos.x,Charpos.y-100),vec2(Charpos.x-10,Charpos.y-80),Server()->Tick(),m_pPlayer->GetCid(),LASERTYPE_RIFLE,0,0);
