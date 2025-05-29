@@ -1019,9 +1019,9 @@ void CCharacter::TickPaused()
 
 bool CCharacter::IncreaseHealth(int Amount)
 {
-	if(m_Health >= 10)
+	if(m_Health >= g_Config.m_SvMaxHealth) //svmaxhealth +KZ
 		return false;
-	m_Health = clamp(m_Health + Amount, 0, 10);
+	m_Health = clamp(m_Health + Amount, 0, g_Config.m_SvMaxHealth); //+KZ
 	return true;
 }
 
@@ -2718,4 +2718,41 @@ void CCharacter::HandleKZTiles()
 			}
 		}
 	}
+}
+
+bool CCharacter::TakeDamageVanilla(vec2 Force, int Dmg, int From, int Weapon)
+{
+	m_Core.m_Vel += Force;
+
+	// m_pPlayer only inflicts half damage on self //+KZ no
+	//if(From == m_pPlayer->GetCid())
+	//	Dmg = maximum(1, Dmg/2);
+
+	int OldHealth = m_Health;
+	if(Dmg)
+	{
+
+		m_Health -= Dmg;
+	}
+
+	// create healthmod indicator
+	GameServer()->CreateDamageInd(m_Pos, Server()->Tick(), OldHealth-m_Health, TeamMask());
+
+	// do damage Hit sound
+		GameServer()->CreateSound(m_Pos, SOUND_HIT, TeamMask());
+
+	// check for death
+	if(m_Health <= 0)
+	{
+		Die(From, Weapon);
+	}
+
+	if(Dmg > 2)
+		GameServer()->CreateSound(m_Pos, SOUND_PLAYER_PAIN_LONG);
+	else
+		GameServer()->CreateSound(m_Pos, SOUND_PLAYER_PAIN_SHORT);
+
+	SetEmote(EMOTE_PAIN, Server()->Tick() + 500 * Server()->TickSpeed() / 1000);
+
+	return true;
 }

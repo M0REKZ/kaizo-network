@@ -623,6 +623,10 @@ void IGameController::Snap(int SnappingClient)
 		pGameInfoEx->m_Flags2 |= GAMEINFOFLAG2_NO_WEAK_HOOK;
 	pGameInfoEx->m_Version = GAMEINFO_CURVERSION;
 
+	//+KZ
+	if(m_ShowHealth)
+		pGameInfoEx->m_Flags2 |= GAMEINFOFLAG2_HUD_HEALTH_ARMOR;
+
 	if(Server()->IsSixup(SnappingClient))
 	{
 		protocol7::CNetObj_GameData *pGameData = Server()->SnapNewItem<protocol7::CNetObj_GameData>(0);

@@ -12,6 +12,8 @@
 #include <game/version.h>
 
 #include <game/server/entities/kz/kz_pickup.h>
+#include <game/server/entities/kz/kz_gun.h>
+#include <game/server/entities/kz/kz_light.h>
 
 #define GAME_TYPE_NAME "DDraceNetwork"
 #define TEST_TYPE_NAME "TestDDraceNetwork"
@@ -333,6 +335,16 @@ bool CGameControllerKZ::OnEntityKZ(int Index, int x, int y, int Layer, int Flags
 	int PickupType = -1;
 	int PickupSubtype = -1;
 
+	int aSides[8];
+	aSides[0] = GameServer()->Collision()->Entity(x, y + 1, Layer);
+	aSides[1] = GameServer()->Collision()->Entity(x + 1, y + 1, Layer);
+	aSides[2] = GameServer()->Collision()->Entity(x + 1, y, Layer);
+	aSides[3] = GameServer()->Collision()->Entity(x + 1, y - 1, Layer);
+	aSides[4] = GameServer()->Collision()->Entity(x, y - 1, Layer);
+	aSides[5] = GameServer()->Collision()->Entity(x - 1, y - 1, Layer);
+	aSides[6] = GameServer()->Collision()->Entity(x - 1, y, Layer);
+	aSides[7] = GameServer()->Collision()->Entity(x - 1, y + 1, Layer);
+
 	if(Index == KZ_TILE_PORTAL_GUN)
 	{
 		PickupType = POWERUP_WEAPON;
@@ -340,6 +352,59 @@ bool CGameControllerKZ::OnEntityKZ(int Index, int x, int y, int Layer, int Flags
 	}
 
 	const vec2 Pos(x * 32.0f + 16.0f, y * 32.0f + 16.0f);
+
+	if(Index == KZ_TILE_TURRET)
+	{
+		new CKZGun(&GameServer()->m_World,Pos,true,false,Layer,Number);
+		m_ShowHealth = true;
+		return true;
+	}
+
+	if(Index == KZ_TILE_TURRET_EXPLOSIVE)
+	{
+		new CKZGun(&GameServer()->m_World,Pos,true,true,Layer,Number);
+		m_ShowHealth = true;
+		return true;
+	}
+
+	if(Index == KZ_TILE_DAMAGE_LASER)
+	{
+		int aSides2[8];
+		aSides2[0] = GameServer()->Collision()->Entity(x, y + 2, Layer);
+		aSides2[1] = GameServer()->Collision()->Entity(x + 2, y + 2, Layer);
+		aSides2[2] = GameServer()->Collision()->Entity(x + 2, y, Layer);
+		aSides2[3] = GameServer()->Collision()->Entity(x + 2, y - 2, Layer);
+		aSides2[4] = GameServer()->Collision()->Entity(x, y - 2, Layer);
+		aSides2[5] = GameServer()->Collision()->Entity(x - 2, y - 2, Layer);
+		aSides2[6] = GameServer()->Collision()->Entity(x - 2, y, Layer);
+		aSides2[7] = GameServer()->Collision()->Entity(x - 2, y + 2, Layer);
+
+
+		float AngularSpeed = 0.0f;
+		
+		AngularSpeed = pi / (Value1 == 0 ? 90:Value1);
+
+		for(int i = 0; i < 8; i++)
+		{
+			if(aSides[i] >= ENTITY_LASER_SHORT && aSides[i] <= ENTITY_LASER_LONG)
+			{
+				CKZLight *pLight = new CKZLight(&GameServer()->m_World, Pos, pi / 4 * i, 32 * 3 + 32 * (aSides[i] - ENTITY_LASER_SHORT) * 3, Layer, Number);
+				pLight->m_AngularSpeed = AngularSpeed;
+				if(aSides2[i] >= ENTITY_LASER_C_SLOW && aSides2[i] <= ENTITY_LASER_C_FAST)
+				{
+					pLight->m_Speed = 1 + (aSides2[i] - ENTITY_LASER_C_SLOW) * 2;
+					pLight->m_CurveLength = pLight->m_Length;
+				}
+				else if(aSides2[i] >= ENTITY_LASER_O_SLOW && aSides2[i] <= ENTITY_LASER_O_FAST)
+				{
+					pLight->m_Speed = 1 + (aSides2[i] - ENTITY_LASER_O_SLOW) * 2;
+					pLight->m_CurveLength = 0;
+				}
+				else
+					pLight->m_CurveLength = pLight->m_Length;
+			}
+		}
+	}
 
 	if(PickupType != -1)
 	{

@@ -272,6 +272,7 @@ public:
 
 	//+KZ
 	void HandleKZTiles();
+	bool TakeDamageVanilla(vec2 Force, int Dmg, int From, int Weapon);
 	int m_aCrown[7];
 	bool m_EnableCrown = false;
 	bool m_SnapCustomWeapon = false;

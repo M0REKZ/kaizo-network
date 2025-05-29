@@ -2742,8 +2742,14 @@ if(SERVER)
     entities/kz/fdd_stable_projectile.h
     entities/kz/flag.cpp
     entities/kz/flag.h
+    entities/kz/kz_gun.cpp
+    entities/kz/kz_gun.h
     entities/kz/kz_pickup.cpp
     entities/kz/kz_pickup.h
+    entities/kz/kz_plasma.cpp
+    entities/kz/kz_plasma.h
+    entities/kz/kz_light.cpp
+    entities/kz/kz_light.h
     entities/kz/portal.cpp
     entities/kz/portal.h
     entities/kz/portal_projectile.cpp
