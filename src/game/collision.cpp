@@ -59,20 +59,20 @@ void CCollision::Init(class CLayers *pLayers)
 
 	if(m_pLayers->KZGameLayer())
 	{
-		unsigned int Size = m_pLayers->Map()->GetDataSize(m_pLayers->KZGameLayer()->m_Data);
+		unsigned int Size = m_pLayers->Map()->GetDataSize(m_pLayers->KZGameLayer()->m_KZGame);
 		m_KZGameWidth = m_pLayers->KZGameLayer()->m_Width;
 		m_KZGameHeight = m_pLayers->KZGameLayer()->m_Height;
 		if(Size >= (size_t)m_KZGameWidth * m_KZGameHeight * sizeof(CKZTile))
-			m_pKZGame = static_cast<CKZTile *>(m_pLayers->Map()->GetData(m_pLayers->KZGameLayer()->m_Data));
+			m_pKZGame = static_cast<CKZTile *>(m_pLayers->Map()->GetData(m_pLayers->KZGameLayer()->m_KZGame));
 	}
 
 	if(m_pLayers->KZFrontLayer())
 	{
-		unsigned int Size = m_pLayers->Map()->GetDataSize(m_pLayers->KZFrontLayer()->m_Data);
+		unsigned int Size = m_pLayers->Map()->GetDataSize(m_pLayers->KZFrontLayer()->m_KZFront);
 		m_KZFrontWidth = m_pLayers->KZFrontLayer()->m_Width;
 		m_KZFrontHeight = m_pLayers->KZFrontLayer()->m_Height;
 		if(Size >= (size_t)m_KZFrontWidth * m_KZFrontHeight * sizeof(CKZTile))
-			m_pKZFront = static_cast<CKZTile *>(m_pLayers->Map()->GetData(m_pLayers->KZFrontLayer()->m_Data));
+			m_pKZFront = static_cast<CKZTile *>(m_pLayers->Map()->GetData(m_pLayers->KZFrontLayer()->m_KZFront));
 	}
 
 	if(m_pLayers->TeleLayer())

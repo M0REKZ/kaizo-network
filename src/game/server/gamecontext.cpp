@@ -4088,11 +4088,11 @@ void CGameContext::CreateAllEntities(bool Initial)
 
 	const CKZTile *pKZGame = nullptr;
 	if(m_Layers.KZGameLayer())
-		pKZGame = static_cast<CKZTile *>(Kernel()->RequestInterface<IMap>()->GetData(m_Layers.KZGameLayer()->m_Data));
+		pKZGame = static_cast<CKZTile *>(Kernel()->RequestInterface<IMap>()->GetData(m_Layers.KZGameLayer()->m_KZGame));
 
 	const CKZTile *pKZFront = nullptr;
 	if(m_Layers.KZFrontLayer())
-		pKZFront = static_cast<CKZTile *>(Kernel()->RequestInterface<IMap>()->GetData(m_Layers.KZFrontLayer()->m_Data));
+		pKZFront = static_cast<CKZTile *>(Kernel()->RequestInterface<IMap>()->GetData(m_Layers.KZFrontLayer()->m_KZFront));
 
 	for(int y = 0; y < pTileMap->m_Height; y++)
 	{

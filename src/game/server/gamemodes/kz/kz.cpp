@@ -382,7 +382,7 @@ bool CGameControllerKZ::OnEntityKZ(int Index, int x, int y, int Layer, int Flags
 
 		float AngularSpeed = 0.0f;
 		
-		AngularSpeed = pi / (Value1 == 0 ? 90:Value1);
+		AngularSpeed = (pi / 360) * Value1;
 
 		for(int i = 0; i < 8; i++)
 		{

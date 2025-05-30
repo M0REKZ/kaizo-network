@@ -224,10 +224,10 @@ bool CEditorMap::Save(const char *pFileName, const std::function<void(const char
 					else if(pLayerTiles->m_HasKZGame)
 					{
 						printf("Saving KZ game layer\n\n\n");
-						Item.m_Data = Writer.AddData((size_t)pLayerTiles->m_Width * pLayerTiles->m_Height * sizeof(CKZTile), std::static_pointer_cast<CLayerKZGame>(pLayerTiles)->m_pKZTile);
+						Item.m_KZGame = Writer.AddData((size_t)pLayerTiles->m_Width * pLayerTiles->m_Height * sizeof(CKZTile), std::static_pointer_cast<CLayerKZGame>(pLayerTiles)->m_pKZTile);
 					}
 					else if(pLayerTiles->m_HasKZFront)
-						Item.m_Data = Writer.AddData((size_t)pLayerTiles->m_Width * pLayerTiles->m_Height * sizeof(CKZTile), std::static_pointer_cast<CLayerKZFront>(pLayerTiles)->m_pKZTile);
+						Item.m_KZFront = Writer.AddData((size_t)pLayerTiles->m_Width * pLayerTiles->m_Height * sizeof(CKZTile), std::static_pointer_cast<CLayerKZFront>(pLayerTiles)->m_pKZTile);
 				}
 				else
 					Item.m_Data = Writer.AddData((size_t)pLayerTiles->m_Width * pLayerTiles->m_Height * sizeof(CTile), pLayerTiles->m_pTiles);
@@ -865,8 +865,8 @@ bool CEditorMap::Load(const char *pFileName, int StorageType, const std::functio
 					}
 					else if(str_comp(aBuf, KZ_GAME_LAYER_NAME) == 0)
 					{
-						void *pKZData = DataFile.GetData(pTilemapItem->m_Data);
-						unsigned int Size = DataFile.GetDataSize(pTilemapItem->m_Data);
+						void *pKZData = DataFile.GetData(pTilemapItem->m_KZGame);
+						unsigned int Size = DataFile.GetDataSize(pTilemapItem->m_KZGame);
 						if(Size >= (size_t)pTiles->m_Width * pTiles->m_Height * sizeof(CKZTile))
 						{
 							CKZTile *pLayerKZTiles = std::static_pointer_cast<CLayerKZGame>(pTiles)->m_pKZTile;
@@ -877,12 +877,12 @@ bool CEditorMap::Load(const char *pFileName, int StorageType, const std::functio
 								pTiles->m_pTiles[i].m_Flags = pLayerKZTiles[i].m_Flags;
 							}							
 						}
-						DataFile.UnloadData(pTilemapItem->m_Data);
+						DataFile.UnloadData(pTilemapItem->m_KZGame);
 					}
 					else if(str_comp(aBuf, KZ_FRONT_LAYER_NAME) == 0)
 					{
-						void *pKZData = DataFile.GetData(pTilemapItem->m_Data);
-						unsigned int Size = DataFile.GetDataSize(pTilemapItem->m_Data);
+						void *pKZData = DataFile.GetData(pTilemapItem->m_KZFront);
+						unsigned int Size = DataFile.GetDataSize(pTilemapItem->m_KZFront);
 						if(Size >= (size_t)pTiles->m_Width * pTiles->m_Height * sizeof(CKZTile))
 						{
 							CKZTile *pLayerKZTiles = std::static_pointer_cast<CLayerKZFront>(pTiles)->m_pKZTile;
@@ -893,7 +893,7 @@ bool CEditorMap::Load(const char *pFileName, int StorageType, const std::functio
 								pTiles->m_pTiles[i].m_Flags = pLayerKZTiles[i].m_Flags;
 							}							
 						}
-						DataFile.UnloadData(pTilemapItem->m_Data);
+						DataFile.UnloadData(pTilemapItem->m_KZFront);
 					}
 					else // regular tile layer or game layer
 					{

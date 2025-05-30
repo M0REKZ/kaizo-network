@@ -349,6 +349,11 @@ public:
 	int m_Front;
 	int m_Switch;
 	int m_Tune;
+
+	//+KZ
+
+	int m_KZGame;
+	int m_KZFront;
 };
 
 class CMapItemLayerQuads

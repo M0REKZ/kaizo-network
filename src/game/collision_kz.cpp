@@ -30,7 +30,7 @@ int CCollision::CheckPointForCore(float x, float y, CCharacterCore *pCore, bool 
 {
     if(pCore)
     {
-        if(m_pKZGame)
+        if(m_pKZGame || m_pKZFront)
         {
             int Nx = clamp(round_to_int(x) / 32, 0, m_KZGameWidth - 1);
             int Ny = clamp(round_to_int(y) / 32, 0, m_KZGameHeight - 1);
@@ -94,7 +94,7 @@ int CCollision::CheckPointForCore(float x, float y, CCharacterCore *pCore, bool 
             }
 
             if(KZFrontTile)
-            {
+            {       
                 if(KZFrontTile && KZFrontTile->m_Index == KZ_TILE_SWITCHABLE && (KZFrontTile->m_Value1 == TILE_SOLID || KZFrontTile->m_Value1 == TILE_NOHOOK) && pCore->m_pWorld && pCore->m_pTeams && !pCore->m_pWorld->m_vSwitchers.empty() && pCore->m_pWorld->m_vSwitchers[KZFrontTile->m_Number].m_aStatus[0])
                 {
                     pCore->m_SendCoreThisTick = true;
@@ -154,7 +154,7 @@ unsigned char CCollision::GetKZGameTileIndex(int x, int y) const
 
 unsigned char CCollision::GetKZGameTileIndex(int Index) const
 {
-	return m_pKZGame ? (int)m_pKZGame[Index].m_Index : TILE_AIR;
+	return m_pKZGame ? m_pKZGame[Index].m_Index : TILE_AIR;
 }
 
 unsigned char CCollision::GetKZFrontTileIndex(float x, float y) const
@@ -171,6 +171,6 @@ unsigned char CCollision::GetKZFrontTileIndex(int x, int y) const
 
 unsigned char CCollision::GetKZFrontTileIndex(int Index) const
 {
-	return m_pKZFront ? (int)m_pKZFront[Index].m_Index : TILE_AIR;
+	return m_pKZFront ? m_pKZFront[Index].m_Index : TILE_AIR;
 }
 
