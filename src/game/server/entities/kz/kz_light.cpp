@@ -17,7 +17,8 @@ CKZLight::CKZLight(CGameWorld *pGameWorld, vec2 Pos, float Rotation, int Length,
 	int Layer, int Number) :
 	CEntity(pGameWorld, CGameWorld::CUSTOM_ENTTYPE_KZLIGHT)
 {
-	m_DamageTick = 1 * Server()->TickSpeed();
+	for(int i = 0; i < NUM_DDRACE_TEAMS; i++)
+		m_DamageTicks[i] = 1 * Server()->TickSpeed();
 	
 	m_To = vec2(0.0f, 0.0f);
 	m_Core = vec2(0.0f, 0.0f);
@@ -41,12 +42,12 @@ bool CKZLight::HitCharacter()
 	{
 		if(m_Layer == LAYER_SWITCH && m_Number > 0 && !Switchers()[m_Number].m_aStatus[pChar->Team()])
 			continue;
-		else if(!m_DamageTick)
+		else if(!m_DamageTicks[pChar->Team()])
 		{
 
 			pChar->TakeDamageVanilla(vec2(0,0), 2, -1, WEAPON_WORLD);
 
-			m_DamageTick = 4 * Server()->TickSpeed();
+			m_DamageTicks[pChar->Team()] = 4 * Server()->TickSpeed();
 		}
 	}
 	return true;
@@ -102,14 +103,17 @@ void CKZLight::Tick()
 		Step();
 	}
 
-	if(m_DamageTick > 0)
+	for(int i = 0; i < NUM_DDRACE_TEAMS;i++)
 	{
-		m_DamageTick--;
-		
-		//+KZ
-		if((m_DamageTick % Server()->TickSpeed()) == 0)
+		if(m_DamageTicks[i] > 0)
 		{
-			GameServer()->CreateSound(m_Pos, SOUND_WEAPON_NOAMMO);
+			m_DamageTicks[i]--;
+			
+			//+KZ
+			if((m_DamageTicks[i] % Server()->TickSpeed()) == 0)
+			{
+				GameServer()->CreateSound(m_Pos, SOUND_WEAPON_NOAMMO,GameServer()->m_pController->Teams().TeamMask(i));
+			}
 		}
 	}
 	
@@ -157,7 +161,7 @@ void CKZLight::Snap(int SnappingClient)
 			StartTick = Server()->Tick();
 	}
 	
-	if(m_DamageTick)
+	if(pChr && m_DamageTicks[pChr->Team()])
 	{
 		GameServer()->SnapLaserObject(CSnapContext(SnappingClientVersion), GetId(),
 									  m_Pos, From, Server()->Tick()-4, -1, LASERTYPE_SHOTGUN, 0, m_Number);

@@ -281,7 +281,7 @@ void CLayerKZGame::FillSelection(bool Empty, std::shared_ptr<CLayer> pBrush, CUI
 			{
 				m_pTiles[TgtIndex] = pLt->m_pTiles[SrcIndex];
 				m_pKZTile[TgtIndex].m_Index = m_pTiles[TgtIndex].m_Index;
-				if(pLt->m_HasSwitch && m_pTiles[TgtIndex].m_Index > 0)
+				if(pLt->m_HasKZGame && m_pTiles[TgtIndex].m_Index > 0)
 				{
 					
 						m_pKZTile[TgtIndex].m_Number = pLt->m_pKZTile[SrcIndex].m_Number;

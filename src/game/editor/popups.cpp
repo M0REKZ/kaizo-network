@@ -3308,7 +3308,7 @@ CUi::EPopupMenuFunctionResult CEditor::PopupKZGame(void *pContext, CUIRect View,
 	};
 
 	CProperty aProps[] = {
-		{"Number", pEditor->m_KZGameNumber, PROPTYPE_INT, 1, std::numeric_limits<unsigned char>::max()},
+		{"Number", pEditor->m_KZGameNumber, PROPTYPE_INT, 0, std::numeric_limits<unsigned char>::max()},
 		{"Value1", pEditor->m_KZGameValue1, PROPTYPE_INT, std::numeric_limits<long long>::min(), std::numeric_limits<long long>::max()},
 		{"Value2", pEditor->m_KZGameValue2, PROPTYPE_INT, std::numeric_limits<long long>::min(), std::numeric_limits<long long>::max()},
 		{"Value3", pEditor->m_KZGameValue3, PROPTYPE_INT, std::numeric_limits<long long>::min(), std::numeric_limits<long long>::max()},
@@ -3321,7 +3321,7 @@ CUi::EPopupMenuFunctionResult CEditor::PopupKZGame(void *pContext, CUIRect View,
 
 	if(Prop == PROP_NUMBER)
 	{
-		pEditor->m_KZGameNumber = clamp(NewVal, (long long)1, (long long)std::numeric_limits<unsigned char>::max());
+		pEditor->m_KZGameNumber = clamp(NewVal, (long long)0, (long long)std::numeric_limits<unsigned char>::max());
 	}
 	else if(Prop == PROP_VALUE1)
 	{
@@ -3353,7 +3353,7 @@ CUi::EPopupMenuFunctionResult CEditor::PopupKZFront(void *pContext, CUIRect View
 	};
 
 	CProperty aProps[] = {
-		{"Number", pEditor->m_KZFrontNumber, PROPTYPE_INT, 1, std::numeric_limits<unsigned char>::max()},
+		{"Number", pEditor->m_KZFrontNumber, PROPTYPE_INT, 0, std::numeric_limits<unsigned char>::max()},
 		{"Value1", pEditor->m_KZFrontValue1, PROPTYPE_INT, std::numeric_limits<long long>::min(), std::numeric_limits<long long>::max()},
 		{"Value2", pEditor->m_KZFrontValue2, PROPTYPE_INT, std::numeric_limits<long long>::min(), std::numeric_limits<long long>::max()},
 		{"Value3", pEditor->m_KZFrontValue3, PROPTYPE_INT, std::numeric_limits<long long>::min(), std::numeric_limits<long long>::max()},
@@ -3366,7 +3366,7 @@ CUi::EPopupMenuFunctionResult CEditor::PopupKZFront(void *pContext, CUIRect View
 
 	if(Prop == PROP_NUMBER)
 	{
-		pEditor->m_KZFrontNumber = clamp(NewVal, (long long)1, (long long)std::numeric_limits<unsigned char>::max());
+		pEditor->m_KZFrontNumber = clamp(NewVal, (long long)0, (long long)std::numeric_limits<unsigned char>::max());
 	}
 	else if(Prop == PROP_VALUE1)
 	{

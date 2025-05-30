@@ -124,3 +124,95 @@ void CLayerKZFront::BrushDraw(std::shared_ptr<CLayer> pBrush, vec2 WorldPos)
 		}
 	FlagModified(sx, sy, pSwitchLayer->m_Width, pSwitchLayer->m_Height);
 }
+
+void CLayerKZFront::FillSelection(bool Empty, std::shared_ptr<CLayer> pBrush, CUIRect Rect)
+{
+	if(m_Readonly || (!Empty && pBrush->m_Type != LAYERTYPE_TILES))
+		return;
+
+	Snap(&Rect); // corrects Rect; no need of <=
+
+	Snap(&Rect);
+
+	int sx = ConvertX(Rect.x);
+	int sy = ConvertY(Rect.y);
+	int w = ConvertX(Rect.w);
+	int h = ConvertY(Rect.h);
+
+	std::shared_ptr<CLayerKZGame> pLt = std::static_pointer_cast<CLayerKZGame>(pBrush);
+
+	bool Destructive = m_pEditor->m_BrushDrawDestructive || Empty || IsEmpty(pLt);
+
+	for(int y = 0; y < h; y++)
+	{
+		for(int x = 0; x < w; x++)
+		{
+			int fx = x + sx;
+			int fy = y + sy;
+
+			if(fx < 0 || fx >= m_Width || fy < 0 || fy >= m_Height)
+				continue;
+
+			if(!Destructive && GetTile(fx, fy).m_Index)
+				continue;
+
+			const int SrcIndex = Empty ? 0 : (y * pLt->m_Width + x % pLt->m_Width) % (pLt->m_Width * pLt->m_Height);
+			const int TgtIndex = fy * m_Width + fx;
+
+			SKZTileStateChange::SData Previous{
+				m_pKZTile[TgtIndex].m_Index,
+				m_pKZTile[TgtIndex].m_Flags,
+				m_pKZTile[TgtIndex].m_Number,
+				m_pKZTile[TgtIndex].m_Value1,
+				m_pKZTile[TgtIndex].m_Value2,
+				m_pKZTile[TgtIndex].m_Value3,
+				m_pTiles[TgtIndex].m_Index};
+
+			if(Empty)
+			{
+				m_pKZTile[TgtIndex].m_Index = 0;
+				m_pKZTile[TgtIndex].m_Number = 0;
+				m_pKZTile[TgtIndex].m_Value1 = 0;
+				m_pKZTile[TgtIndex].m_Value2 = 0;
+				m_pKZTile[TgtIndex].m_Value3 = 0;
+				m_pTiles[TgtIndex].m_Index = 0;
+			}
+			else
+			{
+				m_pTiles[TgtIndex] = pLt->m_pTiles[SrcIndex];
+				m_pKZTile[TgtIndex].m_Index = m_pTiles[TgtIndex].m_Index;
+				if(pLt->m_HasKZFront && m_pTiles[TgtIndex].m_Index > 0)
+				{
+					
+						m_pKZTile[TgtIndex].m_Number = pLt->m_pKZTile[SrcIndex].m_Number;
+						m_pKZTile[TgtIndex].m_Index = pLt->m_pKZTile[SrcIndex].m_Index;
+						m_pKZTile[TgtIndex].m_Flags = pLt->m_pKZTile[SrcIndex].m_Flags;
+						m_pKZTile[TgtIndex].m_Value1 = pLt->m_pKZTile[SrcIndex].m_Value1;
+						m_pKZTile[TgtIndex].m_Value2 = pLt->m_pKZTile[SrcIndex].m_Value2;
+						m_pKZTile[TgtIndex].m_Value3 = pLt->m_pKZTile[SrcIndex].m_Value3;
+				}
+				else
+				{
+					m_pKZTile[TgtIndex].m_Index = 0;
+					m_pKZTile[TgtIndex].m_Number = 0;
+					m_pKZTile[TgtIndex].m_Value1 = 0;
+					m_pKZTile[TgtIndex].m_Value2 = 0;
+					m_pKZTile[TgtIndex].m_Value3 = 0;
+					m_pTiles[TgtIndex].m_Index = 0;
+				}
+			}
+
+			SKZTileStateChange::SData Current{
+				m_pKZTile[TgtIndex].m_Index,
+				m_pKZTile[TgtIndex].m_Flags,
+				m_pKZTile[TgtIndex].m_Number,
+				m_pKZTile[TgtIndex].m_Value1,
+				m_pKZTile[TgtIndex].m_Value2,
+				m_pKZTile[TgtIndex].m_Value3,
+				m_pTiles[TgtIndex].m_Index};
+
+			RecordStateChange(fx, fy, Previous, Current);
+		}
+	}
+	FlagModified(sx, sy, w, h);
+}

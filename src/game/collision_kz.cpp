@@ -47,7 +47,7 @@ int CCollision::CheckPointForCore(float x, float y, CCharacterCore *pCore, bool 
 
             if(KZTile)
             {
-                if(KZTile->m_Index == KZ_TILE_SWITCHABLE && (KZTile->m_Value1 == TILE_SOLID || KZTile->m_Value1 == TILE_NOHOOK) && pCore->m_pWorld && pCore->m_pTeams && !pCore->m_pWorld->m_vSwitchers.empty() && pCore->m_pWorld->m_vSwitchers[KZTile->m_Number].m_aStatus[0])
+                if(KZTile->m_Index == KZ_TILE_SWITCHABLE && KZTile->m_Number && (KZTile->m_Value1 == TILE_SOLID || KZTile->m_Value1 == TILE_NOHOOK) && pCore->m_pWorld && pCore->m_pTeams && !pCore->m_pWorld->m_vSwitchers.empty() && pCore->m_pWorld->m_vSwitchers[KZTile->m_Number].m_aStatus[0])
                 {
                     pCore->m_SendCoreThisTick = true;
                     return KZTile->m_Value1;
@@ -61,6 +61,7 @@ int CCollision::CheckPointForCore(float x, float y, CCharacterCore *pCore, bool 
                             {
                                 if(pCore->m_Vel.y >=0)
                                 {
+                                    pCore->m_SendCoreThisTick = true;
                                     return TILE_SOLID;
                                 }
                                 break;
@@ -69,6 +70,7 @@ int CCollision::CheckPointForCore(float x, float y, CCharacterCore *pCore, bool 
                             {
                                 if(pCore->m_Vel.x <= 0)
                                 {
+                                    pCore->m_SendCoreThisTick = true;
                                     return TILE_SOLID;
                                 }
                                 break;
@@ -77,6 +79,7 @@ int CCollision::CheckPointForCore(float x, float y, CCharacterCore *pCore, bool 
                             {
                                 if(pCore->m_Vel.y <= 0)
                                 {
+                                    pCore->m_SendCoreThisTick = true;
                                     return TILE_SOLID;
                                 }
                                 break;
@@ -85,6 +88,7 @@ int CCollision::CheckPointForCore(float x, float y, CCharacterCore *pCore, bool 
                             {
                                 if(pCore->m_Vel.x >= 0)
                                 {
+                                    pCore->m_SendCoreThisTick = true;
                                     return TILE_SOLID;
                                 }
                                 break;
@@ -95,10 +99,53 @@ int CCollision::CheckPointForCore(float x, float y, CCharacterCore *pCore, bool 
 
             if(KZFrontTile)
             {       
-                if(KZFrontTile && KZFrontTile->m_Index == KZ_TILE_SWITCHABLE && (KZFrontTile->m_Value1 == TILE_SOLID || KZFrontTile->m_Value1 == TILE_NOHOOK) && pCore->m_pWorld && pCore->m_pTeams && !pCore->m_pWorld->m_vSwitchers.empty() && pCore->m_pWorld->m_vSwitchers[KZFrontTile->m_Number].m_aStatus[0])
+                if(KZFrontTile->m_Index == KZ_TILE_SWITCHABLE && KZFrontTile->m_Number && (KZFrontTile->m_Value1 == TILE_SOLID || KZFrontTile->m_Value1 == TILE_NOHOOK) && pCore->m_pWorld && pCore->m_pTeams && !pCore->m_pWorld->m_vSwitchers.empty() && pCore->m_pWorld->m_vSwitchers[KZFrontTile->m_Number].m_aStatus[0])
                 {
                     pCore->m_SendCoreThisTick = true;
                     return KZFrontTile->m_Value1;
+                }
+
+                if(KZFrontTile->m_Index == KZ_TILE_SOLID_STOPPER && !IsHook && !IsWeapon)
+                {
+                    switch(KZFrontTile->m_Flags)
+                    {
+                        case ROTATION_0:
+                            {
+                                if(pCore->m_Vel.y >=0)
+                                {
+                                    pCore->m_SendCoreThisTick = true;
+                                    return TILE_SOLID;
+                                }
+                                break;
+                            }
+                        case ROTATION_90:
+                            {
+                                if(pCore->m_Vel.x <= 0)
+                                {
+                                    pCore->m_SendCoreThisTick = true;
+                                    return TILE_SOLID;
+                                }
+                                break;
+                            }
+                        case ROTATION_180:
+                            {
+                                if(pCore->m_Vel.y <= 0)
+                                {
+                                    pCore->m_SendCoreThisTick = true;
+                                    return TILE_SOLID;
+                                }
+                                break;
+                            }
+                        case ROTATION_270:
+                            {
+                                if(pCore->m_Vel.x >= 0)
+                                {
+                                    pCore->m_SendCoreThisTick = true;
+                                    return TILE_SOLID;
+                                }
+                                break;
+                            }
+                    }
                 }
             }
         }

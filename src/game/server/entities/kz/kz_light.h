@@ -25,7 +25,7 @@ public:
 	int m_Speed;
 	int m_Length;
 	
-	int m_DamageTick; //+KZ
+	int m_DamageTicks[NUM_DDRACE_TEAMS]; //+KZ
 
 	CKZLight(CGameWorld *pGameWorld, vec2 Pos, float Rotation, int Length,
 		int Layer = 0, int Number = 0);
