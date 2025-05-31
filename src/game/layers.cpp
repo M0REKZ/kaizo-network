@@ -154,6 +154,10 @@ void CLayers::Unload()
 	m_pFrontLayer = nullptr;
 	m_pSwitchLayer = nullptr;
 	m_pTuneLayer = nullptr;
+
+	//+KZ
+	m_pKZGameLayer = nullptr;
+	m_pKZFrontLayer = nullptr;
 }
 
 void CLayers::InitTilemapSkip()
