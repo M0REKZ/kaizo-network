@@ -31,7 +31,7 @@ public:
 	//+KZ
 
 	int OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int Weapon) override;
-	bool OnEntityKZ(int Index, int x, int y, int Layer, int Flags, bool Initial, unsigned char Number = 0, long long Value1 = 0, long long Value2 = 0, long long Value3 = 0) override;
+	bool OnEntityKZ(int Index, int x, int y, int Layer, int Flags, bool Initial, unsigned char Number = 0, int64_t Value1 = 0, int64_t Value2 = 0, int64_t Value3 = 0) override;
 
 	bool OnEntity(int Index, int x, int y, int Layer, int Flags, bool Initial, int Number = 0) override;
 	virtual void Snap(int SnappingClient) override;

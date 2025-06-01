@@ -3309,31 +3309,31 @@ CUi::EPopupMenuFunctionResult CEditor::PopupKZGame(void *pContext, CUIRect View,
 
 	CProperty aProps[] = {
 		{"Number", pEditor->m_KZGameNumber, PROPTYPE_INT, 0, std::numeric_limits<unsigned char>::max()},
-		{"Value1", pEditor->m_KZGameValue1, PROPTYPE_INT, std::numeric_limits<long long>::min(), std::numeric_limits<long long>::max()},
-		{"Value2", pEditor->m_KZGameValue2, PROPTYPE_INT, std::numeric_limits<long long>::min(), std::numeric_limits<long long>::max()},
-		{"Value3", pEditor->m_KZGameValue3, PROPTYPE_INT, std::numeric_limits<long long>::min(), std::numeric_limits<long long>::max()},
+		{"Value1", pEditor->m_KZGameValue1, PROPTYPE_INT, std::numeric_limits<int64_t>::min(), std::numeric_limits<int64_t>::max()},
+		{"Value2", pEditor->m_KZGameValue2, PROPTYPE_INT, std::numeric_limits<int64_t>::min(), std::numeric_limits<int64_t>::max()},
+		{"Value3", pEditor->m_KZGameValue3, PROPTYPE_INT, std::numeric_limits<int64_t>::min(), std::numeric_limits<int64_t>::max()},
 		{nullptr},
 	};
 
 	static int s_aIds[NUM_PROPS] = {0};
-	long long NewVal = 0;
+	int64_t NewVal = 0;
 	int Prop = pEditor->DoPropertiesWithStateLongLong(&View, aProps, s_aIds, &NewVal).m_Value;
 
 	if(Prop == PROP_NUMBER)
 	{
-		pEditor->m_KZGameNumber = clamp(NewVal, (long long)0, (long long)std::numeric_limits<unsigned char>::max());
+		pEditor->m_KZGameNumber = clamp(NewVal, (int64_t)0, (int64_t)std::numeric_limits<unsigned char>::max());
 	}
 	else if(Prop == PROP_VALUE1)
 	{
-		pEditor->m_KZGameValue1 = clamp(NewVal, std::numeric_limits<long long>::min(), std::numeric_limits<long long>::max());
+		pEditor->m_KZGameValue1 = clamp(NewVal, std::numeric_limits<int64_t>::min(), std::numeric_limits<int64_t>::max());
 	}
 	else if(Prop == PROP_VALUE2)
 	{
-		pEditor->m_KZGameValue2 = clamp(NewVal, std::numeric_limits<long long>::min(), std::numeric_limits<long long>::max());
+		pEditor->m_KZGameValue2 = clamp(NewVal, std::numeric_limits<int64_t>::min(), std::numeric_limits<int64_t>::max());
 	}
 	else if(Prop == PROP_VALUE3)
 	{
-		pEditor->m_KZGameValue3 = clamp(NewVal, std::numeric_limits<long long>::min(), std::numeric_limits<long long>::max());
+		pEditor->m_KZGameValue3 = clamp(NewVal, std::numeric_limits<int64_t>::min(), std::numeric_limits<int64_t>::max());
 	}
 
 	return CUi::POPUP_KEEP_OPEN;
@@ -3354,31 +3354,31 @@ CUi::EPopupMenuFunctionResult CEditor::PopupKZFront(void *pContext, CUIRect View
 
 	CProperty aProps[] = {
 		{"Number", pEditor->m_KZFrontNumber, PROPTYPE_INT, 0, std::numeric_limits<unsigned char>::max()},
-		{"Value1", pEditor->m_KZFrontValue1, PROPTYPE_INT, std::numeric_limits<long long>::min(), std::numeric_limits<long long>::max()},
-		{"Value2", pEditor->m_KZFrontValue2, PROPTYPE_INT, std::numeric_limits<long long>::min(), std::numeric_limits<long long>::max()},
-		{"Value3", pEditor->m_KZFrontValue3, PROPTYPE_INT, std::numeric_limits<long long>::min(), std::numeric_limits<long long>::max()},
+		{"Value1", pEditor->m_KZFrontValue1, PROPTYPE_INT, std::numeric_limits<int64_t>::min(), std::numeric_limits<int64_t>::max()},
+		{"Value2", pEditor->m_KZFrontValue2, PROPTYPE_INT, std::numeric_limits<int64_t>::min(), std::numeric_limits<int64_t>::max()},
+		{"Value3", pEditor->m_KZFrontValue3, PROPTYPE_INT, std::numeric_limits<int64_t>::min(), std::numeric_limits<int64_t>::max()},
 		{nullptr},
 	};
 
 	static int s_aIds[NUM_PROPS] = {0};
-	long long NewVal = 0;
+	int64_t NewVal = 0;
 	int Prop = pEditor->DoPropertiesWithStateLongLong(&View, aProps, s_aIds, &NewVal).m_Value;
 
 	if(Prop == PROP_NUMBER)
 	{
-		pEditor->m_KZFrontNumber = clamp(NewVal, (long long)0, (long long)std::numeric_limits<unsigned char>::max());
+		pEditor->m_KZFrontNumber = clamp(NewVal, (int64_t)0, (int64_t)std::numeric_limits<unsigned char>::max());
 	}
 	else if(Prop == PROP_VALUE1)
 	{
-		pEditor->m_KZFrontValue1 = clamp(NewVal, std::numeric_limits<long long>::min(), std::numeric_limits<long long>::max());
+		pEditor->m_KZFrontValue1 = clamp(NewVal, std::numeric_limits<int64_t>::min(), std::numeric_limits<int64_t>::max());
 	}
 	else if(Prop == PROP_VALUE2)
 	{
-		pEditor->m_KZFrontValue2 = clamp(NewVal, std::numeric_limits<long long>::min(), std::numeric_limits<long long>::max());
+		pEditor->m_KZFrontValue2 = clamp(NewVal, std::numeric_limits<int64_t>::min(), std::numeric_limits<int64_t>::max());
 	}
 	else if(Prop == PROP_VALUE3)
 	{
-		pEditor->m_KZFrontValue3 = clamp(NewVal, std::numeric_limits<long long>::min(), std::numeric_limits<long long>::max());
+		pEditor->m_KZFrontValue3 = clamp(NewVal, std::numeric_limits<int64_t>::min(), std::numeric_limits<int64_t>::max());
 	}
 
 	return CUi::POPUP_KEEP_OPEN;
