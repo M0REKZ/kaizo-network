@@ -284,7 +284,7 @@ SEditResult<E> CEditor::DoPropertiesWithState(CUIRect *pToolBox, CProperty *pPro
 	return SEditResult<E>{State, static_cast<E>(Change)};
 }
 
-SEditResult<long long> CEditor::DoPropertiesWithStateLongLong(CUIRect *pToolBox, CProperty *pProps, int *pIds, long long *pNewVal, const std::vector<ColorRGBA> &vColors)
+SEditResult<int64_t> CEditor::DoPropertiesWithStateLongLong(CUIRect *pToolBox, CProperty *pProps, int *pIds, int64_t *pNewVal, const std::vector<ColorRGBA> &vColors)
 {
 	int Change = -1;
 	EEditState State = EEditState::NONE;
@@ -550,7 +550,7 @@ SEditResult<long long> CEditor::DoPropertiesWithStateLongLong(CUIRect *pToolBox,
 		}
 	}
 
-	return SEditResult<long long>{State, static_cast<long long>(Change)};
+	return SEditResult<int64_t>{State, static_cast<int64_t>(Change)};
 }
 
 template SEditResult<ECircleShapeProp> CEditor::DoPropertiesWithState(CUIRect *, CProperty *, int *, int *, const std::vector<ColorRGBA> &);

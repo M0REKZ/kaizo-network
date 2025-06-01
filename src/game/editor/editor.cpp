@@ -298,7 +298,7 @@ void CEditor::RenderBackground(CUIRect View, IGraphics::CTextureHandle Texture, 
 	Graphics()->QuadsEnd();
 }
 
-SEditResult<long long> CEditor::UiDoValueSelector(void *pId, CUIRect *pRect, const char *pLabel, long long Current, long long Min, long long Max, int Step, float Scale, const char *pToolTip, bool IsDegree, bool IsHex, int Corners, const ColorRGBA *pColor, bool ShowValue)
+SEditResult<int64_t> CEditor::UiDoValueSelector(void *pId, CUIRect *pRect, const char *pLabel, int64_t Current, int64_t Min, int64_t Max, int Step, float Scale, const char *pToolTip, bool IsDegree, bool IsHex, int Corners, const ColorRGBA *pColor, bool ShowValue)
 {
 	// logic
 	static bool s_DidScroll = false;
@@ -433,7 +433,7 @@ SEditResult<long long> CEditor::UiDoValueSelector(void *pId, CUIRect *pRect, con
 		s_pEditing = nullptr;
 	}
 
-	return SEditResult<long long>{State, Current};
+	return SEditResult<int64_t>{State, Current};
 }
 
 std::shared_ptr<CLayerGroup> CEditor::GetSelectedGroup() const

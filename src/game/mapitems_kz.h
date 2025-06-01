@@ -34,9 +34,9 @@ public:
 	unsigned char m_Index;
 	unsigned char m_Flags;
 	unsigned char m_Number;
-	long long int m_Value1;
-    long long int m_Value2;
-    long long int m_Value3;
+	int64_t m_Value1;
+    int64_t m_Value2;
+    int64_t m_Value3;
 };
 
 #endif

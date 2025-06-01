@@ -330,7 +330,7 @@ void CGameControllerKZ::DoCrown()
 	}
 }
 
-bool CGameControllerKZ::OnEntityKZ(int Index, int x, int y, int Layer, int Flags, bool Initial, unsigned char Number, long long Value1, long long Value2, long long Value3)
+bool CGameControllerKZ::OnEntityKZ(int Index, int x, int y, int Layer, int Flags, bool Initial, unsigned char Number, int64_t Value1, int64_t Value2, int64_t Value3)
 {
 	int PickupType = -1;
 	int PickupSubtype = -1;

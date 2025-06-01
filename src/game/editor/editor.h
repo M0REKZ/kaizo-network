@@ -230,17 +230,17 @@ public:
 class CProperty
 {
 public:
-	CProperty(const char *pName, long long Value, int Type, long long Min, long long Max) :
+	CProperty(const char *pName, int64_t Value, int Type, int64_t Min, int64_t Max) :
 		m_pName(pName), m_Value(Value), m_Type(Type), m_Min(Min), m_Max(Max) {}
 
 	CProperty(std::nullptr_t) :
 		m_pName(nullptr), m_Value(0), m_Type(0), m_Min(0), m_Max(0) {}
 
 	const char *m_pName;
-	long long m_Value; // unsigned long long KZ
+	int64_t m_Value; // unsigned int64_t KZ
 	int m_Type;
-	long long m_Min;
-	long long m_Max;
+	int64_t m_Min;
+	int64_t m_Max;
 };
 
 enum
@@ -916,7 +916,7 @@ public:
 
 	void RenderBackground(CUIRect View, IGraphics::CTextureHandle Texture, float Size, float Brightness) const;
 
-	SEditResult<long long> UiDoValueSelector(void *pId, CUIRect *pRect, const char *pLabel, long long Current, long long Min, long long Max, int Step, float Scale, const char *pToolTip, bool IsDegree = false, bool IsHex = false, int Corners = IGraphics::CORNER_ALL, const ColorRGBA *pColor = nullptr, bool ShowValue = true);
+	SEditResult<int64_t> UiDoValueSelector(void *pId, CUIRect *pRect, const char *pLabel, int64_t Current, int64_t Min, int64_t Max, int Step, float Scale, const char *pToolTip, bool IsDegree = false, bool IsHex = false, int Corners = IGraphics::CORNER_ALL, const ColorRGBA *pColor = nullptr, bool ShowValue = true);
 
 	static CUi::EPopupMenuFunctionResult PopupMenuFile(void *pContext, CUIRect View, bool Active);
 	static CUi::EPopupMenuFunctionResult PopupMenuTools(void *pContext, CUIRect View, bool Active);
@@ -1236,7 +1236,7 @@ private:
 	// KZ
 public:
 
-	SEditResult<long long> DoPropertiesWithStateLongLong(CUIRect *pToolBox, CProperty *pProps, int *pIds, long long *pNewVal, const std::vector<ColorRGBA> &vColors = {});
+	SEditResult<int64_t> DoPropertiesWithStateLongLong(CUIRect *pToolBox, CProperty *pProps, int *pIds, int64_t *pNewVal, const std::vector<ColorRGBA> &vColors = {});
 
 	IGraphics::CTextureHandle m_KZGameTexture;
 	IGraphics::CTextureHandle m_KZFrontTexture;
@@ -1251,14 +1251,14 @@ public:
 	IGraphics::CTextureHandle GetKZFrontTexture();
 
 	unsigned char m_KZGameNumber;
-	long long int m_KZGameValue1;
-	long long int m_KZGameValue2;
-	long long int m_KZGameValue3;
+	int64_t int m_KZGameValue1;
+	int64_t int m_KZGameValue2;
+	int64_t int m_KZGameValue3;
 
 	unsigned char m_KZFrontNumber;
-	long long int m_KZFrontValue1;
-	long long int m_KZFrontValue2;
-	long long int m_KZFrontValue3;
+	int64_t int m_KZFrontValue1;
+	int64_t int m_KZFrontValue2;
+	int64_t int m_KZFrontValue3;
 };
 
 // make sure to inline this function
