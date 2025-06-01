@@ -1251,14 +1251,14 @@ public:
 	IGraphics::CTextureHandle GetKZFrontTexture();
 
 	unsigned char m_KZGameNumber;
-	int64_t int m_KZGameValue1;
-	int64_t int m_KZGameValue2;
-	int64_t int m_KZGameValue3;
+	int64_t m_KZGameValue1;
+	int64_t m_KZGameValue2;
+	int64_t m_KZGameValue3;
 
 	unsigned char m_KZFrontNumber;
-	int64_t int m_KZFrontValue1;
-	int64_t int m_KZFrontValue2;
-	int64_t int m_KZFrontValue3;
+	int64_t m_KZFrontValue1;
+	int64_t m_KZFrontValue2;
+	int64_t m_KZFrontValue3;
 };
 
 // make sure to inline this function
