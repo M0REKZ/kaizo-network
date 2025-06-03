@@ -4178,14 +4178,31 @@ void CGameContext::CreateAllEntities(bool Initial)
 					m_pController->OnEntity(SwitchType - ENTITY_OFFSET, x, y, LAYER_SWITCH, pSwitch[Index].m_Flags, Initial, pSwitch[Index].m_Number);
 				}
 			}
+		}
+	}
 
+
+	for(int y = 0; y < Collision()->m_KZGameHeight; y++)
+	{
+		for(int x = 0; x < Collision()->m_KZGameWidth; x++)
+		{
+			const int Index = y * Collision()->m_KZGameWidth + x;
 			// KZ
 			if(pKZGame)
 			{
 				const int KZIndex = pKZGame[Index].m_Index;
 				m_pController->OnEntityKZ(KZIndex, x, y, LAYER_GAME, pKZGame[Index].m_Flags, Initial, pKZGame[Index].m_Number, pKZGame[Index].m_Value1, pKZGame[Index].m_Value2, pKZGame[Index].m_Value3);
 			}
+		}
+	}
 
+
+	for(int y = 0; y < Collision()->m_KZFrontHeight; y++)
+	{
+		for(int x = 0; x < Collision()->m_KZFrontWidth; x++)
+		{
+			const int Index = y * Collision()->m_KZFrontWidth + x;
+			// KZ
 			if(pKZFront)
 			{
 				const int KZIndex = pKZFront[Index].m_Index;

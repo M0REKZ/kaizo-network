@@ -203,6 +203,7 @@ private:
 	std::map<int, std::vector<vec2>> m_TeleOthers;
 
 	// KZ
+public:
 
 	int m_KZGameWidth;
 	int m_KZGameHeight;
