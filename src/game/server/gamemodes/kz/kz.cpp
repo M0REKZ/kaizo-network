@@ -246,7 +246,7 @@ void CGameControllerKZ::FlagTick()
 				if(GameServer()->GetDDRaceTeam(apCloseCCharacters[i]->GetPlayer()->GetCid()))
 					continue;
 
-				if(pFlag->m_pCarrier == apCloseCCharacters[i]) //+KZ dont grab flag if he is already with a flag
+				if(pFlag->GetOtherFlag() && pFlag->GetOtherFlag()->m_pCarrier == apCloseCCharacters[i]) //+KZ dont grab flag if he is already with a flag
 					continue;
 
 				// cooldown for recollect after dropping the flag

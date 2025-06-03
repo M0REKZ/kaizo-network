@@ -176,3 +176,13 @@ void CFlag::Snap(int SnappingClient)
 		pFlag->m_Team = m_Team;
 	}
 }
+
+CFlag* CFlag::GetOtherFlag()
+{
+	CFlag* f = (CFlag*)GameWorld()->FindFirst(CGameWorld::ENTTYPE_FLAG);
+
+	if(f != this)
+		return f;
+	
+	return (CFlag*)f->TypeNext();
+}

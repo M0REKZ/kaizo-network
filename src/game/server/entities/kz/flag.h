@@ -44,6 +44,9 @@ public:
 	/* Functions */
 	virtual void Grab(class CCharacter *pChar);
 	virtual void Drop(vec2 Direction = vec2(0, 0));
+
+	//+KZ
+	CFlag *GetOtherFlag();
 };
 
 #endif
