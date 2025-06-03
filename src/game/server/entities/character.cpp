@@ -2719,6 +2719,21 @@ void CCharacter::HandleKZTiles()
 			}
 		}
 	}
+
+	if(pKZTile && pKZTile->m_Index == KZ_TILE_SOUND_PLAY && m_LastSoundPlayed != pKZTile->m_Value1 && Switchers()[pKZTile->m_Number].m_aStatus[Team()])
+	{
+		GameServer()->CreateMapSoundEvent(m_Pos, pKZTile->m_Value1, TeamMask());
+		m_LastSoundPlayed = pKZTile->m_Value1;
+	}
+	else if(pKZTileFront && pKZTileFront->m_Index == KZ_TILE_SOUND_PLAY && m_LastSoundPlayed != pKZTileFront->m_Value1 && Switchers()[pKZTileFront->m_Number].m_aStatus[Team()])
+	{
+		GameServer()->CreateMapSoundEvent(m_Pos, pKZTileFront->m_Value1, TeamMask());
+		m_LastSoundPlayed = pKZTileFront->m_Value1;
+	}
+	else
+	{
+		m_LastSoundPlayed = -1;
+	}
 }
 
 bool CCharacter::TakeDamageVanilla(vec2 Force, int Dmg, int From, int Weapon)

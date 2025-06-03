@@ -135,6 +135,17 @@ void CGameContext::SendGameMsg(int GameMsgId, int ParaI1, int ParaI2, int ParaI3
 	}
 }
 
+void CGameContext::CreateMapSoundEvent(vec2 Pos, int Id, CClientMask Mask)
+{
+	CNetEvent_MapSoundWorld *pEvent = m_Events.Create<CNetEvent_MapSoundWorld>(Mask);
+	if(pEvent)
+	{
+		pEvent->m_X = (int)Pos.x;
+		pEvent->m_Y = (int)Pos.y;
+		pEvent->m_SoundId = Id;
+	}
+}
+
 void CGameContext::ConRejoinShutdown(IConsole::IResult *pResult, void *pUserData)
 {
     CGameContext *pSelf = (CGameContext *)pUserData;

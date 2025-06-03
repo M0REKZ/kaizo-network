@@ -281,6 +281,7 @@ public:
 	int m_PortalKindId = -1;
 	bool m_AimPressed = false;
 	bool m_Waitingforreleaseaim = false;
+	int64_t m_LastSoundPlayed = -1;
 
 	struct
 	{
