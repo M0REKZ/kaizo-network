@@ -28,8 +28,16 @@ CEntity(pGameWorld,CGameWorld::CUSTOM_ENTTYPE_PORTAL)
 	if(CheckPosition(StartPos))
 		Reset();
 
+	if(!GameServer()->m_apPlayers[m_Owner])
+		Reset();
+
+	if(!GameServer()->GetPlayerChar(m_Owner))
+		Reset();
+
 	if(!m_MarkedForDestroy)
 	{
+		m_OrigTeam = GameServer()->GetPlayerChar(m_Owner)->Team();
+
 		CPortalKZ* p = (CPortalKZ*)GameWorld()->FindFirst(CGameWorld::CUSTOM_ENTTYPE_PORTAL);
 
 		for(;p;p = (CPortalKZ*)p->TypeNext())
@@ -58,6 +66,12 @@ void CPortalKZ::Tick()
 	CCharacter *pOwner = GameServer()->GetPlayerChar(m_Owner);
 
 	if(!pOwner || (pOwner && !pOwner->IsAlive()))
+	{
+		Reset();
+		return;
+	}
+
+	if(pOwner->Team() != m_OrigTeam)
 	{
 		Reset();
 		return;

@@ -128,6 +128,8 @@ void CSaveTee::Save(CCharacter *pChr, bool AddPenalty)
 
 	m_ReloadTimer = pChr->m_ReloadTimer;
 
+	SaveKZ(pChr,AddPenalty); //+KZ
+
 	FormatUuid(pChr->GameServer()->GameUuid(), m_aGameUuid, sizeof(m_aGameUuid));
 }
 
@@ -256,6 +258,8 @@ bool CSaveTee::Load(CCharacter *pChr, int Team, bool IsSwap)
 	{
 		Valid = false;
 	}
+	else //+KZ
+		Valid = LoadKZ(pChr,Team,IsSwap);
 
 	return Valid;
 }

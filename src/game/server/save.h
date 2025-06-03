@@ -6,6 +6,8 @@
 #include <engine/shared/protocol.h>
 #include <game/generated/protocol.h>
 
+#include <game/mapitems.h>
+
 class IGameController;
 class CGameContext;
 class CGameWorld;
@@ -146,6 +148,22 @@ private:
 	int m_ReloadTimer;
 
 	char m_aGameUuid[UUID_MAXSTRSIZE];
+
+
+	//+KZ
+
+	void SaveKZ(CCharacter *pchr, bool AddPenalty = true);
+	bool LoadKZ(CCharacter *pchr, int Team, bool IsSwap = false);
+
+	int m_Health = 10;
+	int m_CustomWeapon = 0;
+	bool m_BluePortal = true;
+	struct
+	{
+		bool m_Got = false;
+		//int m_Snap = 0; not needed for save
+		int m_Ammo = -1;
+	} m_aCustomWeapons[KZ_NUM_CUSTOM_WEAPONS - KZ_CUSTOM_WEAPONS_START];
 };
 
 class CSaveHotReloadTee

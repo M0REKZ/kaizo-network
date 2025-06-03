@@ -2775,6 +2775,7 @@ if(SERVER)
     player.h
     save.cpp
     save.h
+    save_kz.cpp
     score.cpp
     score.h
     scoreworker.cpp

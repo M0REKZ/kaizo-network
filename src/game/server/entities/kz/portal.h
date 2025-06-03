@@ -19,6 +19,7 @@ public:
 	int m_Owner;
 	int m_Laser2ID;
 	bool m_Blue;
+	int m_OrigTeam;
 
 	virtual void Reset() override;
 	virtual void Tick() override;
