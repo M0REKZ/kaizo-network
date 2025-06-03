@@ -2720,17 +2720,17 @@ void CCharacter::HandleKZTiles()
 		}
 	}
 
-	if(pKZTile && pKZTile->m_Index == KZ_TILE_SOUND_PLAY && m_LastSoundPlayed != pKZTile->m_Value1 && Switchers()[pKZTile->m_Number].m_aStatus[Team()])
+	if(pKZTile && pKZTile->m_Index == KZ_TILE_SOUND_PLAY && m_LastSoundPlayed != pKZTile->m_Value1 && (pKZTile->m_Number ? Switchers()[pKZTile->m_Number].m_aStatus[Team()] : true))
 	{
 		GameServer()->CreateMapSoundEvent(m_Pos, pKZTile->m_Value1, TeamMask());
 		m_LastSoundPlayed = pKZTile->m_Value1;
 	}
-	else if(pKZTileFront && pKZTileFront->m_Index == KZ_TILE_SOUND_PLAY && m_LastSoundPlayed != pKZTileFront->m_Value1 && Switchers()[pKZTileFront->m_Number].m_aStatus[Team()])
+	else if(pKZTileFront && pKZTileFront->m_Index == KZ_TILE_SOUND_PLAY && m_LastSoundPlayed != pKZTileFront->m_Value1 && (pKZTileFront->m_Number ? Switchers()[pKZTileFront->m_Number].m_aStatus[Team()] : true))
 	{
 		GameServer()->CreateMapSoundEvent(m_Pos, pKZTileFront->m_Value1, TeamMask());
 		m_LastSoundPlayed = pKZTileFront->m_Value1;
 	}
-	else
+	else if(!(pKZTile && pKZTile->m_Index == KZ_TILE_SOUND_PLAY) && !(pKZTileFront && pKZTileFront->m_Index == KZ_TILE_SOUND_PLAY))
 	{
 		m_LastSoundPlayed = -1;
 	}
