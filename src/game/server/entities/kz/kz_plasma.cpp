@@ -3,11 +3,13 @@
 #include <game/server/entities/character.h>
 
 #include <engine/server.h>
+#include <engine/shared/config.h>
 
 #include <game/generated/protocol.h>
 #include <game/teamscore.h>
 
 #include <game/server/gamecontext.h>
+#include <game/server/player.h>
 
 const float PLASMA_ACCEL = 1.1f;
 
@@ -71,7 +73,7 @@ bool CKZPlasma::HitCharacter(CCharacter *pTarget)
 	}
 
 	if(m_Damage)
-		pHitPlayer->TakeDamageVanilla(normalize(m_Core)*3,m_Explosive ? 3 : 1,-1,WEAPON_WORLD);
+		pHitPlayer->TakeDamageVanilla(normalize(m_Core)*3, m_Explosive ? g_Config.m_SvDamageTurretExplosiveDmg : g_Config.m_SvDamageTurretDmg, pHitPlayer->GetPlayer() ? pHitPlayer->GetPlayer()->GetCid() : -1, WEAPON_WORLD);
 
 	if(m_Explosive)
 	{

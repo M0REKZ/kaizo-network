@@ -1193,10 +1193,19 @@ void CCharacter::SnapCharacter(int SnappingClient, int Id)
 			Emote = EMOTE_BLINK;
 	}
 
+	//+KZ
 	if(Weapon >= KZ_CUSTOM_WEAPONS_START)
 		m_SnapCustomWeapon = true;
 	else
 		m_SnapCustomWeapon = false;
+
+
+	float fHealth = ((float)Health/g_Config.m_SvMaxHealth) * 10; //+KZ
+
+	if(fHealth < 1 && fHealth > 0)
+		Health = 1;
+	else
+		Health = fHealth;
 
 	if(!Server()->IsSixup(SnappingClient))
 	{

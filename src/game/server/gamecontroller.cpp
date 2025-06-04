@@ -495,7 +495,7 @@ void IGameController::OnCharacterSpawn(class CCharacter *pChr)
 	Teams().OnCharacterSpawn(pChr->GetPlayer()->GetCid());
 
 	// default health
-	pChr->IncreaseHealth(10);
+	pChr->IncreaseHealth(g_Config.m_SvMaxHealth); //+KZ SvMaxHealth
 
 	// give default weapons
 	pChr->GiveWeapon(WEAPON_HAMMER);

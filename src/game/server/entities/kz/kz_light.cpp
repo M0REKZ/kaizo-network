@@ -45,9 +45,9 @@ bool CKZLight::HitCharacter()
 		else if(!m_DamageTicks[pChar->Team()])
 		{
 
-			pChar->TakeDamageVanilla(vec2(0,0), 2, -1, WEAPON_WORLD);
+			pChar->TakeDamageVanilla(vec2(0,0), g_Config.m_SvDamageLaserDmg, pChar->GetPlayer() ? pChar->GetPlayer()->GetCid() : -1, WEAPON_WORLD);
 
-			m_DamageTicks[pChar->Team()] = 4 * Server()->TickSpeed();
+			m_DamageTicks[pChar->Team()] = g_Config.m_SvDamageLaserCooldown * Server()->TickSpeed();
 		}
 	}
 	return true;

@@ -243,7 +243,7 @@ void CGameControllerKZ::FlagTick()
 					continue;
 
 				// only allow flag grabs in team 0
-				if(GameServer()->GetDDRaceTeam(apCloseCCharacters[i]->GetPlayer()->GetCid()))
+				if(!g_Config.m_SvSoloServer && GameServer()->GetDDRaceTeam(apCloseCCharacters[i]->GetPlayer()->GetCid()))
 					continue;
 
 				if(pFlag->GetOtherFlag() && pFlag->GetOtherFlag()->m_pCarrier == apCloseCCharacters[i]) //+KZ dont grab flag if he is already with a flag
@@ -393,6 +393,7 @@ bool CGameControllerKZ::OnEntityKZ(int Index, int x, int y, int Layer, int Flags
 			{
 				CKZLight *pLight = new CKZLight(&GameServer()->m_World, Pos, pi / 4 * i, 32 * 3 + 32 * (aSides[i] - ENTITY_LASER_SHORT) * 3, Layer, Number);
 				pLight->m_AngularSpeed = AngularSpeed;
+				m_ShowHealth = true;
 				if(aSides2[i] >= ENTITY_LASER_C_SLOW && aSides2[i] <= ENTITY_LASER_C_FAST)
 				{
 					pLight->m_Speed = 1 + (aSides2[i] - ENTITY_LASER_C_SLOW) * 2;
