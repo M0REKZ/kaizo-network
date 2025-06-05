@@ -225,7 +225,7 @@ void CGameControllerKZ::FlagTick()
 		if(pFlag->GetCarrier())
 		{
 			// forbid holding flags in ddrace teams
-			if(GameServer()->GetDDRaceTeam(pFlag->GetCarrier()->GetPlayer()->GetCid()))
+			if(!g_Config.m_SvSoloServer && GameServer()->GetDDRaceTeam(pFlag->GetCarrier()->GetPlayer()->GetCid()))
 			{
 				GameServer()->CreateSoundGlobal(SOUND_CTF_DROP);
 				GameServer()->SendGameMsg(protocol7::GAMEMSG_CTF_DROP, -1);
