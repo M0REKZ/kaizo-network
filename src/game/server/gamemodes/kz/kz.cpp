@@ -14,6 +14,7 @@
 #include <game/server/entities/kz/kz_pickup.h>
 #include <game/server/entities/kz/kz_gun.h>
 #include <game/server/entities/kz/kz_light.h>
+#include <game/server/entities/kz/mine.h>
 
 #define GAME_TYPE_NAME "DDraceNetwork"
 #define TEST_TYPE_NAME "TestDDraceNetwork"
@@ -324,6 +325,9 @@ void CGameControllerKZ::DoCrown()
 			
 			CPlayerData *pData = GameServer()->Score()->PlayerData(i);
 
+			if(!pData)
+				continue;
+
 			if(besttime == pData->m_BestTime)
 			{
 				GameServer()->GetPlayerChar(i)->m_EnableCrown = true;
@@ -410,6 +414,12 @@ bool CGameControllerKZ::OnEntityKZ(int Index, int x, int y, int Layer, int Flags
 		}
 	}
 
+	if(Index == KZ_TILE_MINE)
+	{
+		new CMine(&GameServer()->m_World, Pos, Number);
+		m_ShowHealth = true;
+	}
+
 	if(PickupType != -1)
 	{
 		if(PickupSubtype != -1)
@@ -430,4 +440,15 @@ bool CGameControllerKZ::OnEntityKZ(int Index, int x, int y, int Layer, int Flags
 	}
 
 	return false;
+}
+
+void CGameControllerKZ::OnNewRecordKZ(int ClientId, float Time, float PrevTime)
+{
+	if(GameServer()->Console()->Cheated())
+		return;
+
+	if(Time < PrevTime || !PrevTime)
+	{
+		GameServer()->SendDiscordRecordMessage(ClientId,Time,PrevTime);
+	}
 }

@@ -151,6 +151,7 @@ public:
 
 	// KZ
 	virtual bool OnEntityKZ(int Index, int x, int y, int Layer, int Flags, bool Initial, unsigned char Number = 0, int64_t Value1 = 0, int64_t Value2 = 0, int64_t Value3 = 0) { return false; };
+	virtual void OnNewRecordKZ(int ClientId, float Time, float PrevTime) {};
 	bool m_ShowHealth = false;
 };
 

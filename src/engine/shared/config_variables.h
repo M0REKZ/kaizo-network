@@ -769,10 +769,12 @@ MACRO_CONFIG_INT(ClVideoRecorderFPS, cl_video_recorder_fps, 60, 1, 1000, CFGFLAG
  * Add config variables for mods below this comment to avoid merge conflicts.
  */
 
- MACRO_CONFIG_STR(SvChatDiscordWebhook, sv_chat_discord_webhook, 512, "", CFGFLAG_SERVER, "Where to send chat messages written by players")
- MACRO_CONFIG_INT(SvPortalMode, sv_portal_mode, 1, 0, 2, CFGFLAG_SERVER | CFGFLAG_GAME, "Portal spawning behavior (0 = on every tile, 1 = only on allow portal tile, 2 = pprace compatibility)")
- MACRO_CONFIG_INT(SvMaxHealth, sv_max_health, 10, 1, 10000, CFGFLAG_SERVER | CFGFLAG_GAME, "Max amount of life")
- MACRO_CONFIG_INT(SvDamageLaserCooldown, sv_damage_laser_cooldown, 4, 0, 10000, CFGFLAG_SERVER | CFGFLAG_GAME, "Cooldown for damage laser")
- MACRO_CONFIG_INT(SvDamageLaserDmg, sv_damage_laser_dmg, 2, 0, 10000, CFGFLAG_SERVER | CFGFLAG_GAME, "Damage laser damage")
- MACRO_CONFIG_INT(SvDamageTurretDmg, sv_damage_turret_dmg, 1, 0, 10000, CFGFLAG_SERVER | CFGFLAG_GAME, "Plasma turret damage")
- MACRO_CONFIG_INT(SvDamageTurretExplosiveDmg, sv_damage_turret_explosive_dmg, 3, 0, 10000, CFGFLAG_SERVER | CFGFLAG_GAME, "Explosive plasma turret damage")
+MACRO_CONFIG_STR(SvChatDiscordWebhook, sv_chat_discord_webhook, 512, "", CFGFLAG_SERVER, "Where to send chat messages written by players")
+MACRO_CONFIG_STR(SvRecordsDiscordWebhook, sv_records_discord_webhook, 512, "", CFGFLAG_SERVER, "Where to send new records notifications")
+MACRO_CONFIG_INT(SvPortalMode, sv_portal_mode, 1, 0, 2, CFGFLAG_SERVER | CFGFLAG_GAME, "Portal spawning behavior (0 = on every tile, 1 = only on allow portal tile, 2 = pprace compatibility)")
+MACRO_CONFIG_INT(SvMaxHealth, sv_max_health, 10, 1, 10000, CFGFLAG_SERVER | CFGFLAG_GAME, "Max amount of life")
+MACRO_CONFIG_INT(SvDamageLaserCooldown, sv_damage_laser_cooldown, 4, 0, 10000, CFGFLAG_SERVER | CFGFLAG_GAME, "Cooldown for damage laser")
+MACRO_CONFIG_INT(SvDamageLaserDmg, sv_damage_laser_dmg, 2, 0, 10000, CFGFLAG_SERVER | CFGFLAG_GAME, "Damage laser damage")
+MACRO_CONFIG_INT(SvDamageTurretDmg, sv_damage_turret_dmg, 1, 0, 10000, CFGFLAG_SERVER | CFGFLAG_GAME, "Plasma turret damage")
+MACRO_CONFIG_INT(SvDamageTurretExplosiveDmg, sv_damage_turret_explosive_dmg, 3, 0, 10000, CFGFLAG_SERVER | CFGFLAG_GAME, "Explosive plasma turret damage")
+MACRO_CONFIG_INT(SvDamageMineDmg, sv_damage_mine_dmg, 3, 0, 10000, CFGFLAG_SERVER | CFGFLAG_GAME, "Mines damage")

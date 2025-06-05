@@ -5084,30 +5084,3 @@ bool CGameContext::PracticeByDefault() const
 {
 	return g_Config.m_SvPracticeByDefault && g_Config.m_SvTestingCommands;
 }
-
-//+KZ
-void CGameContext::SendDiscordChatMessage(int ClientID, const char* msg)
-{
-	char aPayload[4048];
-	char aStatsStr[4000];
-	char aStr[275];
-	aStr[0] = '\0';
-	if(CheckClientId(ClientID))
-		str_format(aStr, sizeof(aStr),"%s: %s",Server()->ClientName(ClientID),msg);
-	else
-		str_format(aStr, sizeof(aStr),"%s: %s","Server",msg);
-
-	str_format(
-		aPayload,
-		sizeof(aPayload),
-		"{\"allowed_mentions\": {\"parse\": []}, \"content\": \"%s\"}",
-		EscapeJson(aStatsStr, sizeof(aStatsStr), aStr));
-	const int PayloadSize = str_length(aPayload);
-	// TODO: use HttpPostJson()
-	std::shared_ptr<CHttpRequest> pDiscord = HttpPost(g_Config.m_SvChatDiscordWebhook, (const unsigned char *)aPayload, PayloadSize);
-	pDiscord->LogProgress(HTTPLOG::FAILURE);
-	pDiscord->IpResolve(IPRESOLVE::V4);
-	pDiscord->Timeout(CTimeout{4000, 15000, 500, 5});
-	pDiscord->HeaderString("Content-Type", "application/json");
-	m_pHttp->Run(pDiscord);
-}

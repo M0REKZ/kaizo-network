@@ -2750,6 +2750,8 @@ if(SERVER)
     entities/kz/kz_plasma.h
     entities/kz/kz_light.cpp
     entities/kz/kz_light.h
+    entities/kz/mine.cpp
+    entities/kz/mine.h
     entities/kz/portal.cpp
     entities/kz/portal.h
     entities/kz/portal_projectile.cpp

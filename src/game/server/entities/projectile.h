@@ -58,6 +58,10 @@ public:
 
 	bool CanCollide(int ClientId) override;
 	int GetOwnerId() const override { return m_Owner; }
+
+	//+KZ
+	int GetStartTick() { return m_StartTick; }
+	int GetDDraceTeam() { return m_DDRaceTeam; }
 };
 
 #endif

@@ -820,6 +820,9 @@ void CGameTeams::OnFinish(CPlayer *Player, int TimeTicks, const char *pTimestamp
 			GameServer()->Score()->SaveScore(ClientId, TimeTicks, pTimestamp,
 				GetCurrentTimeCp(Player), Player->m_NotEligibleForFinish);
 
+	if(CallSaveScore) //+KZ only call if save score is called
+		GameServer()->m_pController->OnNewRecordKZ(ClientId,Time,GameServer()->m_pController->m_CurrentRecord);
+
 	bool NeedToSendNewServerRecord = false;
 	// update server best time
 	if(GameServer()->m_pController->m_CurrentRecord == 0)

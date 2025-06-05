@@ -604,6 +604,8 @@ public:
 	//+KZ
 	IHttp *m_pHttp;
 	void SendDiscordChatMessage(int ClientID, const char* msg);
+	void SendDiscordRecordMessage(int ClientID, float Time, float PrevTime);
+
 	void SendGameMsg(int GameMsgId, int ClientId) const;
 	void SendGameMsg(int GameMsgId, int ParaI1, int ClientId) const;
 	void SendGameMsg(int GameMsgId, int ParaI1, int ParaI2, int ParaI3, int ClientId) const;

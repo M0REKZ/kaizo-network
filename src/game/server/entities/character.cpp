@@ -2743,6 +2743,26 @@ void CCharacter::HandleKZTiles()
 	{
 		m_LastSoundPlayed = -1;
 	}
+
+	if(pKZTile && pKZTile->m_Index == KZ_TILE_HEALTH_ZONE && (pKZTile->m_Number ? Switchers()[pKZTile->m_Number].m_aStatus[Team()] : true) && Server()->Tick() % Server()->TickSpeed() == 0)
+	{
+		IncreaseHealth((int)pKZTile->m_Value1 + 1);
+		GameServer()->CreateSound(m_Pos, SOUND_PICKUP_HEALTH, TeamMask());
+	}
+	else if(pKZTileFront && pKZTileFront->m_Index == KZ_TILE_HEALTH_ZONE && (pKZTileFront->m_Number ? Switchers()[pKZTileFront->m_Number].m_aStatus[Team()] : true) && Server()->Tick() % Server()->TickSpeed() == 0)
+	{
+		IncreaseHealth((int)pKZTileFront->m_Value1 + 1);
+		GameServer()->CreateSound(m_Pos, SOUND_PICKUP_HEALTH, TeamMask());
+	}
+
+	if(pKZTile && pKZTile->m_Index == KZ_TILE_DAMAGE_ZONE && (pKZTile->m_Number ? Switchers()[pKZTile->m_Number].m_aStatus[Team()] : true) && Server()->Tick() % Server()->TickSpeed() == 0)
+	{
+		TakeDamageVanilla(vec2(0,0),(int)pKZTile->m_Value1 + 1,m_pPlayer ? m_pPlayer->GetCid() : -1, WEAPON_WORLD);
+	}
+	else if(pKZTileFront && pKZTileFront->m_Index == KZ_TILE_DAMAGE_ZONE && (pKZTileFront->m_Number ? Switchers()[pKZTileFront->m_Number].m_aStatus[Team()] : true) && Server()->Tick() % Server()->TickSpeed() == 0)
+	{
+		TakeDamageVanilla(vec2(0,0),(int)pKZTile->m_Value1 + 1,m_pPlayer ? m_pPlayer->GetCid() : -1, WEAPON_WORLD);
+	}
 }
 
 bool CCharacter::TakeDamageVanilla(vec2 Force, int Dmg, int From, int Weapon)
