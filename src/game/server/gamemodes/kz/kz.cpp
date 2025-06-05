@@ -420,6 +420,11 @@ bool CGameControllerKZ::OnEntityKZ(int Index, int x, int y, int Layer, int Flags
 		m_ShowHealth = true;
 	}
 
+	if(Index == KZ_TILE_DAMAGE_ZONE || Index == KZ_TILE_HEALTH_ZONE)
+	{
+		m_ShowHealth = true;
+	}
+
 	if(PickupType != -1)
 	{
 		if(PickupSubtype != -1)
