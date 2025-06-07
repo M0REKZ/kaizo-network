@@ -433,7 +433,7 @@ bool CGameControllerKZ::OnEntityKZ(int Index, int x, int y, int Layer, int Flags
 			{
 				case KZ_CUSTOM_WEAPON_PORTAL_GUN:
 				{
-					CKZPickup *pPickup = new CKZPickup(&GameServer()->m_World, PickupType, PickupSubtype, Layer, (int)Number);
+					CKZPickup *pPickup = new CKZPickup(&GameServer()->m_World, PickupType, PickupSubtype, Layer, (int)Number, Flags);
 					pPickup->m_Pos = Pos;
 					return true;
 				}

@@ -11,7 +11,7 @@ class CKZPickup : public CEntity
 public:
 	static const int ms_CollisionExtraSize = 6;
 
-	CKZPickup(CGameWorld *pGameWorld, int Type, int SubType = 0, int Layer = 0, int Number = 0);
+	CKZPickup(CGameWorld *pGameWorld, int Type, int SubType = 0, int Layer = 0, int Number = 0, int Flags = 0);
 	CKZPickup(CGameWorld *pGameWorld, int Objtype, vec2 Pos = vec2(0, 0), int ProximityRadius = 0);
 	virtual ~CKZPickup();
 
@@ -43,6 +43,7 @@ protected:
 
 	void Move();
 	vec2 m_Core;
+	int m_Flags;
 };
 
 #endif

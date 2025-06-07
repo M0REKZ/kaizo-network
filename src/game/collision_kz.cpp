@@ -32,13 +32,13 @@ int CCollision::CheckPointForCore(float x, float y, CCharacterCore *pCore, bool 
     {
         if(m_pKZGame || m_pKZFront)
         {
-            int Nx = clamp(round_to_int(x) / 32, 0, m_KZGameWidth - 1);
-            int Ny = clamp(round_to_int(y) / 32, 0, m_KZGameHeight - 1);
+            int Nx = std::clamp(round_to_int(x) / 32, 0, m_KZGameWidth - 1);
+            int Ny = std::clamp(round_to_int(y) / 32, 0, m_KZGameHeight - 1);
 
             CKZTile* KZTile = GetKZGameTile(Nx, Ny);
             
-            Nx = clamp(round_to_int(x) / 32, 0, m_KZFrontWidth - 1);
-            Ny = clamp(round_to_int(y) / 32, 0, m_KZFrontHeight - 1);
+            Nx = std::clamp(round_to_int(x) / 32, 0, m_KZFrontWidth - 1);
+            Ny = std::clamp(round_to_int(y) / 32, 0, m_KZFrontHeight - 1);
             CKZTile* KZFrontTile = GetKZFrontTile(Nx, Ny);
             
 
@@ -165,8 +165,8 @@ CKZTile *CCollision::GetKZGameTile(int x, int y) const
 
 CKZTile *CCollision::GetKZGameTile(float x, float y) const
 {
-    int Nx = clamp(round_to_int(x) / 32, 0, m_KZGameWidth - 1);
-    int Ny = clamp(round_to_int(y) / 32, 0, m_KZGameHeight - 1);
+    int Nx = std::clamp(round_to_int(x) / 32, 0, m_KZGameWidth - 1);
+    int Ny = std::clamp(round_to_int(y) / 32, 0, m_KZGameHeight - 1);
     return m_pKZGame ? &m_pKZGame[Ny * m_KZGameWidth + Nx] : nullptr;
 }
 
@@ -182,15 +182,15 @@ CKZTile *CCollision::GetKZFrontTile(int x, int y) const
 
 CKZTile *CCollision::GetKZFrontTile(float x, float y) const
 {
-    int Nx = clamp(round_to_int(x) / 32, 0, m_KZFrontWidth - 1);
-    int Ny = clamp(round_to_int(y) / 32, 0, m_KZFrontHeight - 1);
+    int Nx = std::clamp(round_to_int(x) / 32, 0, m_KZFrontWidth - 1);
+    int Ny = std::clamp(round_to_int(y) / 32, 0, m_KZFrontHeight - 1);
     return m_pKZFront ? &m_pKZFront[Ny * m_KZFrontWidth + Nx] : nullptr;
 }
 
 unsigned char CCollision::GetKZGameTileIndex(float x, float y) const
 {
-	int Nx = clamp(round_to_int(x) / 32, 0, m_KZGameWidth - 1);
-	int Ny = clamp(round_to_int(y) / 32, 0, m_KZGameHeight - 1);
+	int Nx = std::clamp(round_to_int(x) / 32, 0, m_KZGameWidth - 1);
+	int Ny = std::clamp(round_to_int(y) / 32, 0, m_KZGameHeight - 1);
 	return GetKZGameTileIndex(Ny * m_KZGameWidth + Nx);
 }
 
@@ -206,8 +206,8 @@ unsigned char CCollision::GetKZGameTileIndex(int Index) const
 
 unsigned char CCollision::GetKZFrontTileIndex(float x, float y) const
 {
-	int Nx = clamp(round_to_int(x) / 32, 0, m_KZFrontWidth - 1);
-	int Ny = clamp(round_to_int(y) / 32, 0, m_KZFrontHeight - 1);
+	int Nx = std::clamp(round_to_int(x) / 32, 0, m_KZFrontWidth - 1);
+	int Ny = std::clamp(round_to_int(y) / 32, 0, m_KZFrontHeight - 1);
 	return GetKZFrontTileIndex(Ny * m_KZFrontWidth + Nx);
 }
 

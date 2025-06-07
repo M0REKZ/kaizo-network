@@ -3321,19 +3321,19 @@ CUi::EPopupMenuFunctionResult CEditor::PopupKZGame(void *pContext, CUIRect View,
 
 	if(Prop == PROP_NUMBER)
 	{
-		pEditor->m_KZGameNumber = clamp(NewVal, (int64_t)0, (int64_t)std::numeric_limits<unsigned char>::max());
+		pEditor->m_KZGameNumber = std::clamp(NewVal, (int64_t)0, (int64_t)std::numeric_limits<unsigned char>::max());
 	}
 	else if(Prop == PROP_VALUE1)
 	{
-		pEditor->m_KZGameValue1 = clamp(NewVal, std::numeric_limits<int64_t>::min(), std::numeric_limits<int64_t>::max());
+		pEditor->m_KZGameValue1 = std::clamp(NewVal, std::numeric_limits<int64_t>::min(), std::numeric_limits<int64_t>::max());
 	}
 	else if(Prop == PROP_VALUE2)
 	{
-		pEditor->m_KZGameValue2 = clamp(NewVal, std::numeric_limits<int64_t>::min(), std::numeric_limits<int64_t>::max());
+		pEditor->m_KZGameValue2 = std::clamp(NewVal, std::numeric_limits<int64_t>::min(), std::numeric_limits<int64_t>::max());
 	}
 	else if(Prop == PROP_VALUE3)
 	{
-		pEditor->m_KZGameValue3 = clamp(NewVal, std::numeric_limits<int64_t>::min(), std::numeric_limits<int64_t>::max());
+		pEditor->m_KZGameValue3 = std::clamp(NewVal, std::numeric_limits<int64_t>::min(), std::numeric_limits<int64_t>::max());
 	}
 
 	return CUi::POPUP_KEEP_OPEN;
@@ -3366,19 +3366,19 @@ CUi::EPopupMenuFunctionResult CEditor::PopupKZFront(void *pContext, CUIRect View
 
 	if(Prop == PROP_NUMBER)
 	{
-		pEditor->m_KZFrontNumber = clamp(NewVal, (int64_t)0, (int64_t)std::numeric_limits<unsigned char>::max());
+		pEditor->m_KZFrontNumber = std::clamp(NewVal, (int64_t)0, (int64_t)std::numeric_limits<unsigned char>::max());
 	}
 	else if(Prop == PROP_VALUE1)
 	{
-		pEditor->m_KZFrontValue1 = clamp(NewVal, std::numeric_limits<int64_t>::min(), std::numeric_limits<int64_t>::max());
+		pEditor->m_KZFrontValue1 = std::clamp(NewVal, std::numeric_limits<int64_t>::min(), std::numeric_limits<int64_t>::max());
 	}
 	else if(Prop == PROP_VALUE2)
 	{
-		pEditor->m_KZFrontValue2 = clamp(NewVal, std::numeric_limits<int64_t>::min(), std::numeric_limits<int64_t>::max());
+		pEditor->m_KZFrontValue2 = std::clamp(NewVal, std::numeric_limits<int64_t>::min(), std::numeric_limits<int64_t>::max());
 	}
 	else if(Prop == PROP_VALUE3)
 	{
-		pEditor->m_KZFrontValue3 = clamp(NewVal, std::numeric_limits<int64_t>::min(), std::numeric_limits<int64_t>::max());
+		pEditor->m_KZFrontValue3 = std::clamp(NewVal, std::numeric_limits<int64_t>::min(), std::numeric_limits<int64_t>::max());
 	}
 
 	return CUi::POPUP_KEEP_OPEN;
