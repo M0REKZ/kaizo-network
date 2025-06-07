@@ -4,6 +4,8 @@
 #define GAME_SERVER_ENTITIES_CHARACTER_H
 
 #include <game/server/entity.h>
+
+#include <game/race_state.h>
 #include <game/server/save.h>
 #include <game/mapitems.h>
 
@@ -197,7 +199,7 @@ public:
 	void GiveAllWeapons();
 	void ResetPickups();
 	void ResetJumps();
-	int m_DDRaceState;
+	ERaceState m_DDRaceState;
 	int Team();
 	bool CanCollide(int ClientId) override;
 	bool SameTeam(int ClientId);
@@ -289,14 +291,6 @@ public:
 		int m_Snap = 0;
 		int m_Ammo = -1;
 	} m_aCustomWeapons[KZ_NUM_CUSTOM_WEAPONS - KZ_CUSTOM_WEAPONS_START];
-};
-
-enum
-{
-	DDRACE_NONE = 0,
-	DDRACE_STARTED,
-	DDRACE_CHEAT, // no time and won't start again unless ordered by a mod or death
-	DDRACE_FINISHED
 };
 
 #endif
