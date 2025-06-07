@@ -2758,6 +2758,8 @@ if(SERVER)
     entities/kz/mine.h
     entities/kz/portal.cpp
     entities/kz/portal.h
+    entities/kz/portal_laser.cpp
+    entities/kz/portal_laser.h
     entities/kz/portal_projectile.cpp
     entities/kz/portal_projectile.h
     entity.cpp

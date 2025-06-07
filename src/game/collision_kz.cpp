@@ -221,3 +221,262 @@ unsigned char CCollision::GetKZFrontTileIndex(int Index) const
 	return m_pKZFront ? m_pKZFront[Index].m_Index : TILE_AIR;
 }
 
+int CCollision::FastIntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, CCharacterCore *pCore, bool IsHook, bool IsWeapon) const
+{
+	const int Tile0X = round_to_int(Pos0.x)/32;
+	const int Tile0Y = round_to_int(Pos0.y)/32;
+	const int Tile1X = round_to_int(Pos1.x)/32;
+	const int Tile1Y = round_to_int(Pos1.y)/32;
+
+	const float Ratio = (Tile0X == Tile1X) ? 1.f : (Pos1.y - Pos0.y) / (Pos1.x-Pos0.x);
+
+	const float DetPos = Pos0.x * Pos1.y - Pos0.y * Pos1.x;
+
+	const int DeltaTileX = (Tile0X <= Tile1X) ? 1 : -1;
+	const int DeltaTileY = (Tile0Y <= Tile1Y) ? 1 : -1;
+
+	const float DeltaError = DeltaTileY * DeltaTileX * Ratio;
+
+	int CurTileX = Tile0X;
+	int CurTileY = Tile0Y;
+	vec2 Pos = Pos0;
+
+	bool Vertical = false;
+
+	float Error = 0;
+	if(Tile0Y != Tile1Y && Tile0X != Tile1X)
+	{
+		Error = (CurTileX * Ratio - CurTileY - DetPos / (32*(Pos1.x-Pos0.x))) * DeltaTileY;
+		if(Tile0X < Tile1X)
+			Error += Ratio * DeltaTileY;
+		if(Tile0Y < Tile1Y)
+			Error -= DeltaTileY;
+	}
+
+	while(CurTileX != Tile1X || CurTileY != Tile1Y)
+	{
+		if(IsSolid(CurTileX*32,CurTileY*32)|| CheckPointForCore(CurTileX*32, CurTileY*32, pCore, IsHook, IsWeapon))
+			break;
+		if(CurTileY != Tile1Y && (CurTileX == Tile1X || Error > 0))
+		{
+			CurTileY += DeltaTileY;
+			Error -= 1;
+			Vertical = false;
+		}
+		else
+		{
+			CurTileX += DeltaTileX;
+			Error += DeltaError;
+			Vertical = true;
+		}
+	}
+    int kzid = 0;
+	if(IsSolid(CurTileX*32,CurTileY*32)|| (kzid = CheckPointForCore(CurTileX*32, CurTileY*32, pCore, IsHook, IsWeapon)))
+	{
+		if(CurTileX != Tile0X || CurTileY != Tile0Y)
+		{
+			if(Vertical)
+			{
+				Pos.x = 32 * (CurTileX + ((Tile0X < Tile1X) ? 0 : 1));
+				Pos.y = (Pos.x * (Pos1.y - Pos0.y) - DetPos) / (Pos1.x - Pos0.x);
+			}
+			else
+			{
+				Pos.y = 32 * (CurTileY + ((Tile0Y < Tile1Y) ? 0 : 1));
+				Pos.x = (Pos.y * (Pos1.x - Pos0.x) + DetPos) / (Pos1.y - Pos0.y);
+			}
+		}
+		if(pOutCollision)
+			*pOutCollision = Pos;
+		if(pOutBeforeCollision)
+		{
+			vec2 Dir = normalize(Pos1-Pos0);
+			if(Vertical)
+				Dir *= 0.5f / absolute(Dir.x) + 1.f;
+			else
+				Dir *= 0.5f / absolute(Dir.y) + 1.f;
+			*pOutBeforeCollision = Pos - Dir;
+		}
+        if(kzid)
+            return kzid;
+        else
+		    return GetTile(CurTileX*32,CurTileY*32);
+	}
+	if(pOutCollision)
+		*pOutCollision = Pos1;
+	if(pOutBeforeCollision)
+		*pOutBeforeCollision = Pos1;
+	return 0;
+}
+
+int CCollision::FastIntersectLinePortalLaser(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, CKZTile **pKZTile, int *pTeleNr, CCharacterCore *pCore, bool IsHook, bool IsWeapon) const
+{
+	const int Tile0X = round_to_int(Pos0.x)/32;
+	const int Tile0Y = round_to_int(Pos0.y)/32;
+	const int Tile1X = round_to_int(Pos1.x)/32;
+	const int Tile1Y = round_to_int(Pos1.y)/32;
+
+	const float Ratio = (Tile0X == Tile1X) ? 1.f : (Pos1.y - Pos0.y) / (Pos1.x-Pos0.x);
+
+	const float DetPos = Pos0.x * Pos1.y - Pos0.y * Pos1.x;
+
+	const int DeltaTileX = (Tile0X <= Tile1X) ? 1 : -1;
+	const int DeltaTileY = (Tile0Y <= Tile1Y) ? 1 : -1;
+
+	const float DeltaError = DeltaTileY * DeltaTileX * Ratio;
+
+	int CurTileX = Tile0X;
+	int CurTileY = Tile0Y;
+	vec2 Pos = Pos0;
+
+	bool Vertical = false;
+
+	float Error = 0;
+	if(Tile0Y != Tile1Y && Tile0X != Tile1X)
+	{
+		Error = (CurTileX * Ratio - CurTileY - DetPos / (32*(Pos1.x-Pos0.x))) * DeltaTileY;
+		if(Tile0X < Tile1X)
+			Error += Ratio * DeltaTileY;
+		if(Tile0Y < Tile1Y)
+			Error -= DeltaTileY;
+	}
+
+    int Index = -1;
+    int kzid = 0;
+    CKZTile *pKZTilelocal = nullptr;
+	while(CurTileX != Tile1X || CurTileY != Tile1Y)
+	{
+		if(IsSolid(CurTileX*32,CurTileY*32))
+			break;
+
+        Index = GetPureMapIndex(vec2(CurTileX*32,CurTileY*32));
+		if(pTeleNr)
+		{
+			if(g_Config.m_SvOldTeleportWeapons && IsTeleport(Index))
+				break;
+			else if(IsTeleportWeapon(Index))
+                break;
+		}
+
+        if((kzid = CheckPointForCore(CurTileX*32, CurTileY*32, pCore, IsHook, IsWeapon)))
+        {
+            if(kzid == TILE_SOLID || kzid == TILE_NOHOOK)
+                break;
+            else
+                kzid = 0;
+        }
+
+        if(pKZTile && !(g_Config.m_SvPortalMode == 2))
+        {
+            pKZTilelocal = GetKZGameTile(vec2(CurTileX*32,CurTileY*32));
+            if(!pKZTilelocal || !(pKZTilelocal->m_Index == KZ_TILE_PORTAL_DISALLOW || pKZTilelocal->m_Index == KZ_TILE_PORTAL_RESET))
+                pKZTilelocal = GetKZFrontTile(vec2(CurTileX*32,CurTileY*32));
+
+            if(pKZTilelocal)
+            {
+                if(pKZTilelocal->m_Index == KZ_TILE_PORTAL_DISALLOW || pKZTilelocal->m_Index == KZ_TILE_PORTAL_RESET)
+                {
+                    break;
+                }
+                else
+                {
+                    pKZTilelocal = nullptr;
+                }
+            }
+        }
+        else if(g_Config.m_SvPortalMode == 2)
+        {
+            kzid = GetTileIndex(Index);
+            if(!kzid || !(kzid == TILE_LFREEZE || kzid == TILE_LUNFREEZE))
+                kzid = GetFrontTileIndex(Index);
+            
+            if(kzid == TILE_LFREEZE || kzid == TILE_LUNFREEZE)
+                break;
+            else
+                kzid = 0;
+        }
+
+		if(CurTileY != Tile1Y && (CurTileX == Tile1X || Error > 0))
+		{
+			CurTileY += DeltaTileY;
+			Error -= 1;
+			Vertical = false;
+		}
+		else
+		{
+			CurTileX += DeltaTileX;
+			Error += DeltaError;
+			Vertical = true;
+		}
+	}
+	if(IsSolid(CurTileX*32,CurTileY*32) || (pKZTilelocal->m_Index == KZ_TILE_PORTAL_DISALLOW || pKZTilelocal->m_Index == KZ_TILE_PORTAL_RESET) || (kzid ? kzid : (kzid = CheckPointForCore(CurTileX*32, CurTileY*32, pCore, IsHook, IsWeapon))) || (g_Config.m_SvOldTeleportWeapons ? IsTeleport(Index) : IsTeleportWeapon(Index)))
+	{
+		if(CurTileX != Tile0X || CurTileY != Tile0Y)
+		{
+			if(Vertical)
+			{
+				Pos.x = 32 * (CurTileX + ((Tile0X < Tile1X) ? 0 : 1));
+				Pos.y = (Pos.x * (Pos1.y - Pos0.y) - DetPos) / (Pos1.x - Pos0.x);
+			}
+			else
+			{
+				Pos.y = 32 * (CurTileY + ((Tile0Y < Tile1Y) ? 0 : 1));
+				Pos.x = (Pos.y * (Pos1.x - Pos0.x) + DetPos) / (Pos1.y - Pos0.y);
+			}
+		}
+		if(pOutCollision)
+			*pOutCollision = Pos;
+		if(pOutBeforeCollision)
+		{
+			vec2 Dir = normalize(Pos1-Pos0);
+			if(Vertical)
+				Dir *= 0.5f / absolute(Dir.x) + 1.f;
+			else
+				Dir *= 0.5f / absolute(Dir.y) + 1.f;
+			*pOutBeforeCollision = Pos - Dir;
+		}
+        if(pTeleNr)
+		{
+			if(g_Config.m_SvOldTeleportWeapons)
+				*pTeleNr = IsTeleport(Index);
+			else
+				*pTeleNr = IsTeleportWeapon(Index);
+		}
+
+        if(pKZTilelocal)
+        {
+            if(pKZTilelocal->m_Index == KZ_TILE_PORTAL_DISALLOW || pKZTilelocal->m_Index == KZ_TILE_PORTAL_RESET)
+            {
+                *pKZTile = pKZTilelocal;
+            }
+        }
+        else
+        {
+            pKZTilelocal = GetKZGameTile(Pos);
+            if(!pKZTilelocal || !(pKZTilelocal->m_Index == KZ_TILE_PORTAL_ALLOW))
+                pKZTilelocal = GetKZFrontTile(Pos);
+
+            if(pKZTilelocal)
+            {
+                if(pKZTilelocal->m_Index == KZ_TILE_PORTAL_ALLOW)
+                {
+                    *pKZTile = pKZTilelocal;
+                }
+            }
+        }
+
+		if(pTeleNr && *pTeleNr)
+		{
+			return TILE_TELEINWEAPON;
+		}
+        if(kzid)
+            return kzid;
+        else
+		    return GetTile(CurTileX*32,CurTileY*32);
+	}
+	if(pOutCollision)
+		*pOutCollision = Pos1;
+	if(pOutBeforeCollision)
+		*pOutBeforeCollision = Pos1;
+	return 0;
+}

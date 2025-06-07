@@ -21,6 +21,7 @@
 #include <game/server/teams.h>
 
 #include <game/server/entities/kz/portal_projectile.h>
+#include <game/server/entities/kz/portal_laser.h>
 #include <game/server/entities/kz/portal.h>
 
 MACRO_ALLOC_POOL_ID_IMPL(CCharacter, MAX_CLIENTS)
@@ -669,8 +670,16 @@ void CCharacter::FireWeapon()
 	//+KZ
 	case KZ_CUSTOM_WEAPON_PORTAL_GUN:
 	{
-		new CPortalProjectile(GameWorld(),m_pPlayer->GetCid(),m_Pos,Direction,m_BluePortal);
-		GameServer()->CreateSound(m_Pos, SOUND_LASER_FIRE, TeamMask()); // NOLINT(clang-analyzer-unix.Malloc)
+		if(g_Config.m_SvPortalProjectile)
+		{
+			new CPortalProjectile(GameWorld(),m_pPlayer->GetCid(),m_Pos,Direction,m_BluePortal);
+		}
+		else
+		{
+			float LaserReach = g_Config.m_SvPortalLaserReach;
+			new CPortalLaser(GameWorld(), m_Pos, Direction, LaserReach, m_pPlayer->GetCid(), m_BluePortal);
+		}
+		GameServer()->CreateSound(m_Pos, SOUND_LASER_FIRE, TeamMask());
 	}
 	break;
 	}

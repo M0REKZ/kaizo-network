@@ -42,6 +42,8 @@ public:
 	// KZ
 
 	int CheckPointForCore(float x, float y, CCharacterCore* pCore, bool IsHook = false, bool IsWeapon = false) const;
+	int FastIntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, CCharacterCore *pCore = nullptr, bool IsHook = false, bool IsWeapon = false) const;
+	int FastIntersectLinePortalLaser(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, CKZTile **pKZTile = nullptr, int *pTeleNr = nullptr, CCharacterCore *pCore = nullptr, bool IsHook = false, bool IsWeapon = false) const;
 
 	bool KZGameFound() const { return m_pKZGame != 0; }
 	bool KZFrontFound() const { return m_pKZFront != 0; }
