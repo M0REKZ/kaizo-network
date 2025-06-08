@@ -44,6 +44,7 @@ public:
 	int CheckPointForCore(float x, float y, CCharacterCore* pCore, bool IsHook = false, bool IsWeapon = false) const;
 	int FastIntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, CCharacterCore *pCore = nullptr, bool IsHook = false, bool IsWeapon = false) const;
 	int FastIntersectLinePortalLaser(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, CKZTile **pKZTile = nullptr, int *pTeleNr = nullptr, CCharacterCore *pCore = nullptr, bool IsHook = false, bool IsWeapon = false) const;
+	bool DDNetLayerExists(int Layer);
 
 	bool KZGameFound() const { return m_pKZGame != 0; }
 	bool KZFrontFound() const { return m_pKZFront != 0; }
@@ -60,7 +61,7 @@ public:
 	CKZTile *GetKZFrontTile(int Index) const;
 	CKZTile *GetKZFrontTile(int x, int y) const;
 	CKZTile *GetKZFrontTile(float x, float y) const;
-	CKZTile *GetKZFrontTile(vec2 Pos) const { return GetKZGameTile(Pos.x,Pos.y); }
+	CKZTile *GetKZFrontTile(vec2 Pos) const { return GetKZFrontTile(Pos.x,Pos.y); }
 
 	unsigned char GetKZGameTileIndex(float x, float y) const;
 	unsigned char GetKZGameTileIndex(int x, int y) const;
