@@ -612,6 +612,7 @@ public:
 	void SendGameMsg(int GameMsgId, int ParaI1, int ParaI2, int ParaI3, int ClientId) const;
 
 	void CreateMapSoundEvent(vec2 Pos, int Id, CClientMask Mask = CClientMask().set());
+	void CreateMapSoundEventForClient(vec2 Pos, int Id, int ClientId, CClientMask Mask = CClientMask().set());
 
 	void RegisterKZCommands();
 

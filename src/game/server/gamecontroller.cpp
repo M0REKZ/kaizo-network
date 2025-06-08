@@ -634,6 +634,8 @@ void IGameController::Snap(int SnappingClient)
 	//+KZ
 	if(m_ShowHealth)
 		pGameInfoEx->m_Flags2 |= GAMEINFOFLAG2_HUD_HEALTH_ARMOR;
+	if(pPlayer && pPlayer->GetCharacter() && pPlayer->GetCharacter()->m_SpecTile)
+		pGameInfoEx->m_Flags ^= GAMEINFOFLAG_BUG_DDRACE_INPUT; 
 
 	if(Server()->IsSixup(SnappingClient))
 	{

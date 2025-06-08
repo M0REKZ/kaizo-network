@@ -276,6 +276,11 @@ void CPlayer::Tick()
 			GameServer()->SendEmoticon(GetCid(), EMOTICON_GHOST, -1);
 		}
 	}
+
+	if(GetCharacter() && GetCharacter()->m_SpecTile)
+	{
+		m_ViewPos = GetCharacter()->m_SpecTilePos;
+	}
 }
 
 void CPlayer::PostTick()
@@ -472,7 +477,7 @@ void CPlayer::Snap(int SnappingClient)
 	pDDNetPlayer->m_Flags = 0;
 	if(m_Afk || m_PlayerFlags & PLAYERFLAG_IN_MENU) // Raid added in menu
 		pDDNetPlayer->m_Flags |= EXPLAYERFLAG_AFK;
-	if(m_Paused == PAUSE_SPEC)
+	if(m_Paused == PAUSE_SPEC || (GetCharacter() && GetCharacter()->m_SpecTile)) //+KZ
 		pDDNetPlayer->m_Flags |= EXPLAYERFLAG_SPEC;
 	if(m_Paused == PAUSE_PAUSED)
 		pDDNetPlayer->m_Flags |= EXPLAYERFLAG_PAUSED;
@@ -564,7 +569,7 @@ void CPlayer::OnPredictedInput(CNetObj_PlayerInput *pNewInput)
 
 	m_NumInputs++;
 
-	if(m_pCharacter && !m_Paused && !(pNewInput->m_PlayerFlags & PLAYERFLAG_SPEC_CAM))
+	if(m_pCharacter && !m_Paused && (m_pCharacter->m_SpecTile ? true : !(pNewInput->m_PlayerFlags & PLAYERFLAG_SPEC_CAM)))
 		m_pCharacter->OnPredictedInput(pNewInput);
 
 	// Magic number when we can hope that client has successfully identified itself
@@ -604,7 +609,7 @@ void CPlayer::OnPredictedEarlyInput(CNetObj_PlayerInput *pNewInput)
 	if(m_PlayerFlags & PLAYERFLAG_CHATTING)
 		return;
 
-	if(m_pCharacter && !m_Paused && !(m_PlayerFlags & PLAYERFLAG_SPEC_CAM))
+	if(m_pCharacter && !m_Paused && (m_pCharacter->m_SpecTile ? true : !(m_PlayerFlags & PLAYERFLAG_SPEC_CAM))) //+KZ modified
 		m_pCharacter->OnDirectInput(pNewInput);
 }
 

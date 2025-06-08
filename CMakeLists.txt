@@ -2764,6 +2764,7 @@ if(SERVER)
     entities/kz/portal_projectile.h
     entity.cpp
     entity.h
+    eventhandler_kz.cpp
     eventhandler.cpp
     eventhandler.h
     gamecontext.cpp

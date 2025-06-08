@@ -285,6 +285,11 @@ public:
 	bool m_Waitingforreleaseaim = false;
 	int64_t m_LastSoundPlayed = -1;
 	int64_t m_LastLocalSoundPlayed = -1;
+	int64_t m_LastLocalInPosSoundPlayed = -1;
+	bool m_NODAMAGE = false;
+	bool m_StillPressingFire = false;
+	bool m_SpecTile = false;
+	vec2 m_SpecTilePos = vec2(0,0);
 
 	struct
 	{

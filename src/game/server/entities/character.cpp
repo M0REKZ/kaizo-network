@@ -900,6 +900,9 @@ void CCharacter::Tick()
 	m_PrevInput = m_Input;
 
 	m_PrevPos = m_Core.m_Pos;
+
+	//+KZ
+	m_StillPressingFire = (m_Input.m_Fire & 1);
 }
 
 void CCharacter::TickDeferred()
@@ -2772,6 +2775,21 @@ void CCharacter::HandleKZTiles()
 		m_LastLocalSoundPlayed = -1;
 	}
 
+	if(pKZTile && pKZTile->m_Index == KZ_TILE_SOUND_PLAY_LOCAL_IN_POS && m_LastLocalInPosSoundPlayed != pKZTile->m_Value1 && (pKZTile->m_Number ? Switchers()[pKZTile->m_Number].m_aStatus[Team()] : true))
+	{
+		GameServer()->CreateMapSoundEventForClient(m_Pos, pKZTile->m_Value1, m_pPlayer->GetCid(), TeamMask());
+		m_LastLocalInPosSoundPlayed = pKZTile->m_Value1;
+	}
+	else if(pKZTileFront && pKZTileFront->m_Index == KZ_TILE_SOUND_PLAY_LOCAL_IN_POS && m_LastLocalInPosSoundPlayed != pKZTileFront->m_Value1 && (pKZTileFront->m_Number ? Switchers()[pKZTileFront->m_Number].m_aStatus[Team()] : true))
+	{
+		GameServer()->CreateMapSoundEventForClient(m_Pos, pKZTileFront->m_Value1, m_pPlayer->GetCid(), TeamMask());
+		m_LastLocalInPosSoundPlayed = pKZTileFront->m_Value1;
+	}
+	else if(!(pKZTile && pKZTile->m_Index == KZ_TILE_SOUND_PLAY_LOCAL_IN_POS) && !(pKZTileFront && pKZTileFront->m_Index == KZ_TILE_SOUND_PLAY_LOCAL_IN_POS))
+	{
+		m_LastLocalInPosSoundPlayed = -1;
+	}
+
 	if(pKZTile && pKZTile->m_Index == KZ_TILE_HEALTH_ZONE && (pKZTile->m_Number ? Switchers()[pKZTile->m_Number].m_aStatus[Team()] : true) && Server()->Tick() % Server()->TickSpeed() == 0)
 	{
 		IncreaseHealth((int)pKZTile->m_Value1 + 1);
@@ -2790,6 +2808,84 @@ void CCharacter::HandleKZTiles()
 	else if(pKZTileFront && pKZTileFront->m_Index == KZ_TILE_DAMAGE_ZONE && (pKZTileFront->m_Number ? Switchers()[pKZTileFront->m_Number].m_aStatus[Team()] : true) && Server()->Tick() % Server()->TickSpeed() == 0)
 	{
 		TakeDamageVanilla(vec2(0,0),(int)pKZTile->m_Value1 + 1,m_pPlayer ? m_pPlayer->GetCid() : -1, WEAPON_WORLD);
+	}
+
+	//+KZ Game Only Tiles
+	if(pKZTile)
+	{
+		if(!m_NODAMAGE && pKZTile->m_Index == KZ_GAMETILE_NO_DAMAGE && (pKZTile->m_Number ? Switchers()[pKZTile->m_Number].m_aStatus[Team()] : true))
+		{
+			m_NODAMAGE = true;
+			GameServer()->SendChatTarget(m_pPlayer->GetCid(),"Now you can not take damage");
+		}
+
+		if(pKZTile->m_Index == KZ_GAMETILE_TOGGLE_BUTTON && pKZTile->m_Number)
+		{
+			if(!(Server()->Tick() % Server()->TickSpeed()))
+			{
+				GameServer()->SendBroadcast("Hammer the button to use it", m_pPlayer->GetCid(), false);
+			}
+
+			if(m_Core.m_ActiveWeapon == WEAPON_HAMMER && (m_Input.m_Fire & 1) && !m_StillPressingFire)
+			{
+				switch(pKZTile->m_Value1) //Type
+				{
+					case 0: //switch deactivate
+						{
+							Switchers()[pKZTile->m_Number].m_aStatus[Team()] = true;
+							Switchers()[pKZTile->m_Number].m_aEndTick[Team()] = 0;
+							Switchers()[pKZTile->m_Number].m_aType[Team()] = TILE_SWITCHOPEN;
+							Switchers()[pKZTile->m_Number].m_aLastUpdateTick[Team()] = Server()->Tick();
+						}
+						break;
+					case 1: //switch timed deactivate
+						{
+							Switchers()[pKZTile->m_Number].m_aStatus[Team()] = true;
+							Switchers()[pKZTile->m_Number].m_aEndTick[Team()] = Server()->Tick() + 1 + pKZTile->m_Value2 * Server()->TickSpeed();
+							Switchers()[pKZTile->m_Number].m_aType[Team()] = TILE_SWITCHTIMEDOPEN;
+							Switchers()[pKZTile->m_Number].m_aLastUpdateTick[Team()] = Server()->Tick();
+						}
+						break;
+					case 2: //switch timed activate
+						{
+							Switchers()[pKZTile->m_Number].m_aStatus[Team()] = false;
+							Switchers()[pKZTile->m_Number].m_aEndTick[Team()] = Server()->Tick() + 1 + pKZTile->m_Value2 * Server()->TickSpeed();
+							Switchers()[pKZTile->m_Number].m_aType[Team()] = TILE_SWITCHTIMEDCLOSE;
+							Switchers()[pKZTile->m_Number].m_aLastUpdateTick[Team()] = Server()->Tick();
+						}
+						break;
+					case 3: //switch activate
+						{
+							Switchers()[pKZTile->m_Number].m_aStatus[Team()] = false;
+							Switchers()[pKZTile->m_Number].m_aEndTick[Team()] = 0;
+							Switchers()[pKZTile->m_Number].m_aType[Team()] = TILE_SWITCHCLOSE;
+							Switchers()[pKZTile->m_Number].m_aLastUpdateTick[Team()] = Server()->Tick();
+						}
+						break;
+
+					default:
+						break;
+				}
+
+				vec2 HitPos = m_Pos;
+
+				HitPos.x += 16 - ((int)HitPos.x % 32);
+				HitPos.y += 16 - ((int)HitPos.y % 32);
+
+				GameServer()->CreateHammerHit(HitPos,TeamMask());
+			}
+		}
+
+		if(!m_SpecTile && pKZTile->m_Index == KZ_GAMETILE_SPEC_POS && (pKZTile->m_Number ? Switchers()[pKZTile->m_Number].m_aStatus[Team()] : true))
+		{
+			m_SpecTile = true;
+			m_SpecTilePos.x = (float)pKZTile->m_Value1 * 32 + 16;
+			m_SpecTilePos.y = (float)pKZTile->m_Value2 * 32 + 16;
+		}
+		else if(m_SpecTile && pKZTile->m_Index != KZ_GAMETILE_SPEC_POS && (pKZTile->m_Number ? !(Switchers()[pKZTile->m_Number].m_aStatus[Team()]) : true))
+		{
+			m_SpecTile = false;
+		}
 	}
 
 	//+KZ Front Only Tiles
@@ -2879,6 +2975,9 @@ void CCharacter::HandleKZTiles()
 bool CCharacter::TakeDamageVanilla(vec2 Force, int Dmg, int From, int Weapon)
 {
 	m_Core.m_Vel += Force;
+
+	if(m_NODAMAGE || IsSuper() || m_Core.m_Invincible)
+		return false;
 
 	// m_pPlayer only inflicts half damage on self //+KZ no
 	//if(From == m_pPlayer->GetCid())

@@ -146,6 +146,17 @@ void CGameContext::CreateMapSoundEvent(vec2 Pos, int Id, CClientMask Mask)
 	}
 }
 
+void CGameContext::CreateMapSoundEventForClient(vec2 Pos, int Id, int ClientId, CClientMask Mask)
+{
+	CNetEvent_MapSoundWorld *pEvent = m_Events.CreateForClient<CNetEvent_MapSoundWorld>(ClientId, Mask);
+	if(pEvent)
+	{
+		pEvent->m_X = (int)Pos.x;
+		pEvent->m_Y = (int)Pos.y;
+		pEvent->m_SoundId = Id;
+	}
+}
+
 void CGameContext::ConRejoinShutdown(IConsole::IResult *pResult, void *pUserData)
 {
     CGameContext *pSelf = (CGameContext *)pUserData;

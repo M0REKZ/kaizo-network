@@ -43,13 +43,15 @@ void CEventHandler::Clear()
 {
 	m_NumEvents = 0;
 	m_CurrentOffset = 0;
+
+	ClearKZ(); //+KZ
 }
 
 void CEventHandler::Snap(int SnappingClient)
 {
 	for(int i = 0; i < m_NumEvents; i++)
 	{
-		if(SnappingClient == SERVER_DEMO_CLIENT || m_aClientMasks[i].test(SnappingClient))
+		if((SnappingClient == SERVER_DEMO_CLIENT || m_aClientMasks[i].test(SnappingClient)) && ((m_aForClientId[i] == -5) ? true : (m_aForClientId[i] == SnappingClient)))
 		{
 			CNetEvent_Common *pEvent = (CNetEvent_Common *)&m_aData[m_aOffsets[i]];
 			if(!NetworkClipped(GameServer(), SnappingClient, vec2(pEvent->m_X, pEvent->m_Y)))
