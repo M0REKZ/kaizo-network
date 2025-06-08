@@ -331,7 +331,7 @@ public:
 
 	void RenderKZGameOverlay(CKZTile *pKZ, int w, int h, float Scale, int OverlayRenderFlags, float Alpha = 1.0f) const;
 	void RenderKZGameMap(CKZTile *pKZ, int w, int h, float Scale, ColorRGBA Color, int RenderFlags) const;
-	void RenderKZFrontOverlay(CKZTile *pKZ, int w, int h, float Scale, int OverlayRenderFlags, float Alpha = 1.0f) const;
+	void RenderKZFrontOverlay(CKZTile *pKZ, int w, int h, float Scale, int OverlayRenderFlags, float Alpha = 1.0f);
 	void RenderKZFrontMap(CKZTile *pKZ, int w, int h, float Scale, ColorRGBA Color, int RenderFlags) const;
 };
 

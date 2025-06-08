@@ -284,6 +284,7 @@ public:
 	bool m_AimPressed = false;
 	bool m_Waitingforreleaseaim = false;
 	int64_t m_LastSoundPlayed = -1;
+	int64_t m_LastLocalSoundPlayed = -1;
 
 	struct
 	{

@@ -480,3 +480,24 @@ int CCollision::FastIntersectLinePortalLaser(vec2 Pos0, vec2 Pos1, vec2 *pOutCol
 		*pOutBeforeCollision = Pos1;
 	return 0;
 }
+
+bool CCollision::DDNetLayerExists(int Layer)
+{
+	switch(Layer)
+	{
+	case LAYER_GAME:
+		return m_pTiles;
+	case LAYER_FRONT:
+		return m_pFront;
+	case LAYER_SWITCH:
+		return m_pSwitch;
+	case LAYER_TELE:
+		return m_pTele;
+	case LAYER_SPEEDUP:
+		return m_pSpeedup;
+	case LAYER_TUNE:
+		return m_pTune;
+	default:
+		return false;
+	}
+}

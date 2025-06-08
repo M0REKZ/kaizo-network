@@ -2733,7 +2733,7 @@ void CCharacter::HandleKZTiles()
 				{
 					p2->Reset();
 				}
-				return;
+				break;
 			}
 		}
 	}
@@ -2751,6 +2751,25 @@ void CCharacter::HandleKZTiles()
 	else if(!(pKZTile && pKZTile->m_Index == KZ_TILE_SOUND_PLAY) && !(pKZTileFront && pKZTileFront->m_Index == KZ_TILE_SOUND_PLAY))
 	{
 		m_LastSoundPlayed = -1;
+	}
+
+	if(pKZTile && pKZTile->m_Index == KZ_TILE_SOUND_PLAY_LOCAL && m_LastLocalSoundPlayed != pKZTile->m_Value1 && (pKZTile->m_Number ? Switchers()[pKZTile->m_Number].m_aStatus[Team()] : true))
+	{
+		CNetMsg_Sv_MapSoundGlobal Msg;
+		Msg.m_SoundId = (int)pKZTile->m_Value1;
+		Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, m_pPlayer->GetCid());
+		m_LastLocalSoundPlayed = pKZTile->m_Value1;
+	}
+	else if(pKZTileFront && pKZTileFront->m_Index == KZ_TILE_SOUND_PLAY_LOCAL && m_LastLocalSoundPlayed != pKZTileFront->m_Value1 && (pKZTileFront->m_Number ? Switchers()[pKZTileFront->m_Number].m_aStatus[Team()] : true))
+	{
+		CNetMsg_Sv_MapSoundGlobal Msg;
+		Msg.m_SoundId = (int)pKZTileFront->m_Value1;
+		Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, m_pPlayer->GetCid());
+		m_LastLocalSoundPlayed = pKZTileFront->m_Value1;
+	}
+	else if(!(pKZTile && pKZTile->m_Index == KZ_TILE_SOUND_PLAY_LOCAL) && !(pKZTileFront && pKZTileFront->m_Index == KZ_TILE_SOUND_PLAY_LOCAL))
+	{
+		m_LastLocalSoundPlayed = -1;
 	}
 
 	if(pKZTile && pKZTile->m_Index == KZ_TILE_HEALTH_ZONE && (pKZTile->m_Number ? Switchers()[pKZTile->m_Number].m_aStatus[Team()] : true) && Server()->Tick() % Server()->TickSpeed() == 0)
@@ -2771,6 +2790,89 @@ void CCharacter::HandleKZTiles()
 	else if(pKZTileFront && pKZTileFront->m_Index == KZ_TILE_DAMAGE_ZONE && (pKZTileFront->m_Number ? Switchers()[pKZTileFront->m_Number].m_aStatus[Team()] : true) && Server()->Tick() % Server()->TickSpeed() == 0)
 	{
 		TakeDamageVanilla(vec2(0,0),(int)pKZTile->m_Value1 + 1,m_pPlayer ? m_pPlayer->GetCid() : -1, WEAPON_WORLD);
+	}
+
+	//+KZ Front Only Tiles
+	if(pKZTileFront)
+	{
+		if(pKZTileFront->m_Index == KZ_FRONTTILE_FORCE_POS && (pKZTileFront->m_Number ? Switchers()[pKZTileFront->m_Number].m_aStatus[Team()] : true))
+		{
+			
+			//Value 1 = Angle
+			int Angle = std::clamp((int)pKZTileFront->m_Value1,0,360);
+			float RadAngle = Angle * 3.14159f/180.f;
+			vec2 Dir;
+			Dir.y = sin(RadAngle);
+			Dir.x = cos(RadAngle);
+			Dir = normalize(Dir);
+
+			//Value 2 = Force
+			//Add Coordinates to Position without caring about anything muahahahaha
+			int Force = pKZTileFront->m_Value2;
+			m_Core.m_Pos += Dir * Force;
+			m_Pos += Dir * Force;
+			
+
+			//Value 3 = Speed Limiter
+			vec2 TempVel = m_Core.m_Vel;
+			int MaxSpeed = pKZTileFront->m_Value3;
+
+			constexpr float MaxSpeedScale = 5.0f;
+			if(MaxSpeed < 0)
+			{
+				float MaxRampSpeed = GetTuning(m_TuneZone)->m_VelrampRange / (50 * log(maximum((float)GetTuning(m_TuneZone)->m_VelrampCurvature, 1.01f)));
+				MaxSpeed = maximum(MaxRampSpeed, GetTuning(m_TuneZone)->m_VelrampStart / 50) * MaxSpeedScale;
+			}
+
+			// (signed) length of projection
+			float CurrentDirectionalSpeed = dot(Dir, m_Core.m_Vel);
+			float TempMaxSpeed = MaxSpeed / MaxSpeedScale;
+			if(CurrentDirectionalSpeed + Force > TempMaxSpeed)
+				TempVel += Dir * (TempMaxSpeed - CurrentDirectionalSpeed);
+			else
+				TempVel += Dir * Force;
+
+			m_Core.m_Vel = ClampVel(m_MoveRestrictions, TempVel);
+		}
+
+		if(pKZTileFront->m_Index == KZ_FRONTTILE_KZ_PLAYER_TELEPORT && (pKZTileFront->m_Number ? Switchers()[pKZTileFront->m_Number].m_aStatus[Team()] : true))
+		{
+			int TeleNumber = std::clamp((int)pKZTileFront->m_Value2,1,255);
+			int TeleOut = 0;
+
+			switch (pKZTileFront->m_Value1) //Type
+			{
+			case 0: //Red Teleport
+				TeleOut = GameWorld()->m_Core.RandomOr0(Collision()->TeleOuts(TeleNumber - 1).size());
+				m_Core.m_Pos = Collision()->TeleOuts(TeleNumber - 1)[TeleOut];
+				
+				m_Core.m_Vel = vec2(0, 0);
+
+				if(!g_Config.m_SvTeleportHoldHook)
+				{
+					ResetHook();
+					GameWorld()->ReleaseHooked(GetPlayer()->GetCid());
+				}
+				if(g_Config.m_SvTeleportLoseWeapons)
+				{
+					ResetPickups();
+				}
+				
+				break;
+			case 1:
+				TeleOut = GameWorld()->m_Core.RandomOr0(Collision()->TeleOuts(TeleNumber - 1).size());
+				m_Core.m_Pos = Collision()->TeleOuts(TeleNumber - 1)[TeleOut];
+				if(!g_Config.m_SvTeleportHoldHook)
+				{
+					ResetHook();
+				}
+				if(g_Config.m_SvTeleportLoseWeapons)
+					ResetPickups();
+				break;
+			default:
+				break;
+			}
+		}
 	}
 }
 
