@@ -28,6 +28,6 @@ void CEventHandler::ClearKZ()
 {
 	for(int i = 0; i++; i < MAX_EVENTS)
 	{
-		m_aForClientId[i] = -5;
+		m_aForClientId[i] = -99;
 	}
 }

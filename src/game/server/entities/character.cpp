@@ -2819,7 +2819,7 @@ void CCharacter::HandleKZTiles()
 			GameServer()->SendChatTarget(m_pPlayer->GetCid(),"Now you can not take damage");
 		}
 
-		if(pKZTile->m_Index == KZ_GAMETILE_TOGGLE_BUTTON && pKZTile->m_Number)
+		if(!IsSuper() && pKZTile->m_Index == KZ_GAMETILE_TOGGLE_BUTTON && pKZTile->m_Number)
 		{
 			if(!(Server()->Tick() % Server()->TickSpeed()))
 			{
@@ -2931,7 +2931,7 @@ void CCharacter::HandleKZTiles()
 			m_Core.m_Vel = ClampVel(m_MoveRestrictions, TempVel);
 		}
 
-		if(pKZTileFront->m_Index == KZ_FRONTTILE_KZ_PLAYER_TELEPORT && (pKZTileFront->m_Number ? Switchers()[pKZTileFront->m_Number].m_aStatus[Team()] : true))
+		if(!IsSuper() && !m_Core.m_Invincible && pKZTileFront->m_Index == KZ_FRONTTILE_KZ_PLAYER_TELEPORT && (pKZTileFront->m_Number ? Switchers()[pKZTileFront->m_Number].m_aStatus[Team()] : true))
 		{
 			int TeleNumber = std::clamp((int)pKZTileFront->m_Value2,1,255);
 			int TeleOut = 0;

@@ -29,6 +29,8 @@ void *CEventHandler::Create(int Type, int Size, CClientMask Mask)
 	if(m_CurrentOffset + Size >= MAX_DATASIZE)
 		return nullptr;
 
+	m_aForClientId[m_NumEvents] = -99; //+KZ
+
 	void *p = &m_aData[m_CurrentOffset];
 	m_aOffsets[m_NumEvents] = m_CurrentOffset;
 	m_aTypes[m_NumEvents] = Type;
@@ -51,7 +53,10 @@ void CEventHandler::Snap(int SnappingClient)
 {
 	for(int i = 0; i < m_NumEvents; i++)
 	{
-		if((SnappingClient == SERVER_DEMO_CLIENT || m_aClientMasks[i].test(SnappingClient)) && ((m_aForClientId[i] == -5) ? true : (m_aForClientId[i] == SnappingClient)))
+		if(m_aForClientId[i] != -99 && m_aForClientId[i] != SnappingClient)
+			continue;
+
+		if(SnappingClient == SERVER_DEMO_CLIENT || m_aClientMasks[i].test(SnappingClient))
 		{
 			CNetEvent_Common *pEvent = (CNetEvent_Common *)&m_aData[m_aOffsets[i]];
 			if(!NetworkClipped(GameServer(), SnappingClient, vec2(pEvent->m_X, pEvent->m_Y)))
