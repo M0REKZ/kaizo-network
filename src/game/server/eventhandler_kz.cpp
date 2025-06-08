@@ -26,7 +26,7 @@ void *CEventHandler::CreateForClient(int Type, int Size, int ClientId, CClientMa
 
 void CEventHandler::ClearKZ()
 {
-	for(int i = 0; i++; i < MAX_EVENTS)
+	for(int i = 0; i < MAX_EVENTS;i++)
 	{
 		m_aForClientId[i] = -99;
 	}
