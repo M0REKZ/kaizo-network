@@ -165,6 +165,27 @@ void CCollision::Init(class CLayers *pLayers)
 			}
 		}
 	}
+
+
+	//+KZ
+	if(m_pKZGame)
+	{
+		for(int i = 0; i < m_KZGameWidth * m_KZGameHeight; i++)
+		{
+			printf("i = %d\n",i);
+			if(m_pKZGame[i].m_Number > m_HighestSwitchNumber)
+				m_HighestSwitchNumber = m_pKZGame[i].m_Number;
+		}
+	}
+
+	if(m_pKZFront)
+	{
+		for(int i = 0; i < m_KZFrontWidth * m_KZFrontHeight; i++)
+		{
+			if(m_pKZFront[i].m_Number > m_HighestSwitchNumber)
+				m_HighestSwitchNumber = m_pKZFront[i].m_Number;
+		}
+	}
 }
 
 void CCollision::Unload()

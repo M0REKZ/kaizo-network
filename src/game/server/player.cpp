@@ -369,7 +369,7 @@ void CPlayer::Snap(int SnappingClient)
 		pPlayerInfo->m_Score = Score;
 		pPlayerInfo->m_Local = (int)(m_ClientId == SnappingClient && (m_Paused != PAUSE_PAUSED || SnappingClientVersion >= VERSION_DDNET_OLD));
 		pPlayerInfo->m_ClientId = id;
-		pPlayerInfo->m_Team = m_Team;
+		pPlayerInfo->m_Team = (GetCharacter() && GetCharacter()->m_SpecTile) ? TEAM_SPECTATORS : m_Team;
 		if(SnappingClientVersion < VERSION_DDNET_INDEPENDENT_SPECTATORS_TEAM)
 		{
 			// In older versions the SPECTATORS TEAM was also used if the own player is in PAUSE_PAUSED or if any player is in PAUSE_SPEC.
@@ -415,6 +415,20 @@ void CPlayer::Snap(int SnappingClient)
 			pSpectatorInfo->m_SpectatorId = m_SpectatorId;
 			pSpectatorInfo->m_X = m_ViewPos.x;
 			pSpectatorInfo->m_Y = m_ViewPos.y;
+		}
+	}
+	else if(GetCharacter() && GetCharacter()->m_SpecTile)
+	{
+		if(!Server()->IsSixup(SnappingClient))
+		{
+			CNetObj_SpectatorInfo *pSpectatorInfo = Server()->SnapNewItem<CNetObj_SpectatorInfo>(m_ClientId);
+			if(!pSpectatorInfo)
+				return;
+
+
+			pSpectatorInfo->m_SpectatorId = m_ClientId;
+			pSpectatorInfo->m_X = GetCharacter()->m_SpecTilePos.x;
+			pSpectatorInfo->m_Y = GetCharacter()->m_SpecTilePos.y;
 		}
 	}
 
@@ -477,7 +491,7 @@ void CPlayer::Snap(int SnappingClient)
 	pDDNetPlayer->m_Flags = 0;
 	if(m_Afk || m_PlayerFlags & PLAYERFLAG_IN_MENU) // Raid added in menu
 		pDDNetPlayer->m_Flags |= EXPLAYERFLAG_AFK;
-	if(m_Paused == PAUSE_SPEC || (GetCharacter() && GetCharacter()->m_SpecTile)) //+KZ
+	if(m_Paused == PAUSE_SPEC)
 		pDDNetPlayer->m_Flags |= EXPLAYERFLAG_SPEC;
 	if(m_Paused == PAUSE_PAUSED)
 		pDDNetPlayer->m_Flags |= EXPLAYERFLAG_PAUSED;

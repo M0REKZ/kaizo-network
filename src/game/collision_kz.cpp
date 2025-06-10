@@ -409,7 +409,7 @@ int CCollision::FastIntersectLinePortalLaser(vec2 Pos0, vec2 Pos1, vec2 *pOutCol
 			Vertical = true;
 		}
 	}
-	if(IsSolid(CurTileX*32,CurTileY*32) || (pKZTilelocal->m_Index == KZ_TILE_PORTAL_DISALLOW || pKZTilelocal->m_Index == KZ_TILE_PORTAL_RESET) || (kzid ? kzid : (kzid = CheckPointForCore(CurTileX*32, CurTileY*32, pCore, IsHook, IsWeapon))) || (g_Config.m_SvOldTeleportWeapons ? IsTeleport(Index) : IsTeleportWeapon(Index)))
+	if(IsSolid(CurTileX*32,CurTileY*32) || (pKZTilelocal && (pKZTilelocal->m_Index == KZ_TILE_PORTAL_DISALLOW || pKZTilelocal->m_Index == KZ_TILE_PORTAL_RESET)) || (kzid ? kzid : (kzid = CheckPointForCore(CurTileX*32, CurTileY*32, pCore, IsHook, IsWeapon))) || (g_Config.m_SvOldTeleportWeapons ? IsTeleport(Index) : IsTeleportWeapon(Index)))
 	{
 		if(CurTileX != Tile0X || CurTileY != Tile0Y)
 		{
@@ -452,9 +452,9 @@ int CCollision::FastIntersectLinePortalLaser(vec2 Pos0, vec2 Pos1, vec2 *pOutCol
         }
         else
         {
-            pKZTilelocal = GetKZGameTile(Pos);
+            pKZTilelocal = GetKZGameTile(vec2(CurTileX*32,CurTileY*32));
             if(!pKZTilelocal || !(pKZTilelocal->m_Index == KZ_TILE_PORTAL_ALLOW))
-                pKZTilelocal = GetKZFrontTile(Pos);
+                pKZTilelocal = GetKZFrontTile(vec2(CurTileX*32,CurTileY*32));
 
             if(pKZTilelocal)
             {
