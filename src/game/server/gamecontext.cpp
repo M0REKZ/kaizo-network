@@ -941,7 +941,7 @@ void CGameContext::SendTuningParams(int ClientId, int Zone)
 			{
 				if(m_apPlayers[i]->GetCharacter())
 				{
-					if(m_apPlayers[i]->GetCharacter()->m_TuneZone == Zone)
+					if(m_apPlayers[i]->GetCharacter()->GetOverriddenTuneZoneKZ() == Zone) //+KZ
 						SendTuningParams(i, Zone);
 				}
 				else if(m_apPlayers[i]->m_TuneZone == Zone)

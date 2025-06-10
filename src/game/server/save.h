@@ -158,6 +158,7 @@ private:
 	int m_Health = 10;
 	int m_CustomWeapon = 0;
 	bool m_BluePortal = true;
+	int m_TuneZoneOverrideKZ = -1; //+KZ
 	struct
 	{
 		bool m_Got = false;

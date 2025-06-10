@@ -1461,7 +1461,7 @@ void CCharacter::Snap(int SnappingClient)
 	pDDNetCharacter->m_TargetY = m_Core.m_Input.m_TargetY;
 
 	// -1 is the default value, SnapNewItem zeroes the object, so it would incorrectly become 0
-	pDDNetCharacter->m_TuneZoneOverride = -1;
+	pDDNetCharacter->m_TuneZoneOverride = GetOverriddenTuneZoneKZ(); //+KZ modified
 }
 
 void CCharacter::PostSnap()
@@ -2201,9 +2201,12 @@ void CCharacter::HandleTuneLayer()
 {
 	m_TuneZoneOld = m_TuneZone;
 	int CurrentIndex = Collision()->GetMapIndex(m_Pos);
-	m_TuneZone = Collision()->IsTune(CurrentIndex);
+	if(!m_ForcedTuneKZ && m_TuneZoneOverrideKZ < 0) //+KZ
+		m_TuneZone = Collision()->IsTune(CurrentIndex);
 
-	if(m_TuneZone)
+	if(m_TuneZoneOverrideKZ >= 0 && !m_TuneZone) //+KZ
+		m_Core.m_Tuning = TuningList()[m_TuneZoneOverrideKZ];
+	else if(m_TuneZone)
 		m_Core.m_Tuning = TuningList()[m_TuneZone]; // throw tunings from specific zone into gamecore
 	else
 		m_Core.m_Tuning = *Tuning();
@@ -2968,6 +2971,21 @@ void CCharacter::HandleKZTiles()
 			default:
 				break;
 			}
+		}
+
+		if(!m_ForcedTuneKZ && pKZTileFront->m_Index == KZ_FRONTTILE_TUNE_SWITCHABLE && (pKZTileFront->m_Number ? Switchers()[pKZTileFront->m_Number].m_aStatus[Team()] : true))
+		{
+			m_TuneZone = std::clamp((int)pKZTileFront->m_Value1,0,255);
+			m_ForcedTuneKZ = true;
+		}
+		else if(m_ForcedTuneKZ && pKZTileFront->m_Index != KZ_FRONTTILE_TUNE_SWITCHABLE && (pKZTileFront->m_Number ? !(Switchers()[pKZTileFront->m_Number].m_aStatus[Team()]) : true))
+		{
+			m_ForcedTuneKZ = false;
+		}
+
+		if(pKZTileFront->m_Index == KZ_FRONTTILE_TUNE_LOCK && (pKZTileFront->m_Number ? Switchers()[pKZTileFront->m_Number].m_aStatus[Team()] : true))
+		{
+			m_TuneZoneOverrideKZ = std::clamp((int)pKZTileFront->m_Value1,-1,255);
 		}
 	}
 }
