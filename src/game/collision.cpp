@@ -172,7 +172,6 @@ void CCollision::Init(class CLayers *pLayers)
 	{
 		for(int i = 0; i < m_KZGameWidth * m_KZGameHeight; i++)
 		{
-			printf("i = %d\n",i);
 			if(m_pKZGame[i].m_Number > m_HighestSwitchNumber)
 				m_HighestSwitchNumber = m_pKZGame[i].m_Number;
 		}

@@ -118,10 +118,8 @@ void CPortalLaser::DoBounce()
 				}
 				else if(g_Config.m_SvPortalMode == 1 && pKZTile) // only certain tiles
 				{
-					printf("HII\n");
 					if(pKZTile->m_Index == KZ_TILE_PORTAL_ALLOW)
 					{
-						printf("IKM HEREADADA\n");
 						new CPortalKZ(GameWorld(), To, m_Owner, m_BluePortal);
 						GameServer()->CreateSound(m_Pos, SOUND_LASER_BOUNCE, m_TeamMask);
 					}
