@@ -48,6 +48,16 @@ CEntity(pGameWorld,CGameWorld::CUSTOM_ENTTYPE_PORTAL)
 			if(p->m_Owner==m_Owner && p->m_Blue == m_Blue)
 				p->Reset();
 		}
+
+		m_pCore = new CPortalCore(m_Owner, m_Pos, m_Pos2, m_Blue);
+		if(m_pCore)
+		{
+			GameWorld()->m_Core.SetPortalKZ(m_pCore);
+		}
+		else
+		{
+			Reset();
+		}
 	}
 }
 
@@ -59,10 +69,17 @@ CPortalKZ::~CPortalKZ()
 void CPortalKZ::Reset()
 {
 	m_MarkedForDestroy = true;
+	GameWorld()->m_Core.DeletePortalKZ(m_Owner,m_Blue);
 }
 
 void CPortalKZ::Tick()
 {
+	if(!GameWorld()->m_Core.GetPortalKZ(m_Owner,m_Blue))
+	{
+		Reset();
+		return;
+	}
+
 	CCharacter *pOwner = GameServer()->GetPlayerChar(m_Owner);
 
 	if(!pOwner || (pOwner && !pOwner->IsAlive()))

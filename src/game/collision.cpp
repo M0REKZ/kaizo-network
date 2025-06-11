@@ -593,6 +593,12 @@ void CCollision::MoveBox(vec2 *pInoutPos, vec2 *pInoutVel, vec2 Size, vec2 Elast
 
 			vec2 NewPos = Pos + Vel * Fraction; // TODO: this row is not nice
 
+			if(HandlePortalCollision(NewPos,Vel,pCore)) //+KZ
+			{
+				Pos = NewPos;
+				break;
+			}
+
 			// Fraction can be very small and thus the calculation has no effect, no
 			// reason to continue calculating.
 			if(NewPos == Pos)

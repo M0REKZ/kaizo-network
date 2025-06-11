@@ -4,6 +4,7 @@
 #define GAME_SERVER_ENTITIES_KZ_PORTAL_H
 
 #include <game/server/entity.h>
+#include <game/gamecore.h>
 
 class CPortalKZ : public CEntity
 {
@@ -29,6 +30,8 @@ public:
 	bool IsTeleportViable(vec2 Pos);
 
 private:
+
+	CPortalCore *m_pCore = nullptr;
 
 	bool CheckPosition(vec2 Pos);
 

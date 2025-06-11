@@ -2148,6 +2148,7 @@ set_src(GAME_SHARED GLOB src/game
   collision_kz.cpp
   gamecore.cpp
   gamecore.h
+  gamecore_kz.cpp
   layers.cpp
   layers.h
   localization.cpp

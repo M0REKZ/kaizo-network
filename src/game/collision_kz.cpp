@@ -501,3 +501,162 @@ bool CCollision::DDNetLayerExists(int Layer)
 		return false;
 	}
 }
+
+CPortalCore *CCollision::IntersectCharacterWithPortal(vec2 Pos, CCharacterCore *pCore) const
+{
+    if(!pCore)
+	    return nullptr;
+    
+    if(!pCore->m_pWorld)
+        return nullptr;
+
+    vec2 TempPos;
+    vec2 SavedPos;
+
+    SavedPos = pCore->m_Pos;
+    pCore->m_Pos = Pos;
+    
+    for(int i = 0; i < MAX_CLIENTS;i++)
+    {
+        for(int j = 0; j < 2; j++)
+        {
+            CPortalCore *pPortal = pCore->m_pWorld->GetPortalKZ(i,j);
+
+            if(!pPortal)
+                continue;
+
+            if(IntersectCharacterCore(pPortal->m_Pos,pPortal->m_Pos2,0.f,TempPos,pCore))
+            {
+                pCore->m_Pos = SavedPos;
+                return pPortal;
+            }
+        }
+    }
+    pCore->m_Pos = SavedPos;
+    return nullptr;
+}
+
+CCharacterCore *CCollision::IntersectCharacterCore(vec2 Pos0, vec2 Pos1, float Radius, vec2 &NewPos, CCharacterCore *pThisOnly) const
+{
+	float ClosestLen = distance(Pos0, Pos1) * 100.0f;
+	CCharacterCore *pClosest = nullptr;
+	
+
+	if(!pThisOnly)
+		return nullptr;
+
+	vec2 IntersectPos;
+	if(closest_point_on_line(Pos0, Pos1, pThisOnly->m_Pos, IntersectPos))
+	{
+		float Len = distance(pThisOnly->m_Pos, IntersectPos);
+		if(Len < (pThisOnly->PhysicalSize() +1) / 2 + Radius)
+		{
+			Len = distance(Pos0, IntersectPos);
+			if(Len < ClosestLen)
+			{
+				NewPos = IntersectPos;
+				ClosestLen = Len;
+				pClosest = pThisOnly;
+			}
+		}
+	}
+	
+
+	return pClosest;
+}
+
+bool CCollision::HandlePortalCollision(vec2 &InOutPos, vec2 &InOutVel, CCharacterCore *pCore) const
+{
+    if(!pCore)
+        return false;
+    
+    if(!pCore->m_pWorld)
+        return false;
+    
+    if(pCore->m_Id < 0 || pCore->m_Id > MAX_CLIENTS)
+        return false;
+
+    CPortalCore *pPortal = IntersectCharacterWithPortal(InOutPos,pCore);
+
+    if(!pPortal)
+    {
+        pPortal = IntersectCharacterWithPortal(InOutPos + InOutVel,pCore);
+    }
+
+    if(pPortal)
+    {
+        CPortalCore *pOtherPortal = pCore->m_pWorld->GetPortalKZ(pCore->m_Id,!pPortal->m_IsBlue);
+
+        if(pOtherPortal)
+        {
+            bool dotele = false;
+            vec2 OutVel = pCore->m_Vel;
+			vec2 OutPos = pCore->m_Pos;
+
+			if((pPortal->m_Pos.x == pPortal->m_Pos2.x && pOtherPortal->m_Pos.x != pOtherPortal->m_Pos2.x)||(pPortal->m_Pos.x != pPortal->m_Pos2.x && pOtherPortal->m_Pos.x == pOtherPortal->m_Pos2.x))
+			{
+				vec2 temp = OutVel;
+				OutVel.x = temp.y;
+				OutVel.y = temp.x;
+			}
+
+			if(pOtherPortal->m_Pos.x == pOtherPortal->m_Pos2.x)
+			{
+				if(IsTeleportViable(vec2(pOtherPortal->m_Pos.x+32.f,pOtherPortal->m_Pos.y+32.f)))
+				{
+					if(OutVel.x < 0)
+					{
+						OutVel.x *= -1;
+					}
+					OutPos = vec2(pOtherPortal->m_Pos.x+32.f,pOtherPortal->m_Pos.y+32.f);
+					dotele = true;
+				}
+				else if(IsTeleportViable(vec2(pOtherPortal->m_Pos.x-32.f,pOtherPortal->m_Pos.y+32.f)))
+				{
+					if(OutVel.x > 0)
+					{
+						OutVel.x *= -1;
+					}
+					OutPos = vec2(pOtherPortal->m_Pos.x-32.f,pOtherPortal->m_Pos.y+32.f);
+					dotele = true;
+				}
+				
+			}
+			else
+			{
+				if(IsTeleportViable(vec2(pOtherPortal->m_Pos.x+32.f,pOtherPortal->m_Pos.y+32.f)))
+				{
+					if(OutVel.y < 0)
+					{
+						OutVel.y *= -1;
+					}
+					OutPos = vec2(pOtherPortal->m_Pos.x+32.f,pOtherPortal->m_Pos.y+32.f);
+					dotele = true;
+				}
+				else if(IsTeleportViable(vec2(pOtherPortal->m_Pos.x+32.f,pOtherPortal->m_Pos.y-32.f)))
+				{
+					if(OutVel.y > 0)
+					{
+						OutVel.y *= -1;
+					}
+					OutPos = vec2(pOtherPortal->m_Pos.x+32.f,pOtherPortal->m_Pos.y-32.f);
+					dotele = true;
+				}
+				
+			}
+
+			if(dotele)
+			{
+				InOutPos = OutPos;
+				InOutVel = OutVel;
+                return true;
+			}
+        }
+    }
+    return false;
+}
+
+bool CCollision::IsTeleportViable(vec2 Pos) const
+{
+	return !(CheckPoint(Pos.x + 14.0f,Pos.y + 14.0f) || CheckPoint(Pos.x - 14.0f,Pos.y + 14.0f) || CheckPoint(Pos.x + 14.0f,Pos.y - 14.0f) || CheckPoint(Pos.x - 14.0f,Pos.y - 14.0f));
+}
