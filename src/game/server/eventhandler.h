@@ -43,6 +43,19 @@ public:
 	void Snap(int SnappingClient);
 
 	void EventToSixup(int *pType, int *pSize, const char **ppData);
+
+	//+KZ
+	int m_aForClientId[MAX_EVENTS];
+
+	void ClearKZ();
+
+	void *CreateForClient(int Type, int Size, int ClientId, CClientMask Mask = CClientMask().set());
+
+	template<typename T>
+	T *CreateForClient(int ClientId, CClientMask Mask = CClientMask().set())
+	{
+		return static_cast<T *>(CreateForClient(T::ms_MsgId, sizeof(T), ClientId, Mask));
+	}
 };
 
 #endif

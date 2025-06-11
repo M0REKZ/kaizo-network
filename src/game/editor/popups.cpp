@@ -1073,7 +1073,7 @@ CUi::EPopupMenuFunctionResult CEditor::PopupQuad(void *pContext, CUIRect View, b
 		}
 		else if(Prop == EQuadProp::PROP_POS_ENV)
 		{
-			int Index = clamp(NewVal - 1, -1, (int)pEditor->m_Map.m_vpEnvelopes.size() - 1);
+			int Index = std::clamp(NewVal - 1, -1, (int)pEditor->m_Map.m_vpEnvelopes.size() - 1);
 			int StepDirection = Index < pQuad->m_PosEnv ? -1 : 1;
 			if(StepDirection != 0)
 			{
@@ -1093,7 +1093,7 @@ CUi::EPopupMenuFunctionResult CEditor::PopupQuad(void *pContext, CUIRect View, b
 		}
 		else if(Prop == EQuadProp::PROP_COLOR_ENV)
 		{
-			int Index = clamp(NewVal - 1, -1, (int)pEditor->m_Map.m_vpEnvelopes.size() - 1);
+			int Index = std::clamp(NewVal - 1, -1, (int)pEditor->m_Map.m_vpEnvelopes.size() - 1);
 			int StepDirection = Index < pQuad->m_ColorEnv ? -1 : 1;
 			if(StepDirection != 0)
 			{
@@ -1212,7 +1212,7 @@ CUi::EPopupMenuFunctionResult CEditor::PopupSource(void *pContext, CUIRect View,
 	}
 	else if(Prop == ESoundProp::PROP_POS_ENV)
 	{
-		int Index = clamp(NewVal - 1, -1, (int)pEditor->m_Map.m_vpEnvelopes.size() - 1);
+		int Index = std::clamp(NewVal - 1, -1, (int)pEditor->m_Map.m_vpEnvelopes.size() - 1);
 		const int StepDirection = Index < pSource->m_PosEnv ? -1 : 1;
 		for(; Index >= -1 && Index < (int)pEditor->m_Map.m_vpEnvelopes.size(); Index += StepDirection)
 		{
@@ -1229,7 +1229,7 @@ CUi::EPopupMenuFunctionResult CEditor::PopupSource(void *pContext, CUIRect View,
 	}
 	else if(Prop == ESoundProp::PROP_SOUND_ENV)
 	{
-		int Index = clamp(NewVal - 1, -1, (int)pEditor->m_Map.m_vpEnvelopes.size() - 1);
+		int Index = std::clamp(NewVal - 1, -1, (int)pEditor->m_Map.m_vpEnvelopes.size() - 1);
 		const int StepDirection = Index < pSource->m_SoundEnv ? -1 : 1;
 		for(; Index >= -1 && Index < (int)pEditor->m_Map.m_vpEnvelopes.size(); Index += StepDirection)
 		{
@@ -2790,15 +2790,15 @@ CUi::EPopupMenuFunctionResult CEditor::PopupSpeedup(void *pContext, CUIRect View
 
 	if(Prop == PROP_FORCE)
 	{
-		pEditor->m_SpeedupForce = clamp(NewVal, 1, 255);
+		pEditor->m_SpeedupForce = std::clamp(NewVal, 1, 255);
 	}
 	else if(Prop == PROP_MAXSPEED)
 	{
-		pEditor->m_SpeedupMaxSpeed = clamp(NewVal, 0, 255);
+		pEditor->m_SpeedupMaxSpeed = std::clamp(NewVal, 0, 255);
 	}
 	else if(Prop == PROP_ANGLE)
 	{
-		pEditor->m_SpeedupAngle = clamp(NewVal, 0, 359);
+		pEditor->m_SpeedupAngle = std::clamp(NewVal, 0, 359);
 		pEditor->AdjustBrushSpecialTiles(false);
 	}
 
@@ -3161,7 +3161,7 @@ CUi::EPopupMenuFunctionResult CEditor::PopupAnimateSettings(void *pContext, CUIR
 
 	if(pEditor->DoEditBox(&s_SpeedInput, &EditBox, 10.0f, IGraphics::CORNER_NONE, "The animation speed."))
 	{
-		pEditor->m_AnimateSpeed = clamp(s_SpeedInput.GetFloat(), MIN_ANIM_SPEED, MAX_ANIM_SPEED);
+		pEditor->m_AnimateSpeed = std::clamp(s_SpeedInput.GetFloat(), MIN_ANIM_SPEED, MAX_ANIM_SPEED);
 	}
 
 	return CUi::POPUP_KEEP_OPEN;
@@ -3321,19 +3321,19 @@ CUi::EPopupMenuFunctionResult CEditor::PopupKZGame(void *pContext, CUIRect View,
 
 	if(Prop == PROP_NUMBER)
 	{
-		pEditor->m_KZGameNumber = clamp(NewVal, (int64_t)0, (int64_t)std::numeric_limits<unsigned char>::max());
+		pEditor->m_KZGameNumber = std::clamp(NewVal, (int64_t)0, (int64_t)std::numeric_limits<unsigned char>::max());
 	}
 	else if(Prop == PROP_VALUE1)
 	{
-		pEditor->m_KZGameValue1 = clamp(NewVal, std::numeric_limits<int64_t>::min(), std::numeric_limits<int64_t>::max());
+		pEditor->m_KZGameValue1 = std::clamp(NewVal, std::numeric_limits<int64_t>::min(), std::numeric_limits<int64_t>::max());
 	}
 	else if(Prop == PROP_VALUE2)
 	{
-		pEditor->m_KZGameValue2 = clamp(NewVal, std::numeric_limits<int64_t>::min(), std::numeric_limits<int64_t>::max());
+		pEditor->m_KZGameValue2 = std::clamp(NewVal, std::numeric_limits<int64_t>::min(), std::numeric_limits<int64_t>::max());
 	}
 	else if(Prop == PROP_VALUE3)
 	{
-		pEditor->m_KZGameValue3 = clamp(NewVal, std::numeric_limits<int64_t>::min(), std::numeric_limits<int64_t>::max());
+		pEditor->m_KZGameValue3 = std::clamp(NewVal, std::numeric_limits<int64_t>::min(), std::numeric_limits<int64_t>::max());
 	}
 
 	return CUi::POPUP_KEEP_OPEN;
@@ -3366,19 +3366,19 @@ CUi::EPopupMenuFunctionResult CEditor::PopupKZFront(void *pContext, CUIRect View
 
 	if(Prop == PROP_NUMBER)
 	{
-		pEditor->m_KZFrontNumber = clamp(NewVal, (int64_t)0, (int64_t)std::numeric_limits<unsigned char>::max());
+		pEditor->m_KZFrontNumber = std::clamp(NewVal, (int64_t)0, (int64_t)std::numeric_limits<unsigned char>::max());
 	}
 	else if(Prop == PROP_VALUE1)
 	{
-		pEditor->m_KZFrontValue1 = clamp(NewVal, std::numeric_limits<int64_t>::min(), std::numeric_limits<int64_t>::max());
+		pEditor->m_KZFrontValue1 = std::clamp(NewVal, std::numeric_limits<int64_t>::min(), std::numeric_limits<int64_t>::max());
 	}
 	else if(Prop == PROP_VALUE2)
 	{
-		pEditor->m_KZFrontValue2 = clamp(NewVal, std::numeric_limits<int64_t>::min(), std::numeric_limits<int64_t>::max());
+		pEditor->m_KZFrontValue2 = std::clamp(NewVal, std::numeric_limits<int64_t>::min(), std::numeric_limits<int64_t>::max());
 	}
 	else if(Prop == PROP_VALUE3)
 	{
-		pEditor->m_KZFrontValue3 = clamp(NewVal, std::numeric_limits<int64_t>::min(), std::numeric_limits<int64_t>::max());
+		pEditor->m_KZFrontValue3 = std::clamp(NewVal, std::numeric_limits<int64_t>::min(), std::numeric_limits<int64_t>::max());
 	}
 
 	return CUi::POPUP_KEEP_OPEN;

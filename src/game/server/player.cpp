@@ -257,7 +257,10 @@ void CPlayer::Tick()
 
 	m_TuneZoneOld = m_TuneZone; // determine needed tunings with viewpos
 	int CurrentIndex = GameServer()->Collision()->GetMapIndex(m_ViewPos);
-	m_TuneZone = GameServer()->Collision()->IsTune(CurrentIndex);
+	if(m_pCharacter) //+KZ
+		m_TuneZone = m_pCharacter->GetOverriddenTuneZoneKZ();
+	else
+		m_TuneZone = GameServer()->Collision()->IsTune(CurrentIndex);
 
 	if(m_TuneZone != m_TuneZoneOld) // don't send tunings all the time
 	{
@@ -275,6 +278,11 @@ void CPlayer::Tick()
 		{
 			GameServer()->SendEmoticon(GetCid(), EMOTICON_GHOST, -1);
 		}
+	}
+
+	if(GetCharacter() && GetCharacter()->m_SpecTile)
+	{
+		m_ViewPos = GetCharacter()->m_SpecTilePos;
 	}
 }
 
@@ -364,7 +372,7 @@ void CPlayer::Snap(int SnappingClient)
 		pPlayerInfo->m_Score = Score;
 		pPlayerInfo->m_Local = (int)(m_ClientId == SnappingClient && (m_Paused != PAUSE_PAUSED || SnappingClientVersion >= VERSION_DDNET_OLD));
 		pPlayerInfo->m_ClientId = id;
-		pPlayerInfo->m_Team = m_Team;
+		pPlayerInfo->m_Team = (GetCharacter() && GetCharacter()->m_SpecTile) ? TEAM_SPECTATORS : m_Team;
 		if(SnappingClientVersion < VERSION_DDNET_INDEPENDENT_SPECTATORS_TEAM)
 		{
 			// In older versions the SPECTATORS TEAM was also used if the own player is in PAUSE_PAUSED or if any player is in PAUSE_SPEC.
@@ -410,6 +418,20 @@ void CPlayer::Snap(int SnappingClient)
 			pSpectatorInfo->m_SpectatorId = m_SpectatorId;
 			pSpectatorInfo->m_X = m_ViewPos.x;
 			pSpectatorInfo->m_Y = m_ViewPos.y;
+		}
+	}
+	else if(GetCharacter() && GetCharacter()->m_SpecTile)
+	{
+		if(!Server()->IsSixup(SnappingClient))
+		{
+			CNetObj_SpectatorInfo *pSpectatorInfo = Server()->SnapNewItem<CNetObj_SpectatorInfo>(m_ClientId);
+			if(!pSpectatorInfo)
+				return;
+
+
+			pSpectatorInfo->m_SpectatorId = m_ClientId;
+			pSpectatorInfo->m_X = GetCharacter()->m_SpecTilePos.x;
+			pSpectatorInfo->m_Y = GetCharacter()->m_SpecTilePos.y;
 		}
 	}
 
@@ -477,7 +499,7 @@ void CPlayer::Snap(int SnappingClient)
 	if(m_Paused == PAUSE_PAUSED)
 		pDDNetPlayer->m_Flags |= EXPLAYERFLAG_PAUSED;
 
-	if(Server()->IsSixup(SnappingClient) && m_pCharacter && m_pCharacter->m_DDRaceState == DDRACE_STARTED &&
+	if(Server()->IsSixup(SnappingClient) && m_pCharacter && m_pCharacter->m_DDRaceState == ERaceState::STARTED &&
 		GameServer()->m_apPlayers[SnappingClient]->m_TimerType == TIMERTYPE_SIXUP)
 	{
 		protocol7::CNetObj_PlayerInfoRace *pRaceInfo = Server()->SnapNewItem<protocol7::CNetObj_PlayerInfoRace>(id);
@@ -564,7 +586,7 @@ void CPlayer::OnPredictedInput(CNetObj_PlayerInput *pNewInput)
 
 	m_NumInputs++;
 
-	if(m_pCharacter && !m_Paused && !(pNewInput->m_PlayerFlags & PLAYERFLAG_SPEC_CAM))
+	if(m_pCharacter && !m_Paused && (m_pCharacter->m_SpecTile ? true : !(pNewInput->m_PlayerFlags & PLAYERFLAG_SPEC_CAM)))
 		m_pCharacter->OnPredictedInput(pNewInput);
 
 	// Magic number when we can hope that client has successfully identified itself
@@ -604,7 +626,7 @@ void CPlayer::OnPredictedEarlyInput(CNetObj_PlayerInput *pNewInput)
 	if(m_PlayerFlags & PLAYERFLAG_CHATTING)
 		return;
 
-	if(m_pCharacter && !m_Paused && !(m_PlayerFlags & PLAYERFLAG_SPEC_CAM))
+	if(m_pCharacter && !m_Paused && (m_pCharacter->m_SpecTile ? true : !(m_PlayerFlags & PLAYERFLAG_SPEC_CAM))) //+KZ modified
 		m_pCharacter->OnDirectInput(pNewInput);
 }
 

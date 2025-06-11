@@ -112,8 +112,8 @@ CMapBasedEnvelopePointAccess::CMapBasedEnvelopePointAccess(IMap *pMap) :
 
 void CMapBasedEnvelopePointAccess::SetPointsRange(int StartPoint, int NumPoints)
 {
-	m_StartPoint = clamp(StartPoint, 0, m_NumPointsMax);
-	m_NumPoints = clamp(NumPoints, 0, maximum(m_NumPointsMax - StartPoint, 0));
+	m_StartPoint = std::clamp(StartPoint, 0, m_NumPointsMax);
+	m_NumPoints = std::clamp(NumPoints, 0, maximum(m_NumPointsMax - StartPoint, 0));
 }
 
 int CMapBasedEnvelopePointAccess::StartPoint() const
@@ -325,11 +325,11 @@ void CRenderTools::RenderEvalEnvelope(const IEnvelopePointAccess *pPoints, std::
 			vec2 p2 = p3 + InTang;
 
 			// validate bezier curve
-			p1.x = clamp(p1.x, p0.x, p3.x);
-			p2.x = clamp(p2.x, p0.x, p3.x);
+			p1.x = std::clamp(p1.x, p0.x, p3.x);
+			p2.x = std::clamp(p2.x, p0.x, p3.x);
 
 			// solve x(a) = time for a
-			a = clamp(SolveBezier(TimeMillis, p0.x, p1.x, p2.x, p3.x), 0.0f, 1.0f);
+			a = std::clamp(SolveBezier(TimeMillis, p0.x, p1.x, p2.x, p3.x), 0.0f, 1.0f);
 
 			// value = y(t)
 			Result[c] = bezier(p0.y, p1.y, p2.y, p3.y, a);
@@ -796,7 +796,7 @@ void CRenderTools::RenderTeleOverlay(CTeleTile *pTele, int w, int h, float Scale
 				str_format(aBuf, sizeof(aBuf), "%d", Index);
 				// Auto-resize text to fit inside the tile
 				float ScaledWidth = TextRender()->TextWidth(Size * Scale, aBuf, -1);
-				float Factor = clamp(Scale / ScaledWidth, 0.0f, 1.0f);
+				float Factor = std::clamp(Scale / ScaledWidth, 0.0f, 1.0f);
 				float LocalSize = Size * Factor;
 				float ToCenterOffset = (1 - LocalSize) / 2.f;
 				TextRender()->Text((mx + 0.5f) * Scale - (ScaledWidth * Factor) / 2.0f, (my + ToCenterOffset) * Scale, LocalSize * Scale, aBuf);
@@ -996,7 +996,7 @@ void CRenderTools::RenderTuneOverlay(CTuneTile *pTune, int w, int h, float Scale
 				str_format(aBuf, sizeof(aBuf), "%d", Index);
 				// Auto-resize text to fit inside the tile
 				float ScaledWidth = TextRender()->TextWidth(Size * Scale, aBuf, -1);
-				float Factor = clamp(Scale / ScaledWidth, 0.0f, 1.0f);
+				float Factor = std::clamp(Scale / ScaledWidth, 0.0f, 1.0f);
 				float LocalSize = Size * Factor;
 				float ToCenterOffset = (1 - LocalSize) / 2.f;
 				TextRender()->Text((mx + 0.5f) * Scale - (ScaledWidth * Factor) / 2.0f, (my + ToCenterOffset) * Scale, LocalSize * Scale, aBuf);
@@ -1438,9 +1438,9 @@ void CRenderTools::RenderKZGameOverlay(CKZTile *pKZ, int w, int h, float Scale, 
 			int c = mx + my * w;
 
 			int Number = (int)pKZ[c].m_Number;
-			int Value1 = (int)pKZ[c].m_Value1;
-			int Value2 = (int)pKZ[c].m_Value2;
-			int Value3 = (int)pKZ[c].m_Value3;
+			uint64_t Value1 = pKZ[c].m_Value1;
+			uint64_t Value2 = pKZ[c].m_Value2;
+			uint64_t Value3 = pKZ[c].m_Value3;
 
 				if(g_Config.m_ClTextEntities)
 				{
@@ -1631,9 +1631,87 @@ void CRenderTools::RenderKZGameMap(CKZTile *pKZ, int w, int h, float Scale, Colo
 	Graphics()->MapScreen(ScreenX0, ScreenY0, ScreenX1, ScreenY1);
 }
 
-void CRenderTools::RenderKZFrontOverlay(CKZTile *pKZ, int w, int h, float Scale, int OverlayRenderFlags, float Alpha) const
+void CRenderTools::RenderKZFrontOverlay(CKZTile *pKZ, int w, int h, float Scale, int OverlayRenderFlags, float Alpha)
 {
-	RenderKZGameOverlay(pKZ, w, h, Scale, OverlayRenderFlags, Alpha);
+	float ScreenX0, ScreenY0, ScreenX1, ScreenY1;
+	Graphics()->GetScreen(&ScreenX0, &ScreenY0, &ScreenX1, &ScreenY1);
+
+	int StartY = (int)(ScreenY0 / Scale) - 1;
+	int StartX = (int)(ScreenX0 / Scale) - 1;
+	int EndY = (int)(ScreenY1 / Scale) + 1;
+	int EndX = (int)(ScreenX1 / Scale) + 1;
+
+	if(EndX - StartX > Graphics()->ScreenWidth() / g_Config.m_GfxTextOverlay || EndY - StartY > Graphics()->ScreenHeight() / g_Config.m_GfxTextOverlay)
+		return; // its useless to render text at this distance
+
+	float Size = g_Config.m_ClTextEntitiesSize / 100.f;
+	float ToCenterOffset = (1 - Size) / 2.f;
+	char aBuf[16];
+
+	TextRender()->TextColor(1.0f, 1.0f, 1.0f, Alpha);
+	for(int y = StartY; y < EndY; y++)
+	{
+		for(int x = StartX; x < EndX; x++)
+		{
+			int mx = x;
+			int my = y;
+
+			if(mx < 0)
+				continue; // mx = 0;
+			if(mx >= w)
+				continue; // mx = w-1;
+			if(my < 0)
+				continue; // my = 0;
+			if(my >= h)
+				continue; // my = h-1;
+
+			int c = mx + my * w;
+
+			int Number = (int)pKZ[c].m_Number;
+			uint64_t Value1 = pKZ[c].m_Value1;
+			uint64_t Value2 = pKZ[c].m_Value2;
+			uint64_t Value3 = pKZ[c].m_Value3;
+
+			if(pKZ[c].m_Index == KZ_FRONTTILE_FORCE_POS)
+			{
+				int Angle = std::clamp((int)pKZ[c].m_Value1,0,360);
+				// draw arrow
+				Graphics()->TextureSet(g_pData->m_aImages[IMAGE_SPEEDUP_ARROW].m_Id);
+				Graphics()->QuadsBegin();
+				Graphics()->SetColor(1.0f, 1.0f, 1.0f, Alpha);
+				SelectSprite(SPRITE_SPEEDUP_ARROW);
+				Graphics()->QuadsSetRotation(Angle * (pi / 180.0f));
+				DrawSprite(mx * Scale + 16, my * Scale + 10, 25.0f);
+				Graphics()->QuadsEnd();
+			}
+
+				if(g_Config.m_ClTextEntities)
+				{
+					if(Number)
+					{
+					str_format(aBuf, sizeof(aBuf), "%d", Number);
+					TextRender()->Text(mx * Scale, (my + ToCenterOffset / 4) * Scale, Size * Scale / 4.f, aBuf);
+					}
+					if(Value1)
+					{
+						str_format(aBuf, sizeof(aBuf), "%d", Value1);
+						TextRender()->Text(mx * Scale, (my + 0.25f + ToCenterOffset / 4) * Scale, Size * Scale / 4.f, aBuf);
+					}
+					if(Value2)
+					{
+						str_format(aBuf, sizeof(aBuf), "%d", Value2);
+						TextRender()->Text(mx * Scale, (my + 0.5f + ToCenterOffset / 4) * Scale, Size * Scale / 4.f, aBuf);
+					}
+					if(Value3)
+					{
+						str_format(aBuf, sizeof(aBuf), "%d", Value3);
+						TextRender()->Text(mx * Scale, (my + 0.75f + ToCenterOffset / 4) * Scale, Size * Scale / 4.f, aBuf);
+					}
+				}
+		}
+	}
+	TextRender()->TextColor(TextRender()->DefaultTextColor());
+	Graphics()->MapScreen(ScreenX0, ScreenY0, ScreenX1, ScreenY1);
 }
 
 void CRenderTools::RenderKZFrontMap(CKZTile *pKZ, int w, int h, float Scale, ColorRGBA Color, int RenderFlags) const

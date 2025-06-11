@@ -106,7 +106,7 @@ void CGameContext::SendGameMsg(int GameMsgId, int ParaI1, int ClientId) const
 		if(GameMsgId == protocol7::GAMEMSG_GAME_PAUSED)
 		{
 			char aBuf[512];
-			int PauseId = clamp(ParaI1, 0, Server()->MaxClients() - 1);
+			int PauseId = std::clamp(ParaI1, 0, Server()->MaxClients() - 1);
 			str_format(aBuf, sizeof(aBuf), "'%s' initiated a pause. If you are ready do /ready", Server()->ClientName(PauseId));
 			SendChatTarget(i, aBuf);
 		}
@@ -138,6 +138,17 @@ void CGameContext::SendGameMsg(int GameMsgId, int ParaI1, int ParaI2, int ParaI3
 void CGameContext::CreateMapSoundEvent(vec2 Pos, int Id, CClientMask Mask)
 {
 	CNetEvent_MapSoundWorld *pEvent = m_Events.Create<CNetEvent_MapSoundWorld>(Mask);
+	if(pEvent)
+	{
+		pEvent->m_X = (int)Pos.x;
+		pEvent->m_Y = (int)Pos.y;
+		pEvent->m_SoundId = Id;
+	}
+}
+
+void CGameContext::CreateMapSoundEventForClient(vec2 Pos, int Id, int ClientId, CClientMask Mask)
+{
+	CNetEvent_MapSoundWorld *pEvent = m_Events.CreateForClient<CNetEvent_MapSoundWorld>(ClientId, Mask);
 	if(pEvent)
 	{
 		pEvent->m_X = (int)Pos.x;

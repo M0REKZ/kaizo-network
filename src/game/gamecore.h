@@ -17,6 +17,7 @@
 
 class CCollision;
 class CTeamsCore;
+class CPortalCore; //+KZ
 
 class CTuneParam
 {
@@ -151,6 +152,14 @@ public:
 			pCharacter = nullptr;
 		}
 		m_pPrng = nullptr;
+
+		for(int i = 0; i < MAX_CLIENTS;i++) //+KZ
+		{
+			for(int j = 0; j < 2; j++)
+			{
+				m_apPortals[i][j] = nullptr;
+			}
+		}
 	}
 
 	int RandomOr0(int BelowThis)
@@ -171,6 +180,12 @@ public:
 
 	void InitSwitchers(int HighestSwitchNumber);
 	std::vector<SSwitchers> m_vSwitchers;
+
+	//+KZ
+	class CPortalCore *m_apPortals[MAX_CLIENTS][2];
+	class CPortalCore *SetPortalKZ(class CPortalCore *pPortal);
+	class CPortalCore *GetPortalKZ(int OwnerId, bool IsBlue);
+	void DeletePortalKZ(int OwnerId, bool IsBlue);
 };
 
 class CCharacterCore
@@ -302,6 +317,18 @@ inline CInputCount CountInput(int Prev, int Cur)
 	}
 
 	return c;
-}
+};
+
+//+KZ
+class CPortalCore
+{
+	public:
+		int m_OwnerId;
+		vec2 m_Pos;
+		vec2 m_Pos2;
+		bool m_IsBlue;
+
+		CPortalCore(int OwnerId, vec2 Pos, vec2 Pos2, bool IsBlue);
+};
 
 #endif

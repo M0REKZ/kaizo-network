@@ -225,7 +225,7 @@ void CGameControllerKZ::FlagTick()
 		if(pFlag->GetCarrier())
 		{
 			// forbid holding flags in ddrace teams
-			if(GameServer()->GetDDRaceTeam(pFlag->GetCarrier()->GetPlayer()->GetCid()))
+			if(!g_Config.m_SvSoloServer && GameServer()->GetDDRaceTeam(pFlag->GetCarrier()->GetPlayer()->GetCid()))
 			{
 				GameServer()->CreateSoundGlobal(SOUND_CTF_DROP);
 				GameServer()->SendGameMsg(protocol7::GAMEMSG_CTF_DROP, -1);
@@ -342,15 +342,18 @@ bool CGameControllerKZ::OnEntityKZ(int Index, int x, int y, int Layer, int Flags
 	int PickupType = -1;
 	int PickupSubtype = -1;
 
-	int aSides[8];
-	aSides[0] = GameServer()->Collision()->Entity(x, y + 1, Layer);
-	aSides[1] = GameServer()->Collision()->Entity(x + 1, y + 1, Layer);
-	aSides[2] = GameServer()->Collision()->Entity(x + 1, y, Layer);
-	aSides[3] = GameServer()->Collision()->Entity(x + 1, y - 1, Layer);
-	aSides[4] = GameServer()->Collision()->Entity(x, y - 1, Layer);
-	aSides[5] = GameServer()->Collision()->Entity(x - 1, y - 1, Layer);
-	aSides[6] = GameServer()->Collision()->Entity(x - 1, y, Layer);
-	aSides[7] = GameServer()->Collision()->Entity(x - 1, y + 1, Layer);
+	int aSides[8] = {0,0,0,0,0,0,0,0};
+	if(GameServer()->Collision()->DDNetLayerExists(Layer))
+	{
+		aSides[0] = GameServer()->Collision()->Entity(x, y + 1, Layer);
+		aSides[1] = GameServer()->Collision()->Entity(x + 1, y + 1, Layer);
+		aSides[2] = GameServer()->Collision()->Entity(x + 1, y, Layer);
+		aSides[3] = GameServer()->Collision()->Entity(x + 1, y - 1, Layer);
+		aSides[4] = GameServer()->Collision()->Entity(x, y - 1, Layer);
+		aSides[5] = GameServer()->Collision()->Entity(x - 1, y - 1, Layer);
+		aSides[6] = GameServer()->Collision()->Entity(x - 1, y, Layer);
+		aSides[7] = GameServer()->Collision()->Entity(x - 1, y + 1, Layer);
+	}
 
 	if(Index == KZ_TILE_PORTAL_GUN)
 	{
@@ -376,16 +379,18 @@ bool CGameControllerKZ::OnEntityKZ(int Index, int x, int y, int Layer, int Flags
 
 	if(Index == KZ_TILE_DAMAGE_LASER)
 	{
-		int aSides2[8];
-		aSides2[0] = GameServer()->Collision()->Entity(x, y + 2, Layer);
-		aSides2[1] = GameServer()->Collision()->Entity(x + 2, y + 2, Layer);
-		aSides2[2] = GameServer()->Collision()->Entity(x + 2, y, Layer);
-		aSides2[3] = GameServer()->Collision()->Entity(x + 2, y - 2, Layer);
-		aSides2[4] = GameServer()->Collision()->Entity(x, y - 2, Layer);
-		aSides2[5] = GameServer()->Collision()->Entity(x - 2, y - 2, Layer);
-		aSides2[6] = GameServer()->Collision()->Entity(x - 2, y, Layer);
-		aSides2[7] = GameServer()->Collision()->Entity(x - 2, y + 2, Layer);
-
+		int aSides2[8] = {0,0,0,0,0,0,0,0};
+		if(GameServer()->Collision()->DDNetLayerExists(Layer))
+		{
+			aSides2[0] = GameServer()->Collision()->Entity(x, y + 2, Layer);
+			aSides2[1] = GameServer()->Collision()->Entity(x + 2, y + 2, Layer);
+			aSides2[2] = GameServer()->Collision()->Entity(x + 2, y, Layer);
+			aSides2[3] = GameServer()->Collision()->Entity(x + 2, y - 2, Layer);
+			aSides2[4] = GameServer()->Collision()->Entity(x, y - 2, Layer);
+			aSides2[5] = GameServer()->Collision()->Entity(x - 2, y - 2, Layer);
+			aSides2[6] = GameServer()->Collision()->Entity(x - 2, y, Layer);
+			aSides2[7] = GameServer()->Collision()->Entity(x - 2, y + 2, Layer);
+		}
 
 		float AngularSpeed = 0.0f;
 		
@@ -420,6 +425,11 @@ bool CGameControllerKZ::OnEntityKZ(int Index, int x, int y, int Layer, int Flags
 		m_ShowHealth = true;
 	}
 
+	if(Index == KZ_TILE_DAMAGE_ZONE || Index == KZ_TILE_HEALTH_ZONE)
+	{
+		m_ShowHealth = true;
+	}
+
 	if(PickupType != -1)
 	{
 		if(PickupSubtype != -1)
@@ -428,7 +438,7 @@ bool CGameControllerKZ::OnEntityKZ(int Index, int x, int y, int Layer, int Flags
 			{
 				case KZ_CUSTOM_WEAPON_PORTAL_GUN:
 				{
-					CKZPickup *pPickup = new CKZPickup(&GameServer()->m_World, PickupType, PickupSubtype, Layer, (int)Number);
+					CKZPickup *pPickup = new CKZPickup(&GameServer()->m_World, PickupType, PickupSubtype, Layer, (int)Number, Flags);
 					pPickup->m_Pos = Pos;
 					return true;
 				}

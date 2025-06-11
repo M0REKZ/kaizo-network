@@ -4,6 +4,8 @@
 #define GAME_SERVER_ENTITIES_CHARACTER_H
 
 #include <game/server/entity.h>
+
+#include <game/race_state.h>
 #include <game/server/save.h>
 #include <game/mapitems.h>
 
@@ -197,7 +199,7 @@ public:
 	void GiveAllWeapons();
 	void ResetPickups();
 	void ResetJumps();
-	int m_DDRaceState;
+	ERaceState m_DDRaceState;
 	int Team();
 	bool CanCollide(int ClientId) override;
 	bool SameTeam(int ClientId);
@@ -273,6 +275,9 @@ public:
 	//+KZ
 	void HandleKZTiles();
 	bool TakeDamageVanilla(vec2 Force, int Dmg, int From, int Weapon);
+	int GetOverriddenTuneZoneKZ() const { return ((m_TuneZoneOverrideKZ < 0 && !m_TuneZone) || m_ForcedTuneKZ) ? m_TuneZone : m_TuneZoneOverrideKZ; }
+	int m_TuneZoneOverrideKZ = -1;
+	bool m_ForcedTuneKZ = false;
 	int m_aCrown[7];
 	bool m_EnableCrown = false;
 	bool m_SnapCustomWeapon = false;
@@ -282,6 +287,12 @@ public:
 	bool m_AimPressed = false;
 	bool m_Waitingforreleaseaim = false;
 	int64_t m_LastSoundPlayed = -1;
+	int64_t m_LastLocalSoundPlayed = -1;
+	int64_t m_LastLocalInPosSoundPlayed = -1;
+	bool m_NODAMAGE = false;
+	bool m_StillPressingFire = false;
+	bool m_SpecTile = false;
+	vec2 m_SpecTilePos = vec2(0,0);
 
 	struct
 	{
@@ -289,14 +300,6 @@ public:
 		int m_Snap = 0;
 		int m_Ammo = -1;
 	} m_aCustomWeapons[KZ_NUM_CUSTOM_WEAPONS - KZ_CUSTOM_WEAPONS_START];
-};
-
-enum
-{
-	DDRACE_NONE = 0,
-	DDRACE_STARTED,
-	DDRACE_CHEAT, // no time and won't start again unless ordered by a mod or death
-	DDRACE_FINISHED
 };
 
 #endif

@@ -15,7 +15,7 @@
 
 static constexpr int gs_PickupPhysSize = 14;
 
-CKZPickup::CKZPickup(CGameWorld *pGameWorld, int Type, int SubType, int Layer, int Number) :
+CKZPickup::CKZPickup(CGameWorld *pGameWorld, int Type, int SubType, int Layer, int Number, int Flags) :
 CEntity(pGameWorld,CGameWorld::CUSTOM_ENTTYPE_KZPICKUP,vec2(0,0),gs_PickupPhysSize)
 {
 	m_Type = Type;
@@ -23,6 +23,7 @@ CEntity(pGameWorld,CGameWorld::CUSTOM_ENTTYPE_KZPICKUP,vec2(0,0),gs_PickupPhysSi
 
 	m_Layer = Layer;
 	m_Number = Number;
+	m_Flags = Flags;
 
 	int SpawnDelay = m_Type == POWERUP_NINJA ? 90 : 0;
 
@@ -265,8 +266,8 @@ void CKZPickup::Snap(int SnappingClient)
 		pos2.x = (int)m_Pos.x + 16*cos((float)Server()->Tick() / 25.0);
 		pos2.y = (int)m_Pos.y + -16*cos((float)Server()->Tick() / 25.0);
 		
-		GameServer()->SnapPickup(CSnapContext(SnappingClientVersion, Sixup), GetId(), pos1, m_Type, 0, m_Number);
-		GameServer()->SnapPickup(CSnapContext(SnappingClientVersion, Sixup), m_Id2, pos2, m_Type, 0, m_Number);
+		GameServer()->SnapPickup(CSnapContext(SnappingClientVersion, Sixup), GetId(), pos1, m_Type, 0, m_Number,m_Flags);
+		GameServer()->SnapPickup(CSnapContext(SnappingClientVersion, Sixup), m_Id2, pos2, m_Type, 0, m_Number,m_Flags);
 	}
 	else if(m_Subtype >=0 && m_Subtype < NUM_WEAPONS)
 	{
@@ -286,7 +287,7 @@ void CKZPickup::Snap(int SnappingClient)
 		pProj->m_VelY = 0;
 		pProj->m_StartTick = Server()->Tick();
 		pProj->m_Type = WEAPON_HAMMER;
-		GameServer()->SnapPickup(CSnapContext(SnappingClientVersion, Sixup), GetId(), m_Pos, m_Type, m_Subtype, m_Number);
+		GameServer()->SnapPickup(CSnapContext(SnappingClientVersion, Sixup), GetId(), m_Pos, m_Type, m_Subtype, m_Number, m_Flags);
 	}
 	else
 	{
@@ -298,7 +299,7 @@ void CKZPickup::Snap(int SnappingClient)
 			postemp.y = m_Pos.y + 32*cos((float)Server()->Tick() / 25.0);
 
 			GameServer()->SnapLaserObject(CSnapContext(SnappingClientVersion, Sixup),m_Id2,postemp,postemp,Server()->Tick(),-1,Server()->Tick() % 3);
-			GameServer()->SnapPickup(CSnapContext(SnappingClientVersion, Sixup), GetId(), m_Pos, m_Type, WEAPON_LASER, m_Number);
+			GameServer()->SnapPickup(CSnapContext(SnappingClientVersion, Sixup), GetId(), m_Pos, m_Type, WEAPON_LASER, m_Number, m_Flags);
 		}
 	}
 }
