@@ -510,6 +510,9 @@ CPortalCore *CCollision::IntersectCharacterWithPortal(vec2 Pos, CCharacterCore *
     if(!pCore->m_pWorld)
         return nullptr;
 
+	if(!pCore->m_pTeams)
+		return nullptr;
+
     vec2 TempPos;
     vec2 SavedPos;
 
@@ -524,6 +527,12 @@ CPortalCore *CCollision::IntersectCharacterWithPortal(vec2 Pos, CCharacterCore *
 
             if(!pPortal)
                 continue;
+			
+			if(pPortal->m_Team != pCore->m_pTeams->Team(pCore->m_Id))
+				continue;
+
+			if(!pCore->m_pTeams->CanCollide(pPortal->m_OwnerId, pCore->m_Id))
+				continue;
 
             if(IntersectCharacterCore(pPortal->m_Pos,pPortal->m_Pos2,0.f,TempPos,pCore))
             {
@@ -585,7 +594,7 @@ bool CCollision::HandlePortalCollision(vec2 &InOutPos, vec2 &InOutVel, CCharacte
 
     if(pPortal)
     {
-        CPortalCore *pOtherPortal = pCore->m_pWorld->GetPortalKZ(pCore->m_Id,!pPortal->m_IsBlue);
+        CPortalCore *pOtherPortal = pCore->m_pWorld->GetPortalKZ(pPortal->m_OwnerId,!pPortal->m_IsBlue);
 
         if(pOtherPortal)
         {

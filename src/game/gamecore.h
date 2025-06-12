@@ -327,8 +327,9 @@ class CPortalCore
 		vec2 m_Pos;
 		vec2 m_Pos2;
 		bool m_IsBlue;
+		int m_Team;
 
-		CPortalCore(int OwnerId, vec2 Pos, vec2 Pos2, bool IsBlue);
+		CPortalCore(int OwnerId, vec2 Pos, vec2 Pos2, bool IsBlue, int Team);
 };
 
 #endif
