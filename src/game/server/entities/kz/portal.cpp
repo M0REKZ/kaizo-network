@@ -49,7 +49,7 @@ CEntity(pGameWorld,CGameWorld::CUSTOM_ENTTYPE_PORTAL)
 				p->Reset();
 		}
 
-		m_pCore = new CPortalCore(m_Owner, m_Pos, m_Pos2, m_Blue);
+		m_pCore = new CPortalCore(m_Owner, m_Pos, m_Pos2, m_Blue, m_OrigTeam);
 		if(m_pCore)
 		{
 			GameWorld()->m_Core.SetPortalKZ(m_pCore);
@@ -94,85 +94,7 @@ void CPortalKZ::Tick()
 		return;
 	}
 
-	CCharacter *pTarget = nullptr;
-	vec2 At;
-	CPortalKZ* pPortal = GetOtherPortal();
-	vec2 OutVel = vec2(0,0); //horizontal/vertical
-	vec2 OutPos = vec2(0,0);
-	bool dotele = false;
-
-	if(pPortal)
-	{
-		pTarget = GameWorld()->IntersectCharacter(m_Pos,m_Pos2,0.f,At,nullptr,m_Owner);
-
-		if(pTarget)
-		{
-			OutVel = pTarget->GetCore().m_Vel;
-			OutPos = pTarget->GetCore().m_Pos;
-
-			if((m_Pos.x == m_Pos2.x && pPortal->m_Pos.x != pPortal->m_Pos2.x)||(m_Pos.x != m_Pos2.x && pPortal->m_Pos.x == pPortal->m_Pos2.x))
-			{
-				vec2 temp = OutVel;
-				OutVel.x = temp.y;
-				OutVel.y = temp.x;
-			}
-
-			if(pPortal->m_Pos.x == pPortal->m_Pos2.x)
-			{
-				if(IsTeleportViable(vec2(pPortal->m_Pos.x+32.f,pPortal->m_Pos.y+32.f)))
-				{
-					if(OutVel.x < 0)
-					{
-						OutVel.x *= -1;
-					}
-					OutPos = vec2(pPortal->m_Pos.x+32.f,pPortal->m_Pos.y+32.f);
-					dotele = true;
-				}
-				else if(IsTeleportViable(vec2(pPortal->m_Pos.x-32.f,pPortal->m_Pos.y+32.f)))
-				{
-					if(OutVel.x > 0)
-					{
-						OutVel.x *= -1;
-					}
-					OutPos = vec2(pPortal->m_Pos.x-32.f,pPortal->m_Pos.y+32.f);
-					dotele = true;
-				}
-				
-			}
-			else
-			{
-				if(IsTeleportViable(vec2(pPortal->m_Pos.x+32.f,pPortal->m_Pos.y+32.f)))
-				{
-					if(OutVel.y < 0)
-					{
-						OutVel.y *= -1;
-					}
-					OutPos = vec2(pPortal->m_Pos.x+32.f,pPortal->m_Pos.y+32.f);
-					dotele = true;
-				}
-				else if(IsTeleportViable(vec2(pPortal->m_Pos.x+32.f,pPortal->m_Pos.y-32.f)))
-				{
-					if(OutVel.y > 0)
-					{
-						OutVel.y *= -1;
-					}
-					OutPos = vec2(pPortal->m_Pos.x+32.f,pPortal->m_Pos.y-32.f);
-					dotele = true;
-				}
-				
-			}
-
-			if(dotele)
-			{
-				pTarget->m_Pos = OutPos;
-				pTarget->m_PrevPos = OutPos;
-				((CCharacterCore*)pTarget->Core())->m_Pos = OutPos;
-				((CCharacterCore*)pTarget->Core())->m_Vel = OutVel;
-			}
-			
-		}
-
-	}
+	//Portal collision handling is on collision_kz.cpp
 }
 
 void CPortalKZ::Snap(int SnappingClient)

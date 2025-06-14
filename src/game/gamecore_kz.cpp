@@ -51,10 +51,11 @@ void CWorldCore::DeletePortalKZ(int OwnerId, bool IsBlue)
 	m_apPortals[OwnerId][blue] = nullptr;
 }
 
-CPortalCore::CPortalCore(int OwnerId, vec2 Pos, vec2 Pos2, bool IsBlue)
+CPortalCore::CPortalCore(int OwnerId, vec2 Pos, vec2 Pos2, bool IsBlue, int Team)
 {
 	m_OwnerId = OwnerId;
 	m_Pos = Pos;
 	m_Pos2 = Pos2;
 	m_IsBlue = IsBlue;
+	m_Team = Team;
 }

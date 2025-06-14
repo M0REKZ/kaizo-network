@@ -53,6 +53,12 @@ int CCollision::CheckPointForCore(float x, float y, CCharacterCore *pCore, bool 
                     return KZTile->m_Value1;
                 }
 
+				if(!IsHook && !IsWeapon && KZTile->m_Index == KZ_GAMETILE_SWITCHABLE_TEE_ONLY && KZTile->m_Number && pCore->m_Id != -1 && pCore->m_pWorld && pCore->m_pTeams && !pCore->m_pWorld->m_vSwitchers.empty() && pCore->m_pWorld->m_vSwitchers[KZTile->m_Number].m_aStatus[pCore->m_pTeams->Team(pCore->m_Id)])
+                {
+                    pCore->m_SendCoreThisTick = true;
+                    return TILE_NOHOOK;
+                }
+
                 if(KZTile->m_Index == KZ_TILE_SOLID_STOPPER && !IsHook && !IsWeapon)
                 {
                     switch(KZTile->m_Flags)
@@ -510,6 +516,9 @@ CPortalCore *CCollision::IntersectCharacterWithPortal(vec2 Pos, CCharacterCore *
     if(!pCore->m_pWorld)
         return nullptr;
 
+	if(!pCore->m_pTeams)
+		return nullptr;
+
     vec2 TempPos;
     vec2 SavedPos;
 
@@ -524,6 +533,12 @@ CPortalCore *CCollision::IntersectCharacterWithPortal(vec2 Pos, CCharacterCore *
 
             if(!pPortal)
                 continue;
+			
+			if(pPortal->m_Team != pCore->m_pTeams->Team(pCore->m_Id))
+				continue;
+
+			if(!pCore->m_pTeams->CanCollide(pPortal->m_OwnerId, pCore->m_Id))
+				continue;
 
             if(IntersectCharacterCore(pPortal->m_Pos,pPortal->m_Pos2,0.f,TempPos,pCore))
             {
@@ -585,7 +600,7 @@ bool CCollision::HandlePortalCollision(vec2 &InOutPos, vec2 &InOutVel, CCharacte
 
     if(pPortal)
     {
-        CPortalCore *pOtherPortal = pCore->m_pWorld->GetPortalKZ(pCore->m_Id,!pPortal->m_IsBlue);
+        CPortalCore *pOtherPortal = pCore->m_pWorld->GetPortalKZ(pPortal->m_OwnerId,!pPortal->m_IsBlue);
 
         if(pOtherPortal)
         {
