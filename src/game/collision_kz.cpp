@@ -53,6 +53,12 @@ int CCollision::CheckPointForCore(float x, float y, CCharacterCore *pCore, bool 
                     return KZTile->m_Value1;
                 }
 
+				if(!IsHook && !IsWeapon && KZTile->m_Index == KZ_GAMETILE_SWITCHABLE_TEE_ONLY && KZTile->m_Number && pCore->m_Id != -1 && pCore->m_pWorld && pCore->m_pTeams && !pCore->m_pWorld->m_vSwitchers.empty() && pCore->m_pWorld->m_vSwitchers[KZTile->m_Number].m_aStatus[pCore->m_pTeams->Team(pCore->m_Id)])
+                {
+                    pCore->m_SendCoreThisTick = true;
+                    return TILE_NOHOOK;
+                }
+
                 if(KZTile->m_Index == KZ_TILE_SOLID_STOPPER && !IsHook && !IsWeapon)
                 {
                     switch(KZTile->m_Flags)
