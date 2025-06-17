@@ -48,6 +48,15 @@ CProjectile::CProjectile(
 	m_DDRaceTeam = m_Owner == -1 ? 0 : GameServer()->GetDDRaceTeam(m_Owner);
 	m_IsSolo = pOwnerChar && pOwnerChar->GetCore().m_Solo;
 
+	//+KZ
+	if(pOwnerChar && (pOwnerChar->m_ForcedTuneKZ || pOwnerChar->m_TuneZoneOverrideKZ >= 0))
+	{
+		if(pOwnerChar->m_TuneZoneOverrideKZ >= 0 && !m_TuneZone) //+KZ
+			m_TuneZone = pOwnerChar->m_TuneZoneOverrideKZ;
+		else if(pOwnerChar->m_ForcedTuneKZ)
+			m_TuneZone = pOwnerChar->m_TuneZone;
+	}
+
 	GameWorld()->InsertEntity(this);
 }
 
