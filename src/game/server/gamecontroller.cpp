@@ -38,6 +38,9 @@ IGameController::IGameController(class CGameContext *pGameServer) :
 	m_aMapWish[0] = 0;
 
 	m_CurrentRecord = 0;
+
+	//+KZ
+	m_pGameServer->Collision()->m_pTeamsCore = &m_Teams.m_Core;
 }
 
 IGameController::~IGameController() = default;

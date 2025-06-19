@@ -59,3 +59,44 @@ CPortalCore::CPortalCore(int OwnerId, vec2 Pos, vec2 Pos2, bool IsBlue, int Team
 	m_IsBlue = IsBlue;
 	m_Team = Team;
 }
+
+bool CCharacterCore::HandleKZTileOnMoveBox(vec2 *pMoveBoxPos, vec2 *pMoveBoxVel, vec2 MoveBoxSize, vec2 MoveBoxElasticity)
+{
+	if(!m_pWorld || !m_pCollision || !m_pTeams)
+		return false;
+
+	CKZTile *pKZTile = m_pCollision->GetKZGameTile(*pMoveBoxPos);
+	CKZTile *pKZTileFront = m_pCollision->GetKZFrontTile(*pMoveBoxPos);
+
+	if(!pKZTile && !pKZTileFront)
+		return false;
+
+	if(pKZTileFront)
+	{
+		if(pKZTileFront->m_Index == KZ_FRONTTILE_POS_SHIFTER && ((pKZTileFront->m_Number && !m_pWorld->m_vSwitchers.empty()) ? m_pWorld->m_vSwitchers[pKZTileFront->m_Number].m_aStatus[m_pTeams->Team(m_Id)] : true))
+		{
+			pMoveBoxPos->x += (int)pKZTileFront->m_Value1;
+			pMoveBoxPos->y += (int)pKZTileFront->m_Value2;
+
+			if(BitWiseAndInt64(pKZTileFront->m_Value3, KZ_POS_SWITCHER_FLAG_HOOK))
+			{
+				if(m_HookState == HOOK_GRABBED && m_HookedPlayer == -1)
+				{
+					m_HookPos.x += (int)pKZTileFront->m_Value1;
+					m_HookPos.y += (int)pKZTileFront->m_Value2;
+				}
+			}
+
+			if(BitWiseAndInt64(pKZTileFront->m_Value3, KZ_POS_SWITCHER_FLAG_INVERT_VELX))
+			{
+				pMoveBoxVel->x = -pMoveBoxVel->x;
+			}
+			if(BitWiseAndInt64(pKZTileFront->m_Value3, KZ_POS_SWITCHER_FLAG_INVERT_VELY))
+			{
+				pMoveBoxVel->y = -pMoveBoxVel->y;
+			}
+		}
+	}
+
+	return false;
+}

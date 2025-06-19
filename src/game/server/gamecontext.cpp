@@ -3897,6 +3897,8 @@ void CGameContext::OnInit(const void *pPersistentData)
 	m_World.m_pTuningList = m_aTuningList;
 	m_World.m_Core.InitSwitchers(m_Collision.m_HighestSwitchNumber);
 
+	m_Collision.m_pWorldCore = &m_World.m_Core; //+KZ
+
 	char aMapName[IO_MAX_PATH_LENGTH];
 	int MapSize;
 	SHA256_DIGEST MapSha256;

@@ -291,6 +291,7 @@ public: // KZ
 	static bool IsSwitchActiveCb(int Number, void *pUser);
 
 	bool m_SendCoreThisTick = false;
+	bool HandleKZTileOnMoveBox(vec2 *pMoveBoxPos, vec2 *pMoveBoxVel, vec2 MoveBoxSize, vec2 MoveBoxElasticity);
 };
 
 // input count

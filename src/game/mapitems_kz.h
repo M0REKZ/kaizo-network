@@ -38,6 +38,15 @@ enum
 
 	KZ_FRONTTILE_TUNE_SWITCHABLE = 18,
 	KZ_FRONTTILE_TUNE_LOCK,
+	KZ_FRONTTILE_POS_SHIFTER,
+};
+
+enum
+{
+	KZ_POS_SWITCHER_FLAG_HOOK = 1,
+	KZ_POS_SWITCHER_FLAG_PROJECTILE = 1 << 1,
+	KZ_POS_SWITCHER_FLAG_INVERT_VELX = 1 << 2,
+	KZ_POS_SWITCHER_FLAG_INVERT_VELY = 1 << 3,
 };
 
 enum
@@ -57,5 +66,10 @@ public:
     int64_t m_Value2;
     int64_t m_Value3;
 };
+
+inline int64_t BitWiseAndInt64(int64_t a, int64_t b)
+{
+	return (a & b);
+}
 
 #endif

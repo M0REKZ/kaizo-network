@@ -42,6 +42,7 @@ public:
 	// KZ
 
 	int CheckPointForCore(float x, float y, CCharacterCore* pCore, bool IsHook = false, bool IsWeapon = false) const;
+	int CheckPointForProjectile(vec2 Pos, vec2 *pProjPos, int OwnerId, vec2 *pOutCollision, vec2 *pOutBeforeCollision) const;
 	int FastIntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, CCharacterCore *pCore = nullptr, bool IsHook = false, bool IsWeapon = false) const;
 	int FastIntersectLinePortalLaser(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, CKZTile **pKZTile = nullptr, int *pTeleNr = nullptr, CCharacterCore *pCore = nullptr, bool IsHook = false, bool IsWeapon = false) const;
 	bool DDNetLayerExists(int Layer);
@@ -88,7 +89,7 @@ public:
 	int GetCollisionAt(float x, float y, CCharacterCore *pCore = nullptr, bool IsHook = false, bool IsWeapon = false) const; // KZ: modified
 	int GetWidth() const { return m_Width; }
 	int GetHeight() const { return m_Height; }
-	int IntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, CCharacterCore *pCore = nullptr, bool IsHook = false, bool IsWeapon = false) const;
+	int IntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, CCharacterCore *pCore = nullptr, bool IsHook = false, bool IsWeapon = false, vec2 *pProjPos = nullptr) const; // KZ modified
 	int IntersectLineTeleWeapon(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, int *pTeleNr = nullptr, CCharacterCore *pCore = nullptr) const;
 	int IntersectLineTeleHook(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, int *pTeleNr = nullptr, CCharacterCore *pCore = nullptr) const;
 	void MovePoint(vec2 *pInoutPos, vec2 *pInoutVel, float Elasticity, int *pBounces, CCharacterCore *pCore = nullptr) const;
@@ -218,6 +219,9 @@ public:
 	int m_KZFrontHeight;
 	CKZTile *m_pKZGame;
 	CKZTile *m_pKZFront;
+
+	CWorldCore *m_pWorldCore;
+	CTeamsCore *m_pTeamsCore;
 };
 
 void ThroughOffset(vec2 Pos0, vec2 Pos1, int *pOffsetX, int *pOffsetY);

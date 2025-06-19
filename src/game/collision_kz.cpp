@@ -159,6 +159,28 @@ int CCollision::CheckPointForCore(float x, float y, CCharacterCore *pCore, bool 
 	return 0;
 }
 
+int CCollision::CheckPointForProjectile(vec2 Pos, vec2 *pProjPos, int OwnerId, vec2 *pOutCollision, vec2 *pOutBeforeCollision) const
+{
+	if(!m_pWorldCore || !m_pTeamsCore || !pProjPos)
+		return 0;
+
+	CKZTile *pKZTile = GetKZGameTile(Pos.x, Pos.y);
+	CKZTile *pKZFrontTile = GetKZFrontTile(Pos.x, Pos.y);
+	if(!pKZTile && !pKZFrontTile)
+		return 0;
+	
+	if(pKZFrontTile)
+	{
+		if(pKZFrontTile->m_Index == KZ_FRONTTILE_POS_SHIFTER && BitWiseAndInt64(pKZFrontTile->m_Value3, KZ_POS_SWITCHER_FLAG_PROJECTILE) && ((pKZFrontTile->m_Number && OwnerId >= 0 && OwnerId < SERVER_MAX_CLIENTS && !m_pWorldCore->m_vSwitchers.empty()) ? m_pWorldCore->m_vSwitchers[pKZFrontTile->m_Number].m_aStatus[m_pTeamsCore->Team(OwnerId)] : true))
+		{
+			*pProjPos += vec2(pKZFrontTile->m_Value1, pKZFrontTile->m_Value2);
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
 CKZTile *CCollision::GetKZGameTile(int Index) const
 {
 	return m_pKZGame ? &m_pKZGame[Index] : nullptr;

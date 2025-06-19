@@ -216,6 +216,9 @@ void CCollision::Unload()
 	m_KZGameHeight = 0;
 	m_KZFrontWidth = 0;
 	m_KZFrontHeight = 0;
+
+	m_pWorldCore = nullptr;
+	m_pTeamsCore = nullptr;
 }
 
 void CCollision::FillAntibot(CAntibotMapData *pMapData) const
@@ -373,7 +376,7 @@ int CCollision::GetTile(int x, int y) const
 }
 
 // TODO: rewrite this smarter!
-int CCollision::IntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, CCharacterCore *pCore, bool IsHook, bool IsWeapon) const
+int CCollision::IntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, CCharacterCore *pCore, bool IsHook, bool IsWeapon, vec2 *pProjPos) const
 {
 	float Distance = distance(Pos0, Pos1);
 	int End(Distance + 1);
@@ -386,7 +389,7 @@ int CCollision::IntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *p
 		int ix = round_to_int(Pos.x);
 		int iy = round_to_int(Pos.y);
 
-		if(CheckPoint(ix, iy, pCore, IsHook, IsWeapon))
+		if(CheckPoint(ix, iy, pCore, IsHook, IsWeapon) || (IsWeapon ? CheckPointForProjectile(Pos, pProjPos, pCore ? pCore->m_Id : -1, pOutCollision, pOutBeforeCollision) : false))
 		{
 			if(pOutCollision)
 				*pOutCollision = Pos;
@@ -593,6 +596,12 @@ void CCollision::MoveBox(vec2 *pInoutPos, vec2 *pInoutVel, vec2 Size, vec2 Elast
 			vec2 NewPos = Pos + Vel * Fraction; // TODO: this row is not nice
 
 			if(HandlePortalCollision(NewPos,Vel,pCore)) //+KZ
+			{
+				Pos = NewPos;
+				break;
+			}
+
+			if(pCore && pCore->HandleKZTileOnMoveBox(&NewPos, &Vel, Size, vec2(ElasticityX, ElasticityY)))
 			{
 				Pos = NewPos;
 				break;
