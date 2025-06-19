@@ -50,6 +50,7 @@ public:
 	CCharacterCore *IntersectCharacterCore(vec2 Pos0, vec2 Pos1, float Radius, vec2 &NewPos, CCharacterCore *pThisOnly = nullptr) const;
 	bool HandlePortalCollision(vec2 &InOutPos, vec2 &InOutVel, CCharacterCore *pCore) const;
 	bool IsTeleportViable(vec2 Pos) const;
+	bool TestBoxKZ(vec2 OrigPos, vec2 *pInOutPos, vec2 *pInOutVel, vec2 Size, float ElasticityX, float ElasticityY, bool *pGrounded = nullptr, CCharacterCore *pCore = nullptr) const;
 
 	bool KZGameFound() const { return m_pKZGame != 0; }
 	bool KZFrontFound() const { return m_pKZFront != 0; }

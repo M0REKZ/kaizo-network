@@ -614,6 +614,11 @@ void CCollision::MoveBox(vec2 *pInoutPos, vec2 *pInoutVel, vec2 Size, vec2 Elast
 				break;
 			}
 
+			if(TestBoxKZ(Pos, &NewPos, &Vel, Size, ElasticityX, ElasticityY, pGrounded, pCore)) //+KZ
+			{
+				// uhhhh idk
+			}
+
 			if(TestBox(vec2(NewPos.x, NewPos.y), Size, pCore))
 			{
 				int Hits = 0;

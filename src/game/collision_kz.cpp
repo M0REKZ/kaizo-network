@@ -697,3 +697,84 @@ bool CCollision::IsTeleportViable(vec2 Pos) const
 {
 	return !(CheckPoint(Pos.x + 14.0f,Pos.y + 14.0f) || CheckPoint(Pos.x - 14.0f,Pos.y + 14.0f) || CheckPoint(Pos.x + 14.0f,Pos.y - 14.0f) || CheckPoint(Pos.x - 14.0f,Pos.y - 14.0f));
 }
+
+bool CCollision::TestBoxKZ(vec2 OrigPos, vec2 *pInOutPos, vec2 *pInOutVel, vec2 Size, float ElasticityX, float ElasticityY, bool *pGrounded, CCharacterCore *pCore) const
+{
+	if(!pCore)
+		return false;
+
+	Size *= 0.5f;
+	CKZTile *pKZTile[4] = {nullptr,nullptr,nullptr,nullptr};
+	bool collide = false;
+	if(pKZTile[0] = GetKZGameTile(pInOutPos->x - Size.x, pInOutPos->y - Size.y))
+		collide = true;
+	if(pKZTile[1] = GetKZGameTile(pInOutPos->x + Size.x, pInOutPos->y - Size.y))
+		collide = true;
+	if(pKZTile[2] = GetKZGameTile(pInOutPos->x - Size.x, pInOutPos->y + Size.y))
+		collide = true;
+	if(pKZTile[3] = GetKZGameTile(pInOutPos->x + Size.x, pInOutPos->y + Size.y))
+		collide = true;
+
+	bool updatedpos = false;
+	if(collide)
+	{
+		for(int i = 0; i < 4; i++)
+		{
+			if(pKZTile[i])
+			{
+				if(pKZTile[i]->m_Index == KZ_GAMETILE_SOLID_STOPPER_V2 && pCore->m_pTeams && pCore->m_pWorld && !pCore->m_pWorld->m_vSwitchers.empty() && (pKZTile[i]->m_Number ? pCore->m_pWorld->m_vSwitchers[pKZTile[i]->m_Number].m_aStatus[pCore->m_pTeams->Team(pCore->m_Id)] : true))
+				{
+					switch(pKZTile[i]->m_Flags)
+					{
+						case ROTATION_0:
+							{
+								if(pInOutVel->y >= 0)
+								{
+									pInOutVel->y *= -ElasticityY;
+									pInOutPos->y = OrigPos.y;
+									updatedpos = true;
+									if(pGrounded && ElasticityY > 0)
+										*pGrounded = true;
+								}
+								break;
+							}
+						case ROTATION_90:
+							{
+								if(pInOutVel->x <= 0)
+								{
+									pInOutVel->x *= -ElasticityX;
+									pInOutPos->x = OrigPos.x;
+									updatedpos = true;
+								}
+								break;
+							}
+						case ROTATION_180:
+							{
+								if(pInOutVel->y <= 0)
+								{
+									pInOutVel->y *= -ElasticityY;
+									pInOutPos->y = OrigPos.y;
+									updatedpos = true;
+								}
+								break;
+							}
+						case ROTATION_270:
+							{
+								if(pInOutVel->x >= 0)
+								{
+									pInOutVel->x *= -ElasticityX;
+									pInOutPos->x = OrigPos.x;
+									updatedpos = true;
+								}
+								break;
+							}
+					}
+				}
+			}
+		}
+
+		return updatedpos;
+	}
+
+	return false;
+}
