@@ -622,9 +622,9 @@ protected:
 	void RenderSettings(CUIRect MainView);
 	void RenderSettingsCustom(CUIRect MainView);
 
-	std::vector<CButtonContainer> vButtonsContainersJoystickAbsolute = {{}, {}};
-	std::vector<CButtonContainer> vButtonsContainersNamePlateShow = {{}, {}, {}, {}};
-	std::vector<CButtonContainer> vButtonsContainersNamePlateKeyPresses = {{}, {}, {}, {}};
+	std::vector<CButtonContainer> m_vButtonContainersJoystickAbsolute = {{}, {}};
+	std::vector<CButtonContainer> m_vButtonContainersNamePlateShow = {{}, {}, {}, {}};
+	std::vector<CButtonContainer> m_vButtonContainersNamePlateKeyPresses = {{}, {}, {}, {}};
 
 	class CMapListItem
 	{
@@ -666,7 +666,7 @@ protected:
 public:
 	void RenderBackground();
 
-	static CMenusKeyBinder m_Binder;
+	CMenusKeyBinder m_Binder;
 
 	CMenus();
 	virtual int Sizeof() const override { return sizeof(*this); }
