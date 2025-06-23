@@ -6,6 +6,8 @@
 #include <game/generated/protocol.h>
 #include <game/team_state.h>
 
+#include <optional>
+
 #include <game/mapitems.h>
 
 class IGameController;
@@ -180,6 +182,7 @@ private:
 	bool m_Super;
 	bool m_Invincible;
 	CSaveTee m_SavedTeleTee;
+	std::optional<CSaveTee> m_LastDeath;
 };
 
 class CSaveTeam
