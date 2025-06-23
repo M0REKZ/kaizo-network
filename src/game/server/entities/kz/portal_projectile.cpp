@@ -5,6 +5,7 @@
 #include <game/server/teams.h>
 #include <game/server/player.h>
 #include <game/server/entities/character.h>
+#include <engine/shared/config.h>
 
 CPortalProjectile::CPortalProjectile(CGameWorld *pGameWorld, int Owner, vec2 Pos, vec2 Dir, bool BluePortal, bool HideOnSpec, bool OnlyShowOwner)
 : CStableProjectile(pGameWorld,WEAPON_SHOTGUN,Owner,Pos,HideOnSpec,OnlyShowOwner)
