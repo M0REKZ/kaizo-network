@@ -1033,6 +1033,9 @@ void CGameContext::OnPreTickTeehistorian()
 
 void CGameContext::OnTick()
 {
+	//+KZ
+	m_World.m_Core.m_WorldTickKZ = Server()->Tick();
+
 	// check tuning
 	CheckPureTuning();
 

@@ -376,7 +376,7 @@ int CCollision::GetTile(int x, int y) const
 }
 
 // TODO: rewrite this smarter!
-int CCollision::IntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, CCharacterCore *pCore, bool IsHook, bool IsWeapon, vec2 *pProjPos) const
+int CCollision::IntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, CCharacterCore *pCore, bool IsHook, bool IsWeapon, vec2 *pProjPos, int Weapon) const
 {
 	float Distance = distance(Pos0, Pos1);
 	int End(Distance + 1);
@@ -389,13 +389,15 @@ int CCollision::IntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *p
 		int ix = round_to_int(Pos.x);
 		int iy = round_to_int(Pos.y);
 
-		if(CheckPoint(ix, iy, pCore, IsHook, IsWeapon) || (IsWeapon ? CheckPointForProjectile(Pos, pProjPos, pCore ? pCore->m_Id : -1, pOutCollision, pOutBeforeCollision) : false))
+		int KZcollide = 0; //+KZ
+
+		if(CheckPoint(ix, iy, pCore, IsHook, IsWeapon) || (IsWeapon ? (KZcollide = CheckPointForProjectile(Pos, pProjPos, pCore ? pCore->m_Id : -1, pOutCollision, pOutBeforeCollision, Weapon)) : false))
 		{
 			if(pOutCollision)
 				*pOutCollision = Pos;
 			if(pOutBeforeCollision)
 				*pOutBeforeCollision = Last;
-			return GetCollisionAt(ix, iy, pCore, IsHook, IsWeapon);
+			return KZcollide >= 1 ? KZcollide : GetCollisionAt(ix, iy, pCore, IsHook, IsWeapon); //+KZ modified
 		}
 
 		Last = Pos;
@@ -467,7 +469,7 @@ int CCollision::IntersectLineTeleHook(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision,
 	return 0;
 }
 
-int CCollision::IntersectLineTeleWeapon(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, int *pTeleNr, CCharacterCore *pCore) const
+int CCollision::IntersectLineTeleWeapon(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, int *pTeleNr, CCharacterCore *pCore, CKZColLaserParams *pLaserParams) const
 {
 	float Distance = distance(Pos0, Pos1);
 	int End(Distance + 1);
@@ -476,6 +478,18 @@ int CCollision::IntersectLineTeleWeapon(vec2 Pos0, vec2 Pos1, vec2 *pOutCollisio
 	{
 		float a = i / (float)End;
 		vec2 Pos = mix(Pos0, Pos1, a);
+
+		//+KZ
+		int KZcollide = 0;
+		if(pLaserParams && (KZcollide = CheckPointForLaser(Pos, pLaserParams)))
+		{
+			if(pOutCollision)
+				*pOutCollision = Pos;
+			if(pOutBeforeCollision)
+				*pOutBeforeCollision = Last;
+			return KZcollide;
+		}
+
 		// Temporary position for checking collision
 		int ix = round_to_int(Pos.x);
 		int iy = round_to_int(Pos.y);

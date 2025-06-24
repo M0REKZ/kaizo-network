@@ -137,7 +137,7 @@ void CProjectile::Tick()
 		pOwnerCore = (CCharacterCore *)pOwnerChar->Core();
 	}
 
-	int Collide = GameServer()->Collision()->IntersectLine(PrevPos, CurPos, &ColPos, &NewPos, pOwnerCore, false, true, &m_Pos); // KZ	
+	int Collide = GameServer()->Collision()->IntersectLine(PrevPos, CurPos, &ColPos, &NewPos, pOwnerCore, false, true, &m_Pos, m_Type); // KZ	
 
 	CCharacter *pTargetChr = nullptr;
 

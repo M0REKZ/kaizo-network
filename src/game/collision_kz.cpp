@@ -159,7 +159,7 @@ int CCollision::CheckPointForCore(float x, float y, CCharacterCore *pCore, bool 
 	return 0;
 }
 
-int CCollision::CheckPointForProjectile(vec2 Pos, vec2 *pProjPos, int OwnerId, vec2 *pOutCollision, vec2 *pOutBeforeCollision) const
+int CCollision::CheckPointForProjectile(vec2 Pos, vec2 *pProjPos, int OwnerId, vec2 *pOutCollision, vec2 *pOutBeforeCollision, int Weapon) const
 {
 	if(!m_pWorldCore || !m_pTeamsCore || !pProjPos)
 		return 0;
@@ -168,13 +168,193 @@ int CCollision::CheckPointForProjectile(vec2 Pos, vec2 *pProjPos, int OwnerId, v
 	CKZTile *pKZFrontTile = GetKZFrontTile(Pos.x, Pos.y);
 	if(!pKZTile && !pKZFrontTile)
 		return 0;
+
+	if(pKZTile)
+	{
+		if(pKZTile->m_Index == KZ_GAMETILE_HITTABLE_SWITCH && pKZTile->m_Number && !m_pWorldCore->m_vSwitchers.empty() && OwnerId >= 0 && OwnerId < SERVER_MAX_CLIENTS)
+		{
+			bool hit = false;
+			if(BitWiseAndInt64(pKZTile->m_Value3, KZ_HITTABLE_SWITCH_FLAG_GUN) && Weapon == WEAPON_GUN)
+			{
+				hit = true;
+			}
+			else if(BitWiseAndInt64(pKZTile->m_Value3, KZ_HITTABLE_SWITCH_FLAG_GRENADE) && Weapon == WEAPON_GRENADE)
+			{
+				hit = true;
+			}
+			else if(BitWiseAndInt64(pKZTile->m_Value3, KZ_HITTABLE_SWITCH_FLAG_LASER) && Weapon == WEAPON_LASER)
+			{
+				hit = true;
+			}
+			else if(BitWiseAndInt64(pKZTile->m_Value3, KZ_HITTABLE_SWITCH_FLAG_SHOTGUN) && Weapon == WEAPON_SHOTGUN)
+			{
+				hit = true;
+			}
+
+			if(hit)
+			{
+				switch(pKZTile->m_Value1) //Type
+				{
+					case 0: //switch deactivate
+						{
+							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aStatus[m_pTeamsCore->Team(OwnerId)] = true;
+							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aEndTick[m_pTeamsCore->Team(OwnerId)] = 0;
+							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aType[m_pTeamsCore->Team(OwnerId)] = TILE_SWITCHOPEN;
+							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aLastUpdateTick[m_pTeamsCore->Team(OwnerId)] = m_pWorldCore->m_WorldTickKZ;
+						}
+						break;
+					case 1: //switch timed deactivate
+						{
+							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aStatus[m_pTeamsCore->Team(OwnerId)] = true;
+							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aEndTick[m_pTeamsCore->Team(OwnerId)] = m_pWorldCore->m_WorldTickKZ + 1 + pKZTile->m_Value2 * SERVER_TICK_SPEED;
+							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aType[m_pTeamsCore->Team(OwnerId)] = TILE_SWITCHTIMEDOPEN;
+							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aLastUpdateTick[m_pTeamsCore->Team(OwnerId)] = m_pWorldCore->m_WorldTickKZ;
+						}
+						break;
+					case 2: //switch timed activate
+						{
+							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aStatus[m_pTeamsCore->Team(OwnerId)] = false;
+							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aEndTick[m_pTeamsCore->Team(OwnerId)] = m_pWorldCore->m_WorldTickKZ + 1 + pKZTile->m_Value2 * SERVER_TICK_SPEED;
+							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aType[m_pTeamsCore->Team(OwnerId)] = TILE_SWITCHTIMEDCLOSE;
+							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aLastUpdateTick[m_pTeamsCore->Team(OwnerId)] = m_pWorldCore->m_WorldTickKZ;
+						}
+						break;
+					case 3: //switch activate
+						{
+							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aStatus[m_pTeamsCore->Team(OwnerId)] = false;
+							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aEndTick[m_pTeamsCore->Team(OwnerId)] = 0;
+							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aType[m_pTeamsCore->Team(OwnerId)] = TILE_SWITCHCLOSE;
+							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aLastUpdateTick[m_pTeamsCore->Team(OwnerId)] = m_pWorldCore->m_WorldTickKZ;
+						}
+						break;
+					case 4: // +KZ switch toggle
+						{
+							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aStatus[m_pTeamsCore->Team(OwnerId)] = !m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aStatus[m_pTeamsCore->Team(OwnerId)];
+							if(m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aStatus[m_pTeamsCore->Team(OwnerId)])
+							{
+								m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aType[m_pTeamsCore->Team(OwnerId)] = TILE_SWITCHOPEN;
+							}
+							else
+							{
+								m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aType[m_pTeamsCore->Team(OwnerId)] = TILE_SWITCHCLOSE;
+							}
+							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aEndTick[m_pTeamsCore->Team(OwnerId)] = 0;
+							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aLastUpdateTick[m_pTeamsCore->Team(OwnerId)] = m_pWorldCore->m_WorldTickKZ;
+						}
+						break;
+
+					default:
+						break;
+				}
+
+				return 1;
+			}
+		}
+	}
 	
 	if(pKZFrontTile)
 	{
 		if(pKZFrontTile->m_Index == KZ_FRONTTILE_POS_SHIFTER && BitWiseAndInt64(pKZFrontTile->m_Value3, KZ_POS_SWITCHER_FLAG_PROJECTILE) && ((pKZFrontTile->m_Number && OwnerId >= 0 && OwnerId < SERVER_MAX_CLIENTS && !m_pWorldCore->m_vSwitchers.empty()) ? m_pWorldCore->m_vSwitchers[pKZFrontTile->m_Number].m_aStatus[m_pTeamsCore->Team(OwnerId)] : true))
 		{
 			*pProjPos += vec2(pKZFrontTile->m_Value1, pKZFrontTile->m_Value2);
-			return 1;
+			return -1;
+		}
+	}
+
+	return 0;
+}
+
+int CCollision::CheckPointForLaser(vec2 Pos, CKZColLaserParams *pLaserParams) const
+{
+	if(!pLaserParams || !m_pWorldCore || !m_pTeamsCore)
+		return 0;
+
+	CKZTile *pKZTile = GetKZGameTile(Pos.x, Pos.y);
+	CKZTile *pKZFrontTile = GetKZFrontTile(Pos.x, Pos.y);
+	if(!pKZTile && !pKZFrontTile)
+		return 0;
+
+	if(pKZTile)
+	{
+		if(pKZTile->m_Index == KZ_GAMETILE_HITTABLE_SWITCH && pKZTile->m_Number && !m_pWorldCore->m_vSwitchers.empty() && pLaserParams->OwnerId >= 0 && pLaserParams->OwnerId < SERVER_MAX_CLIENTS)
+		{
+			bool hit = false;
+			if(BitWiseAndInt64(pKZTile->m_Value3, KZ_HITTABLE_SWITCH_FLAG_GUN) && pLaserParams->Type == WEAPON_GUN)
+			{
+				hit = true;
+			}
+			else if(BitWiseAndInt64(pKZTile->m_Value3, KZ_HITTABLE_SWITCH_FLAG_GRENADE) && pLaserParams->Type == WEAPON_GRENADE)
+			{
+				hit = true;
+			}
+			else if(BitWiseAndInt64(pKZTile->m_Value3, KZ_HITTABLE_SWITCH_FLAG_LASER) && pLaserParams->Type == WEAPON_LASER)
+			{
+				hit = true;
+			}
+			else if(BitWiseAndInt64(pKZTile->m_Value3, KZ_HITTABLE_SWITCH_FLAG_SHOTGUN) && pLaserParams->Type == WEAPON_SHOTGUN)
+			{
+				hit = true;
+			}
+
+			if(hit)
+			{
+				switch(pKZTile->m_Value1) //Type
+				{
+					case 0: //switch deactivate
+						{
+							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aStatus[m_pTeamsCore->Team(pLaserParams->OwnerId)] = true;
+							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aEndTick[m_pTeamsCore->Team(pLaserParams->OwnerId)] = 0;
+							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aType[m_pTeamsCore->Team(pLaserParams->OwnerId)] = TILE_SWITCHOPEN;
+							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aLastUpdateTick[m_pTeamsCore->Team(pLaserParams->OwnerId)] = m_pWorldCore->m_WorldTickKZ;
+						}
+						break;
+					case 1: //switch timed deactivate
+						{
+							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aStatus[m_pTeamsCore->Team(pLaserParams->OwnerId)] = true;
+							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aEndTick[m_pTeamsCore->Team(pLaserParams->OwnerId)] = m_pWorldCore->m_WorldTickKZ + 1 + pKZTile->m_Value2 * SERVER_TICK_SPEED;
+							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aType[m_pTeamsCore->Team(pLaserParams->OwnerId)] = TILE_SWITCHTIMEDOPEN;
+							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aLastUpdateTick[m_pTeamsCore->Team(pLaserParams->OwnerId)] = m_pWorldCore->m_WorldTickKZ;
+						}
+						break;
+					case 2: //switch timed activate
+						{
+							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aStatus[m_pTeamsCore->Team(pLaserParams->OwnerId)] = false;
+							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aEndTick[m_pTeamsCore->Team(pLaserParams->OwnerId)] = m_pWorldCore->m_WorldTickKZ + 1 + pKZTile->m_Value2 * SERVER_TICK_SPEED;
+							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aType[m_pTeamsCore->Team(pLaserParams->OwnerId)] = TILE_SWITCHTIMEDCLOSE;
+							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aLastUpdateTick[m_pTeamsCore->Team(pLaserParams->OwnerId)] = m_pWorldCore->m_WorldTickKZ;
+						}
+						break;
+					case 3: //switch activate
+						{
+							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aStatus[m_pTeamsCore->Team(pLaserParams->OwnerId)] = false;
+							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aEndTick[m_pTeamsCore->Team(pLaserParams->OwnerId)] = 0;
+							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aType[m_pTeamsCore->Team(pLaserParams->OwnerId)] = TILE_SWITCHCLOSE;
+							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aLastUpdateTick[m_pTeamsCore->Team(pLaserParams->OwnerId)] = m_pWorldCore->m_WorldTickKZ;
+						}
+						break;
+					case 4: // +KZ switch toggle
+						{
+							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aStatus[m_pTeamsCore->Team(pLaserParams->OwnerId)] = !m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aStatus[m_pTeamsCore->Team(pLaserParams->OwnerId)];
+							if(m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aStatus[m_pTeamsCore->Team(pLaserParams->OwnerId)])
+							{
+								m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aType[m_pTeamsCore->Team(pLaserParams->OwnerId)] = TILE_SWITCHOPEN;
+							}
+							else
+							{
+								m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aType[m_pTeamsCore->Team(pLaserParams->OwnerId)] = TILE_SWITCHCLOSE;
+							}
+							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aEndTick[m_pTeamsCore->Team(pLaserParams->OwnerId)] = 0;
+							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aLastUpdateTick[m_pTeamsCore->Team(pLaserParams->OwnerId)] = m_pWorldCore->m_WorldTickKZ;
+						}
+						break;
+
+					default:
+						break;
+				}
+
+				pLaserParams->BounceNum = 21474836; //set to max value, no more bounces
+				return 1;
+			}
 		}
 	}
 
@@ -700,7 +880,7 @@ bool CCollision::IsTeleportViable(vec2 Pos) const
 
 bool CCollision::TestBoxKZ(vec2 OrigPos, vec2 *pInOutPos, vec2 *pInOutVel, vec2 Size, float ElasticityX, float ElasticityY, bool *pGrounded, CCharacterCore *pCore) const
 {
-	if(!pCore)
+	if(!pCore || !m_pWorldCore || !m_pTeamsCore)
 		return false;
 
 	Size *= 0.5f;
@@ -716,12 +896,72 @@ bool CCollision::TestBoxKZ(vec2 OrigPos, vec2 *pInOutPos, vec2 *pInOutVel, vec2 
 		collide = true;
 
 	bool updatedpos = false;
+	CKZTile *pPrevKZHITTABLESwitch = nullptr;
 	if(collide)
 	{
 		for(int i = 0; i < 4; i++)
 		{
 			if(pKZTile[i])
 			{
+				if(pPrevKZHITTABLESwitch != pKZTile[i] && pCore->pTouchingKZTiles[0] != pKZTile[i] && pCore->pTouchingKZTiles[1] != pKZTile[i] && pCore->pTouchingKZTiles[2] != pKZTile[i]&& pCore->pTouchingKZTiles[3] != pKZTile[i] && pKZTile[i]->m_Index == KZ_GAMETILE_HITTABLE_SWITCH && BitWiseAndInt64(pKZTile[i]->m_Value3,KZ_HITTABLE_SWITCH_FLAG_NINJA) && pKZTile[i]->m_Number && !m_pWorldCore->m_vSwitchers.empty() && pCore->m_ActiveWeapon == WEAPON_NINJA && pCore->m_Ninja.m_CurrentMoveTime > 0)
+				{
+					switch(pKZTile[i]->m_Value1) //Type
+					{
+						case 0: //switch deactivate
+							{
+								m_pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aStatus[m_pTeamsCore->Team(pCore->m_Id)] = true;
+								m_pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aEndTick[m_pTeamsCore->Team(pCore->m_Id)] = 0;
+								m_pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aType[m_pTeamsCore->Team(pCore->m_Id)] = TILE_SWITCHOPEN;
+								m_pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aLastUpdateTick[m_pTeamsCore->Team(pCore->m_Id)] = m_pWorldCore->m_WorldTickKZ;
+							}
+							break;
+						case 1: //switch timed deactivate
+							{
+								m_pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aStatus[m_pTeamsCore->Team(pCore->m_Id)] = true;
+								m_pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aEndTick[m_pTeamsCore->Team(pCore->m_Id)] = m_pWorldCore->m_WorldTickKZ + 1 + pKZTile[i]->m_Value2 * SERVER_TICK_SPEED;
+								m_pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aType[m_pTeamsCore->Team(pCore->m_Id)] = TILE_SWITCHTIMEDOPEN;
+								m_pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aLastUpdateTick[m_pTeamsCore->Team(pCore->m_Id)] = m_pWorldCore->m_WorldTickKZ;
+							}
+							break;
+						case 2: //switch timed activate
+							{
+								m_pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aStatus[m_pTeamsCore->Team(pCore->m_Id)] = false;
+								m_pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aEndTick[m_pTeamsCore->Team(pCore->m_Id)] = m_pWorldCore->m_WorldTickKZ + 1 + pKZTile[i]->m_Value2 * SERVER_TICK_SPEED;
+								m_pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aType[m_pTeamsCore->Team(pCore->m_Id)] = TILE_SWITCHTIMEDCLOSE;
+								m_pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aLastUpdateTick[m_pTeamsCore->Team(pCore->m_Id)] = m_pWorldCore->m_WorldTickKZ;
+							}
+							break;
+						case 3: //switch activate
+							{
+								m_pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aStatus[m_pTeamsCore->Team(pCore->m_Id)] = false;
+								m_pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aEndTick[m_pTeamsCore->Team(pCore->m_Id)] = 0;
+								m_pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aType[m_pTeamsCore->Team(pCore->m_Id)] = TILE_SWITCHCLOSE;
+								m_pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aLastUpdateTick[m_pTeamsCore->Team(pCore->m_Id)] = m_pWorldCore->m_WorldTickKZ;
+							}
+							break;
+						case 4: // +KZ switch toggle
+							{
+								m_pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aStatus[m_pTeamsCore->Team(pCore->m_Id)] = !m_pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aStatus[m_pTeamsCore->Team(pCore->m_Id)];
+								if(m_pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aStatus[m_pTeamsCore->Team(pCore->m_Id)])
+								{
+									m_pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aType[m_pTeamsCore->Team(pCore->m_Id)] = TILE_SWITCHOPEN;
+								}
+								else
+								{
+									m_pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aType[m_pTeamsCore->Team(pCore->m_Id)] = TILE_SWITCHCLOSE;
+								}
+								m_pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aEndTick[m_pTeamsCore->Team(pCore->m_Id)] = 0;
+								m_pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aLastUpdateTick[m_pTeamsCore->Team(pCore->m_Id)] = m_pWorldCore->m_WorldTickKZ;
+							}
+							break;
+
+						default:
+							break;
+					}
+					pPrevKZHITTABLESwitch = pKZTile[i];
+					continue;
+				}
+
 				if(pKZTile[i]->m_Index == KZ_GAMETILE_SOLID_STOPPER_V2 && pCore->m_pTeams && pCore->m_pWorld && !pCore->m_pWorld->m_vSwitchers.empty() && (pKZTile[i]->m_Number ? pCore->m_pWorld->m_vSwitchers[pKZTile[i]->m_Number].m_aStatus[pCore->m_pTeams->Team(pCore->m_Id)] : true))
 				{
 					switch(pKZTile[i]->m_Flags)
@@ -769,8 +1009,14 @@ bool CCollision::TestBoxKZ(vec2 OrigPos, vec2 *pInOutPos, vec2 *pInOutVel, vec2 
 								break;
 							}
 					}
+					continue;
 				}
 			}
+		}
+
+		for(int i = 0; i < 4; i++)
+		{
+			pCore->pTouchingKZTiles[i] = pKZTile[i];
 		}
 
 		return updatedpos;

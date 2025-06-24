@@ -2826,14 +2826,14 @@ void CCharacter::HandleKZTiles()
 			GameServer()->SendChatTarget(m_pPlayer->GetCid(),"Now you can not take damage");
 		}
 
-		if(!IsSuper() && pKZTile->m_Index == KZ_GAMETILE_TOGGLE_BUTTON && pKZTile->m_Number)
+		if(!IsSuper() && pKZTile->m_Index == KZ_GAMETILE_HITTABLE_SWITCH && pKZTile->m_Number)
 		{
 			if(!(Server()->Tick() % Server()->TickSpeed()))
 			{
 				GameServer()->SendBroadcast("Hammer the button to use it", m_pPlayer->GetCid(), false);
 			}
 
-			if(m_Core.m_ActiveWeapon == WEAPON_HAMMER && (m_Input.m_Fire & 1) && !m_StillPressingFire)
+			if(m_Core.m_ActiveWeapon == WEAPON_HAMMER && !BitWiseAndInt64(pKZTile->m_Value3,KZ_HITTABLE_SWITCH_FLAG_NO_HAMMER) && (m_Input.m_Fire & 1) && !m_StillPressingFire)
 			{
 				switch(pKZTile->m_Value1) //Type
 				{
@@ -2866,6 +2866,21 @@ void CCharacter::HandleKZTiles()
 							Switchers()[pKZTile->m_Number].m_aStatus[Team()] = false;
 							Switchers()[pKZTile->m_Number].m_aEndTick[Team()] = 0;
 							Switchers()[pKZTile->m_Number].m_aType[Team()] = TILE_SWITCHCLOSE;
+							Switchers()[pKZTile->m_Number].m_aLastUpdateTick[Team()] = Server()->Tick();
+						}
+						break;
+					case 4: // +KZ switch toggle
+						{
+							Switchers()[pKZTile->m_Number].m_aStatus[Team()] = !Switchers()[pKZTile->m_Number].m_aStatus[Team()];
+							if(Switchers()[pKZTile->m_Number].m_aStatus[Team()])
+							{
+								Switchers()[pKZTile->m_Number].m_aType[Team()] = TILE_SWITCHOPEN;
+							}
+							else
+							{
+								Switchers()[pKZTile->m_Number].m_aType[Team()] = TILE_SWITCHCLOSE;
+							}
+							Switchers()[pKZTile->m_Number].m_aEndTick[Team()] = 0;
 							Switchers()[pKZTile->m_Number].m_aLastUpdateTick[Team()] = Server()->Tick();
 						}
 						break;

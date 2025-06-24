@@ -132,7 +132,27 @@ void CLaser::DoBounce()
 
 	vec2 To = m_Pos + m_Dir * m_Energy;
 
-	Res = GameServer()->Collision()->IntersectLineTeleWeapon(m_Pos, To, &Coltile, &To, &z, pOwnerCore); // KZ added pOwnerCore
+	//+KZ
+	CCollision::CKZColLaserParams ParamsKZ = {m_Pos, To, m_Type, m_Owner, m_Bounces};
+
+	Res = GameServer()->Collision()->IntersectLineTeleWeapon(m_Pos, To, &Coltile, &To, &z, pOwnerCore, &ParamsKZ); // KZ added pOwnerCore
+
+	if(m_Bounces != ParamsKZ.BounceNum)
+	{
+		m_Bounces = ParamsKZ.BounceNum;
+
+		int BounceNum = Tuning()->m_LaserBounceNum;
+		if(m_TuneZone)
+			BounceNum = TuningList()[m_TuneZone].m_LaserBounceNum;
+		if(m_Bounces > BounceNum)
+		{
+			m_Energy = -1;
+			m_From = m_Pos;
+			m_Pos = To;
+		}
+		GameServer()->CreateSound(m_Pos, SOUND_LASER_BOUNCE, m_TeamMask);
+		return;
+	}
 
 	if(Res)
 	{

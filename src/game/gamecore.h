@@ -12,6 +12,7 @@
 #include <engine/shared/protocol.h>
 #include <game/generated/protocol.h>
 #include <game/teamscore.h>
+#include <game/mapitems.h>
 
 #include "prng.h"
 
@@ -186,6 +187,7 @@ public:
 	class CPortalCore *SetPortalKZ(class CPortalCore *pPortal);
 	class CPortalCore *GetPortalKZ(int OwnerId, bool IsBlue);
 	void DeletePortalKZ(int OwnerId, bool IsBlue);
+	int m_WorldTickKZ = -1; // +KZ
 };
 
 class CCharacterCore
@@ -284,14 +286,16 @@ public: // KZ
 	bool m_LiveFrozen;
 	CTuningParams m_Tuning;
 
-//private: // KZ
+//private: // +KZ made public
 	CTeamsCore *m_pTeams;
 	int m_MoveRestrictions;
 	int m_HookedPlayer;
 	static bool IsSwitchActiveCb(int Number, void *pUser);
 
+	// +KZ
 	bool m_SendCoreThisTick = false;
 	bool HandleKZTileOnMoveBox(vec2 *pMoveBoxPos, vec2 *pMoveBoxVel, vec2 MoveBoxSize, vec2 MoveBoxElasticity);
+	CKZTile *pTouchingKZTiles[4] = {nullptr, nullptr, nullptr, nullptr};
 };
 
 // input count
