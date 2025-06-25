@@ -82,3 +82,10 @@ jobs:
       with:
         name: KZNet-${{ matrix.os }}
         path: release/artifacts
+
+    - name: Create a release in GitHub and upload attachment
+      if: '!cancelled()'
+      run: |
+        gh release create latest release/artifacts/${{ matrix.package-file }}
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
