@@ -88,6 +88,6 @@ jobs:
     - name: Create a release in GitHub and upload attachment
       if: '!cancelled()'
       run: |
-        gh release create latest release/artifacts/${{ matrix.package-file }}
+        gh release upload latest release/artifacts/${{ matrix.package-file }} --clobber
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
