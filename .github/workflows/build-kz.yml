@@ -6,6 +6,8 @@ on:
 jobs:
   build-cmake:
     runs-on: ${{ matrix.os }}
+    permissions:
+      contents: write
     env:
       CARGO_HTTP_MULTIPLEXING: false
     strategy:
