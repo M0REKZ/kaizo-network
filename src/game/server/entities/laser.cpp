@@ -31,6 +31,15 @@ CLaser::CLaser(CGameWorld *pGameWorld, vec2 Pos, vec2 Direction, float StartEner
 	m_TeamMask = pOwnerChar ? pOwnerChar->TeamMask() : CClientMask();
 	m_BelongsToPracticeTeam = pOwnerChar && pOwnerChar->Teams()->IsPractice(pOwnerChar->Team());
 
+	//+KZ
+	if(pOwnerChar && (pOwnerChar->m_ForcedTuneKZ || pOwnerChar->m_TuneZoneOverrideKZ >= 0))
+	{
+		if(pOwnerChar->m_TuneZoneOverrideKZ >= 0 && !m_TuneZone) //+KZ
+			m_TuneZone = pOwnerChar->m_TuneZoneOverrideKZ;
+		else if(pOwnerChar->m_ForcedTuneKZ)
+			m_TuneZone = pOwnerChar->m_TuneZone;
+	}
+
 	GameWorld()->InsertEntity(this);
 	DoBounce();
 }
