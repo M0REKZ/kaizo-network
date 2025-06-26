@@ -962,7 +962,7 @@ bool CCollision::TestBoxKZ(vec2 OrigPos, vec2 *pInOutPos, vec2 *pInOutVel, vec2 
 					continue;
 				}
 
-				if(pKZTile[i]->m_Index == KZ_GAMETILE_SOLID_STOPPER_V2 && pCore->m_pTeams && pCore->m_pWorld && !pCore->m_pWorld->m_vSwitchers.empty() && (pKZTile[i]->m_Number ? pCore->m_pWorld->m_vSwitchers[pKZTile[i]->m_Number].m_aStatus[pCore->m_pTeams->Team(pCore->m_Id)] : true))
+				if(pKZTile[i]->m_Index == KZ_GAMETILE_SOLID_STOPPER_V2 && pCore->m_pTeams && pCore->m_pWorld && ((pKZTile[i]->m_Number && !pCore->m_pWorld->m_vSwitchers.empty()) ? pCore->m_pWorld->m_vSwitchers[pKZTile[i]->m_Number].m_aStatus[pCore->m_pTeams->Team(pCore->m_Id)] : true))
 				{
 					switch(pKZTile[i]->m_Flags)
 					{
