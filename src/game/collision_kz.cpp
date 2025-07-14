@@ -16,20 +16,28 @@
 #include <engine/shared/config.h>
 #include "collision.h"
 
-int CCollision::GetCollisionAt(float x, float y, CCharacterCore *pCore, bool IsHook, bool IsWeapon) const
+int CCollision::GetCollisionAt(float x, float y, SKZColCharCoreParams *pCharCoreParams) const
 {
     int i = GetTile(round_to_int(x), round_to_int(y));
-    if(pCore && !i)
+    if(pCharCoreParams)
     {
-        return CheckPointForCore(x, y, pCore, IsHook, IsWeapon);
+        return CheckPointForCore(x, y, pCharCoreParams);
     }
     return i;
 }
 
-int CCollision::CheckPointForCore(float x, float y, CCharacterCore *pCore, bool IsHook, bool IsWeapon) const
+int CCollision::CheckPointForCore(float x, float y, SKZColCharCoreParams *pCharCoreParams) const
 {
-    if(pCore)
+	CCharacterCore *pCore = nullptr;
+	bool IsHook = false;
+	bool IsWeapon = false;
+
+	if(pCharCoreParams && pCharCoreParams->pCore)
     {
+		pCore = pCharCoreParams->pCore;
+		IsHook = pCharCoreParams->IsHook;
+		IsWeapon = pCharCoreParams->IsWeapon;
+
         if(m_pKZGame || m_pKZFront)
         {
             int Nx = std::clamp(round_to_int(x) / 32, 0, m_KZGameWidth - 1);
@@ -159,15 +167,22 @@ int CCollision::CheckPointForCore(float x, float y, CCharacterCore *pCore, bool 
 	return 0;
 }
 
-int CCollision::CheckPointForProjectile(vec2 Pos, vec2 *pProjPos, int OwnerId, vec2 *pOutCollision, vec2 *pOutBeforeCollision, int Weapon) const
+int CCollision::CheckPointForProjectile(vec2 Pos, SKZColProjectileParams *pProjectileParams) const
 {
-	if(!m_pWorldCore || !m_pTeamsCore || !pProjPos)
+	if(!m_pWorldCore || !m_pTeamsCore || !pProjectileParams)
+		return 0;
+
+	if(!(pProjectileParams->pProjPos))
 		return 0;
 
 	CKZTile *pKZTile = GetKZGameTile(Pos.x, Pos.y);
 	CKZTile *pKZFrontTile = GetKZFrontTile(Pos.x, Pos.y);
 	if(!pKZTile && !pKZFrontTile)
 		return 0;
+
+	int OwnerId = pProjectileParams->OwnerId;
+	int Weapon = pProjectileParams->Weapon;
+	vec2 *pProjPos = pProjectileParams->pProjPos;
 
 	if(pKZTile)
 	{
@@ -264,7 +279,7 @@ int CCollision::CheckPointForProjectile(vec2 Pos, vec2 *pProjPos, int OwnerId, v
 	return 0;
 }
 
-int CCollision::CheckPointForLaser(vec2 Pos, CKZColLaserParams *pLaserParams) const
+int CCollision::CheckPointForLaser(vec2 Pos, SKZColLaserParams *pLaserParams) const
 {
 	if(!pLaserParams || !m_pWorldCore || !m_pTeamsCore)
 		return 0;
@@ -429,7 +444,7 @@ unsigned char CCollision::GetKZFrontTileIndex(int Index) const
 	return m_pKZFront ? m_pKZFront[Index].m_Index : TILE_AIR;
 }
 
-int CCollision::FastIntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, CCharacterCore *pCore, bool IsHook, bool IsWeapon) const
+int CCollision::FastIntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, SKZColCharCoreParams *pCharCoreParams) const
 {
 	const int Tile0X = round_to_int(Pos0.x)/32;
 	const int Tile0Y = round_to_int(Pos0.y)/32;
@@ -463,7 +478,7 @@ int CCollision::FastIntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec
 
 	while(CurTileX != Tile1X || CurTileY != Tile1Y)
 	{
-		if(IsSolid(CurTileX*32,CurTileY*32)|| CheckPointForCore(CurTileX*32, CurTileY*32, pCore, IsHook, IsWeapon))
+		if(IsSolid(CurTileX*32,CurTileY*32)|| CheckPointForCore(CurTileX*32, CurTileY*32, pCharCoreParams))
 			break;
 		if(CurTileY != Tile1Y && (CurTileX == Tile1X || Error > 0))
 		{
@@ -479,7 +494,7 @@ int CCollision::FastIntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec
 		}
 	}
     int kzid = 0;
-	if(IsSolid(CurTileX*32,CurTileY*32)|| (kzid = CheckPointForCore(CurTileX*32, CurTileY*32, pCore, IsHook, IsWeapon)))
+	if(IsSolid(CurTileX*32,CurTileY*32)|| (kzid = CheckPointForCore(CurTileX*32, CurTileY*32, pCharCoreParams)))
 	{
 		if(CurTileX != Tile0X || CurTileY != Tile0Y)
 		{
@@ -517,7 +532,7 @@ int CCollision::FastIntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec
 	return 0;
 }
 
-int CCollision::FastIntersectLinePortalLaser(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, CKZTile **pKZTile, int *pTeleNr, CCharacterCore *pCore, bool IsHook, bool IsWeapon) const
+int CCollision::FastIntersectLinePortalLaser(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, CKZTile **pKZTile, int *pTeleNr, SKZColCharCoreParams *pCharCoreParams) const
 {
 	const int Tile0X = round_to_int(Pos0.x)/32;
 	const int Tile0Y = round_to_int(Pos0.y)/32;
@@ -566,7 +581,7 @@ int CCollision::FastIntersectLinePortalLaser(vec2 Pos0, vec2 Pos1, vec2 *pOutCol
                 break;
 		}
 
-        if((kzid = CheckPointForCore(CurTileX*32, CurTileY*32, pCore, IsHook, IsWeapon)))
+        if((kzid = CheckPointForCore(CurTileX*32, CurTileY*32, pCharCoreParams)))
         {
             if(kzid == TILE_SOLID || kzid == TILE_NOHOOK)
                 break;
@@ -617,7 +632,7 @@ int CCollision::FastIntersectLinePortalLaser(vec2 Pos0, vec2 Pos1, vec2 *pOutCol
 			Vertical = true;
 		}
 	}
-	if(IsSolid(CurTileX*32,CurTileY*32) || (pKZTilelocal && (pKZTilelocal->m_Index == KZ_TILE_PORTAL_DISALLOW || pKZTilelocal->m_Index == KZ_TILE_PORTAL_RESET)) || (kzid ? kzid : (kzid = CheckPointForCore(CurTileX*32, CurTileY*32, pCore, IsHook, IsWeapon))) || (g_Config.m_SvOldTeleportWeapons ? IsTeleport(Index) : IsTeleportWeapon(Index)))
+	if(IsSolid(CurTileX*32,CurTileY*32) || (pKZTilelocal && (pKZTilelocal->m_Index == KZ_TILE_PORTAL_DISALLOW || pKZTilelocal->m_Index == KZ_TILE_PORTAL_RESET)) || (kzid ? kzid : (kzid = CheckPointForCore(CurTileX*32, CurTileY*32, pCharCoreParams))) || (g_Config.m_SvOldTeleportWeapons ? IsTeleport(Index) : IsTeleportWeapon(Index)))
 	{
 		if(CurTileX != Tile0X || CurTileY != Tile0Y)
 		{

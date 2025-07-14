@@ -2165,6 +2165,7 @@ set_src(GAME_SHARED GLOB src/game
   mapitems_ex.h
   mapitems_ex_types.h
   mapitems_kz.h
+  params_kz.h
   prng.cpp
   prng.h
   race_state.h

@@ -14,6 +14,8 @@
 #include <game/teamscore.h>
 #include <game/mapitems.h>
 
+#include "params_kz.h"
+
 #include "prng.h"
 
 class CCollision;
@@ -296,6 +298,8 @@ public: // KZ
 	bool m_SendCoreThisTick = false;
 	bool HandleKZTileOnMoveBox(vec2 *pMoveBoxPos, vec2 *pMoveBoxVel, vec2 MoveBoxSize, vec2 MoveBoxElasticity);
 	CKZTile *pTouchingKZTiles[4] = {nullptr, nullptr, nullptr, nullptr};
+	SKZColCharCoreParams m_CharCoreParams;
+	SKZColGenericParams m_GenericParams;
 };
 
 // input count
