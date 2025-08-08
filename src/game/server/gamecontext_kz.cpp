@@ -401,3 +401,111 @@ void CGameContext::SendDiscordRecordMessage(int ClientID, float Time, float Prev
 	pDiscord->HeaderString("Content-Type", "application/json");
 	m_pHttp->Run(pDiscord);
 }
+
+void CGameContext::IdentifyClientName(int ClientId, char *pName, int StrSize)
+{
+	if(!m_apPlayers[ClientId])
+		return;
+
+	char aName[StrSize];
+
+	aName[0] = '\0';
+
+	if(Server()->IsSixup(ClientId))
+	{
+		for(int Client = 0; Client < 3; Client++)
+		{
+			const char* pClientString = "";
+			const char* pClientName = "";
+			int Sprite = -1;
+			switch (Client)
+			{
+			case 0:
+				pClientString = "gamer!";
+				pClientName = "Gamer (0.7)";
+				break;
+			case 1:
+				pClientString = "zilly!";
+				pClientName = "ZillyWoods (0.7)";
+				break;
+			case 2:
+				pClientString = "fclient!";
+				pClientName = "F-Client (0.7)";
+				break;
+			}
+
+			for(int p = 0; p < protocol7::NUM_SKINPARTS; p++)
+			{
+				if(str_startswith(m_apPlayers[ClientId]->m_TeeInfos.m_apSkinPartNames[p], pClientString)) ///seems that they put that info in the skin itself
+				{
+					str_copy(aName, pClientName, StrSize);
+					break;
+				}
+			}
+			if(aName[0])
+				break;
+		}
+		if(!aName[0])
+		{
+			str_copy(aName, "Teeworlds (0.7)", StrSize);
+		}
+	}
+	else
+	{
+		int InfClass = Server()->GetClientInfclassVersion(ClientId);
+		bool Tater = Server()->IsTaterClient(ClientId);
+		bool Qxd = Server()->IsQxdClient(ClientId);
+		bool Chillerbot = Server()->IsChillerbotClient(ClientId);
+		bool StA = Server()->IsStAClient(ClientId);
+		bool AllTheHaxx = Server()->IsAllTheHaxxClient(ClientId);
+		bool Pulse = Server()->IsPulseClient(ClientId);
+
+		if(InfClass)
+		{
+			str_copy(aName, "InfClass Client (0.6)", StrSize);
+		}
+		else if(Tater)
+		{
+			str_copy(aName, "T-Client (0.6)", StrSize);
+		}
+		else if(Qxd)
+		{
+			str_copy(aName, "E-Client (0.6)", StrSize);
+		}
+		else if(Chillerbot)
+		{
+			str_copy(aName, "Chillerbot-ux (0.6)", StrSize);
+		}
+		else if(StA)
+		{
+			str_copy(aName, "StA Client (0.6)", StrSize);
+		}
+		else if(AllTheHaxx)
+		{
+			str_copy(aName, "AllTheHaxx Client (0.6)", StrSize);
+		}
+		else if(Pulse)
+		{
+			str_copy(aName, "Pulse Client (0.6)", StrSize);
+		}
+		else
+		{
+
+			int Version = Server()->GetClientVersion(ClientId);
+
+			if(Version >= VERSION_DDNET_OLD)
+			{
+				str_copy(aName, "DDNet (0.6)", StrSize);
+			}
+			else if(Version >= VERSION_DDRACE)
+			{
+				str_copy(aName, "DDRace (0.6)", StrSize);
+			}
+			else
+			{
+				str_copy(aName, "Teeworlds (0.6)", StrSize);
+			}
+		}
+	}
+	str_copy(pName, aName, StrSize);
+}

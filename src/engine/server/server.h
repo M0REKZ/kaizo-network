@@ -89,6 +89,14 @@ class CServer : public IServer
 	void UpdateDebugDummies(bool ForceDisconnect);
 #endif
 
+	virtual int GetClientInfclassVersion(int ClientId) override;
+	virtual bool IsTaterClient(int ClientId) override { return m_aClients[ClientId].m_IsTaterClient; }
+	virtual bool IsQxdClient(int ClientId) override { return m_aClients[ClientId].m_IsQxdClient; }
+	virtual bool IsChillerbotClient(int ClientId) override { return m_aClients[ClientId].m_IsChillerbotClient; }
+	virtual bool IsStAClient(int ClientId) override { return m_aClients[ClientId].m_IsStAClient; }
+	virtual bool IsAllTheHaxxClient(int ClientId) override { return m_aClients[ClientId].m_IsAllTheHaxxClient; }
+	virtual bool IsPulseClient(int ClientId) override { return m_aClients[ClientId].m_IsPulseClient; }
+
 public:
 	class IGameServer *GameServer() { return m_pGameServer; }
 	class CConfig *Config() { return m_pConfig; }
@@ -167,6 +175,15 @@ public:
 		NETADDR m_DebugDummyAddr;
 		std::array<char, NETADDR_MAXSTRSIZE> m_aDebugDummyAddrString;
 		std::array<char, NETADDR_MAXSTRSIZE> m_aDebugDummyAddrStringNoPort;
+
+		//+KZ
+		int m_InfClassVersion; // to identify infclass clients
+		bool m_IsTaterClient; // to identify tater clients
+		bool m_IsQxdClient; // to identify qxd clients
+		bool m_IsChillerbotClient; // to identify chillerbot clients
+		bool m_IsStAClient; // to identify StA clients
+		bool m_IsAllTheHaxxClient; // to identify allthehaxx clients
+		bool m_IsPulseClient; // to identify pulse clients
 
 		const IConsole::CCommandInfo *m_pRconCmdToSend;
 		enum

@@ -291,6 +291,16 @@ public:
 	virtual const char *GetMapName() const = 0;
 
 	virtual bool IsSixup(int ClientId) const = 0;
+
+	//+KZ
+	virtual int GetClientInfclassVersion(int ClientId) { return 0; } //identify infclass clients
+	virtual bool IsTaterClient(int ClientId) { return false; } // identify tater clients
+	virtual bool IsQxdClient(int ClientId) { return false; } // identify qxd clients
+	virtual bool IsChillerbotClient(int ClientId) { return false; } // identify chillerbot clients
+	virtual bool IsStAClient(int ClientId) { return false; } // identify StA clients
+	virtual bool IsAllTheHaxxClient(int ClientId) { return false; } // identify allthehaxx clients
+	virtual bool IsPulseClient(int ClientId) { return false; } // identify pulse clients
+
 };
 
 class IGameServer : public IInterface

@@ -564,6 +564,13 @@ int CServer::Init()
 		Client.m_Latency = 0;
 		Client.m_Sixup = false;
 		Client.m_RedirectDropTime = 0;
+		Client.m_InfClassVersion = 0;
+		Client.m_IsTaterClient = false; //+KZ
+		Client.m_IsQxdClient = false;
+		Client.m_IsChillerbotClient = false;
+		Client.m_IsStAClient = false;
+		Client.m_IsAllTheHaxxClient = false;
+		Client.m_IsPulseClient = false;
 	}
 
 	m_CurrentGameTick = MIN_TICK;
@@ -1096,6 +1103,14 @@ int CServer::NewClientNoAuthCallback(int ClientId, void *pUser)
 {
 	CServer *pThis = (CServer *)pUser;
 
+	pThis->m_aClients[ClientId].m_InfClassVersion = 0; //+KZ
+	pThis->m_aClients[ClientId].m_IsTaterClient = false; //+KZ
+	pThis->m_aClients[ClientId].m_IsQxdClient = false;
+	pThis->m_aClients[ClientId].m_IsChillerbotClient = false;
+	pThis->m_aClients[ClientId].m_IsStAClient = false;
+	pThis->m_aClients[ClientId].m_IsAllTheHaxxClient = false;
+	pThis->m_aClients[ClientId].m_IsPulseClient = false;
+
 	pThis->m_aClients[ClientId].m_DnsblState = CClient::DNSBL_STATE_NONE;
 
 	pThis->m_aClients[ClientId].m_State = CClient::STATE_CONNECTING;
@@ -1130,6 +1145,15 @@ int CServer::NewClientNoAuthCallback(int ClientId, void *pUser)
 int CServer::NewClientCallback(int ClientId, void *pUser, bool Sixup)
 {
 	CServer *pThis = (CServer *)pUser;
+
+	pThis->m_aClients[ClientId].m_InfClassVersion = 0; //+KZ
+	pThis->m_aClients[ClientId].m_IsTaterClient = false; //+KZ
+	pThis->m_aClients[ClientId].m_IsQxdClient = false;
+	pThis->m_aClients[ClientId].m_IsChillerbotClient = false;
+	pThis->m_aClients[ClientId].m_IsStAClient = false;
+	pThis->m_aClients[ClientId].m_IsAllTheHaxxClient = false;
+	pThis->m_aClients[ClientId].m_IsPulseClient = false;
+
 	pThis->m_aClients[ClientId].m_State = CClient::STATE_PREAUTH;
 	pThis->m_aClients[ClientId].m_DnsblState = CClient::DNSBL_STATE_NONE;
 	pThis->m_aClients[ClientId].m_aName[0] = 0;
@@ -1675,6 +1699,42 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 				m_aClients[ClientId].m_GotDDNetVersionPacket = true;
 				m_aClients[ClientId].m_State = CClient::STATE_AUTH;
 			}
+		}
+		else if(Msg == NETMSG_CLIENTVER_INFCLASS)
+		{
+			if((pPacket->m_Flags & NET_CHUNKFLAG_VITAL) != 0) // Ignore STATE_AUTH for now, see ddnet#4445 // && m_aClients[ClientId].m_State == CClient::STATE_AUTH)
+			{ //+KZ identify infclass client
+				int InfClassVersion = Unpacker.GetInt();
+				if(Unpacker.Error() || InfClassVersion < 0)
+				{
+					return;
+				}
+				m_aClients[ClientId].m_InfClassVersion = InfClassVersion;
+			}
+		}
+		else if(Msg == NETMSG_IAMTATER)
+		{
+			m_aClients[ClientId].m_IsTaterClient = true;
+		}
+		else if(Msg == NETMSG_IAMQXD)
+		{
+			m_aClients[ClientId].m_IsQxdClient = true;
+		}
+		else if(Msg == NETMSG_IAMCHILLERBOT)
+		{
+			m_aClients[ClientId].m_IsChillerbotClient = true;
+		}
+		else if(Msg == NETMSG_IAMSTA)
+		{
+			m_aClients[ClientId].m_IsStAClient = true;
+		}
+		else if(Msg == NETMSG_IAMALLTHEHAXX)
+		{
+			m_aClients[ClientId].m_IsAllTheHaxxClient = true;
+		}
+		else if(Msg == NETMSG_IAMPULSE)
+		{
+			m_aClients[ClientId].m_IsPulseClient = true;
 		}
 		else if(Msg == NETMSG_INFO)
 		{
@@ -4445,6 +4505,15 @@ bool CServer::SetTimedOut(int ClientId, int OrigId)
 	m_aClients[ClientId].m_DDNetVersion = m_aClients[OrigId].m_DDNetVersion;
 	m_aClients[ClientId].m_GotDDNetVersionPacket = m_aClients[OrigId].m_GotDDNetVersionPacket;
 	m_aClients[ClientId].m_DDNetVersionSettled = m_aClients[OrigId].m_DDNetVersionSettled;
+
+	//+KZ
+	m_aClients[ClientId].m_InfClassVersion = m_aClients[OrigId].m_InfClassVersion;
+	m_aClients[ClientId].m_IsTaterClient = m_aClients[OrigId].m_IsTaterClient;
+	m_aClients[ClientId].m_IsQxdClient = m_aClients[OrigId].m_IsQxdClient;
+	m_aClients[ClientId].m_IsChillerbotClient = m_aClients[OrigId].m_IsChillerbotClient;
+	m_aClients[ClientId].m_IsStAClient = m_aClients[OrigId].m_IsStAClient;
+	m_aClients[ClientId].m_IsAllTheHaxxClient = m_aClients[OrigId].m_IsAllTheHaxxClient;
+	m_aClients[ClientId].m_IsPulseClient = m_aClients[OrigId].m_IsPulseClient;
 	return true;
 }
 
@@ -4457,4 +4526,20 @@ void CServer::SetLoggers(std::shared_ptr<ILogger> &&pFileLogger, std::shared_ptr
 {
 	m_pFileLogger = pFileLogger;
 	m_pStdoutLogger = pStdoutLogger;
+}
+
+//+KZ
+int CServer::GetClientInfclassVersion(int ClientId)
+{
+	if(ClientId == SERVER_DEMO_CLIENT)
+	{
+		return 1000;
+	}
+
+	if(m_aClients[ClientId].m_State == CClient::STATE_INGAME)
+	{
+		return m_aClients[ClientId].m_InfClassVersion;
+	}
+
+	return 0;
 }
