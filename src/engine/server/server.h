@@ -163,6 +163,7 @@ public:
 		int m_Flags;
 		bool m_ShowIps;
 		bool m_DebugDummy;
+		bool m_ForceHighBandwidthOnSpectate;
 		NETADDR m_DebugDummyAddr;
 		std::array<char, NETADDR_MAXSTRSIZE> m_aDebugDummyAddrString;
 		std::array<char, NETADDR_MAXSTRSIZE> m_aDebugDummyAddrStringNoPort;
@@ -183,7 +184,6 @@ public:
 
 		// DDRace
 
-		NETADDR m_Addr;
 		bool m_GotDDNetVersionPacket;
 		bool m_DDNetVersionSettled;
 		int m_DDNetVersion;
@@ -405,7 +405,7 @@ public:
 	void CacheServerInfo(CCache *pCache, int Type, bool SendClients);
 	void CacheServerInfoSixup(CCache *pCache, bool SendClients, int MaxConsideredClients);
 	void SendServerInfo(const NETADDR *pAddr, int Token, int Type, bool SendClients);
-	void GetServerInfoSixup(CPacker *pPacker, int Token, bool SendClients);
+	void GetServerInfoSixup(CPacker *pPacker, bool SendClients);
 	bool RateLimitServerInfoConnless();
 	void SendServerInfoConnless(const NETADDR *pAddr, int Token, int Type);
 	void UpdateRegisterServerInfo();
@@ -435,6 +435,7 @@ public:
 	static void ConLogout(IConsole::IResult *pResult, void *pUser);
 	static void ConShowIps(IConsole::IResult *pResult, void *pUser);
 	static void ConHideAuthStatus(IConsole::IResult *pResult, void *pUser);
+	static void ConForceHighBandwidthOnSpectate(IConsole::IResult *pResult, void *pUser);
 
 	static void ConAuthAdd(IConsole::IResult *pResult, void *pUser);
 	static void ConAuthAddHashed(IConsole::IResult *pResult, void *pUser);
@@ -531,6 +532,8 @@ public:
 	void SendConnLoggingCommand(CONN_LOGGING_CMD Cmd, const NETADDR *pAddr);
 #endif
 };
+
+bool IsInterrupted();
 
 extern CServer *CreateServer();
 #endif

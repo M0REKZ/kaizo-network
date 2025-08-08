@@ -11,17 +11,14 @@
 
 // Character, "physical" player's part
 
-void CCharacter::SetWeapon(int W)
+void CCharacter::SetWeapon(int Weapon)
 {
-	if(W == m_Core.m_ActiveWeapon)
+	if(Weapon == m_Core.m_ActiveWeapon)
 		return;
 
 	m_LastWeapon = m_Core.m_ActiveWeapon;
 	m_QueuedWeapon = -1;
-	SetActiveWeapon(W);
-
-	if(m_Core.m_ActiveWeapon < 0 || m_Core.m_ActiveWeapon >= NUM_WEAPONS)
-		SetActiveWeapon(0);
+	SetActiveWeapon(Weapon);
 }
 
 void CCharacter::SetSolo(bool Solo)
@@ -494,7 +491,7 @@ void CCharacter::GiveNinja()
 	SetActiveWeapon(WEAPON_NINJA);
 }
 
-void CCharacter::OnPredictedInput(CNetObj_PlayerInput *pNewInput)
+void CCharacter::OnPredictedInput(const CNetObj_PlayerInput *pNewInput)
 {
 	// skip the input if chat is active
 	if(!GameWorld()->m_WorldConfig.m_BugDDRaceInput && pNewInput->m_PlayerFlags & PLAYERFLAG_CHATTING)
@@ -515,7 +512,7 @@ void CCharacter::OnPredictedInput(CNetObj_PlayerInput *pNewInput)
 	mem_copy(&m_SavedInput, &m_Input, sizeof(m_SavedInput));
 }
 
-void CCharacter::OnDirectInput(CNetObj_PlayerInput *pNewInput)
+void CCharacter::OnDirectInput(const CNetObj_PlayerInput *pNewInput)
 {
 	// skip the input if chat is active
 	if(!GameWorld()->m_WorldConfig.m_BugDDRaceInput && pNewInput->m_PlayerFlags & PLAYERFLAG_CHATTING)
@@ -730,15 +727,7 @@ void CCharacter::HandleTiles(int Index)
 	int MapIndex = Index;
 	m_TileIndex = Collision()->GetTileIndex(MapIndex);
 	m_TileFIndex = Collision()->GetFrontTileIndex(MapIndex);
-	m_MoveRestrictions = Collision()->GetMoveRestrictions(IsSwitchActiveCb, this, m_Pos);
-
-	// stopper
-	if(m_Core.m_Vel.y > 0 && (m_MoveRestrictions & CANTMOVE_DOWN))
-	{
-		m_Core.m_Jumped = 0;
-		m_Core.m_JumpedTotal = 0;
-	}
-	m_Core.m_Vel = ClampVel(m_MoveRestrictions, m_Core.m_Vel);
+	m_MoveRestrictions = Collision()->GetMoveRestrictions(IsSwitchActiveCb, this, m_Pos, 18.0f, MapIndex);
 
 	if(!GameWorld()->m_WorldConfig.m_PredictTiles)
 		return;
@@ -749,109 +738,9 @@ void CCharacter::HandleTiles(int Index)
 		return;
 	}
 
-	// handle switch tiles
-	if(Collision()->GetSwitchType(MapIndex) == TILE_SWITCHOPEN && Team() != TEAM_SUPER && Collision()->GetSwitchNumber(MapIndex) > 0)
-	{
-		Switchers()[Collision()->GetSwitchNumber(MapIndex)].m_aStatus[Team()] = true;
-		Switchers()[Collision()->GetSwitchNumber(MapIndex)].m_aEndTick[Team()] = 0;
-		Switchers()[Collision()->GetSwitchNumber(MapIndex)].m_aType[Team()] = TILE_SWITCHOPEN;
-		Switchers()[Collision()->GetSwitchNumber(MapIndex)].m_aLastUpdateTick[Team()] = GameWorld()->GameTick();
-	}
-	else if(Collision()->GetSwitchType(MapIndex) == TILE_SWITCHTIMEDOPEN && Team() != TEAM_SUPER && Collision()->GetSwitchNumber(MapIndex) > 0)
-	{
-		Switchers()[Collision()->GetSwitchNumber(MapIndex)].m_aStatus[Team()] = true;
-		Switchers()[Collision()->GetSwitchNumber(MapIndex)].m_aEndTick[Team()] = GameWorld()->GameTick() + 1 + Collision()->GetSwitchDelay(MapIndex) * GameWorld()->GameTickSpeed();
-		Switchers()[Collision()->GetSwitchNumber(MapIndex)].m_aType[Team()] = TILE_SWITCHTIMEDOPEN;
-		Switchers()[Collision()->GetSwitchNumber(MapIndex)].m_aLastUpdateTick[Team()] = GameWorld()->GameTick();
-	}
-	else if(Collision()->GetSwitchType(MapIndex) == TILE_SWITCHTIMEDCLOSE && Team() != TEAM_SUPER && Collision()->GetSwitchNumber(MapIndex) > 0)
-	{
-		Switchers()[Collision()->GetSwitchNumber(MapIndex)].m_aStatus[Team()] = false;
-		Switchers()[Collision()->GetSwitchNumber(MapIndex)].m_aEndTick[Team()] = GameWorld()->GameTick() + 1 + Collision()->GetSwitchDelay(MapIndex) * GameWorld()->GameTickSpeed();
-		Switchers()[Collision()->GetSwitchNumber(MapIndex)].m_aType[Team()] = TILE_SWITCHTIMEDCLOSE;
-		Switchers()[Collision()->GetSwitchNumber(MapIndex)].m_aLastUpdateTick[Team()] = GameWorld()->GameTick();
-	}
-	else if(Collision()->GetSwitchType(MapIndex) == TILE_SWITCHCLOSE && Team() != TEAM_SUPER && Collision()->GetSwitchNumber(MapIndex) > 0)
-	{
-		Switchers()[Collision()->GetSwitchNumber(MapIndex)].m_aStatus[Team()] = false;
-		Switchers()[Collision()->GetSwitchNumber(MapIndex)].m_aEndTick[Team()] = 0;
-		Switchers()[Collision()->GetSwitchNumber(MapIndex)].m_aType[Team()] = TILE_SWITCHCLOSE;
-		Switchers()[Collision()->GetSwitchNumber(MapIndex)].m_aLastUpdateTick[Team()] = GameWorld()->GameTick();
-	}
-	else if(Collision()->GetSwitchType(MapIndex) == TILE_FREEZE && Team() != TEAM_SUPER && !m_Core.m_Invincible)
-	{
-		if(Collision()->GetSwitchNumber(MapIndex) == 0 || Switchers()[Collision()->GetSwitchNumber(MapIndex)].m_aStatus[Team()])
-		{
-			Freeze(Collision()->GetSwitchDelay(MapIndex));
-		}
-	}
-	else if(Collision()->GetSwitchType(MapIndex) == TILE_DFREEZE && Team() != TEAM_SUPER && !m_Core.m_Invincible)
-	{
-		if(Collision()->GetSwitchNumber(MapIndex) == 0 || Switchers()[Collision()->GetSwitchNumber(MapIndex)].m_aStatus[Team()])
-			m_Core.m_DeepFrozen = true;
-	}
-	else if(Collision()->GetSwitchType(MapIndex) == TILE_DUNFREEZE && Team() != TEAM_SUPER && !m_Core.m_Invincible)
-	{
-		if(Collision()->GetSwitchNumber(MapIndex) == 0 || Switchers()[Collision()->GetSwitchNumber(MapIndex)].m_aStatus[Team()])
-			m_Core.m_DeepFrozen = false;
-	}
-	else if(Collision()->GetSwitchType(MapIndex) == TILE_HIT_ENABLE && m_Core.m_HammerHitDisabled && Collision()->GetSwitchDelay(MapIndex) == WEAPON_HAMMER)
-	{
-		m_Core.m_HammerHitDisabled = false;
-	}
-	else if(Collision()->GetSwitchType(MapIndex) == TILE_HIT_DISABLE && !m_Core.m_HammerHitDisabled && Collision()->GetSwitchDelay(MapIndex) == WEAPON_HAMMER)
-	{
-		m_Core.m_HammerHitDisabled = true;
-	}
-	else if(Collision()->GetSwitchType(MapIndex) == TILE_HIT_ENABLE && m_Core.m_ShotgunHitDisabled && Collision()->GetSwitchDelay(MapIndex) == WEAPON_SHOTGUN)
-	{
-		m_Core.m_ShotgunHitDisabled = false;
-	}
-	else if(Collision()->GetSwitchType(MapIndex) == TILE_HIT_DISABLE && !m_Core.m_ShotgunHitDisabled && Collision()->GetSwitchDelay(MapIndex) == WEAPON_SHOTGUN)
-	{
-		m_Core.m_ShotgunHitDisabled = true;
-	}
-	else if(Collision()->GetSwitchType(MapIndex) == TILE_HIT_ENABLE && m_Core.m_GrenadeHitDisabled && Collision()->GetSwitchDelay(MapIndex) == WEAPON_GRENADE)
-	{
-		m_Core.m_GrenadeHitDisabled = false;
-	}
-	else if(Collision()->GetSwitchType(MapIndex) == TILE_HIT_DISABLE && !m_Core.m_GrenadeHitDisabled && Collision()->GetSwitchDelay(MapIndex) == WEAPON_GRENADE)
-	{
-		m_Core.m_GrenadeHitDisabled = true;
-	}
-	else if(Collision()->GetSwitchType(MapIndex) == TILE_HIT_ENABLE && m_Core.m_LaserHitDisabled && Collision()->GetSwitchDelay(MapIndex) == WEAPON_LASER)
-	{
-		m_Core.m_LaserHitDisabled = false;
-	}
-	else if(Collision()->GetSwitchType(MapIndex) == TILE_HIT_DISABLE && !m_Core.m_LaserHitDisabled && Collision()->GetSwitchDelay(MapIndex) == WEAPON_LASER)
-	{
-		m_Core.m_LaserHitDisabled = true;
-	}
-	else if(Collision()->GetSwitchType(MapIndex) == TILE_JUMP)
-	{
-		int NewJumps = Collision()->GetSwitchDelay(MapIndex);
-		if(NewJumps == 255)
-		{
-			NewJumps = -1;
-		}
-
-		if(NewJumps != m_Core.m_Jumps)
-			m_Core.m_Jumps = NewJumps;
-	}
-	else if(Collision()->GetSwitchType(MapIndex) == TILE_LFREEZE && Team() != TEAM_SUPER && !m_Core.m_Invincible)
-	{
-		if(Collision()->GetSwitchNumber(MapIndex) == 0 || Switchers()[Collision()->GetSwitchNumber(MapIndex)].m_aStatus[Team()])
-		{
-			m_Core.m_LiveFrozen = true;
-		}
-	}
-	else if(Collision()->GetSwitchType(MapIndex) == TILE_LUNFREEZE && Team() != TEAM_SUPER && !m_Core.m_Invincible)
-	{
-		if(Collision()->GetSwitchNumber(MapIndex) == 0 || Switchers()[Collision()->GetSwitchNumber(MapIndex)].m_aStatus[Team()])
-		{
-			m_Core.m_LiveFrozen = false;
-		}
-	}
+	int TeleCheckpoint = Collision()->IsTeleCheckpoint(MapIndex);
+	if(TeleCheckpoint)
+		m_TeleCheckpoint = TeleCheckpoint;
 
 	// freeze
 	if(((m_TileIndex == TILE_FREEZE) || (m_TileFIndex == TILE_FREEZE)) && !m_Core.m_Super && !m_Core.m_Invincible && !m_Core.m_DeepFrozen)
@@ -891,6 +780,22 @@ void CCharacter::HandleTiles(int Index)
 	else if(((m_TileIndex == TILE_EHOOK_DISABLE) || (m_TileFIndex == TILE_EHOOK_DISABLE)) && m_Core.m_EndlessHook)
 	{
 		m_Core.m_EndlessHook = false;
+	}
+
+	// hit others
+	if(((m_TileIndex == TILE_HIT_DISABLE) || (m_TileFIndex == TILE_HIT_DISABLE)) && (!m_Core.m_HammerHitDisabled || !m_Core.m_ShotgunHitDisabled || !m_Core.m_GrenadeHitDisabled || !m_Core.m_LaserHitDisabled))
+	{
+		m_Core.m_HammerHitDisabled = true;
+		m_Core.m_ShotgunHitDisabled = true;
+		m_Core.m_GrenadeHitDisabled = true;
+		m_Core.m_LaserHitDisabled = true;
+	}
+	else if(((m_TileIndex == TILE_HIT_ENABLE) || (m_TileFIndex == TILE_HIT_ENABLE)) && (m_Core.m_HammerHitDisabled || m_Core.m_ShotgunHitDisabled || m_Core.m_GrenadeHitDisabled || m_Core.m_LaserHitDisabled))
+	{
+		m_Core.m_ShotgunHitDisabled = false;
+		m_Core.m_GrenadeHitDisabled = false;
+		m_Core.m_HammerHitDisabled = false;
+		m_Core.m_LaserHitDisabled = false;
 	}
 
 	// collide with others
@@ -964,6 +869,146 @@ void CCharacter::HandleTiles(int Index)
 	if((m_TileIndex != TILE_REFILL_JUMPS) && (m_TileFIndex != TILE_REFILL_JUMPS))
 	{
 		m_LastRefillJumps = false;
+	}
+
+	// Teleport gun
+	if(((m_TileIndex == TILE_TELE_GUN_ENABLE) || (m_TileFIndex == TILE_TELE_GUN_ENABLE)) && !m_Core.m_HasTelegunGun)
+	{
+		m_Core.m_HasTelegunGun = true;
+	}
+	else if(((m_TileIndex == TILE_TELE_GUN_DISABLE) || (m_TileFIndex == TILE_TELE_GUN_DISABLE)) && m_Core.m_HasTelegunGun)
+	{
+		m_Core.m_HasTelegunGun = false;
+	}
+
+	if(((m_TileIndex == TILE_TELE_GRENADE_ENABLE) || (m_TileFIndex == TILE_TELE_GRENADE_ENABLE)) && !m_Core.m_HasTelegunGrenade)
+	{
+		m_Core.m_HasTelegunGrenade = true;
+	}
+	else if(((m_TileIndex == TILE_TELE_GRENADE_DISABLE) || (m_TileFIndex == TILE_TELE_GRENADE_DISABLE)) && m_Core.m_HasTelegunGrenade)
+	{
+		m_Core.m_HasTelegunGrenade = false;
+	}
+
+	if(((m_TileIndex == TILE_TELE_LASER_ENABLE) || (m_TileFIndex == TILE_TELE_LASER_ENABLE)) && !m_Core.m_HasTelegunLaser)
+	{
+		m_Core.m_HasTelegunLaser = true;
+	}
+	else if(((m_TileIndex == TILE_TELE_LASER_DISABLE) || (m_TileFIndex == TILE_TELE_LASER_DISABLE)) && m_Core.m_HasTelegunLaser)
+	{
+		m_Core.m_HasTelegunLaser = false;
+	}
+
+	// stopper
+	if(m_Core.m_Vel.y > 0 && (m_MoveRestrictions & CANTMOVE_DOWN))
+	{
+		m_Core.m_Jumped = 0;
+		m_Core.m_JumpedTotal = 0;
+	}
+	m_Core.m_Vel = ClampVel(m_MoveRestrictions, m_Core.m_Vel);
+
+	// handle switch tiles
+	if(Collision()->GetSwitchType(MapIndex) == TILE_SWITCHOPEN && Team() != TEAM_SUPER && Collision()->GetSwitchNumber(MapIndex) > 0)
+	{
+		Switchers()[Collision()->GetSwitchNumber(MapIndex)].m_aStatus[Team()] = true;
+		Switchers()[Collision()->GetSwitchNumber(MapIndex)].m_aEndTick[Team()] = 0;
+		Switchers()[Collision()->GetSwitchNumber(MapIndex)].m_aType[Team()] = TILE_SWITCHOPEN;
+		Switchers()[Collision()->GetSwitchNumber(MapIndex)].m_aLastUpdateTick[Team()] = GameWorld()->GameTick();
+	}
+	else if(Collision()->GetSwitchType(MapIndex) == TILE_SWITCHTIMEDOPEN && Team() != TEAM_SUPER && Collision()->GetSwitchNumber(MapIndex) > 0)
+	{
+		Switchers()[Collision()->GetSwitchNumber(MapIndex)].m_aStatus[Team()] = true;
+		Switchers()[Collision()->GetSwitchNumber(MapIndex)].m_aEndTick[Team()] = GameWorld()->GameTick() + 1 + Collision()->GetSwitchDelay(MapIndex) * GameWorld()->GameTickSpeed();
+		Switchers()[Collision()->GetSwitchNumber(MapIndex)].m_aType[Team()] = TILE_SWITCHTIMEDOPEN;
+		Switchers()[Collision()->GetSwitchNumber(MapIndex)].m_aLastUpdateTick[Team()] = GameWorld()->GameTick();
+	}
+	else if(Collision()->GetSwitchType(MapIndex) == TILE_SWITCHTIMEDCLOSE && Team() != TEAM_SUPER && Collision()->GetSwitchNumber(MapIndex) > 0)
+	{
+		Switchers()[Collision()->GetSwitchNumber(MapIndex)].m_aStatus[Team()] = false;
+		Switchers()[Collision()->GetSwitchNumber(MapIndex)].m_aEndTick[Team()] = GameWorld()->GameTick() + 1 + Collision()->GetSwitchDelay(MapIndex) * GameWorld()->GameTickSpeed();
+		Switchers()[Collision()->GetSwitchNumber(MapIndex)].m_aType[Team()] = TILE_SWITCHTIMEDCLOSE;
+		Switchers()[Collision()->GetSwitchNumber(MapIndex)].m_aLastUpdateTick[Team()] = GameWorld()->GameTick();
+	}
+	else if(Collision()->GetSwitchType(MapIndex) == TILE_SWITCHCLOSE && Team() != TEAM_SUPER && Collision()->GetSwitchNumber(MapIndex) > 0)
+	{
+		Switchers()[Collision()->GetSwitchNumber(MapIndex)].m_aStatus[Team()] = false;
+		Switchers()[Collision()->GetSwitchNumber(MapIndex)].m_aEndTick[Team()] = 0;
+		Switchers()[Collision()->GetSwitchNumber(MapIndex)].m_aType[Team()] = TILE_SWITCHCLOSE;
+		Switchers()[Collision()->GetSwitchNumber(MapIndex)].m_aLastUpdateTick[Team()] = GameWorld()->GameTick();
+	}
+	else if(Collision()->GetSwitchType(MapIndex) == TILE_FREEZE && Team() != TEAM_SUPER && !m_Core.m_Invincible)
+	{
+		if(Collision()->GetSwitchNumber(MapIndex) == 0 || Switchers()[Collision()->GetSwitchNumber(MapIndex)].m_aStatus[Team()])
+		{
+			Freeze(Collision()->GetSwitchDelay(MapIndex));
+		}
+	}
+	else if(Collision()->GetSwitchType(MapIndex) == TILE_DFREEZE && Team() != TEAM_SUPER && !m_Core.m_Invincible)
+	{
+		if(Collision()->GetSwitchNumber(MapIndex) == 0 || Switchers()[Collision()->GetSwitchNumber(MapIndex)].m_aStatus[Team()])
+			m_Core.m_DeepFrozen = true;
+	}
+	else if(Collision()->GetSwitchType(MapIndex) == TILE_DUNFREEZE && Team() != TEAM_SUPER && !m_Core.m_Invincible)
+	{
+		if(Collision()->GetSwitchNumber(MapIndex) == 0 || Switchers()[Collision()->GetSwitchNumber(MapIndex)].m_aStatus[Team()])
+			m_Core.m_DeepFrozen = false;
+	}
+	else if(Collision()->GetSwitchType(MapIndex) == TILE_LFREEZE && Team() != TEAM_SUPER && !m_Core.m_Invincible)
+	{
+		if(Collision()->GetSwitchNumber(MapIndex) == 0 || Switchers()[Collision()->GetSwitchNumber(MapIndex)].m_aStatus[Team()])
+		{
+			m_Core.m_LiveFrozen = true;
+		}
+	}
+	else if(Collision()->GetSwitchType(MapIndex) == TILE_LUNFREEZE && Team() != TEAM_SUPER && !m_Core.m_Invincible)
+	{
+		if(Collision()->GetSwitchNumber(MapIndex) == 0 || Switchers()[Collision()->GetSwitchNumber(MapIndex)].m_aStatus[Team()])
+		{
+			m_Core.m_LiveFrozen = false;
+		}
+	}
+	else if(Collision()->GetSwitchType(MapIndex) == TILE_HIT_ENABLE && m_Core.m_HammerHitDisabled && Collision()->GetSwitchDelay(MapIndex) == WEAPON_HAMMER)
+	{
+		m_Core.m_HammerHitDisabled = false;
+	}
+	else if(Collision()->GetSwitchType(MapIndex) == TILE_HIT_DISABLE && !m_Core.m_HammerHitDisabled && Collision()->GetSwitchDelay(MapIndex) == WEAPON_HAMMER)
+	{
+		m_Core.m_HammerHitDisabled = true;
+	}
+	else if(Collision()->GetSwitchType(MapIndex) == TILE_HIT_ENABLE && m_Core.m_ShotgunHitDisabled && Collision()->GetSwitchDelay(MapIndex) == WEAPON_SHOTGUN)
+	{
+		m_Core.m_ShotgunHitDisabled = false;
+	}
+	else if(Collision()->GetSwitchType(MapIndex) == TILE_HIT_DISABLE && !m_Core.m_ShotgunHitDisabled && Collision()->GetSwitchDelay(MapIndex) == WEAPON_SHOTGUN)
+	{
+		m_Core.m_ShotgunHitDisabled = true;
+	}
+	else if(Collision()->GetSwitchType(MapIndex) == TILE_HIT_ENABLE && m_Core.m_GrenadeHitDisabled && Collision()->GetSwitchDelay(MapIndex) == WEAPON_GRENADE)
+	{
+		m_Core.m_GrenadeHitDisabled = false;
+	}
+	else if(Collision()->GetSwitchType(MapIndex) == TILE_HIT_DISABLE && !m_Core.m_GrenadeHitDisabled && Collision()->GetSwitchDelay(MapIndex) == WEAPON_GRENADE)
+	{
+		m_Core.m_GrenadeHitDisabled = true;
+	}
+	else if(Collision()->GetSwitchType(MapIndex) == TILE_HIT_ENABLE && m_Core.m_LaserHitDisabled && Collision()->GetSwitchDelay(MapIndex) == WEAPON_LASER)
+	{
+		m_Core.m_LaserHitDisabled = false;
+	}
+	else if(Collision()->GetSwitchType(MapIndex) == TILE_HIT_DISABLE && !m_Core.m_LaserHitDisabled && Collision()->GetSwitchDelay(MapIndex) == WEAPON_LASER)
+	{
+		m_Core.m_LaserHitDisabled = true;
+	}
+	else if(Collision()->GetSwitchType(MapIndex) == TILE_JUMP)
+	{
+		int NewJumps = Collision()->GetSwitchDelay(MapIndex);
+		if(NewJumps == 255)
+		{
+			NewJumps = -1;
+		}
+
+		if(NewJumps != m_Core.m_Jumps)
+			m_Core.m_Jumps = NewJumps;
 	}
 }
 
@@ -1314,8 +1359,10 @@ void CCharacter::Read(CNetObj_Character *pChar, CNetObj_DDNetCharacter *pExtende
 			}
 		}
 		// add weapon
-		if(pChar->m_Weapon != WEAPON_NINJA)
+		if(pChar->m_Weapon >= 0 && pChar->m_Weapon != WEAPON_NINJA)
+		{
 			m_Core.m_aWeapons[pChar->m_Weapon].m_Got = true;
+		}
 
 		// without ddnetcharacter we don't know if we have jetpack, so try to predict jetpack if strength isn't 0, on vanilla it's always 0
 		if(GameWorld()->m_WorldConfig.m_PredictWeapons && Tuning()->m_JetpackStrength != 0)
@@ -1385,7 +1432,7 @@ void CCharacter::Read(CNetObj_Character *pChar, CNetObj_DDNetCharacter *pExtende
 	SetTuneZone(GameWorld()->m_WorldConfig.m_UseTuneZones ? Collision()->IsTune(Collision()->GetMapIndex(m_Pos)) : 0);
 
 	// set the current weapon
-	if(pChar->m_Weapon != WEAPON_NINJA)
+	if(pChar->m_Weapon >= 0 && pChar->m_Weapon != WEAPON_NINJA)
 	{
 		m_Core.m_aWeapons[pChar->m_Weapon].m_Ammo = (GameWorld()->m_WorldConfig.m_InfiniteAmmo || pChar->m_Weapon == WEAPON_HAMMER) ? -1 : pChar->m_AmmoCount;
 		if(pChar->m_Weapon != m_Core.m_ActiveWeapon)
@@ -1436,9 +1483,16 @@ bool CCharacter::Match(CCharacter *pChar) const
 	return distance(pChar->m_Core.m_Pos, m_Core.m_Pos) <= 32.f;
 }
 
-void CCharacter::SetActiveWeapon(int ActiveWeap)
+void CCharacter::SetActiveWeapon(int ActiveWeapon)
 {
-	m_Core.m_ActiveWeapon = ActiveWeap;
+	if(ActiveWeapon < WEAPON_HAMMER || ActiveWeapon >= NUM_WEAPONS)
+	{
+		m_Core.m_ActiveWeapon = WEAPON_HAMMER;
+	}
+	else
+	{
+		m_Core.m_ActiveWeapon = ActiveWeapon;
+	}
 	m_LastWeaponSwitchTick = GameWorld()->GameTick();
 }
 

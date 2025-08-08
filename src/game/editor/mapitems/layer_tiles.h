@@ -101,7 +101,7 @@ public:
 	CLayerTiles(const CLayerTiles &Other);
 	~CLayerTiles();
 
-	virtual CTile GetTile(int x, int y);
+	[[nodiscard]] virtual CTile GetTile(int x, int y) const;
 	virtual void SetTile(int x, int y, CTile Tile);
 	void SetTileIgnoreHistory(int x, int y, CTile Tile) const;
 
@@ -117,9 +117,9 @@ public:
 	void Snap(CUIRect *pRect) const;
 	void Clamp(RECTi *pRect) const;
 
-	virtual bool IsEntitiesLayer() const override;
+	bool IsEntitiesLayer() const override;
 
-	virtual bool IsEmpty(const std::shared_ptr<CLayerTiles> &pLayer);
+	[[nodiscard]] virtual bool IsEmpty() const;
 	void BrushSelecting(CUIRect Rect) override;
 	int BrushGrab(std::shared_ptr<CLayerGroup> pBrush, CUIRect Rect) override;
 	void FillSelection(bool Empty, std::shared_ptr<CLayer> pBrush, CUIRect Rect) override;
@@ -150,8 +150,8 @@ public:
 	};
 	static CUi::EPopupMenuFunctionResult RenderCommonProperties(SCommonPropState &State, CEditor *pEditor, CUIRect *pToolbox, std::vector<std::shared_ptr<CLayerTiles>> &vpLayers, std::vector<int> &vLayerIndices);
 
-	void ModifyImageIndex(FIndexModifyFunction pfnFunc) override;
-	void ModifyEnvelopeIndex(FIndexModifyFunction pfnFunc) override;
+	void ModifyImageIndex(const FIndexModifyFunction &IndexModifyFunction) override;
+	void ModifyEnvelopeIndex(const FIndexModifyFunction &IndexModifyFunction) override;
 
 	void PrepareForSave();
 	void ExtractTiles(int TilemapItemVersion, const CTile *pSavedTiles, size_t SavedTilesSize) const;
@@ -187,6 +187,7 @@ public:
 	bool m_HasSwitch;
 	bool m_HasTune;
 	char m_aFileName[IO_MAX_PATH_LENGTH];
+	bool m_KnownTextModeLayer = false;
 
 	// KZ
 	bool m_HasKZGame;

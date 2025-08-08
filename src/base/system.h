@@ -43,20 +43,6 @@
 #include <sys/socket.h>
 #endif
 
-#if __cplusplus >= 201703L
-#define MAYBE_UNUSED [[maybe_unused]]
-#elif defined(__GNUC__)
-#define MAYBE_UNUSED __attribute__((unused))
-#else
-#define MAYBE_UNUSED
-#endif
-
-#ifdef __GNUC__
-#define GNUC_ATTRIBUTE(x) __attribute__(x)
-#else
-#define GNUC_ATTRIBUTE(x)
-#endif
-
 /**
  * Utilities for debugging.
  *
@@ -89,18 +75,9 @@
  *
  * @ingroup Debug
  */
-#if defined(__cplusplus)
-[[noreturn]]
-#endif
-void
-dbg_assert_imp(const char *filename, int line, const char *fmt, ...)
-	GNUC_ATTRIBUTE((format(printf, 3, 4)));
-
-#ifdef __clang_analyzer__
-#include <cassert>
-#undef dbg_assert
-#define dbg_assert(test, fmt, ...) assert(test)
-#endif
+[[gnu::format(printf, 3, 4)]]
+[[noreturn]] void
+dbg_assert_imp(const char *filename, int line, const char *fmt, ...);
 
 /**
  * Checks whether the program is currently shutting down due to a failed
@@ -122,11 +99,7 @@ bool dbg_assert_has_failed();
  *
  * @see dbg_assert
  */
-#if defined(__cplusplus)
-[[noreturn]]
-#endif
-void
-dbg_break();
+[[noreturn]] void dbg_break();
 
 typedef std::function<void(const char *message)> DBG_ASSERT_HANDLER;
 void dbg_assert_set_handler(DBG_ASSERT_HANDLER handler);
@@ -143,8 +116,7 @@ void dbg_assert_set_handler(DBG_ASSERT_HANDLER handler);
  *
  * @see dbg_assert
  */
-void dbg_msg(const char *sys, const char *fmt, ...)
-	GNUC_ATTRIBUTE((format(printf, 2, 3)));
+[[gnu::format(printf, 2, 3)]] void dbg_msg(const char *sys, const char *fmt, ...);
 
 /**
  * Memory management utilities.
@@ -1358,8 +1330,7 @@ int str_length(const char *str);
  * @remark The strings are treated as null-terminated strings.
  * @remark Guarantees that buffer string will contain null-termination.
  */
-int str_format_v(char *buffer, int buffer_size, const char *format, va_list args)
-	GNUC_ATTRIBUTE((format(printf, 3, 0)));
+[[gnu::format(printf, 3, 0)]] int str_format_v(char *buffer, int buffer_size, const char *format, va_list args);
 
 /**
  * Performs printf formatting into a buffer.
@@ -1377,8 +1348,7 @@ int str_format_v(char *buffer, int buffer_size, const char *format, va_list args
  * @remark The strings are treated as null-terminated strings.
  * @remark Guarantees that buffer string will contain null-termination.
  */
-int str_format(char *buffer, int buffer_size, const char *format, ...)
-	GNUC_ATTRIBUTE((format(printf, 3, 4)));
+[[gnu::format(printf, 3, 4)]] int str_format(char *buffer, int buffer_size, const char *format, ...);
 
 #if !defined(CONF_DEBUG)
 int str_format_int(char *buffer, size_t buffer_size, int value);
@@ -1895,10 +1865,8 @@ int str_base64_decode(void *dst, int dst_size, const char *data);
  * @remark Guarantees that buffer string will contain null-termination.
  */
 void str_timestamp(char *buffer, int buffer_size);
-void str_timestamp_format(char *buffer, int buffer_size, const char *format)
-	GNUC_ATTRIBUTE((format(strftime, 3, 0)));
-void str_timestamp_ex(time_t time, char *buffer, int buffer_size, const char *format)
-	GNUC_ATTRIBUTE((format(strftime, 4, 0)));
+[[gnu::format(strftime, 3, 0)]] void str_timestamp_format(char *buffer, int buffer_size, const char *format);
+[[gnu::format(strftime, 4, 0)]] void str_timestamp_ex(time_t time, char *buffer, int buffer_size, const char *format);
 
 /**
  * Parses a string into a timestamp following a specified format.
@@ -1911,8 +1879,7 @@ void str_timestamp_ex(time_t time, char *buffer, int buffer_size, const char *fo
  *
  * @return true on success, false if the string could not be parsed with the specified format
  */
-bool timestamp_from_str(const char *string, const char *format, time_t *timestamp)
-	GNUC_ATTRIBUTE((format(strftime, 2, 0)));
+[[gnu::format(strftime, 2, 0)]] bool timestamp_from_str(const char *string, const char *format, time_t *timestamp);
 
 #define FORMAT_TIME "%H:%M:%S"
 #define FORMAT_SPACE "%Y-%m-%d %H:%M:%S"

@@ -54,16 +54,18 @@ public:
 	void EnvelopeEval(int TimeOffsetMillis, int Env, ColorRGBA &Result, size_t Channels);
 
 	CMapLayers(int Type, bool OnlineOnly = true);
-	virtual int Sizeof() const override { return sizeof(*this); }
-	virtual void OnInit() override;
-	virtual void OnRender() override;
-	virtual void OnMapLoad() override;
+	int Sizeof() const override { return sizeof(*this); }
+	void OnInit() override;
+	void OnRender() override;
+	void OnMapLoad() override;
+	void Unload();
 
 	virtual CCamera *GetCurCamera();
 
 private:
-	std::vector<std::unique_ptr<CRenderLayer>> m_vRenderLayers;
+	std::vector<std::unique_ptr<CRenderLayer>> m_vpRenderLayers;
 	int GetLayerType(const CMapItemLayer *pLayer) const;
+	CRenderLayerParams m_Params;
 };
 
 #endif

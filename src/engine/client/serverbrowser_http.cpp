@@ -335,7 +335,7 @@ private:
 
 	IHttp *m_pHttp;
 
-	int m_State = STATE_DONE;
+	int m_State = STATE_WANTREFRESH;
 	std::shared_ptr<CHttpRequest> m_pGetServers;
 	std::unique_ptr<CChooseMaster> m_pChooseMaster;
 
@@ -346,8 +346,7 @@ CServerBrowserHttp::CServerBrowserHttp(IEngine *pEngine, IHttp *pHttp, const cha
 	m_pHttp(pHttp),
 	m_pChooseMaster(new CChooseMaster(pEngine, pHttp, Validate, ppUrls, NumUrls, PreviousBestIndex))
 {
-	m_pChooseMaster->Reset();
-	m_pChooseMaster->Refresh();
+	Refresh();
 }
 
 CServerBrowserHttp::~CServerBrowserHttp()
@@ -424,7 +423,7 @@ void CServerBrowserHttp::Refresh()
 		m_State = STATE_WANTREFRESH;
 	Update();
 }
-bool ServerbrowserParseUrl(NETADDR *pOut, const char *pUrl)
+static bool ServerbrowserParseUrl(NETADDR *pOut, const char *pUrl)
 {
 	int Failure = net_addr_from_url(pOut, pUrl, nullptr, 0);
 	if(Failure || pOut->port == 0)

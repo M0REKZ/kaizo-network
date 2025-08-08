@@ -35,6 +35,7 @@
 #include "race.h"
 #include "render.h"
 
+#include <game/client/projectile_data.h>
 #include <game/localization.h>
 #include <game/mapitems.h>
 #include <game/version.h>
@@ -810,7 +811,7 @@ void CGameClient::OnRender()
 		}
 		if(Warning.has_value())
 		{
-			const SWarning TheWarning = Warning.value();
+			const SWarning &TheWarning = Warning.value();
 			m_Menus.PopupWarning(TheWarning.m_aWarningTitle[0] == '\0' ? Localize("Warning") : TheWarning.m_aWarningTitle, TheWarning.m_aWarningMsg, Localize("Ok"), TheWarning.m_AutoHide ? 10s : 0s);
 		}
 	}
@@ -1195,7 +1196,7 @@ void CGameClient::OnMessage(int MsgId, CUnpacker *pUnpacker, int Conn, bool Dumm
 	else if(MsgId == NETMSGTYPE_SV_PREINPUT)
 	{
 		CNetMsg_Sv_PreInput *pMsg = (CNetMsg_Sv_PreInput *)pRawMsg;
-		m_aClients[pMsg->m_Owner].m_PreInput[pMsg->m_IntendedTick % 200] = *pMsg;
+		m_aClients[pMsg->m_Owner].m_aPreInputs[pMsg->m_IntendedTick % 200] = *pMsg;
 	}
 }
 
@@ -1300,6 +1301,33 @@ void CGameClient::RenderShutdownMessage()
 	Ui()->DoLabel(Ui()->Screen(), pMessage, 16.0f, TEXTALIGN_MC);
 	Graphics()->Swap();
 	Graphics()->Clear(0.0f, 0.0f, 0.0f);
+}
+
+void CGameClient::ProcessDemoSnapshot(CSnapshot *pSnap)
+{
+	for(int Index = 0; Index < pSnap->NumItems(); Index++)
+	{
+		const CSnapshotItem *pItem = pSnap->GetItem(Index);
+		int ItemType = pSnap->GetItemType(Index);
+
+		if(ItemType == NETOBJTYPE_PROJECTILE)
+		{
+			// for antiping: if the projectile netobjects from the server contains extra data, this is removed and the original content restored before recording demo
+			CNetObj_Projectile *pProj = (CNetObj_Projectile *)((void *)pItem->Data());
+			DemoObjectRemoveExtraProjectileInfo(pProj);
+		}
+		else if(ItemType == NETOBJTYPE_DDNETSPECTATORINFO)
+		{
+			// always record local camera info as follow mode
+			CNetObj_DDNetSpectatorInfo *pProj = (CNetObj_DDNetSpectatorInfo *)((void *)pItem->Data());
+			pProj->m_HasCameraInfo = true;
+			pProj->m_Zoom = (m_Camera.m_Zooming ? m_Camera.m_ZoomSmoothingTarget : m_Camera.m_Zoom) * 1000.0f;
+			pProj->m_Deadzone = m_Camera.Deadzone();
+			pProj->m_FollowFactor = m_Camera.FollowFactor();
+			// this also removes spectator count since it has lost its context
+			pProj->m_SpectatorCount = 0;
+		}
+	}
 }
 
 void CGameClient::OnRconType(bool UsernameReq)
@@ -2061,12 +2089,11 @@ void CGameClient::OnNewSnapshot()
 		}
 	}
 
-	CTuningParams StandardTuning;
 	if(ServerInfo.m_aGameType[0] != '0')
 	{
 		if(str_comp(ServerInfo.m_aGameType, "DM") != 0 && str_comp(ServerInfo.m_aGameType, "TDM") != 0 && str_comp(ServerInfo.m_aGameType, "CTF") != 0)
 			m_ServerMode = SERVERMODE_MOD;
-		else if(mem_comp(&StandardTuning, &m_aTuning[g_Config.m_ClDummy], 33) == 0)
+		else if(mem_comp(&CTuningParams::DEFAULT, &m_aTuning[g_Config.m_ClDummy], 33) == 0)
 			m_ServerMode = SERVERMODE_PURE;
 		else
 			m_ServerMode = SERVERMODE_PUREMOD;
@@ -2407,7 +2434,7 @@ void CGameClient::OnPredict()
 					if(pDummyChar == pChar || pLocalChar == pChar)
 						continue;
 
-					const CNetMsg_Sv_PreInput PreInput = m_aClients[i].m_PreInput[Tick % 200];
+					const CNetMsg_Sv_PreInput PreInput = m_aClients[i].m_aPreInputs[Tick % 200];
 					if(PreInput.m_IntendedTick != Tick)
 						continue;
 
@@ -2443,7 +2470,7 @@ void CGameClient::OnPredict()
 					if(pDummyChar == pChar || pLocalChar == pChar)
 						continue;
 
-					const CNetMsg_Sv_PreInput PreInput = m_aClients[i].m_PreInput[Tick % 200];
+					const CNetMsg_Sv_PreInput PreInput = m_aClients[i].m_aPreInputs[Tick % 200];
 					if(PreInput.m_IntendedTick != Tick)
 						continue;
 
@@ -2815,6 +2842,11 @@ void CGameClient::CClientData::Reset()
 
 	m_Snapped.m_Tick = -1;
 	m_Evolved.m_Tick = -1;
+
+	for(auto &PreInput : m_aPreInputs)
+	{
+		PreInput.m_IntendedTick = -1;
+	}
 
 	m_RenderCur.m_Tick = -1;
 	m_RenderPrev.m_Tick = -1;
@@ -4392,10 +4424,9 @@ void CGameClient::LoadMapSettings()
 	m_MapBugs = CMapBugs::Create(Client()->GetCurrentMap(), pMap->MapSize(), pMap->Sha256());
 
 	// Reset Tunezones
-	CTuningParams TuningParams;
 	for(int TuneZone = 0; TuneZone < NUM_TUNEZONES; TuneZone++)
 	{
-		TuningList()[TuneZone] = TuningParams;
+		TuningList()[TuneZone] = CTuningParams::DEFAULT;
 		TuningList()[TuneZone].Set("gun_curvature", 0);
 		TuningList()[TuneZone].Set("gun_speed", 1400);
 		TuningList()[TuneZone].Set("shotgun_curvature", 0);

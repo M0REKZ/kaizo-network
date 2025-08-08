@@ -274,7 +274,7 @@ if(NOT MSVC AND NOT HAIKU)
   endif()
 
   if(TARGET_OS STREQUAL "mac")
-    add_cxx_compiler_flag_if_supported(OUR_FLAGS_OWN -std=gnu++17)
+    add_cxx_compiler_flag_if_supported(OUR_FLAGS_OWN -std=gnu++20)
   endif()
 
   if(SECURITY_COMPILER_FLAGS)
@@ -339,6 +339,7 @@ if(NOT MSVC AND NOT HAIKU)
   add_cxx_compiler_flag_if_supported(OUR_FLAGS_OWN -Wsuggest-override)
   add_cxx_compiler_flag_if_supported(OUR_FLAGS_OWN -Wdynamic-class-memaccess) # clang
   add_cxx_compiler_flag_if_supported(OUR_FLAGS_OWN -Wclass-memaccess) # gcc
+  add_cxx_compiler_flag_if_supported(OUR_FLAGS_OWN -Wno-deprecated-enum-float-conversion) # c++20 arithmetic between floating-point type and enumeration type
   add_linker_flag_if_supported(OUR_FLAGS_LINK -Wno-alloc-size-larger-than) # save.cpp with LTO
   # add_cxx_compiler_flag_if_supported(OUR_FLAGS_OWN -Wdouble-promotion) # Many occurrences
   # add_cxx_compiler_flag_if_supported(OUR_FLAGS_OWN -Wnull-dereference) # Many occurrences
@@ -706,15 +707,16 @@ endif()
 
 if(TARGET_OS STREQUAL "windows")
   set(PLATFORM_CLIENT)
-  set(PLATFORM_CLIENT_LIBS opengl32 winmm imm32)
+  set(PLATFORM_CLIENT_LIBS opengl32.lib winmm.lib imm32.lib)
   set(PLATFORM_LIBS)
-  list(APPEND PLATFORM_LIBS shlwapi) # PathIsRelativeW
-  list(APPEND PLATFORM_LIBS version ws2_32) # Windows sockets
-  list(APPEND PLATFORM_LIBS advapi32) # Reg* and Crypt* functions
-  list(APPEND PLATFORM_LIBS bcrypt userenv) # for Rust (https://github.com/rust-lang/rust/issues/91974)
-  list(APPEND PLATFORM_LIBS ole32) # CoInitialize(Ex)
-  list(APPEND PLATFORM_LIBS shell32)
-  list(APPEND PLATFORM_LIBS ntdll) # https://github.com/ddnet/ddnet/issues/6725
+  list(APPEND PLATFORM_LIBS shlwapi.lib) # PathIsRelativeW
+  list(APPEND PLATFORM_LIBS version ws2_32.lib) # Windows sockets
+  list(APPEND PLATFORM_LIBS advapi32.lib) # Reg* and Crypt* functions
+  list(APPEND PLATFORM_LIBS bcrypt.lib userenv.lib) # for Rust (https://github.com/rust-lang/rust/issues/91974)
+  list(APPEND PLATFORM_LIBS ole32.lib) # CoInitialize(Ex)
+  list(APPEND PLATFORM_LIBS shell32.lib)
+  list(APPEND PLATFORM_LIBS ntdll.lib) # https://github.com/ddnet/ddnet/issues/6725
+  list(APPEND PLATFORM_LIBS uuid.lib) # FOLDERID_RoamingAppData
 elseif(TARGET_OS STREQUAL "mac")
   find_library(CARBON Carbon)
   find_library(COCOA Cocoa)
@@ -768,7 +770,7 @@ endif()
 ########################################################################
 
 if(NOT(GTEST_FOUND) AND DOWNLOAD_GTEST)
-  set(DDNET_GTEST_VERSION 3d73dee972d0db344bda9b659836612aba6a3564)
+  set(DDNET_GTEST_VERSION e5443e5c65f23bfd2a9d56a30bb5b1de91a48ff9)
   configure_file(cmake/Download_GTest_CMakeLists.txt.in googletest-download/CMakeLists.txt)
   execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
     RESULT_VARIABLE result
@@ -873,8 +875,8 @@ list(APPEND TARGETS_OWN rust-bridge-shared)
 
 if(TARGET_OS STREQUAL "android")
   set(CARGO_BUILD_DIR "${CARGO_NDK_TARGET}/")
-  set(CARGO_BUILD ${CMAKE_COMMAND} -E env CARGO_TARGET_DIR=${PROJECT_BINARY_DIR} DDNET_TEST_NO_LINK=1 ${RUST_CARGO} ndk --manifest-path "${PROJECT_SOURCE_DIR}/Cargo.toml" -t ${CARGO_NDK_TARGET} -p ${CARGO_NDK_API} build)
-  set(CARGO_TEST ${CMAKE_COMMAND} -E env CARGO_TARGET_DIR=${PROJECT_BINARY_DIR} ${RUST_CARGO} ndk -t ${CARGO_NDK_TARGET} -p ${CARGO_NDK_API} test)
+  set(CARGO_BUILD ${CMAKE_COMMAND} -E env CARGO_TARGET_DIR=${PROJECT_BINARY_DIR} DDNET_TEST_NO_LINK=1 ${RUST_CARGO} ndk --manifest-path "${PROJECT_SOURCE_DIR}/Cargo.toml" --target ${CARGO_NDK_TARGET} --platform ${CARGO_NDK_API} build)
+  set(CARGO_TEST ${CMAKE_COMMAND} -E env CARGO_TARGET_DIR=${PROJECT_BINARY_DIR} ${RUST_CARGO} ndk --target ${CARGO_NDK_TARGET} --platform ${CARGO_NDK_API} test)
 else()
   set(CARGO_BUILD_DIR "")
   set(CARGO_BUILD ${CMAKE_COMMAND} -E env CARGO_TARGET_DIR=${PROJECT_BINARY_DIR} DDNET_TEST_NO_LINK=1 ${RUST_CARGO} build --manifest-path "${PROJECT_SOURCE_DIR}/Cargo.toml")
@@ -1414,6 +1416,7 @@ set(EXPECTED_DATA
   editor/checker.png
   editor/cursor.png
   editor/cursor_resize.png
+  editor/cursor_text.png
   editor/entities/DDNet.png
   editor/entities/F-DDrace.png
   editor/entities/FNG.png
@@ -2486,6 +2489,11 @@ if(CLIENT)
     editor_ui.h
     enums.h
     explanations.cpp
+    explanations.h
+    file_browser.cpp
+    file_browser.h
+    font_typer.cpp
+    font_typer.h
     layer_selector.cpp
     layer_selector.h
     map_grid.cpp
@@ -2522,6 +2530,7 @@ if(CLIENT)
     mapitems/layer_tune.cpp
     mapitems/layer_tune.h
     mapitems/map.cpp
+    mapitems/map.h
     mapitems/map_io.cpp
     mapitems/sound.cpp
     mapitems/sound.h
@@ -3558,6 +3567,7 @@ set(TARGETS ${TARGETS_OWN} ${TARGETS_DEP})
 foreach(target ${TARGETS})
   if(MSVC)
     set_property(TARGET ${target} PROPERTY MSVC_RUNTIME_LIBRARY MultiThreaded$<${DBG}:Debug>) # Use static CRT
+    target_compile_options(${target} PRIVATE /Zc:__cplusplus) # Fixes the __cplusplus macro
     target_compile_options(${target} PRIVATE /MP) # Use multiple cores
     target_compile_options(${target} PRIVATE /EHsc) # Only catch C++ exceptions with catch.
     target_compile_options(${target} PRIVATE /GS) # Protect the stack pointer.
@@ -3608,7 +3618,7 @@ foreach(target ${TARGETS_LINK})
 endforeach()
 
 foreach(target ${TARGETS_OWN})
-  set_property(TARGET ${target} PROPERTY CXX_STANDARD 17)
+  set_property(TARGET ${target} PROPERTY CXX_STANDARD 20)
   set_property(TARGET ${target} PROPERTY CXX_STANDARD_REQUIRED ON)
   set_property(TARGET ${target} PROPERTY CXX_EXTENSIONS OFF)
 
@@ -3616,6 +3626,7 @@ foreach(target ${TARGETS_OWN})
     target_compile_options(${target} PRIVATE /wd4244) # Possible loss of data (float -> int, int -> float, etc.).
     target_compile_options(${target} PRIVATE /wd4267) # Possible loss of data (size_t - int on win64).
     target_compile_options(${target} PRIVATE /wd4800) # Implicit conversion of int to bool.
+    target_compile_options(${target} PRIVATE /wd5055) # C++20 operator deprecated between enumerations and floating-point types
   endif()
   if(TARGET_OS STREQUAL "windows")
     # See https://learn.microsoft.com/en-us/windows/win32/winprog/using-the-windows-headers

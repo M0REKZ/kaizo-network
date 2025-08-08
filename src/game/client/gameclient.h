@@ -481,7 +481,7 @@ public:
 		CNetObj_Character m_Snapped;
 		CNetObj_Character m_Evolved;
 
-		CNetMsg_Sv_PreInput m_PreInput[200];
+		CNetMsg_Sv_PreInput m_aPreInputs[200];
 
 		// rendered characters
 		CNetObj_Character m_RenderCur;
@@ -611,6 +611,7 @@ public:
 	void CollectManagedTeeRenderInfos(const std::function<void(const char *pSkinName)> &ActiveSkinAcceptor);
 
 	void RenderShutdownMessage() override;
+	void ProcessDemoSnapshot(CSnapshot *pSnap) override;
 
 	const char *GetItemName(int Type) const override;
 	const char *Version() const override;
@@ -618,7 +619,7 @@ public:
 	const char *NetVersion7() const override;
 	int DDNetVersion() const override;
 	const char *DDNetVersionStr() const override;
-	virtual int ClientVersion7() const override;
+	int ClientVersion7() const override;
 
 	void DoTeamChangeMessage7(const char *pName, int ClientId, int Team, const char *pPrefix = "");
 

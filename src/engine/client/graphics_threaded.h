@@ -83,15 +83,10 @@ public:
 		CMDGROUP_PLATFORM_GL = 10000, // commands specific to a platform
 		CMDGROUP_PLATFORM_SDL = 20000,
 
-		//
 		CMD_FIRST = CMDGROUP_CORE,
-		CMD_NOP = CMD_FIRST,
-
-		//
-		CMD_RUNBUFFER,
 
 		// synchronization
-		CMD_SIGNAL,
+		CMD_SIGNAL = CMD_FIRST,
 
 		// texture commands
 		CMD_TEXTURE_CREATE,
@@ -225,13 +220,6 @@ public:
 		SCommand_Signal() :
 			SCommand(CMD_SIGNAL) {}
 		CSemaphore *m_pSemaphore;
-	};
-
-	struct SCommand_RunBuffer : public SCommand
-	{
-		SCommand_RunBuffer() :
-			SCommand(CMD_RUNBUFFER) {}
-		CCommandBuffer *m_pOtherBuffer;
 	};
 
 	struct SCommand_Render : public SCommand
@@ -746,8 +734,10 @@ public:
 
 	virtual bool GetWarning(std::vector<std::string> &WarningStrings) = 0;
 
-	// returns true if the error msg was shown
-	virtual bool ShowMessageBox(unsigned Type, const char *pTitle, const char *pMsg) = 0;
+	/**
+	 * @see IGraphics::ShowMessageBox
+	 */
+	virtual std::optional<int> ShowMessageBox(const IGraphics::CMessageBox &MessageBox) = 0;
 };
 
 class CGraphics_Threaded : public IEngineGraphics
@@ -934,7 +924,11 @@ public:
 
 	void LinesBegin() override;
 	void LinesEnd() override;
-	void LinesDraw(const CLineItem *pArray, int Num) override;
+	void LinesDraw(const CLineItem *pArray, size_t Num) override;
+
+	void LinesBatchBegin(CLineItemBatch *pBatch) override;
+	void LinesBatchEnd(CLineItemBatch *pBatch) override;
+	void LinesBatchDraw(CLineItemBatch *pBatch, const CLineItem *pArray, size_t Num) override;
 
 	IGraphics::CTextureHandle FindFreeTextureIndex();
 	void FreeTextureIndex(CTextureHandle *pIndex);
@@ -1171,7 +1165,7 @@ public:
 	void FlushVerticesTex3D() override;
 
 	void RenderTileLayer(int BufferContainerIndex, const ColorRGBA &Color, char **pOffsets, unsigned int *pIndicedVertexDrawNum, size_t NumIndicesOffset) override;
-	virtual void RenderBorderTiles(int BufferContainerIndex, const ColorRGBA &Color, char *pIndexBufferOffset, const vec2 &Offset, const vec2 &Scale, uint32_t DrawNum) override;
+	void RenderBorderTiles(int BufferContainerIndex, const ColorRGBA &Color, char *pIndexBufferOffset, const vec2 &Offset, const vec2 &Scale, uint32_t DrawNum) override;
 	void RenderQuadLayer(int BufferContainerIndex, SQuadRenderInfo *pQuadInfo, size_t QuadNum, int QuadOffset, bool Grouped = false) override;
 	void RenderText(int BufferContainerIndex, int TextQuadNum, int TextureSize, int TextureTextIndex, int TextureTextOutlineIndex, const ColorRGBA &TextColor, const ColorRGBA &TextOutlineColor) override;
 
@@ -1241,7 +1235,8 @@ public:
 	void AddWarning(const SWarning &Warning);
 	std::optional<SWarning> CurrentWarning() override;
 
-	bool ShowMessageBox(unsigned Type, const char *pTitle, const char *pMsg) override;
+	std::optional<int> ShowMessageBox(const CMessageBox &MessageBox) override;
+
 	bool IsBackendInitialized() override;
 
 	bool GetDriverVersion(EGraphicsDriverAgeType DriverAgeType, int &Major, int &Minor, int &Patch, const char *&pName, EBackendType BackendType) override { return m_pBackend->GetDriverVersion(DriverAgeType, Major, Minor, Patch, pName, BackendType); }

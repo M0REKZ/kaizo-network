@@ -9,7 +9,6 @@
 #include <game/version.h>
 
 #include <limits>
-#include <thread>
 
 #if !defined(CONF_FAMILY_WINDOWS)
 #include <csignal>
@@ -385,7 +384,7 @@ void CHttpRequest::OnCompletionInternal(void *pHandle, unsigned int Result)
 	{
 		if(g_Config.m_DbgCurl || m_LogProgress >= HTTPLOG::FAILURE)
 		{
-			log_error("http", "%s failed. libcurl error (%u): %s", m_aUrl, Code, m_aErr);
+			log_error("http", "%s failed. libcurl error (%u): %s", m_aUrl, Code, m_aErr[0] != '\0' ? m_aErr : curl_easy_strerror(Code));
 		}
 		State = (Code == CURLE_ABORTED_BY_CALLBACK) ? EHttpState::ABORTED : EHttpState::ERROR;
 	}

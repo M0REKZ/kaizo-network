@@ -63,6 +63,19 @@ CMapLayers::CMapLayers(int Type, bool OnlineOnly)
 {
 	m_Type = Type;
 	m_OnlineOnly = OnlineOnly;
+
+	// static parameters for ingame rendering
+	m_Params.m_RenderType = m_Type;
+	m_Params.m_RenderInvalidTiles = false;
+	m_Params.m_TileAndQuadBuffering = true;
+	m_Params.m_RenderTileBorder = true;
+}
+
+void CMapLayers::Unload()
+{
+	for(auto &pLayer : m_vpRenderLayers)
+		pLayer->Unload();
+	m_vpRenderLayers.clear();
 }
 
 void CMapLayers::OnInit()
@@ -80,7 +93,7 @@ void CMapLayers::OnMapLoad()
 {
 	m_pEnvelopePoints = std::make_shared<CMapBasedEnvelopePointAccess>(m_pLayers->Map());
 	bool PassedGameLayer = false;
-	m_vRenderLayers.clear();
+	Unload();
 
 	const char *pLoadingTitle = Localize("Loading map");
 	const char *pLoadingMessage = Localize("Uploading map data to GPU");
@@ -90,7 +103,7 @@ void CMapLayers::OnMapLoad()
 	{
 		CMapItemGroup *pGroup = m_pLayers->GetGroup(g);
 		std::unique_ptr<CRenderLayer> pRenderLayerGroup = std::make_unique<CRenderLayerGroup>(g, pGroup);
-		pRenderLayerGroup->OnInit(Graphics(), m_pLayers->Map(), RenderTools(), m_pImages, m_pEnvelopePoints, Client(), GameClient(), m_OnlineOnly);
+		pRenderLayerGroup->OnInit(GameClient(), m_pLayers->Map(), m_pImages, m_pEnvelopePoints, m_OnlineOnly);
 		if(!pRenderLayerGroup->IsValid())
 		{
 			dbg_msg("maplayers", "error group was null, group number = %d, total groups = %d", g, m_pLayers->NumGroups());
@@ -117,7 +130,7 @@ void CMapLayers::OnMapLoad()
 			}
 
 			if(pRenderLayerGroup)
-				m_vRenderLayers.push_back(std::move(pRenderLayerGroup));
+				m_vpRenderLayers.push_back(std::move(pRenderLayerGroup));
 
 			std::unique_ptr<CRenderLayer> pRenderLayer;
 
@@ -194,11 +207,11 @@ void CMapLayers::OnMapLoad()
 			// just ignore invalid layers from rendering
 			if(pRenderLayer)
 			{
-				pRenderLayer->OnInit(Graphics(), m_pLayers->Map(), RenderTools(), m_pImages, m_pEnvelopePoints, Client(), GameClient(), m_OnlineOnly);
+				pRenderLayer->OnInit(GameClient(), m_pLayers->Map(), m_pImages, m_pEnvelopePoints, m_OnlineOnly);
 				if(pRenderLayer->IsValid())
 				{
 					pRenderLayer->Init();
-					m_vRenderLayers.push_back(std::move(pRenderLayer));
+					m_vpRenderLayers.push_back(std::move(pRenderLayer));
 				}
 			}
 		}
@@ -213,22 +226,23 @@ void CMapLayers::OnRender()
 	CUIRect Screen;
 	Graphics()->GetScreen(&Screen.x, &Screen.y, &Screen.w, &Screen.h);
 
-	CRenderLayerParams Params;
-	Params.EntityOverlayVal = m_Type == TYPE_FULL_DESIGN ? 0 : g_Config.m_ClOverlayEntities;
-	Params.m_RenderType = m_Type;
-	Params.m_Center = GetCurCamera()->m_Center;
-	Params.m_Zoom = GetCurCamera()->m_Zoom;
+	// dynamic parameters for ingame rendering
+	m_Params.m_EntityOverlayVal = m_Type == TYPE_FULL_DESIGN ? 0 : g_Config.m_ClOverlayEntities;
+	m_Params.m_Center = GetCurCamera()->m_Center;
+	m_Params.m_Zoom = GetCurCamera()->m_Zoom;
+	m_Params.m_RenderText = g_Config.m_ClTextEntities;
 
 	bool DoRenderGroup = true;
-	for(auto &&pRenderLayer : m_vRenderLayers)
+	for(auto &pRenderLayer : m_vpRenderLayers)
 	{
 		if(pRenderLayer->IsGroup())
-			DoRenderGroup = pRenderLayer->DoRender(Params);
+			DoRenderGroup = pRenderLayer->DoRender(m_Params);
 
 		if(!DoRenderGroup)
 			continue;
 
-		pRenderLayer->Render(Params);
+		if(pRenderLayer->DoRender(m_Params))
+			pRenderLayer->Render(m_Params);
 	}
 
 	// Reset clip from last group
@@ -243,7 +257,7 @@ void CMapLayers::OnRender()
 	else
 	{
 		// reset the screen to the default interface
-		RenderTools()->MapScreenToInterface(Params.m_Center.x, Params.m_Center.y, Params.m_Zoom);
+		RenderTools()->MapScreenToInterface(m_Params.m_Center.x, m_Params.m_Center.y, m_Params.m_Zoom);
 	}
 }
 

@@ -74,8 +74,9 @@ private:
 	int m_TeeFinished;
 	int m_IsSolo;
 
-	struct WeaponStat
+	class CWeaponStat
 	{
+	public:
 		int m_AmmoRegenStart;
 		int m_Ammo;
 		int m_Ammocost;

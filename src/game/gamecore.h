@@ -5,7 +5,6 @@
 
 #include <base/vmath.h>
 
-#include <map>
 #include <set>
 #include <vector>
 
@@ -68,6 +67,8 @@ public:
 	bool Get(const char *pName, float *pValue) const;
 	static const char *Name(int Index) { return ms_apNames[Index]; }
 	float GetWeaponFireDelay(int Weapon) const;
+
+	static const CTuningParams DEFAULT;
 };
 
 // Do not use these function unless for legacy code!
@@ -115,8 +116,8 @@ enum
 	HOOK_IDLE = 0,
 	HOOK_RETRACT_START = 1,
 	HOOK_RETRACT_END = 3,
-	HOOK_FLYING,
-	HOOK_GRABBED,
+	HOOK_FLYING = 4,
+	HOOK_GRABBED = 5,
 
 	COREEVENT_GROUND_JUMP = 0x01,
 	COREEVENT_AIR_JUMP = 0x02,
@@ -214,8 +215,9 @@ public: // KZ
 	void SetHookedPlayer(int HookedPlayer);
 
 	int m_ActiveWeapon;
-	struct WeaponStat
+	class CWeaponStat
 	{
+	public:
 		int m_AmmoRegenStart;
 		int m_Ammo;
 		int m_Ammocost;

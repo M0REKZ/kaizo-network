@@ -299,7 +299,7 @@ static void ToggleSpecPause(IConsole::IResult *pResult, void *pUserData, int Pau
 	}
 	else if(pResult->NumArguments() > 0)
 	{
-		if(-PauseState == PauseType && pPlayer->m_SpectatorId != pResult->m_ClientId && pServ->ClientIngame(pPlayer->m_SpectatorId) && !str_comp(pServ->ClientName(pPlayer->m_SpectatorId), pResult->GetString(0)))
+		if(-PauseState == PauseType && pPlayer->SpectatorId() != pResult->m_ClientId && pServ->ClientIngame(pPlayer->SpectatorId()) && !str_comp(pServ->ClientName(pPlayer->SpectatorId()), pResult->GetString(0)))
 		{
 			pPlayer->Pause(CPlayer::PAUSE_NONE, false);
 		}
@@ -343,7 +343,7 @@ static void ToggleSpecPauseVoted(IConsole::IResult *pResult, void *pUserData, in
 				  (pSelf->IsKickVote() || pSelf->IsSpecVote()) &&
 				  pResult->m_ClientId != pSelf->m_VoteVictim;
 	if((!IsPlayerBeingVoted && -PauseState == PauseType) ||
-		(IsPlayerBeingVoted && PauseState && pPlayer->m_SpectatorId == pSelf->m_VoteVictim))
+		(IsPlayerBeingVoted && PauseState && pPlayer->SpectatorId() == pSelf->m_VoteVictim))
 	{
 		pPlayer->Pause(CPlayer::PAUSE_NONE, false);
 	}
@@ -351,7 +351,7 @@ static void ToggleSpecPauseVoted(IConsole::IResult *pResult, void *pUserData, in
 	{
 		pPlayer->Pause(PauseType, false);
 		if(IsPlayerBeingVoted)
-			pPlayer->m_SpectatorId = pSelf->m_VoteVictim;
+			pPlayer->SetSpectatorId(pSelf->m_VoteVictim);
 	}
 }
 
@@ -1143,7 +1143,7 @@ void CGameContext::AttemptJoinTeam(int ClientId, int Team)
 	if(!pPlayer)
 		return;
 
-	if(m_VoteCloseTime && m_VoteCreator == ClientId && (IsKickVote() || IsSpecVote()))
+	if(IsRunningKickOrSpecVote(ClientId))
 	{
 		Console()->Print(
 			IConsole::OUTPUT_LEVEL_STANDARD,
@@ -1176,7 +1176,7 @@ void CGameContext::AttemptJoinTeam(int ClientId, int Team)
 		if(Team < 0 || Team >= TEAM_SUPER)
 			Team = m_pController->Teams().GetFirstEmptyTeam();
 
-		if(pPlayer->m_Last_Team + (int64_t)Server()->TickSpeed() * g_Config.m_SvTeamChangeDelay > Server()->Tick())
+		if(pPlayer->m_LastDDRaceTeamChange + (int64_t)Server()->TickSpeed() * g_Config.m_SvTeamChangeDelay > Server()->Tick())
 		{
 			Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 				"You can\'t change teams that fast!");
@@ -1212,7 +1212,7 @@ void CGameContext::AttemptJoinTeam(int ClientId, int Team)
 				Server()->ClientName(pPlayer->GetCid()),
 				Team);
 			SendChat(-1, TEAM_ALL, aBuf);
-			pPlayer->m_Last_Team = Server()->Tick();
+			pPlayer->m_LastDDRaceTeamChange = Server()->Tick();
 
 			if(m_pController->Teams().IsPractice(Team))
 				SendChatTarget(pPlayer->GetCid(), "Practice mode enabled for your team, happy practicing!");
@@ -2436,6 +2436,7 @@ void CGameContext::ConProtectedKill(IConsole::IResult *pResult, void *pUserData)
 	if(g_Config.m_SvKillProtection != 0 && CurrTime >= (60 * g_Config.m_SvKillProtection) && pChr->m_DDRaceState == ERaceState::STARTED)
 	{
 		pPlayer->KillCharacter(WEAPON_SELF);
+		pPlayer->Respawn();
 	}
 }
 

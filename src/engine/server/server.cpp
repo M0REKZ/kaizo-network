@@ -50,8 +50,6 @@
 
 using namespace std::chrono_literals;
 
-extern bool IsInterrupted();
-
 #if defined(CONF_PLATFORM_ANDROID)
 extern std::vector<std::string> FetchAndroidServerCommandQueue();
 #endif
@@ -932,7 +930,7 @@ void CServer::SendMsgRaw(int ClientId, const void *pData, int Size, int Flags)
 
 void CServer::DoSnapshot()
 {
-	GameServer()->OnPreSnap();
+	bool IsGlobalSnap = Config()->m_SvHighBandwidth || (m_CurrentGameTick % 2) == 0;
 
 	if(m_aDemoRecorder[RECORDER_MANUAL].IsRecording() || m_aDemoRecorder[RECORDER_AUTO].IsRecording())
 	{
@@ -941,7 +939,7 @@ void CServer::DoSnapshot()
 
 		// build snap and possibly add some messages
 		m_SnapshotBuilder.Init();
-		GameServer()->OnSnap(-1);
+		GameServer()->OnSnap(-1, IsGlobalSnap);
 		int SnapshotSize = m_SnapshotBuilder.Finish(aData);
 
 		// write snapshot
@@ -966,10 +964,15 @@ void CServer::DoSnapshot()
 		if(m_aClients[i].m_SnapRate == CClient::SNAPRATE_INIT && (Tick() % 10) != 0)
 			continue;
 
+		// only allow clients with forced high bandwidth on spectate to receive snapshots on non-global ticks
+		if(!IsGlobalSnap && !(m_aClients[i].m_ForceHighBandwidthOnSpectate && GameServer()->IsClientHighBandwidth(i)))
+			continue;
+
 		{
 			m_SnapshotBuilder.Init(m_aClients[i].m_Sixup);
 
-			GameServer()->OnSnap(i);
+			// only snap events on global ticks
+			GameServer()->OnSnap(i, IsGlobalSnap);
 
 			// finish snapshot
 			char aData[CSnapshot::MAX_SIZE];
@@ -1060,7 +1063,10 @@ void CServer::DoSnapshot()
 		}
 	}
 
-	GameServer()->OnPostSnap();
+	if(IsGlobalSnap)
+	{
+		GameServer()->OnPostGlobalSnap();
+	}
 }
 
 int CServer::ClientRejoinCallback(int ClientId, void *pUser)
@@ -1104,6 +1110,7 @@ int CServer::NewClientNoAuthCallback(int ClientId, void *pUser)
 	pThis->m_aClients[ClientId].m_MaplistEntryToSend = CClient::MAPLIST_UNINITIALIZED;
 	pThis->m_aClients[ClientId].m_ShowIps = false;
 	pThis->m_aClients[ClientId].m_DebugDummy = false;
+	pThis->m_aClients[ClientId].m_ForceHighBandwidthOnSpectate = false;
 	pThis->m_aClients[ClientId].m_DDNetVersion = VERSION_NONE;
 	pThis->m_aClients[ClientId].m_GotDDNetVersionPacket = false;
 	pThis->m_aClients[ClientId].m_DDNetVersionSettled = false;
@@ -1138,10 +1145,10 @@ int CServer::NewClientCallback(int ClientId, void *pUser, bool Sixup)
 	pThis->m_aClients[ClientId].m_TrafficSince = 0;
 	pThis->m_aClients[ClientId].m_ShowIps = false;
 	pThis->m_aClients[ClientId].m_DebugDummy = false;
+	pThis->m_aClients[ClientId].m_ForceHighBandwidthOnSpectate = false;
 	pThis->m_aClients[ClientId].m_DDNetVersion = VERSION_NONE;
 	pThis->m_aClients[ClientId].m_GotDDNetVersionPacket = false;
 	pThis->m_aClients[ClientId].m_DDNetVersionSettled = false;
-	mem_zero(&pThis->m_aClients[ClientId].m_Addr, sizeof(NETADDR));
 	pThis->m_aClients[ClientId].Reset();
 	pThis->m_aClients[ClientId].m_Sixup = Sixup;
 
@@ -1228,6 +1235,7 @@ int CServer::DelClientCallback(int ClientId, const char *pReason, void *pUser)
 	pThis->m_aClients[ClientId].m_TrafficSince = 0;
 	pThis->m_aClients[ClientId].m_ShowIps = false;
 	pThis->m_aClients[ClientId].m_DebugDummy = false;
+	pThis->m_aClients[ClientId].m_ForceHighBandwidthOnSpectate = false;
 	pThis->m_aPrevStates[ClientId] = CClient::STATE_EMPTY;
 	pThis->m_aClients[ClientId].m_Snapshots.PurgeAll();
 	pThis->m_aClients[ClientId].m_Sixup = false;
@@ -1698,8 +1706,17 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 					return;
 				}
 
+				int NumConnectedClients = 0;
+				for(int i = 0; i < MaxClients(); ++i)
+				{
+					if(m_aClients[i].m_State != CClient::STATE_EMPTY)
+					{
+						NumConnectedClients++;
+					}
+				}
+
 				// reserved slot
-				if(ClientId >= MaxClients() - Config()->m_SvReservedSlots && !CheckReservedSlotAuth(ClientId, pPassword))
+				if(NumConnectedClients > MaxClients() - Config()->m_SvReservedSlots && !CheckReservedSlotAuth(ClientId, pPassword))
 				{
 					m_NetServer.Drop(ClientId, "This server is full");
 					return;
@@ -1780,9 +1797,9 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 				}
 				else
 				{
-					CMsgPacker Msgp(protocol7::NETMSG_SERVERINFO, true, true);
-					GetServerInfoSixup(&Msgp, -1, false);
-					SendMsg(&Msgp, MSGFLAG_VITAL | MSGFLAG_FLUSH, ClientId);
+					CMsgPacker ServerInfoMessage(protocol7::NETMSG_SERVERINFO, true, true);
+					GetServerInfoSixup(&ServerInfoMessage, false);
+					SendMsg(&ServerInfoMessage, MSGFLAG_VITAL | MSGFLAG_FLUSH, ClientId);
 				}
 				GameServer()->OnClientEnter(ClientId);
 			}
@@ -1869,7 +1886,7 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 						if(!aPreInputClients[Id])
 							continue;
 
-						SendPackMsg(&PreInput, MSGFLAG_VITAL | MSGFLAG_NORECORD, Id);
+						SendPackMsg(&PreInput, MSGFLAG_FLUSH | MSGFLAG_NORECORD, Id);
 					}
 				}
 			}
@@ -2496,17 +2513,8 @@ void CServer::SendServerInfo(const NETADDR *pAddr, int Token, int Type, bool Sen
 	}
 }
 
-void CServer::GetServerInfoSixup(CPacker *pPacker, int Token, bool SendClients)
+void CServer::GetServerInfoSixup(CPacker *pPacker, bool SendClients)
 {
-	if(Token != -1)
-	{
-		pPacker->Reset();
-		pPacker->AddRaw(SERVERBROWSE_INFO, sizeof(SERVERBROWSE_INFO));
-		pPacker->AddInt(Token);
-	}
-
-	SendClients = SendClients && Token != -1;
-
 	CCache::CCacheChunk &FirstChunk = m_aSixupServerInfoCache[SendClients].m_vCache.front();
 	pPacker->AddRaw(FirstChunk.m_vData.data(), FirstChunk.m_vData.size());
 }
@@ -2659,9 +2667,9 @@ void CServer::UpdateServerInfo(bool Resend)
 					SendServerInfo(ClientAddr(i), -1, SERVERINFO_INGAME, false);
 				else
 				{
-					CMsgPacker Msg(protocol7::NETMSG_SERVERINFO, true, true);
-					GetServerInfoSixup(&Msg, -1, false);
-					SendMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_FLUSH, i);
+					CMsgPacker ServerInfoMessage(protocol7::NETMSG_SERVERINFO, true, true);
+					GetServerInfoSixup(&ServerInfoMessage, false);
+					SendMsg(&ServerInfoMessage, MSGFLAG_VITAL | MSGFLAG_FLUSH, i);
 				}
 			}
 		}
@@ -2718,8 +2726,10 @@ void CServer::PumpNetwork(bool PacketWaiting)
 						}
 
 						CPacker Packer;
-						GetServerInfoSixup(&Packer, SrvBrwsToken, RateLimitServerInfoConnless());
-
+						Packer.Reset();
+						Packer.AddRaw(SERVERBROWSE_INFO, sizeof(SERVERBROWSE_INFO));
+						Packer.AddInt(SrvBrwsToken);
+						GetServerInfoSixup(&Packer, RateLimitServerInfoConnless());
 						CNetBase::SendPacketConnlessWithToken7(m_NetServer.Socket(), &Packet.m_Address, Packer.Data(), Packer.Size(), ResponseToken, m_NetServer.GetToken(Packet.m_Address));
 					}
 					else if(Type != -1)
@@ -3163,6 +3173,7 @@ int CServer::Run()
 						{
 							GameServer()->OnClientPredictedEarlyInput(c, Input.m_aData);
 							ClientHadInput = true;
+							break;
 						}
 					}
 					if(!ClientHadInput)
@@ -3201,8 +3212,7 @@ int CServer::Run()
 			// snap game
 			if(NewTicks)
 			{
-				if(Config()->m_SvHighBandwidth || (m_CurrentGameTick % 2) == 0)
-					DoSnapshot();
+				DoSnapshot();
 
 				const int CommandSendingClientId = Tick() % MAX_CLIENTS;
 				UpdateClientRconCommands(CommandSendingClientId);
@@ -3860,6 +3870,26 @@ void CServer::ConHideAuthStatus(IConsole::IResult *pResult, void *pUser)
 	}
 }
 
+void CServer::ConForceHighBandwidthOnSpectate(IConsole::IResult *pResult, void *pUser)
+{
+	CServer *pServer = (CServer *)pUser;
+
+	if(pServer->m_RconClientId >= 0 && pServer->m_RconClientId < MAX_CLIENTS &&
+		pServer->m_aClients[pServer->m_RconClientId].m_State != CServer::CClient::STATE_EMPTY)
+	{
+		if(pResult->NumArguments())
+		{
+			pServer->m_aClients[pServer->m_RconClientId].m_ForceHighBandwidthOnSpectate = pResult->GetInteger(0);
+		}
+		else
+		{
+			char aStr[9];
+			str_format(aStr, sizeof(aStr), "Value: %d", pServer->m_aClients[pServer->m_RconClientId].m_ForceHighBandwidthOnSpectate);
+			pServer->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", aStr);
+		}
+	}
+}
+
 void CServer::ConAddSqlServer(IConsole::IResult *pResult, void *pUserData)
 {
 	CServer *pSelf = (CServer *)pUserData;
@@ -3881,9 +3911,9 @@ void CServer::ConAddSqlServer(IConsole::IResult *pResult, void *pUserData)
 
 	CMysqlConfig Config;
 	bool Write;
-	if(str_comp_nocase(pResult->GetString(0), "w") == 0)
+	if(str_comp_nocase(pResult->GetString(0), "r") == 0)
 		Write = false;
-	else if(str_comp_nocase(pResult->GetString(0), "r") == 0)
+	else if(str_comp_nocase(pResult->GetString(0), "w") == 0)
 		Write = true;
 	else
 	{
@@ -4195,6 +4225,7 @@ void CServer::RegisterCommands()
 	Console()->Register("logout", "", CFGFLAG_SERVER, ConLogout, this, "Logout of rcon");
 	Console()->Register("show_ips", "?i[show]", CFGFLAG_SERVER, ConShowIps, this, "Show IP addresses in rcon commands (1 = on, 0 = off)");
 	Console()->Register("hide_auth_status", "?i[hide]", CFGFLAG_SERVER, ConHideAuthStatus, this, "Opt out of spectator count and hide auth status to non-authed players (1 = hidden, 0 = shown)");
+	Console()->Register("force_high_bandwidth_on_spectate", "?i[enable]", CFGFLAG_SERVER, ConForceHighBandwidthOnSpectate, this, "Force high bandwidth mode when spectating (1 = on, 0 = off)");
 
 	Console()->Register("record", "?s[file]", CFGFLAG_SERVER | CFGFLAG_STORE, ConRecord, this, "Record to a file");
 	Console()->Register("stoprecord", "", CFGFLAG_SERVER, ConStopRecord, this, "Stop recording");
