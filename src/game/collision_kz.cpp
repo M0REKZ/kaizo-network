@@ -21,7 +21,9 @@ int CCollision::GetCollisionAt(float x, float y, SKZColCharCoreParams *pCharCore
     int i = GetTile(round_to_int(x), round_to_int(y));
     if(pCharCoreParams)
     {
-        return CheckPointForCore(x, y, pCharCoreParams);
+        int j = CheckPointForCore(x, y, pCharCoreParams);
+		if(j)
+			return j;
     }
     return i;
 }
