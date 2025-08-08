@@ -125,7 +125,7 @@ void CKZPlasma::Snap(int SnappingClient)
 	int SnappingClientVersion = GameServer()->GetClientVersion(SnappingClient);
 
 	int Subtype = (m_Explosive ? 1 : 0) | (m_Damage ? 2 : 0);
-	GameServer()->SnapLaserObject(CSnapContext(SnappingClientVersion), GetId(),
+	GameServer()->SnapLaserObject(CSnapContext(SnappingClientVersion, Server()->IsSixup(SnappingClient), SnappingClient), GetId(),
 		m_Pos, m_Pos, m_EvalTick, -1, Server()->Tick()%2, Subtype, m_Number);
 }
 

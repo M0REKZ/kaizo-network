@@ -262,7 +262,7 @@ void CPortalLaser::Snap(int SnappingClient)
 	int SnappingClientVersion = GameServer()->GetClientVersion(SnappingClient);
 	int LaserType = m_BluePortal ? LASERTYPE_RIFLE : LASERTYPE_SHOTGUN;
 
-	GameServer()->SnapLaserObject(CSnapContext(SnappingClientVersion), GetId(),
+	GameServer()->SnapLaserObject(CSnapContext(SnappingClientVersion, Server()->IsSixup(SnappingClient), SnappingClient), GetId(),
 		m_Pos, m_From, Server()->Tick() - 4, m_Owner, LaserType, 0, m_Number);
 }
 
