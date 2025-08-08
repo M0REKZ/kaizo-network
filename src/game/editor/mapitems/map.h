@@ -120,6 +120,12 @@ public:
 	void MakeSwitchLayer(const std::shared_ptr<CLayer> &pLayer);
 	void MakeTuneLayer(const std::shared_ptr<CLayer> &pLayer);
 
+	// KZ
+	std::shared_ptr<class CLayerKZGame> m_pKZGameLayer;
+	std::shared_ptr<class CLayerKZFront> m_pKZFrontLayer;
+	void MakeKZGameLayer(const std::shared_ptr<CLayer> &pLayer);
+	void MakeKZFrontLayer(const std::shared_ptr<CLayer> &pLayer);
+
 private:
 	CEditor *m_pEditor;
 };
