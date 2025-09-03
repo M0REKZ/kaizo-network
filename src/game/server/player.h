@@ -252,6 +252,11 @@ public:
 	int m_Lives = 0; // +KZ LMS/LTS Lives
 	int m_Killer = -1; // +KZ zCatch Killer
 
+	// Enabled rollback for this player
+	bool m_RollbackEnabled = false;
+	// Rollback LastAckedSnapshot
+	int m_LastAckedSnapshot = -1;
+
 	friend class CPickupPvP;
 };
 

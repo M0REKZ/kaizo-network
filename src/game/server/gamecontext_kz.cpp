@@ -35,6 +35,10 @@
 #include "player.h"
 #include "score.h"
 
+#include <engine/shared/console.h>
+
+char CGameContext::m_aXonXCmds[4][SERVER_MAX_CLIENTS / 2][16]; //+KZ (see header for explanation)
+
 void CGameContext::RegisterKZCommands()
 {
 	Console()->Register("rejoin_shutdown", "", CFGFLAG_SERVER, ConRejoinShutdown, this, "Make players rejoin after shutdown");
@@ -45,6 +49,29 @@ void CGameContext::RegisterKZCommands()
 	Console()->Register("blueportal", "", CFGFLAG_CHAT |  CFGFLAG_SERVER, ConBluePortal, this, "Use Blue Portal");
 	Console()->Register("resetportals", "", CFGFLAG_CHAT |  CFGFLAG_SERVER, ConResetPortals, this, "Reset both Portals");
 	Console()->Register("showcrowns", "", CFGFLAG_CHAT |  CFGFLAG_SERVER, ConShowCrowns, this, "Toggle crowns");
+
+	//rollback command
+	Console()->Register("rollback", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConRollback, this, "Enable rollback");
+	Console()->Register("antilag", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConRollback, this, "Enable rollback");
+	Console()->Register("nolag", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConRollback, this, "Enable rollback");
+
+	//XonX
+	for(int i = 1; i <= SERVER_MAX_CLIENTS / 2; i++)
+	{
+		str_format(m_aXonXCmds[0][i], sizeof(m_aXonXCmds[0][i]), "%do%d", i, i);
+		Console()->Register(m_aXonXCmds[0][i], "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConXonX, this, "Set player slots");
+
+		str_format(m_aXonXCmds[1][i], sizeof(m_aXonXCmds[1][i]), "%don%d", i, i);
+		Console()->Register(m_aXonXCmds[1][i], "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConXonX, this, "Set player slots");
+
+		str_format(m_aXonXCmds[2][i], sizeof(m_aXonXCmds[2][i]), "%dv%d", i, i);
+		Console()->Register(m_aXonXCmds[2][i], "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConXonX, this, "Set player slots");
+
+		str_format(m_aXonXCmds[3][i], sizeof(m_aXonXCmds[3][i]), "%dvs%d", i, i);
+		Console()->Register(m_aXonXCmds[3][i], "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConXonX, this, "Set player slots");
+	}
+
+	Console()->Chain("sv_rollback", ConchainRollback, this);
 }
 
 void CGameContext::SendGameMsg(int GameMsgId, int ClientId) const
@@ -508,4 +535,117 @@ void CGameContext::IdentifyClientName(int ClientId, char *pName, int StrSize)
 		}
 	}
 	str_copy(pName, aName, StrSize);
+}
+
+void CGameContext::SetPlayerLastAckedSnapshot(int ClientId, int Tick)
+{
+	if(ClientId < 0 || ClientId >= MAX_CLIENTS)
+		return;
+
+	if(!m_apPlayers[ClientId])
+		return;
+
+	m_apPlayers[ClientId]->m_LastAckedSnapshot = Tick;
+}
+
+void CGameContext::ConRollback(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if(!CheckClientId(pResult->m_ClientId))
+		return;
+
+	if(!pSelf->m_pController)
+		return;
+
+	if(!pSelf->m_pController->m_IsPVPGametype)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientId, "This command is only available in PvP gametypes.");
+		return;
+	}
+
+	if(!g_Config.m_SvRollback)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientId, "Rollback is not allowed on this server.");
+		return;
+	}
+
+	if(!pSelf->m_apPlayers[pResult->m_ClientId])
+		return;
+
+	if(!pSelf->m_apPlayers[pResult->m_ClientId]->m_RollbackEnabled)
+	{
+		pSelf->m_apPlayers[pResult->m_ClientId]->m_RollbackEnabled = true;
+		pSelf->SendChatTarget(pResult->m_ClientId, "Rollback enabled.");
+
+		if(pSelf->GetClientVersion(pResult->m_ClientId) >= VERSION_DDNET_ANTIPING_PROJECTILE)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientId, "DDNet Client detected, for correct rollback experience please set the following Antiping settings:");
+			pSelf->SendChatTarget(pResult->m_ClientId, "* Antiping: ON");
+			pSelf->SendChatTarget(pResult->m_ClientId, "* Antiping: predict other players: OFF");
+			pSelf->SendChatTarget(pResult->m_ClientId, "* Antiping: predict weapons: ON");
+			pSelf->SendChatTarget(pResult->m_ClientId, "* Antiping: predict grenade paths: ON");
+		}
+	}
+	else
+	{
+		pSelf->m_apPlayers[pResult->m_ClientId]->m_RollbackEnabled = false;
+		pSelf->SendChatTarget(pResult->m_ClientId, "Rollback disabled.");
+	}
+}
+
+void CGameContext::ConchainRollback(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	pfnCallback(pResult, pCallbackUserData);
+
+	//Dont keep rollback enabled if server does not allow it
+
+	if(!g_Config.m_SvRollback)
+	{
+		for(CPlayer *pPlayer : pSelf->m_apPlayers)
+		{
+			if(!pPlayer)
+				continue;
+
+			pPlayer->m_RollbackEnabled = false;
+		}
+	}
+}
+
+void CGameContext::ConXonX(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	CConsole::CResult *pCResult = (CConsole::CResult *)pResult;
+
+	if(!CheckClientId(pResult->m_ClientId))
+		return;
+
+	if(!pSelf->m_pController)
+		return;
+
+	if(!pSelf->m_pController->m_IsPVPGametype)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientId, "This command is only available in PvP gametypes.");
+		return;
+	}
+
+	const char *pCommand = pCResult->m_pCommand;
+
+	if(!pCommand)
+		return;
+
+	char aNum[3] = {pCommand[0],pCommand[1],'\0'}; //only get the first numbers
+
+	if(aNum[1] > '9' || aNum[1] < '0')//verify if the second char is a number
+		aNum[1] = '\0'; //if not, set it to null char
+
+	int Num = SERVER_MAX_CLIENTS - (str_toint(aNum) * 2);
+
+	char aBuf[64];
+	char aChatmsg[256];
+
+	str_format(aBuf, sizeof(aBuf), "sv_spectator_slots %d", Num);
+
+	str_format(aChatmsg, sizeof(aChatmsg), "'%s' called vote to change player slots to %d", pSelf->Server()->ClientName(pResult->m_ClientId), str_toint(aNum) * 2);
+	pSelf->CallVote(pResult->m_ClientId, pCommand, aBuf, "Chat command", aChatmsg);
 }

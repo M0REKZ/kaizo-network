@@ -22,6 +22,7 @@
 #include <string>
 
 #include <engine/http.h>
+#include <game/server/kz/rollback.h>
 
 /*
 	Tick
@@ -658,6 +659,15 @@ public:
 	static void ConShowCrowns(IConsole::IResult *pResult, void *pUserData);
 
 	void IdentifyClientName(int ClientId, char *pName, int StrSize);
+	
+	//PVP
+	static void ConchainRollback(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
+	static void ConRollback(IConsole::IResult *pResult, void *pUserData);
+	CRollback m_Rollback; //+KZ
+	virtual void SetPlayerLastAckedSnapshot(int ClientId, int Tick) override; //+KZ
+	static void ConXonX(IConsole::IResult *pResult, void *pUserData);
+
+	static char m_aXonXCmds[4][SERVER_MAX_CLIENTS / 2][16]; //since commands name must be always on memory, i make this array -- +KZ
 };
 
 static inline bool CheckClientId(int ClientId)

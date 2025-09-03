@@ -45,7 +45,7 @@ public:
 	int CheckPointForCore(float x, float y, SKZColCharCoreParams *pCharCoreParams) const;
 	int CheckPointForProjectile(vec2 Pos, SKZColProjectileParams *pProjectileParams) const;
 	int CheckPointForLaser(vec2 Pos, SKZColLaserParams *pLaserParams) const;
-	int FastIntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, SKZColCharCoreParams *pCharCoreParams) const;
+	int FastIntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, SKZColFastIntersectLineProjectileParams *pCharCoreParams) const;
 	int FastIntersectLinePortalLaser(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, CKZTile **pKZTile = nullptr, int *pTeleNr = nullptr, SKZColCharCoreParams *pCharCoreParams = nullptr) const;
 	bool DDNetLayerExists(int Layer);
 	CPortalCore *IntersectCharacterWithPortal(vec2 Pos, CCharacterCore *pCore)const;

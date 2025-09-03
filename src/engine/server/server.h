@@ -145,6 +145,7 @@ public:
 		public:
 			int m_aData[MAX_INPUT_SIZE];
 			int m_GameTick; // the tick that was chosen for the input
+			int m_AckedTick; // +KZ rollback: the tick that client last received
 		};
 
 		// connection state info

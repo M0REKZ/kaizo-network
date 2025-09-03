@@ -179,7 +179,7 @@ void CPlayer::Tick()
 	if(m_ChatScore > 0)
 		m_ChatScore--;
 
-	Server()->SetClientScore(m_ClientId, m_Score);
+	Server()->SetClientScore(m_ClientId, (GameServer()->m_pController && GameServer()->m_pController->m_IsPVPGametype) ? m_ScoreKZ : m_Score);
 
 	if(m_Moderating && m_Afk)
 	{
@@ -368,7 +368,7 @@ void CPlayer::Snap(int SnappingClient)
 			return;
 
 		pPlayerInfo->m_Latency = Latency;
-		pPlayerInfo->m_Score = Score;
+		pPlayerInfo->m_Score = (GameServer()->m_pController && GameServer()->m_pController->m_IsPVPGametype) ? m_ScoreKZ : Score;
 		pPlayerInfo->m_Local = (int)(m_ClientId == SnappingClient && (m_Paused != PAUSE_PAUSED || SnappingClientVersion >= VERSION_DDNET_OLD));
 		pPlayerInfo->m_ClientId = id;
 		pPlayerInfo->m_Team = (GetCharacter() && GetCharacter()->m_SpecTile && SnappingClient == m_ClientId) ? TEAM_SPECTATORS : m_Team;
@@ -391,7 +391,7 @@ void CPlayer::Snap(int SnappingClient)
 			pPlayerInfo->m_PlayerFlags |= protocol7::PLAYERFLAG_ADMIN;
 
 		// Times are in milliseconds for 0.7
-		pPlayerInfo->m_Score = m_Score.has_value() ? GameServer()->Score()->PlayerData(m_ClientId)->m_BestTime * 1000 : -1;
+		pPlayerInfo->m_Score = (GameServer()->m_pController && GameServer()->m_pController->m_IsPVPGametype) ? m_ScoreKZ : (m_Score.has_value() ? GameServer()->Score()->PlayerData(m_ClientId)->m_BestTime * 1000 : -1);
 		pPlayerInfo->m_Latency = Latency;
 	}
 

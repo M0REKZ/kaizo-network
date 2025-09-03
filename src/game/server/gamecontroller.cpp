@@ -588,6 +588,9 @@ void IGameController::Snap(int SnappingClient)
 	pGameInfoObj->m_RoundNum = 0;
 	pGameInfoObj->m_RoundCurrent = m_RoundCount + 1;
 
+	pGameInfoObj->m_ScoreLimit = g_Config.m_SvScoreLimit; // +KZ
+	pGameInfoObj->m_TimeLimit = g_Config.m_SvTimeLimit; // +KZ
+
 	CCharacter *pChr;
 	CPlayer *pPlayer = SnappingClient != SERVER_DEMO_CLIENT ? GameServer()->m_apPlayers[SnappingClient] : nullptr;
 	CPlayer *pPlayer2;
@@ -641,6 +644,8 @@ void IGameController::Snap(int SnappingClient)
 		pGameInfoEx->m_Flags2 |= GAMEINFOFLAG2_HUD_HEALTH_ARMOR;
 	if(pPlayer && pPlayer->GetCharacter() && pPlayer->GetCharacter()->m_SpecTile)
 		pGameInfoEx->m_Flags ^= GAMEINFOFLAG_BUG_DDRACE_INPUT; 
+	
+	HandleGameInfoEx(pGameInfoEx);
 
 	if(Server()->IsSixup(SnappingClient))
 	{
@@ -656,8 +661,12 @@ void IGameController::Snap(int SnappingClient)
 			pGameData->m_GameStateFlags |= protocol7::GAMESTATEFLAG_SUDDENDEATH;
 		if(GameServer()->m_World.m_Paused)
 			pGameData->m_GameStateFlags |= protocol7::GAMESTATEFLAG_PAUSED;
+		if(m_StartingMatch) // +KZ
+			pGameData->m_GameStateFlags |= protocol7::GAMESTATEFLAG_STARTCOUNTDOWN;
+		if(m_Warmup && !m_StartingMatch) // +KZ
+			pGameData->m_GameStateFlags |= protocol7::GAMESTATEFLAG_WARMUP;
 
-		pGameData->m_GameStateEndTick = 0;
+		pGameData->m_GameStateEndTick = (m_Warmup || m_StartingMatch) ? (m_RoundStartTick + g_Config.m_SvWarmup * Server()->TickSpeed()) : 0;
 
 		protocol7::CNetObj_GameDataRace *pRaceData = Server()->SnapNewItem<protocol7::CNetObj_GameDataRace>(0);
 		if(!pRaceData)
