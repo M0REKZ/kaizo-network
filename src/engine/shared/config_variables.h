@@ -786,3 +786,12 @@ MACRO_CONFIG_INT(SvDamageLaserDmg, sv_damage_laser_dmg, 2, 0, 10000, CFGFLAG_SER
 MACRO_CONFIG_INT(SvDamageTurretDmg, sv_damage_turret_dmg, 1, 0, 10000, CFGFLAG_SERVER | CFGFLAG_GAME, "Plasma turret damage")
 MACRO_CONFIG_INT(SvDamageTurretExplosiveDmg, sv_damage_turret_explosive_dmg, 3, 0, 10000, CFGFLAG_SERVER | CFGFLAG_GAME, "Explosive plasma turret damage")
 MACRO_CONFIG_INT(SvDamageMineDmg, sv_damage_mine_dmg, 3, 0, 10000, CFGFLAG_SERVER | CFGFLAG_GAME, "Mines damage")
+
+//PVP
+MACRO_CONFIG_INT(SvScoreLimit, sv_score_limit, 20, 0, 2147483647, CFGFLAG_SERVER, "Score Limit")
+MACRO_CONFIG_INT(SvTimeLimit, sv_time_limit, 0, 0, 2147483647, CFGFLAG_SERVER, "Time Limit")
+MACRO_CONFIG_INT(SvTeamdamage, sv_team_damage, 0, 0, 1, CFGFLAG_SERVER, "Team Damage")
+MACRO_CONFIG_INT(SvPickupParticles, sv_pickup_particles, 1, 0, 1, CFGFLAG_SERVER, "Whether or not to enable particles when a pickup is yet to respawn")
+MACRO_CONFIG_INT(SvSurvivalLives, sv_survival_lives, 0, 0, 100, CFGFLAG_SERVER, "LMS/LTS Lives")
+MACRO_CONFIG_STR(SvInstagibWeapon, sv_instagib_weapon, 256, "", CFGFLAG_SERVER, "Instagib weapon")
+MACRO_CONFIG_INT(SvInstagibMinDamage, sv_instagib_min_damage, 5, 0, 999, CFGFLAG_SERVER, "Minimal damage to kill on instagib")

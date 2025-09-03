@@ -244,6 +244,15 @@ public:
 
 	bool m_SentKZWelcomeMsg = false;
 	bool m_SendCrowns = true;
+
+	//PVP
+
+	int m_ScoreKZ = 0;
+	bool m_IsDead = false;
+	int m_Lives = 0; // +KZ LMS/LTS Lives
+	int m_Killer = -1; // +KZ zCatch Killer
+
+	friend class CPickupPvP;
 };
 
 #endif
