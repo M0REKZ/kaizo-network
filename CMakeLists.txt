@@ -2788,6 +2788,10 @@ if(SERVER)
     entities/kz/portal_laser.h
     entities/kz/portal_projectile.cpp
     entities/kz/portal_projectile.h
+    entities/kz/projectile_kz.cpp
+    entities/kz/projectile_kz.h
+    entities/kz/projectile_pvp.cpp
+    entities/kz/projectile_pvp.h
     entity.cpp
     entity.h
     eventhandler_kz.cpp
@@ -2823,6 +2827,8 @@ if(SERVER)
     gamemodes/kz/zcatch.h
     gameworld.cpp
     gameworld.h
+    kz/rollback.cpp
+    kz/rollback.h
     mutes.cpp
     player.cpp
     player.h

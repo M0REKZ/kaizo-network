@@ -4160,6 +4160,7 @@ void CGameContext::OnInit(const void *pPersistentData)
 
 	m_pAntibot->RoundStart(this);
 	m_pHttp = Kernel()->RequestInterface<IHttp>();
+	m_Rollback.Init(this); // +KZ rollback
 }
 
 void CGameContext::CreateAllEntities(bool Initial)

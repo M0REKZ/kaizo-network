@@ -42,6 +42,9 @@ private:
 	bool m_TeleportCancelled;
 	bool m_IsBlueTeleport;
 	bool m_BelongsToPracticeTeam;
+
+	int m_FireAckedTick = -1; //rollback
+	bool m_Rollback = false; //rollback
 };
 
 #endif

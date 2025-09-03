@@ -44,4 +44,10 @@ struct SKZColIntersectLineParams : public SKZColCharCoreParams // IntersectLine
 	int Weapon = -1;
 };
 
+struct SKZColFastIntersectLineProjectileParams : public SKZColCharCoreParams
+{
+	int *pTeleNr = nullptr;
+};
+
+
 #endif

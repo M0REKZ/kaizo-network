@@ -11,6 +11,9 @@
 #include <game/server/gamecontext.h>
 #include <game/server/gamemodes/DDRace.h>
 
+#include <game/server/kz/rollback.h>
+#include <game/server/player.h>
+
 CLaser::CLaser(CGameWorld *pGameWorld, vec2 Pos, vec2 Direction, float StartEnergy, int Owner, int Type) :
 	CEntity(pGameWorld, CGameWorld::ENTTYPE_LASER)
 {
@@ -40,6 +43,9 @@ CLaser::CLaser(CGameWorld *pGameWorld, vec2 Pos, vec2 Direction, float StartEner
 			m_TuneZone = pOwnerChar->m_TuneZone;
 	}
 
+	if(GameServer()->m_apPlayers[m_Owner] && GameServer()->m_apPlayers[m_Owner]->m_RollbackEnabled) //+KZ rollback
+		m_Rollback = true;
+
 	GameWorld()->InsertEntity(this);
 	DoBounce();
 }
@@ -53,7 +59,7 @@ bool CLaser::HitCharacter(vec2 From, vec2 To)
 	bool pDontHitSelf = g_Config.m_SvOldLaser || (m_Bounces == 0 && !m_WasTele);
 
 	if(pOwnerChar ? (!pOwnerChar->LaserHitDisabled() && m_Type == WEAPON_LASER) || (!pOwnerChar->ShotgunHitDisabled() && m_Type == WEAPON_SHOTGUN) : g_Config.m_SvHit)
-		pHit = GameWorld()->IntersectCharacter(m_Pos, To, 0.f, At, pDontHitSelf ? pOwnerChar : nullptr, m_Owner);
+		pHit = GameServer()->m_Rollback.IntersectCharacterOnTick(m_Pos, To, 0.f, At, pDontHitSelf ? pOwnerChar : nullptr, m_Owner, nullptr, pOwnerChar, m_FireAckedTick);
 	else
 		pHit = GameWorld()->IntersectCharacter(m_Pos, To, 0.f, At, pDontHitSelf ? pOwnerChar : nullptr, m_Owner, pOwnerChar);
 
@@ -103,12 +109,24 @@ bool CLaser::HitCharacter(vec2 From, vec2 To)
 	{
 		pHit->UnFreeze();
 	}
-	pHit->TakeDamage(vec2(0, 0), 0, m_Owner, m_Type);
+	pHit->TakeDamage(vec2(0, 0), 5, m_Owner, m_Type); //+KZ modified to 5
 	return true;
 }
 
 void CLaser::DoBounce()
 {
+	if(m_Rollback)
+	{
+		if(GameServer()->m_apPlayers[m_Owner] && m_FireAckedTick == -1)
+		{
+			m_FireAckedTick = GameServer()->m_apPlayers[m_Owner]->m_LastAckedSnapshot;
+		}
+		else
+		{
+			m_FireAckedTick += Server()->Tick() - m_EvalTick; //rollback: increment acked tick each bounce
+		}
+	}
+
 	// KZ
 	CCharacter *pOwnerChar = GameServer()->GetPlayerChar(m_Owner); 
 	CCharacterCore *pOwnerCore = nullptr;
