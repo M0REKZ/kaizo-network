@@ -2778,6 +2778,10 @@ if(SERVER)
     entities/kz/kz_light.h
     entities/kz/mine.cpp
     entities/kz/mine.h
+    entities/kz/particle_kz.cpp
+    entities/kz/particle_kz.h
+    entities/kz/pickup_pvp.cpp
+    entities/kz/pickup_pvp.h
     entities/kz/portal.cpp
     entities/kz/portal.h
     entities/kz/portal_laser.cpp
@@ -2794,12 +2798,29 @@ if(SERVER)
     gamecontext_kz.cpp
     gamecontroller.cpp
     gamecontroller.h
+    gamecontroller_kz.cpp
     gamemodes/DDRace.cpp
     gamemodes/DDRace.h
     gamemodes/mod.cpp
     gamemodes/mod.h
+    gamemodes/kz/base_kz.cpp
+    gamemodes/kz/base_kz.h
+    gamemodes/kz/base_pvp.cpp
+    gamemodes/kz/base_pvp.h
+    gamemodes/kz/dm.cpp
+    gamemodes/kz/dm.h
+    gamemodes/kz/ctf.cpp
+    gamemodes/kz/ctf.h
     gamemodes/kz/kz.cpp
     gamemodes/kz/kz.h
+    gamemodes/kz/lms.cpp
+    gamemodes/kz/lms.h
+    gamemodes/kz/lts.cpp
+    gamemodes/kz/lts.h
+    gamemodes/kz/tdm.cpp
+    gamemodes/kz/tdm.h
+    gamemodes/kz/zcatch.cpp
+    gamemodes/kz/zcatch.h
     gameworld.cpp
     gameworld.h
     mutes.cpp
