@@ -256,8 +256,6 @@ public:
 	bool m_RollbackEnabled = false;
 	// Rollback LastAckedSnapshot
 	int m_LastAckedSnapshot = -1;
-
-	friend class CPickupPvP;
 };
 
 #endif
