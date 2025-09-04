@@ -4339,7 +4339,6 @@ void CGameContext::CreateAllEntities(bool Initial)
 
 CPlayer *CGameContext::CreatePlayer(int ClientId, int StartTeam, bool Afk, int LastWhisperTo)
 {
-	printf("playerid %d\n",ClientId);
 	if(m_apPlayers[ClientId])
 		delete m_apPlayers[ClientId];
 	m_apPlayers[ClientId] = new(ClientId) CPlayer(this, m_NextUniqueClientId, ClientId, StartTeam);
