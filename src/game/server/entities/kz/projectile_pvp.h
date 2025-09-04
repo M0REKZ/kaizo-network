@@ -20,8 +20,6 @@ protected:
 		virtual void OnCollide(vec2 PrevPos, int TileIndex = 0, vec2 *pPreIntersectPos = nullptr, vec2 *pIntersectPos = nullptr, int *pTeleNr = nullptr) override;
     	virtual void OnCharacterCollide(vec2 PrevPos, CCharacter* pChar, vec2 *pIntersectPos = nullptr) override;
 
-		bool m_Exploded = false;
-
 };
 
 #endif

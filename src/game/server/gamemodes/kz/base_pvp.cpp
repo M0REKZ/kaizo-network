@@ -47,6 +47,8 @@ bool CGameControllerBasePvP::OnCharacterTakeDamage(CCharacter *pChar, vec2 Force
 	if(!pChar)
 		return false;
 
+	pChar->GetCoreKZ().m_Vel += Force;
+
 	if(GameServer()->m_pController->IsFriendlyFire(pChar->GetPlayer()->GetCid(), From) && !g_Config.m_SvTeamdamage)
 		return false;
 
@@ -137,7 +139,9 @@ bool CGameControllerBasePvP::OnCharacterTakeDamage(CCharacter *pChar, vec2 Force
 	else
 		GameServer()->CreateSound(pChar->m_Pos, SOUND_PLAYER_PAIN_SHORT);
 
-	return false;
+	pChar->SetEmote(EMOTE_PAIN, Server()->Tick() + 500 * Server()->TickSpeed() / 1000);
+
+	return true;
 }
 
 bool CGameControllerBasePvP::CharacterFireWeapon(CCharacter *pChar)
