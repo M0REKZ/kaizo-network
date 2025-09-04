@@ -163,7 +163,6 @@ void CCharacter::Destroy()
 	GameServer()->m_World.m_Core.m_apCharacters[m_pPlayer->GetCid()] = nullptr;
 	m_Alive = false;
 	SetSolo(false);
-	GameServer()->m_pController->OnCharacterDestroy(this); //+KZ
 }
 
 void CCharacter::SetWeapon(int W)
@@ -477,9 +476,6 @@ void CCharacter::HandleWeaponSwitch()
 
 void CCharacter::FireWeapon()
 {
-	if(GameServer()->m_pController->CharacterFireWeapon(this))
-		return;
-
 	if(m_ReloadTimer != 0)
 	{
 		if(m_LatestInput.m_Fire & 1)
@@ -852,9 +848,6 @@ void CCharacter::PreTick()
 
 void CCharacter::Tick()
 {
-	if(GameServer()->m_pController->CharacterTick(this)) //+KZ
-		return;
-
 	if(m_pPlayer->m_PlayerFlags & PLAYERFLAG_AIM)
 	{
 		m_AimPressed = true;
@@ -1106,9 +1099,6 @@ void CCharacter::Die(int Killer, int Weapon, bool SendKillMsg)
 
 bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 {
-	if(GameServer()->m_pController->OnCharacterTakeDamage(this, Force, Dmg, From, Weapon)) //+KZ
-		return true;
-
 	if(Dmg)
 	{
 		SetEmote(EMOTE_PAIN, Server()->Tick() + 500 * Server()->TickSpeed() / 1000);
