@@ -53,6 +53,7 @@ private:
 	[[maybe_unused]] static int gs_PoolDummy##POOLTYPE = (ASAN_POISON_MEMORY_REGION(gs_PoolData##POOLTYPE, sizeof(gs_PoolData##POOLTYPE)), 0); \
 	void *POOLTYPE::operator new(size_t Size, int Id) \
 	{ \
+		printf("%d\n",gs_PoolUsed##POOLTYPE[Id]); \
 		dbg_assert(sizeof(POOLTYPE) >= Size, "size error"); \
 		dbg_assert(!gs_PoolUsed##POOLTYPE[Id], "already used"); \
 		ASAN_UNPOISON_MEMORY_REGION(gs_PoolData##POOLTYPE[Id], sizeof(gs_PoolData##POOLTYPE[Id])); \
