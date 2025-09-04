@@ -68,7 +68,7 @@ void CGameControllerLMS::OnNewMatch()
 
 int CGameControllerLMS::DoWinCheck()
 {
-	if(m_StartingMatch || m_StartingRound || m_WaitingForPlayers)
+	if(m_WinPauseTicks > 0 || m_StartingMatch || m_StartingRound || m_WaitingForPlayers)
 		return 0;
 		
 	// check score win condition
