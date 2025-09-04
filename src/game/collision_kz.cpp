@@ -446,7 +446,7 @@ unsigned char CCollision::GetKZFrontTileIndex(int Index) const
 	return m_pKZFront ? m_pKZFront[Index].m_Index : TILE_AIR;
 }
 
-int CCollision::FastIntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, SKZColFastIntersectLineProjectileParams *pCharCoreParams) const
+int CCollision::FastIntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, SKZColCharCoreParams *pCharCoreParams) const
 {
 	const int Tile0X = round_to_int(Pos0.x)/32;
 	const int Tile0Y = round_to_int(Pos0.y)/32;
@@ -464,7 +464,6 @@ int CCollision::FastIntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec
 
 	int CurTileX = Tile0X;
 	int CurTileY = Tile0Y;
-    int CurTileId = TILE_AIR; // For Weapon Teleporting
 	vec2 Pos = Pos0;
 
 	bool Vertical = false;
@@ -481,14 +480,7 @@ int CCollision::FastIntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec
 
 	while(CurTileX != Tile1X || CurTileY != Tile1Y)
 	{
-        CurTileId = GetTile(CurTileX*32,CurTileY*32); //first check game layer
-        if(pCharCoreParams && pCharCoreParams->pTeleNr && !(CurTileId == TILE_SOLID || CurTileId == TILE_NOHOOK))
-        {
-            *(pCharCoreParams->pTeleNr) = IsTeleportWeapon(GetPureMapIndex(CurTileX*32,CurTileY*32));
-            CurTileId = *(pCharCoreParams->pTeleNr) ? TILE_TELEINWEAPON : TILE_AIR;
-        }
-
-		if(IsSolid(CurTileX*32,CurTileY*32) || CheckPointForCore(CurTileX*32, CurTileY*32, pCharCoreParams) || CurTileId == TILE_TELEINWEAPON)
+		if(IsSolid(CurTileX*32,CurTileY*32)|| CheckPointForCore(CurTileX*32, CurTileY*32, pCharCoreParams))
 			break;
 		if(CurTileY != Tile1Y && (CurTileX == Tile1X || Error > 0))
 		{
@@ -503,8 +495,8 @@ int CCollision::FastIntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec
 			Vertical = true;
 		}
 	}
-	int kzid = 0;
-	if((IsSolid(CurTileX*32,CurTileY*32) || (kzid = CheckPointForCore(CurTileX*32, CurTileY*32, pCharCoreParams)) || CurTileId == TILE_TELEINWEAPON))
+    int kzid = 0;
+	if(IsSolid(CurTileX*32,CurTileY*32)|| (kzid = CheckPointForCore(CurTileX*32, CurTileY*32, pCharCoreParams)))
 	{
 		if(CurTileX != Tile0X || CurTileY != Tile0Y)
 		{
@@ -530,9 +522,7 @@ int CCollision::FastIntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec
 				Dir *= 0.5f / absolute(Dir.y) + 1.f;
 			*pOutBeforeCollision = Pos - Dir;
 		}
-		if(CurTileId)
-			return CurTileId;
-        else if(kzid)
+        if(kzid)
             return kzid;
         else
 		    return GetTile(CurTileX*32,CurTileY*32);

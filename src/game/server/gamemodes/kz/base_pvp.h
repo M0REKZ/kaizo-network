@@ -15,7 +15,6 @@ public:
 	virtual int OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int Weapon) override;
 	virtual bool OnEntity(int Index, int x, int y, int Layer, int Flags, bool Initial, int Number = 0) override;
 	virtual void OnCharacterSpawn(class CCharacter *pChr) override;
-	virtual void HandleGameInfoEx(CNetObj_GameInfoEx *pGameInfoEx) override;
 
 	int m_InstagibWeapon = -1;
 

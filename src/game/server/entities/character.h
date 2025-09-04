@@ -9,8 +9,6 @@
 #include <game/server/save.h>
 #include <game/mapitems.h>
 
-#include <game/server/kz/rollback.h>
-
 class CGameTeams;
 class CGameWorld;
 class IAntibot;
@@ -316,8 +314,6 @@ public:
 	int &GetLastNoAmmoSoundKZ() { return m_LastNoAmmoSound; }
 	int &GetAttackTickKZ() { return m_AttackTick; }
 	int &GetNumObjectsHitKZ() { return m_NumObjectsHit; }
-
-	CRollbackPositionHistory m_Positions[ROLLBACK_POSITION_HISTORY];
 };
 
 #endif
