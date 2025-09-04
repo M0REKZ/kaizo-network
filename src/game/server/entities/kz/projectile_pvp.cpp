@@ -17,13 +17,14 @@ void CProjectilePvP::Tick()
 
 	CProjectileKZ::Tick();
 	
-	if(m_LifeSpan == -1 && m_Type == WEAPON_GRENADE)
+	if(m_LifeSpan == -1 && m_Type == WEAPON_GRENADE && !m_Exploded)
 	{
 		if(!m_Rollback)
 			GameServer()->CreateExplosion(m_Pos, m_Owner, m_Type, false, -1);
 		else
 			GameServer()->m_Rollback.CreateExplosionOnTick(m_Pos, m_Owner, m_Type, false, -1, m_CollidedTick);
 		GameServer()->CreateSound(m_Pos, SOUND_GRENADE_EXPLODE);
+		m_Exploded = true;
 	}
 }
 
@@ -33,13 +34,14 @@ void CProjectilePvP::OnCollide(vec2 PrevPos, int TileIndex, vec2 *pPreIntersectP
 
 	if(m_MarkedForDestroy) //Reset was called on base class
 	{
-		if(m_Type == WEAPON_GRENADE)
+		if(m_Type == WEAPON_GRENADE && !m_Exploded)
 		{
 			if(!m_Rollback)
 				GameServer()->CreateExplosion(*pPreIntersectPos, m_Owner, m_Type, false, -1);
 			else
 				GameServer()->m_Rollback.CreateExplosionOnTick(*pPreIntersectPos, m_Owner, m_Type, false, -1, m_CollidedTick);
 			GameServer()->CreateSound(*pPreIntersectPos, SOUND_GRENADE_EXPLODE);
+			m_Exploded = true;
 		}
 
 		if(TileIndex == TILE_NOHOOK) //make metallic sound because yes
@@ -54,11 +56,15 @@ void CProjectilePvP::OnCharacterCollide(vec2 PrevPos, CCharacter *pChar, vec2 *p
 	switch (m_Type)
 	{
 		case WEAPON_GRENADE:
-			if(!m_Rollback)
-				GameServer()->CreateExplosion(*pIntersectPos, m_Owner, m_Type, false, -1);
-			else
-				GameServer()->m_Rollback.CreateExplosionOnTick(*pIntersectPos, m_Owner, m_Type, false, -1, m_CollidedTick);
-			GameServer()->CreateSound(*pIntersectPos, SOUND_GRENADE_EXPLODE);
+			if(!m_Exploded)
+			{
+				if(!m_Rollback)
+					GameServer()->CreateExplosion(*pIntersectPos, m_Owner, m_Type, false, -1);
+				else
+					GameServer()->m_Rollback.CreateExplosionOnTick(*pIntersectPos, m_Owner, m_Type, false, -1, m_CollidedTick);
+				GameServer()->CreateSound(*pIntersectPos, SOUND_GRENADE_EXPLODE);
+				m_Exploded = true;
+			}
 			break;
 		case WEAPON_SHOTGUN:
 			pChar->TakeDamage(normalize(*pIntersectPos - PrevPos),1,m_Owner,WEAPON_SHOTGUN);
