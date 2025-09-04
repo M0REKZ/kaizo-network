@@ -183,30 +183,30 @@ void CLayerTiles::Render(bool Tileset)
 	Graphics()->TextureSet(Texture);
 
 	ColorRGBA ColorEnv = ColorRGBA(1.0f, 1.0f, 1.0f, 1.0f);
-	CEditor::EnvelopeEval(m_ColorEnvOffset, m_ColorEnv, ColorEnv, 4, m_pEditor);
+	m_pEditor->EnvelopeEval(m_ColorEnvOffset, m_ColorEnv, ColorEnv, 4);
 	const ColorRGBA Color = ColorRGBA(m_Color.r / 255.0f, m_Color.g / 255.0f, m_Color.b / 255.0f, m_Color.a / 255.0f).Multiply(ColorEnv);
 
 	Graphics()->BlendNone();
-	m_pEditor->RenderTools()->RenderTilemap(m_pTiles, m_Width, m_Height, 32.0f, Color, LAYERRENDERFLAG_OPAQUE);
+	m_pEditor->RenderMap()->RenderTilemap(m_pTiles, m_Width, m_Height, 32.0f, Color, LAYERRENDERFLAG_OPAQUE);
 	Graphics()->BlendNormal();
-	m_pEditor->RenderTools()->RenderTilemap(m_pTiles, m_Width, m_Height, 32.0f, Color, LAYERRENDERFLAG_TRANSPARENT);
+	m_pEditor->RenderMap()->RenderTilemap(m_pTiles, m_Width, m_Height, 32.0f, Color, LAYERRENDERFLAG_TRANSPARENT);
 
 	// Render DDRace Layers
 	if(!Tileset)
 	{
 		int OverlayRenderFlags = (g_Config.m_ClTextEntitiesEditor ? OVERLAYRENDERFLAG_TEXT : 0) | OVERLAYRENDERFLAG_EDITOR;
 		if(m_HasTele)
-			m_pEditor->RenderTools()->RenderTeleOverlay(static_cast<CLayerTele *>(this)->m_pTeleTile, m_Width, m_Height, 32.0f, OverlayRenderFlags);
+			m_pEditor->RenderMap()->RenderTeleOverlay(static_cast<CLayerTele *>(this)->m_pTeleTile, m_Width, m_Height, 32.0f, OverlayRenderFlags);
 		if(m_HasSpeedup)
-			m_pEditor->RenderTools()->RenderSpeedupOverlay(static_cast<CLayerSpeedup *>(this)->m_pSpeedupTile, m_Width, m_Height, 32.0f, OverlayRenderFlags);
+			m_pEditor->RenderMap()->RenderSpeedupOverlay(static_cast<CLayerSpeedup *>(this)->m_pSpeedupTile, m_Width, m_Height, 32.0f, OverlayRenderFlags);
 		if(m_HasSwitch)
-			m_pEditor->RenderTools()->RenderSwitchOverlay(static_cast<CLayerSwitch *>(this)->m_pSwitchTile, m_Width, m_Height, 32.0f, OverlayRenderFlags);
+			m_pEditor->RenderMap()->RenderSwitchOverlay(static_cast<CLayerSwitch *>(this)->m_pSwitchTile, m_Width, m_Height, 32.0f, OverlayRenderFlags);
 		if(m_HasTune)
-			m_pEditor->RenderTools()->RenderTuneOverlay(static_cast<CLayerTune *>(this)->m_pTuneTile, m_Width, m_Height, 32.0f, OverlayRenderFlags);
+			m_pEditor->RenderMap()->RenderTuneOverlay(static_cast<CLayerTune *>(this)->m_pTuneTile, m_Width, m_Height, 32.0f, OverlayRenderFlags);
 		if(m_HasKZGame)
-			m_pEditor->RenderTools()->RenderKZGameOverlay(static_cast<CLayerKZGame *>(this)->m_pKZTile, m_Width, m_Height, 32.0f, OverlayRenderFlags);
+			m_pEditor->RenderMap()->RenderKZGameOverlay(static_cast<CLayerKZGame *>(this)->m_pKZTile, m_Width, m_Height, 32.0f, OverlayRenderFlags);
 		if(m_HasKZFront)
-			m_pEditor->RenderTools()->RenderKZFrontOverlay(static_cast<CLayerKZFront *>(this)->m_pKZTile, m_Width, m_Height, 32.0f, OverlayRenderFlags);
+			m_pEditor->RenderMap()->RenderKZFrontOverlay(static_cast<CLayerKZFront *>(this)->m_pKZTile, m_Width, m_Height, 32.0f, OverlayRenderFlags);
 	}
 }
 
@@ -812,7 +812,7 @@ void CLayerTiles::Resize(int NewW, int NewH)
 		m_pEditor->m_Map.m_pTuneLayer->Resize(NewW, NewH);
 }
 
-void CLayerTiles::Shift(int Direction)
+void CLayerTiles::Shift(EShiftDirection Direction)
 {
 	ShiftImpl(m_pTiles, Direction, m_pEditor->m_ShiftBy);
 }
@@ -1190,7 +1190,7 @@ CUi::EPopupMenuFunctionResult CLayerTiles::RenderProperties(CUIRect *pToolBox)
 	}
 	else if(Prop == ETilesProp::PROP_SHIFT)
 	{
-		Shift(NewVal);
+		Shift((EShiftDirection)NewVal);
 	}
 	else if(Prop == ETilesProp::PROP_SHIFT_BY)
 	{
@@ -1424,7 +1424,7 @@ CUi::EPopupMenuFunctionResult CLayerTiles::RenderCommonProperties(SCommonPropSta
 	else if(Prop == ETilesCommonProp::PROP_SHIFT)
 	{
 		for(auto &pLayer : vpLayers)
-			pLayer->Shift(NewVal);
+			pLayer->Shift((EShiftDirection)NewVal);
 	}
 	else if(Prop == ETilesCommonProp::PROP_SHIFT_BY)
 	{
