@@ -236,7 +236,7 @@ void CPlayer::Tick()
 				if(!m_Paused)
 					m_ViewPos = m_pCharacter->m_Pos;
 			}
-			else if(!m_pCharacter->IsPaused())
+			else if(m_pCharacter->IsPaused() ? m_IsDead : true) //+KZ modified, delete character if dead
 			{
 				delete m_pCharacter;
 				m_pCharacter = nullptr;
@@ -301,7 +301,7 @@ void CPlayer::PostTick()
 	}
 
 	// update view pos for spectators
-	if((m_Team == TEAM_SPECTATORS || m_Paused) && m_SpectatorId != SPEC_FREEVIEW && GameServer()->m_apPlayers[m_SpectatorId] && GameServer()->m_apPlayers[m_SpectatorId]->GetCharacter())
+	if((m_Team == TEAM_SPECTATORS || m_Paused || m_IsDead) && m_SpectatorId != SPEC_FREEVIEW && GameServer()->m_apPlayers[m_SpectatorId] && GameServer()->m_apPlayers[m_SpectatorId]->GetCharacter())
 		m_ViewPos = GameServer()->m_apPlayers[m_SpectatorId]->GetCharacter()->m_Pos;
 }
 
@@ -389,13 +389,15 @@ void CPlayer::Snap(int SnappingClient)
 			pPlayerInfo->m_PlayerFlags |= protocol7::PLAYERFLAG_AIM;
 		if(Server()->IsRconAuthed(m_ClientId) && ((SnappingClient >= 0 && Server()->IsRconAuthed(SnappingClient)) || !Server()->HasAuthHidden(m_ClientId)))
 			pPlayerInfo->m_PlayerFlags |= protocol7::PLAYERFLAG_ADMIN;
+		if(m_IsDead) //+KZ
+			pPlayerInfo->m_PlayerFlags |= protocol7::PLAYERFLAG_DEAD;
 
 		// Times are in milliseconds for 0.7
 		pPlayerInfo->m_Score = (GameServer()->m_pController && GameServer()->m_pController->m_IsPVPGametype) ? m_ScoreKZ : (m_Score.has_value() ? GameServer()->Score()->PlayerData(m_ClientId)->m_BestTime * 1000 : -1);
 		pPlayerInfo->m_Latency = Latency;
 	}
 
-	if(m_ClientId == SnappingClient && (m_Team == TEAM_SPECTATORS || m_Paused))
+	if(m_ClientId == SnappingClient && (m_Team == TEAM_SPECTATORS || m_Paused || m_IsDead))
 	{
 		if(!Server()->IsSixup(SnappingClient))
 		{
@@ -495,7 +497,7 @@ void CPlayer::Snap(int SnappingClient)
 		pDDNetPlayer->m_Flags |= EXPLAYERFLAG_AFK;
 	if(m_Paused == PAUSE_SPEC)
 		pDDNetPlayer->m_Flags |= EXPLAYERFLAG_SPEC;
-	if(m_Paused == PAUSE_PAUSED)
+	if(m_Paused == PAUSE_PAUSED || m_IsDead)
 		pDDNetPlayer->m_Flags |= EXPLAYERFLAG_PAUSED;
 
 	if(Server()->IsSixup(SnappingClient) && m_pCharacter && m_pCharacter->m_DDRaceState == ERaceState::STARTED &&
@@ -507,7 +509,7 @@ void CPlayer::Snap(int SnappingClient)
 		pRaceInfo->m_RaceStartTick = m_pCharacter->m_StartTime;
 	}
 
-	bool ShowSpec = m_pCharacter && m_pCharacter->IsPaused() && m_pCharacter->CanSnapCharacter(SnappingClient);
+	bool ShowSpec = !m_IsDead && m_pCharacter && m_pCharacter->IsPaused() && m_pCharacter->CanSnapCharacter(SnappingClient);
 
 	if(SnappingClient != SERVER_DEMO_CLIENT)
 	{
@@ -599,7 +601,7 @@ void CPlayer::OnDirectInput(const CNetObj_PlayerInput *pNewInput)
 
 	AfkTimer();
 
-	if(((pNewInput->m_PlayerFlags & PLAYERFLAG_SPEC_CAM) || GetClientVersion() < VERSION_DDNET_PLAYERFLAG_SPEC_CAM) && ((!m_pCharacter && m_Team == TEAM_SPECTATORS) || m_Paused) && m_SpectatorId == SPEC_FREEVIEW)
+	if(((pNewInput->m_PlayerFlags & PLAYERFLAG_SPEC_CAM) || GetClientVersion() < VERSION_DDNET_PLAYERFLAG_SPEC_CAM) && ((!m_pCharacter && m_Team == TEAM_SPECTATORS) || m_Paused || m_IsDead) && m_SpectatorId == SPEC_FREEVIEW)
 		m_ViewPos = vec2(pNewInput->m_TargetX, pNewInput->m_TargetY);
 
 	// check for activity
@@ -759,6 +761,9 @@ bool CPlayer::SetTimerType(int TimerType)
 
 void CPlayer::TryRespawn()
 {
+	if(m_IsDead) //+KZ
+		return;
+
 	vec2 SpawnPos;
 
 	if(!GameServer()->m_pController->CanSpawn(m_Team, &SpawnPos, GameServer()->GetDDRaceTeam(m_ClientId)))
@@ -922,7 +927,7 @@ int CPlayer::ForcePause(int Time)
 
 int CPlayer::IsPaused() const
 {
-	return m_ForcePauseTime ? m_ForcePauseTime : -1 * m_Paused;
+	return m_IsDead || (m_ForcePauseTime ? m_ForcePauseTime : -1 * m_Paused); //+KZ added isdead
 }
 
 bool CPlayer::IsPlaying() const

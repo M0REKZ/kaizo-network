@@ -548,6 +548,19 @@ void CGameContext::SetPlayerLastAckedSnapshot(int ClientId, int Tick)
 	m_apPlayers[ClientId]->m_LastAckedSnapshot = Tick;
 }
 
+const char * CGameContext::GetScoreKind()
+{
+	if(m_pController)
+	{
+		if(m_pController->m_IsPVPGametype)
+		{
+			return "points";
+		}
+	}
+
+	return "time";
+}
+
 void CGameContext::ConRollback(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;

@@ -403,6 +403,7 @@ public:
 
 	//+KZ PVP
 	virtual void SetPlayerLastAckedSnapshot(int ClientId, int Tick){} //+KZ rollback
+	virtual const char * GetScoreKind() { return "time"; }
 };
 
 extern IGameServer *CreateGameServer();
