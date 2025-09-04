@@ -256,7 +256,7 @@ MACRO_CONFIG_INT(ClShowStartMenuImages, cl_show_start_menu_images, 1, 0, 1, CFGF
 MACRO_CONFIG_INT(ClSkipStartMenu, cl_skip_start_menu, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Skip the start menu")
 
 // server
-MACRO_CONFIG_INT(SvWarmup, sv_warmup, 0, 0, 99999, CFGFLAG_SERVER, "Number of seconds to do warmup before round starts")
+MACRO_CONFIG_INT(SvWarmup, sv_warmup, 0, 0, 0, CFGFLAG_SERVER, "Number of seconds to do warmup before round starts")
 MACRO_CONFIG_STR(SvMotd, sv_motd, 900, "", CFGFLAG_SERVER, "Message of the day to display for the clients")
 MACRO_CONFIG_STR(SvGametype, sv_gametype, 32, "ddnet", CFGFLAG_SERVER, "Game type (ddnet, mod)")
 MACRO_CONFIG_INT(SvTournamentMode, sv_tournament_mode, 0, 0, 1, CFGFLAG_SERVER, "Tournament mode. When enabled, players joins the server as spectator")
@@ -795,5 +795,3 @@ MACRO_CONFIG_INT(SvPickupParticles, sv_pickup_particles, 1, 0, 1, CFGFLAG_SERVER
 MACRO_CONFIG_INT(SvSurvivalLives, sv_survival_lives, 0, 0, 100, CFGFLAG_SERVER, "LMS/LTS Lives")
 MACRO_CONFIG_STR(SvInstagibWeapon, sv_instagib_weapon, 256, "", CFGFLAG_SERVER, "Instagib weapon")
 MACRO_CONFIG_INT(SvInstagibMinDamage, sv_instagib_min_damage, 5, 0, 999, CFGFLAG_SERVER, "Minimal damage to kill on instagib")
-MACRO_CONFIG_INT(SvRollback, sv_rollback, 1, 0, 1, CFGFLAG_SERVER, "Allow /rollback")
-MACRO_CONFIG_INT(SvAllowZoom, sv_allow_zoom, 0, 0, 1, CFGFLAG_SERVER, "Allow Zoom")

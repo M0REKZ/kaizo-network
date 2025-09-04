@@ -11,7 +11,7 @@
 #include <game/server/score.h>
 #include <game/version.h>
 
-#include <game/server/entities/kz/projectile_pvp.h>
+#include <game/server/entities/projectile.h>
 #include <game/server/entities/laser.h>
 #include <game/server/entities/kz/pickup_pvp.h>
 
@@ -23,7 +23,6 @@ CGameControllerBasePvP::CGameControllerBasePvP(class CGameContext *pGameServer) 
 {
 	m_pGameType = g_Config.m_SvTestingCommands ? TEST_TYPE_NAME : GAME_TYPE_NAME;
 	m_GameFlags = 0;
-	m_IsPVPGametype = true;
 
 	if(g_Config.m_SvTuneReset)
 	{
@@ -202,7 +201,7 @@ bool CGameControllerBasePvP::CharacterFireWeapon(CCharacter *pChar)
 
 			CEntity *apEnts[MAX_CLIENTS];
 			int Hits = 0;
-			int Num = GameServer()->m_Rollback.FindCharactersOnTick(ProjStartPos, pChar->GetProximityRadius()*0.5f, (CEntity**)apEnts, MAX_CLIENTS, pChar->GetPlayer()->m_RollbackEnabled ? pChar->GetPlayer()->m_LastAckedSnapshot : -1); //modified for rollback
+			int Num = GameServer()->m_World.FindEntities(ProjStartPos, pChar->GetProximityRadius() * 0.5f, apEnts, MAX_CLIENTS, CGameWorld::ENTTYPE_CHARACTER);
 
 			for(int i = 0; i < Num; ++i)
 			{
@@ -239,7 +238,20 @@ bool CGameControllerBasePvP::CharacterFireWeapon(CCharacter *pChar)
 
 		case WEAPON_GUN:
 		{
-			new CProjectilePvP(&GameServer()->m_World, pChar->GetPlayer()->GetCid(), ProjStartPos, Direction, WEAPON_GUN);
+			int Lifetime = (int)(Server()->TickSpeed() * pChar->GetTuning(pChar->m_TuneZone)->m_GunLifetime);
+
+			new CProjectile(
+				&GameServer()->m_World,
+				WEAPON_GUN, //Type
+				pChar->GetPlayer()->GetCid(), //Owner
+				ProjStartPos, //Pos
+				Direction, //Dir
+				Lifetime, //Span
+				false, //Freeze
+				false, //Explosive
+				-1, //SoundImpact
+				MouseTarget //InitDir
+				);
 
 			GameServer()->CreateSound(pChar->m_Pos, SOUND_GUN_FIRE);
 		} break;
@@ -247,6 +259,7 @@ bool CGameControllerBasePvP::CharacterFireWeapon(CCharacter *pChar)
 		case WEAPON_SHOTGUN:
 		{
 			int ShotSpread = 2;
+			int Lifetime = (int)(Server()->TickSpeed() * pChar->GetTuning(pChar->m_TuneZone)->m_ShotgunLifetime);
 
 			for(int i = -ShotSpread; i <= ShotSpread; ++i)
 			{
@@ -256,7 +269,18 @@ bool CGameControllerBasePvP::CharacterFireWeapon(CCharacter *pChar)
 				float v = 1 - (absolute(i) / (float)ShotSpread);
 				float Speed = mix((float)GameServer()->Tuning()->m_ShotgunSpeeddiff, 1.0f, v);
 				
-				new CProjectilePvP(&GameServer()->m_World, pChar->GetPlayer()->GetCid(), ProjStartPos, direction(Angle)*Speed, WEAPON_SHOTGUN);
+				new CProjectile(
+				&GameServer()->m_World,
+				WEAPON_SHOTGUN, //Type
+				pChar->GetPlayer()->GetCid(), //Owner
+				ProjStartPos, //Pos
+				direction(Angle)*Speed, //Dir
+				Lifetime, //Span
+				false, //Freeze
+				false, //Explosive
+				-1, //SoundImpact
+				MouseTarget //InitDir
+				);
 			}
 
 			GameServer()->CreateSound(pChar->m_Pos, SOUND_SHOTGUN_FIRE);
@@ -264,7 +288,20 @@ bool CGameControllerBasePvP::CharacterFireWeapon(CCharacter *pChar)
 
 		case WEAPON_GRENADE:
 		{
-			new CProjectilePvP(&GameServer()->m_World, pChar->GetPlayer()->GetCid(), ProjStartPos, Direction, WEAPON_GRENADE);
+			int Lifetime = (int)(Server()->TickSpeed() * pChar->GetTuning(pChar->m_TuneZone)->m_GrenadeLifetime);
+
+			new CProjectile(
+				&GameServer()->m_World,
+				WEAPON_GRENADE, //Type
+				pChar->GetPlayer()->GetCid(), //Owner
+				ProjStartPos, //Pos
+				Direction, //Dir
+				Lifetime, //Span
+				false, //Freeze
+				true, //Explosive
+				SOUND_GRENADE_EXPLODE, //SoundImpact
+				MouseTarget // MouseTarget
+			);
 
 			GameServer()->CreateSound(pChar->m_Pos, SOUND_GRENADE_FIRE);
 		} break;
@@ -390,31 +427,4 @@ void CGameControllerBasePvP::OnCharacterSpawn(CCharacter *pChr)
 	pChr->GiveWeapon(m_InstagibWeapon);
 	pChr->SetActiveWeapon(m_InstagibWeapon);
 
-}
-
-void CGameControllerBasePvP::HandleGameInfoEx(CNetObj_GameInfoEx *pGameInfoEx)
-{
-	pGameInfoEx->m_Flags =
-		//GAMEINFOFLAG_TIMESCORE | //+KZ
-		GAMEINFOFLAG_GAMETYPE_RACE |
-		GAMEINFOFLAG_GAMETYPE_DDRACE |
-		GAMEINFOFLAG_GAMETYPE_DDNET |
-		GAMEINFOFLAG_UNLIMITED_AMMO |
-		GAMEINFOFLAG_RACE_RECORD_MESSAGE |
-		GAMEINFOFLAG_ALLOW_EYE_WHEEL |
-		GAMEINFOFLAG_ALLOW_HOOK_COLL |
-		//GAMEINFOFLAG_ALLOW_ZOOM |
-		GAMEINFOFLAG_BUG_DDRACE_GHOST |
-		//GAMEINFOFLAG_BUG_DDRACE_INPUT | //+KZ
-		//GAMEINFOFLAG_PREDICT_DDRACE | //+KZ
-		//GAMEINFOFLAG_PREDICT_DDRACE_TILES | //+KZ
-		GAMEINFOFLAG_ENTITIES_DDNET |
-		GAMEINFOFLAG_ENTITIES_DDRACE |
-		GAMEINFOFLAG_ENTITIES_RACE |
-		GAMEINFOFLAG_RACE;
-	
-	pGameInfoEx->m_Flags |= GAMEINFOFLAG_PREDICT_VANILLA | GAMEINFOFLAG_GAMETYPE_VANILLA; 
-	pGameInfoEx->m_Flags2 |= GAMEINFOFLAG2_HUD_HEALTH_ARMOR | GAMEINFOFLAG2_HUD_AMMO;
-	if(g_Config.m_SvAllowZoom)
-		pGameInfoEx->m_Flags |= GAMEINFOFLAG_ALLOW_ZOOM;
 }

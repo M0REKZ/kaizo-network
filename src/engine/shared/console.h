@@ -77,7 +77,6 @@ class CConsole : public IConsole
 		MAX_PARTS = (CONSOLE_MAX_STR_LENGTH + 1) / 2
 	};
 
-	public: //+KZ yeah very evil, but i need CResult, not IResult
 	class CResult : public IResult
 	{
 	public:
