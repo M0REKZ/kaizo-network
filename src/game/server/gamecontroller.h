@@ -156,21 +156,6 @@ public:
 	virtual bool OnEntityKZ(int Index, int x, int y, int Layer, int Flags, bool Initial, unsigned char Number = 0, int64_t Value1 = 0, int64_t Value2 = 0, int64_t Value3 = 0) { return false; };
 	virtual void OnNewRecordKZ(int ClientId, float Time, float PrevTime) {};
 	bool m_ShowHealth = false;
-
-	//PVP KZ
-	virtual bool CharacterTick(CCharacter *pChar) { return false; }
-	virtual bool CharacterFireWeapon(CCharacter *pChar) { return false; }
-	virtual bool OnCharacterTakeDamage(CCharacter *pChar, vec2 Force, int Dmg, int From, int Weapon) { return false; }
-	virtual void OnCharacterDestroy(const CCharacter *pChar) {}
-	virtual bool IsFriendlyFire(int ClientID1, int ClientID2) { return false; };
-	virtual void OnNewMatch() {};
-	bool HasEnoughPlayers() const;
-	bool m_WaitingForPlayers = false;
-	bool m_StartingMatch = false;
-	bool m_StartingRound = false;
-	int m_PausedTicks = 0;
-	int m_WinPauseTicks = 0;
-	bool m_IsRoundEnd = false;
 };
 
 #endif
