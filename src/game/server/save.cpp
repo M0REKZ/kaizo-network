@@ -260,7 +260,7 @@ bool CSaveTee::Load(CCharacter *pChr, std::optional<int> Team)
 		Valid = false;
 	}
 	else //+KZ
-		Valid = LoadKZ(pChr,Team,IsSwap);
+		Valid = LoadKZ(pChr,Team);
 
 	return Valid;
 }

@@ -5,7 +5,7 @@
 #include <game/server/entities/character.h>
 #include <engine/shared/config.h>
 
-#include <game/generated/protocol.h>
+#include <generated/protocol.h>
 #include <game/mapitems.h>
 #include <game/teamscore.h>
 

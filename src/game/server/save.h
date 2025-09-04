@@ -158,7 +158,7 @@ private:
 	//+KZ
 
 	void SaveKZ(CCharacter *pchr, bool AddPenalty = true);
-	bool LoadKZ(CCharacter *pchr, int Team, bool IsSwap = false);
+	bool LoadKZ(CCharacter *pchr, std::optional<int> Team);
 
 	int m_Health = 10;
 	int m_CustomWeapon = 0;

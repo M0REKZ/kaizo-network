@@ -23,7 +23,7 @@ void CSaveTee::SaveKZ(CCharacter *pchr, bool AddPenalty)
     }
 }
 
-bool CSaveTee::LoadKZ(CCharacter *pchr, int Team, bool IsSwap)
+bool CSaveTee::LoadKZ(CCharacter *pchr, std::optional<int> Team)
 {
     pchr->m_Health = m_Health;
     pchr->m_CustomWeapon = m_CustomWeapon;

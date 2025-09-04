@@ -24,8 +24,8 @@
 #include <game/mapitems.h>
 #include <game/version.h>
 
-#include <game/generated/protocol7.h>
-#include <game/generated/protocolglue.h>
+#include <generated/protocol7.h>
+#include <generated/protocolglue.h>
 
 #include "entities/character.h"
 #include "entities/kz/portal.h"
@@ -463,7 +463,7 @@ void CGameContext::IdentifyClientName(int ClientId, char *pName, int StrSize)
 
 			for(int p = 0; p < protocol7::NUM_SKINPARTS; p++)
 			{
-				if(str_startswith(m_apPlayers[ClientId]->m_TeeInfos.m_apSkinPartNames[p], pClientString)) ///seems that they put that info in the skin itself
+				if(str_startswith(m_apPlayers[ClientId]->m_TeeInfos.m_aaSkinPartNames[p], pClientString)) ///seems that they put that info in the skin itself
 				{
 					str_copy(aName, pClientName, StrSize);
 					break;

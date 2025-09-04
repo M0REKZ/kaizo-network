@@ -2,7 +2,7 @@
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
 #include "portal.h"
 
-#include <game/generated/protocol.h>
+#include <generated/protocol.h>
 #include <game/mapitems.h>
 #include <game/teamscore.h>
 
