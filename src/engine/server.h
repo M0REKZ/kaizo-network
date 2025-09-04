@@ -402,7 +402,7 @@ public:
 	virtual void OnUpdatePlayerServerInfo(CJsonStringWriter *pJSonWriter, int Id) = 0;
 
 	//+KZ PVP
-	virtual void SetPlayerLastAckedSnapshot(int ClientId, int Tick){} //+KZ rollback
+	virtual void SetPlayerLastAckedSnapshot(int ClientId, int Tick){}; //+KZ rollback
 };
 
 extern IGameServer *CreateGameServer();
