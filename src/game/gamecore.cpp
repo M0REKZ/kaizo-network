@@ -135,6 +135,13 @@ void CCharacterCore::Init(CWorldCore *pWorld, CCollision *pCollision, CTeamsCore
 
 	// fail safe, if core's tuning didn't get updated at all, just fallback to world tuning.
 	m_Tuning = m_pWorld->m_aTuning[g_Config.m_ClDummy];
+
+	//+KZ
+	m_CharCoreParams.pCore = this;
+	m_CharCoreParams.IsHook = false;
+	m_CharCoreParams.IsWeapon = false;
+
+	m_GenericParams.pCore = this;
 }
 
 void CCharacterCore::SetCoreWorld(CWorldCore *pWorld, CCollision *pCollision, CTeamsCore *pTeams)
@@ -194,7 +201,7 @@ void CCharacterCore::Tick(bool UseInput, bool DoDeferredTick)
 	m_TriggeredEvents = 0;
 
 	// get ground state
-	const bool Grounded = m_pCollision->CheckPoint(m_Pos.x + PhysicalSize() / 2, m_Pos.y + PhysicalSize() / 2 + 5,this) || m_pCollision->CheckPoint(m_Pos.x - PhysicalSize() / 2, m_Pos.y + PhysicalSize() / 2 + 5,this);
+	const bool Grounded = m_pCollision->CheckPoint(m_Pos.x + PhysicalSize() / 2, m_Pos.y + PhysicalSize() / 2 + 5, &m_CharCoreParams) || m_pCollision->CheckPoint(m_Pos.x - PhysicalSize() / 2, m_Pos.y + PhysicalSize() / 2 + 5, &m_CharCoreParams);
 	vec2 TargetDirection = normalize(vec2(m_Input.m_TargetX, m_Input.m_TargetY));
 
 	m_Vel.y += m_Tuning.m_Gravity;
@@ -331,7 +338,7 @@ void CCharacterCore::Tick(bool UseInput, bool DoDeferredTick)
 		bool GoingToRetract = false;
 		bool GoingThroughTele = false;
 		int teleNr = 0;
-		int Hit = m_pCollision->IntersectLineTeleHook(m_HookPos, NewPos, &NewPos, nullptr, &teleNr, this);
+		int Hit = m_pCollision->IntersectLineTeleHook(m_HookPos, NewPos, &NewPos, nullptr, &teleNr, &m_GenericParams);
 
 		if(Hit)
 		{
@@ -541,7 +548,7 @@ void CCharacterCore::Move()
 	m_pCollision->MoveBox(&NewPos, &m_Vel, PhysicalSizeVec2(),
 		vec2(m_Tuning.m_GroundElasticityX,
 			m_Tuning.m_GroundElasticityY),
-		&Grounded,this);
+		&Grounded, &m_CharCoreParams);
 
 	if(Grounded)
 	{
@@ -758,3 +765,5 @@ void CWorldCore::InitSwitchers(int HighestSwitchNumber)
 		}
 	}
 }
+
+const CTuningParams CTuningParams::DEFAULT;

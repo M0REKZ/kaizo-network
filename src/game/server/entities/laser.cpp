@@ -5,9 +5,9 @@
 
 #include <engine/shared/config.h>
 
-#include <game/generated/protocol.h>
-#include <game/mapitems.h>
+#include <generated/protocol.h>
 
+#include <game/mapitems.h>
 #include <game/server/gamecontext.h>
 #include <game/server/gamemodes/DDRace.h>
 
@@ -142,9 +142,17 @@ void CLaser::DoBounce()
 	vec2 To = m_Pos + m_Dir * m_Energy;
 
 	//+KZ
-	CCollision::CKZColLaserParams ParamsKZ = {m_Pos, To, m_Type, m_Owner, m_Bounces};
+	SKZColTeleWeaponParams ParamsKZ;
+	ParamsKZ.From = m_Pos;
+	ParamsKZ.To = To;
+	ParamsKZ.Type = m_Type;
+	ParamsKZ.OwnerId = m_Owner;
+	ParamsKZ.BounceNum = m_Bounces;
+	SKZColCharCoreParams ParamsKZ2;
+	ParamsKZ.pCharCoreParams = &ParamsKZ2;
+	ParamsKZ2.pCore = pOwnerCore;
 
-	Res = GameServer()->Collision()->IntersectLineTeleWeapon(m_Pos, To, &Coltile, &To, &z, pOwnerCore, &ParamsKZ); // KZ added pOwnerCore
+	Res = GameServer()->Collision()->IntersectLineTeleWeapon(m_Pos, To, &Coltile, &To, &z, &ParamsKZ); // KZ added ParamsKZ
 
 	if(m_Bounces != ParamsKZ.BounceNum)
 	{
@@ -180,7 +188,7 @@ void CLaser::DoBounce()
 				f = GameServer()->Collision()->GetTile(round_to_int(Coltile.x), round_to_int(Coltile.y));
 				GameServer()->Collision()->SetCollisionAt(round_to_int(Coltile.x), round_to_int(Coltile.y), TILE_SOLID);
 			}
-			GameServer()->Collision()->MovePoint(&TempPos, &TempDir, 1.0f, nullptr, pOwnerCore); // KZ added pOwnerCore
+			GameServer()->Collision()->MovePoint(&TempPos, &TempDir, 1.0f, nullptr, &ParamsKZ2); // KZ added ParamsKZ2
 			if(Res == -1)
 			{
 				GameServer()->Collision()->SetCollisionAt(round_to_int(Coltile.x), round_to_int(Coltile.y), f);
@@ -354,7 +362,7 @@ void CLaser::Snap(int SnappingClient)
 	int SnappingClientVersion = GameServer()->GetClientVersion(SnappingClient);
 	int LaserType = m_Type == WEAPON_LASER ? LASERTYPE_RIFLE : m_Type == WEAPON_SHOTGUN ? LASERTYPE_SHOTGUN : -1;
 
-	GameServer()->SnapLaserObject(CSnapContext(SnappingClientVersion), GetId(),
+	GameServer()->SnapLaserObject(CSnapContext(SnappingClientVersion, Server()->IsSixup(SnappingClient), SnappingClient), GetId(),
 		m_Pos, m_From, m_EvalTick, m_Owner, LaserType, 0, m_Number);
 }
 

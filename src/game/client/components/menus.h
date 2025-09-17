@@ -20,8 +20,8 @@
 
 #include <game/client/component.h>
 #include <game/client/components/mapimages.h>
+#include <game/client/components/menus_ingame_touch_controls.h>
 #include <game/client/lineinput.h>
-#include <game/client/render.h>
 #include <game/client/ui.h>
 #include <game/voting.h>
 
@@ -39,8 +39,8 @@ public:
 	IInput::CEvent m_Key;
 	int m_ModifierCombination;
 	CMenusKeyBinder();
-	virtual int Sizeof() const override { return sizeof(*this); }
-	virtual bool OnInput(const IInput::CEvent &Event) override;
+	int Sizeof() const override { return sizeof(*this); }
+	bool OnInput(const IInput::CEvent &Event) override;
 };
 
 class CMenus : public CComponent
@@ -366,14 +366,17 @@ protected:
 		int m_FriendState;
 		bool m_IsPlayer;
 		bool m_IsAfk;
-		// skin
+		// skin info 0.6
 		char m_aSkin[MAX_SKIN_LENGTH];
 		bool m_CustomSkinColors;
 		int m_CustomSkinColorBody;
 		int m_CustomSkinColorFeet;
+		// skin info 0.7
+		char m_aaSkin7[protocol7::NUM_SKINPARTS][protocol7::MAX_SKIN_LENGTH];
+		bool m_aUseCustomSkinColor7[protocol7::NUM_SKINPARTS];
+		int m_aCustomSkinColor7[protocol7::NUM_SKINPARTS];
 
 	public:
-		CFriendItem() {}
 		CFriendItem(const CFriendInfo *pFriendInfo) :
 			m_pServerInfo(nullptr),
 			m_IsPlayer(false),
@@ -386,6 +389,12 @@ protected:
 			str_copy(m_aClan, pFriendInfo->m_aClan);
 			m_FriendState = m_aName[0] == '\0' ? IFriends::FRIEND_CLAN : IFriends::FRIEND_PLAYER;
 			m_aSkin[0] = '\0';
+			for(int Part = 0; Part < protocol7::NUM_SKINPARTS; Part++)
+			{
+				m_aaSkin7[Part][0] = '\0';
+				m_aUseCustomSkinColor7[Part] = false;
+				m_aCustomSkinColor7[Part] = 0;
+			}
 		}
 		CFriendItem(const CServerInfo::CClient &CurrentClient, const CServerInfo *pServerInfo) :
 			m_pServerInfo(pServerInfo),
@@ -399,6 +408,12 @@ protected:
 			str_copy(m_aName, CurrentClient.m_aName);
 			str_copy(m_aClan, CurrentClient.m_aClan);
 			str_copy(m_aSkin, CurrentClient.m_aSkin);
+			for(int Part = 0; Part < protocol7::NUM_SKINPARTS; Part++)
+			{
+				str_copy(m_aaSkin7[Part], CurrentClient.m_aaSkin7[Part]);
+				m_aUseCustomSkinColor7[Part] = CurrentClient.m_aUseCustomSkinColor7[Part];
+				m_aCustomSkinColor7[Part] = CurrentClient.m_aCustomSkinColor7[Part];
+			}
 		}
 
 		const char *Name() const { return m_aName; }
@@ -407,10 +422,15 @@ protected:
 		int FriendState() const { return m_FriendState; }
 		bool IsPlayer() const { return m_IsPlayer; }
 		bool IsAfk() const { return m_IsAfk; }
+		// 0.6 skin
 		const char *Skin() const { return m_aSkin; }
 		bool CustomSkinColors() const { return m_CustomSkinColors; }
 		int CustomSkinColorBody() const { return m_CustomSkinColorBody; }
 		int CustomSkinColorFeet() const { return m_CustomSkinColorFeet; }
+		// 0.7 skin
+		const char *Skin7(int Part) const { return m_aaSkin7[Part]; }
+		bool UseCustomSkinColor7(int Part) const { return m_aUseCustomSkinColor7[Part]; }
+		int CustomSkinColor7(int Part) const { return m_aCustomSkinColor7[Part]; }
 
 		const void *ListItemId() const { return &m_aName; }
 		const void *RemoveButtonId() const { return &m_FriendState; }
@@ -479,6 +499,12 @@ protected:
 	void PopupConfirmDiscardTouchControlsChanges();
 	void PopupConfirmResetTouchControls();
 	void PopupConfirmImportTouchControlsClipboard();
+	void PopupConfirmDeleteButton();
+	void PopupCancelDeselectButton();
+	void PopupConfirmSelectedNotVisible();
+	void PopupConfirmChangeSelectedButton();
+	void PopupCancelChangeSelectedButton();
+	void PopupConfirmTurnOffEditor();
 	void RenderPlayers(CUIRect MainView);
 	void RenderServerInfo(CUIRect MainView);
 	void RenderServerInfoMotd(CUIRect Motd);
@@ -595,7 +621,7 @@ public:
 	CMenusKeyBinder m_Binder;
 
 	CMenus();
-	virtual int Sizeof() const override { return sizeof(*this); }
+	int Sizeof() const override { return sizeof(*this); }
 
 	void RenderLoading(const char *pCaption, const char *pContent, int IncreaseCounter);
 	void FinishLoading();
@@ -606,15 +632,15 @@ public:
 	void SetActive(bool Active);
 
 	void OnInterfacesInit(CGameClient *pClient) override;
-	virtual void OnInit() override;
+	void OnInit() override;
 
-	virtual void OnStateChange(int NewState, int OldState) override;
-	virtual void OnWindowResize() override;
-	virtual void OnReset() override;
-	virtual void OnRender() override;
-	virtual bool OnInput(const IInput::CEvent &Event) override;
-	virtual bool OnCursorMove(float x, float y, IInput::ECursorType CursorType) override;
-	virtual void OnShutdown() override;
+	void OnStateChange(int NewState, int OldState) override;
+	void OnWindowResize() override;
+	void OnReset() override;
+	void OnRender() override;
+	bool OnInput(const IInput::CEvent &Event) override;
+	bool OnCursorMove(float x, float y, IInput::ECursorType CursorType) override;
+	void OnShutdown() override;
 
 	enum
 	{
@@ -772,6 +798,8 @@ public:
 private:
 	CCommunityIcons m_CommunityIcons;
 	CMenusStart m_MenusStart;
+	CMenusIngameTouchControls m_MenusIngameTouchControls;
+	friend CMenusIngameTouchControls;
 
 	static int GhostlistFetchCallback(const CFsFileInfo *pInfo, int IsDir, int StorageType, void *pUser);
 

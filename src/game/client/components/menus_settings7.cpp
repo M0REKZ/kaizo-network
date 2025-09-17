@@ -12,14 +12,13 @@
 #include <engine/textrender.h>
 #include <engine/updater.h>
 
-#include <game/generated/protocol.h>
+#include <generated/protocol.h>
 
 #include <game/client/animstate.h>
 #include <game/client/components/chat.h>
 #include <game/client/components/menu_background.h>
 #include <game/client/components/sounds.h>
 #include <game/client/gameclient.h>
-#include <game/client/render.h>
 #include <game/client/skin.h>
 #include <game/client/ui.h>
 #include <game/client/ui_listbox.h>
@@ -407,8 +406,7 @@ void CMenus::RenderSkinPartSelection7(CUIRect MainView)
 	}
 
 	static int s_OldSelected = -1;
-	s_ListBox.DoBegin(&MainView);
-	s_ListBox.DoStart(72.0f, s_paList[m_TeePartSelected].size(), 4, 1, s_OldSelected, nullptr, false, IGraphics::CORNER_NONE, true);
+	s_ListBox.DoStart(72.0f, s_paList[m_TeePartSelected].size(), 4, 1, s_OldSelected, &MainView, false, IGraphics::CORNER_NONE, true);
 
 	for(int i = 0; i < (int)s_paList[m_TeePartSelected].size(); ++i)
 	{

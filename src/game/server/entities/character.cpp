@@ -6,12 +6,14 @@
 #include "projectile.h"
 
 #include <antibot/antibot_data.h>
+#include <base/log.h>
 
 #include <engine/antibot.h>
 #include <engine/shared/config.h>
 
-#include <game/generated/protocol.h>
-#include <game/generated/server_data.h>
+#include <generated/protocol.h>
+#include <generated/server_data.h>
+
 #include <game/mapitems.h>
 #include <game/team_state.h>
 
@@ -250,9 +252,9 @@ void CCharacter::SetDeepFrozen(bool Active)
 
 bool CCharacter::IsGrounded()
 {
-	if(Collision()->CheckPoint(m_Pos.x + GetProximityRadius() / 2, m_Pos.y + GetProximityRadius() / 2 + 5, &m_Core)) // KZ added m_Core
+	if(Collision()->CheckPoint(m_Pos.x + GetProximityRadius() / 2, m_Pos.y + GetProximityRadius() / 2 + 5, &m_Core.m_CharCoreParams)) // KZ added m_Core
 		return true;
-	if(Collision()->CheckPoint(m_Pos.x - GetProximityRadius() / 2, m_Pos.y + GetProximityRadius() / 2 + 5, &m_Core)) // KZ added m_Core
+	if(Collision()->CheckPoint(m_Pos.x - GetProximityRadius() / 2, m_Pos.y + GetProximityRadius() / 2 + 5, &m_Core.m_CharCoreParams)) // KZ added m_Core
 		return true;
 
 	int MoveRestrictionsBelow = Collision()->GetMoveRestrictions(m_Pos + vec2(0, GetProximityRadius() / 2 + 4), 0.0f);
@@ -340,7 +342,7 @@ void CCharacter::HandleNinja()
 			GetTuning(m_TuneZone)->m_GroundElasticityX,
 			GetTuning(m_TuneZone)->m_GroundElasticityY);
 
-		Collision()->MoveBox(&m_Core.m_Pos, &m_Core.m_Vel, vec2(GetProximityRadius(), GetProximityRadius()), GroundElasticity, nullptr, &m_Core); // KZ added m_Core
+		Collision()->MoveBox(&m_Core.m_Pos, &m_Core.m_Vel, vec2(GetProximityRadius(), GetProximityRadius()), GroundElasticity, nullptr, &m_Core.m_CharCoreParams); // KZ added m_Core
 
 		// reset velocity so the client doesn't predict stuff
 		ResetVelocity();
@@ -754,7 +756,7 @@ void CCharacter::SetEmote(int Emote, int Tick)
 	m_EmoteStop = Tick;
 }
 
-void CCharacter::OnPredictedInput(CNetObj_PlayerInput *pNewInput)
+void CCharacter::OnPredictedInput(const CNetObj_PlayerInput *pNewInput)
 {
 	// check for changes
 	if(mem_comp(&m_SavedInput, pNewInput, sizeof(CNetObj_PlayerInput)) != 0)
@@ -770,7 +772,7 @@ void CCharacter::OnPredictedInput(CNetObj_PlayerInput *pNewInput)
 	mem_copy(&m_SavedInput, &m_Input, sizeof(m_SavedInput));
 }
 
-void CCharacter::OnDirectInput(CNetObj_PlayerInput *pNewInput)
+void CCharacter::OnDirectInput(const CNetObj_PlayerInput *pNewInput)
 {
 	mem_copy(&m_LatestPrevInput, &m_LatestInput, sizeof(m_LatestInput));
 	mem_copy(&m_LatestInput, pNewInput, sizeof(m_LatestInput));
@@ -1069,25 +1071,18 @@ void CCharacter::Die(int Killer, int Weapon, bool SendKillMsg)
 	StopRecording();
 	int ModeSpecial = GameServer()->m_pController->OnCharacterDeath(this, GameServer()->m_apPlayers[Killer], Weapon);
 
-	char aBuf[256];
-	str_format(aBuf, sizeof(aBuf), "kill killer='%d:%s' victim='%d:%s' weapon=%d special=%d",
+	log_info("game", "kill killer='%d:%s' victim='%d:%s' weapon=%d special=%d",
 		Killer, Server()->ClientName(Killer),
 		m_pPlayer->GetCid(), Server()->ClientName(m_pPlayer->GetCid()), Weapon, ModeSpecial);
-	GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
 
-	// send the kill message
-	if(SendKillMsg && (Team() == TEAM_FLOCK || Teams()->TeamFlock(Team()) || Teams()->Count(Team()) == 1 || Teams()->GetTeamState(Team()) == ETeamState::OPEN || !Teams()->TeamLocked(Team())))
+	if(SendKillMsg)
 	{
-		CNetMsg_Sv_KillMsg Msg;
-		Msg.m_Killer = Killer;
-		Msg.m_Victim = m_pPlayer->GetCid();
-		Msg.m_Weapon = Weapon;
-		Msg.m_ModeSpecial = ModeSpecial;
-		Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, -1);
+		SendDeathMessageIfNotInLockedTeam(Killer, Weapon, ModeSpecial);
 	}
 
-	// a nice sound
+	// a nice sound, and bursting tee death effect
 	GameServer()->CreateSound(m_Pos, SOUND_PLAYER_DIE, TeamMask());
+	GameServer()->CreateDeath(m_Pos, m_pPlayer->GetCid(), TeamMask());
 
 	// this is to rate limit respawning to 3 secs
 	m_pPlayer->m_PreviousDieTick = m_pPlayer->m_DieTick;
@@ -1098,16 +1093,8 @@ void CCharacter::Die(int Killer, int Weapon, bool SendKillMsg)
 
 	GameServer()->m_World.RemoveEntity(this);
 	GameServer()->m_World.m_Core.m_apCharacters[m_pPlayer->GetCid()] = nullptr;
-	GameServer()->CreateDeath(m_Pos, m_pPlayer->GetCid(), TeamMask());
 	Teams()->OnCharacterDeath(GetPlayer()->GetCid(), Weapon);
-
-	// Cancel swap requests
-	for(auto &pPlayer : GameServer()->m_apPlayers)
-	{
-		if(pPlayer && pPlayer->m_SwapTargetsClientId == GetPlayer()->GetCid())
-			pPlayer->m_SwapTargetsClientId = -1;
-	}
-	GetPlayer()->m_SwapTargetsClientId = -1;
+	CancelSwapRequests();
 }
 
 bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
@@ -1121,6 +1108,29 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 	m_Core.m_Vel = ClampVel(m_MoveRestrictions, Temp);
 
 	return true;
+}
+
+void CCharacter::SendDeathMessageIfNotInLockedTeam(int Killer, int Weapon, int ModeSpecial)
+{
+	if((Team() == TEAM_FLOCK || Teams()->TeamFlock(Team()) || Teams()->Count(Team()) == 1 || Teams()->GetTeamState(Team()) == ETeamState::OPEN || !Teams()->TeamLocked(Team())))
+	{
+		CNetMsg_Sv_KillMsg Msg;
+		Msg.m_Killer = Killer;
+		Msg.m_Victim = m_pPlayer->GetCid();
+		Msg.m_Weapon = Weapon;
+		Msg.m_ModeSpecial = ModeSpecial;
+		Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, -1);
+	}
+}
+
+void CCharacter::CancelSwapRequests()
+{
+	for(auto &pPlayer : GameServer()->m_apPlayers)
+	{
+		if(pPlayer && pPlayer->m_SwapTargetsClientId == GetPlayer()->GetCid())
+			pPlayer->m_SwapTargetsClientId = -1;
+	}
+	GetPlayer()->m_SwapTargetsClientId = -1;
 }
 
 //TODO: Move the emote stuff to a function
@@ -1187,7 +1197,7 @@ void CCharacter::SnapCharacter(int SnappingClient, int Id)
 	}
 
 	if(m_pPlayer->GetCid() == SnappingClient || SnappingClient == SERVER_DEMO_CLIENT ||
-		(!g_Config.m_SvStrictSpectateMode && m_pPlayer->GetCid() == GameServer()->m_apPlayers[SnappingClient]->m_SpectatorId))
+		(!g_Config.m_SvStrictSpectateMode && m_pPlayer->GetCid() == GameServer()->m_apPlayers[SnappingClient]->SpectatorId()))
 	{
 		Health = m_Health;
 		Armor = m_Armor;
@@ -1297,9 +1307,9 @@ bool CCharacter::CanSnapCharacter(int SnappingClient)
 
 	if(pSnapPlayer->GetTeam() == TEAM_SPECTATORS || pSnapPlayer->IsPaused())
 	{
-		if(pSnapPlayer->m_SpectatorId != SPEC_FREEVIEW && !CanCollide(pSnapPlayer->m_SpectatorId) && (pSnapPlayer->m_ShowOthers == SHOW_OTHERS_OFF || (pSnapPlayer->m_ShowOthers == SHOW_OTHERS_ONLY_TEAM && !SameTeam(pSnapPlayer->m_SpectatorId))))
+		if(pSnapPlayer->SpectatorId() != SPEC_FREEVIEW && !CanCollide(pSnapPlayer->SpectatorId()) && (pSnapPlayer->m_ShowOthers == SHOW_OTHERS_OFF || (pSnapPlayer->m_ShowOthers == SHOW_OTHERS_ONLY_TEAM && !SameTeam(pSnapPlayer->SpectatorId()))))
 			return false;
-		else if(pSnapPlayer->m_SpectatorId == SPEC_FREEVIEW && !CanCollide(SnappingClient) && pSnapPlayer->m_SpecTeam && !SameTeam(SnappingClient))
+		else if(pSnapPlayer->SpectatorId() == SPEC_FREEVIEW && !CanCollide(SnappingClient) && pSnapPlayer->m_SpecTeam && !SameTeam(SnappingClient))
 			return false;
 	}
 	else if(pSnapChar && !pSnapChar->m_Core.m_Super && !CanCollide(SnappingClient) && (pSnapPlayer->m_ShowOthers == SHOW_OTHERS_OFF || (pSnapPlayer->m_ShowOthers == SHOW_OTHERS_ONLY_TEAM && !SameTeam(SnappingClient))))
@@ -1349,7 +1359,7 @@ void CCharacter::Snap(int SnappingClient)
 				
 		postemp = m_Pos + (normalize(vec2(m_Input.m_TargetX,m_Input.m_TargetY)) * 82);
 
-		GameServer()->SnapLaserObject(CSnapContext(SnappingClientVersion, Sixup),m_PortalKindId,postemp,postemp,Server()->Tick(),m_pPlayer->GetCid(),m_BluePortal ? LASERTYPE_RIFLE : LASERTYPE_SHOTGUN);
+		GameServer()->SnapLaserObject(CSnapContext(SnappingClientVersion, Sixup, SnappingClient),m_PortalKindId,postemp,postemp,Server()->Tick(),m_pPlayer->GetCid(),m_BluePortal ? LASERTYPE_RIFLE : LASERTYPE_SHOTGUN);
 	}
 
 	if(!Server()->Translate(Id, SnappingClient))
@@ -1375,13 +1385,13 @@ void CCharacter::Snap(int SnappingClient)
 
 	if(m_EnableCrown && ((SnappingClient >= 0 && SnappingClient < SERVER_MAX_CLIENTS) ? (GameServer()->m_apPlayers[SnappingClient] && GameServer()->m_apPlayers[SnappingClient]->m_SendCrowns) : true))
 	{
-		GameServer()->SnapLaserObject(CSnapContext(SnappingClientVersion),m_aCrown[0],vec2(Charpos.x,Charpos.y-100),vec2(Charpos.x+10,Charpos.y-80),Server()->Tick(),m_pPlayer->GetCid(),LASERTYPE_RIFLE,0,0);
-		GameServer()->SnapLaserObject(CSnapContext(SnappingClientVersion),m_aCrown[1],vec2(Charpos.x,Charpos.y-100),vec2(Charpos.x-10,Charpos.y-80),Server()->Tick(),m_pPlayer->GetCid(),LASERTYPE_RIFLE,0,0);
-		GameServer()->SnapLaserObject(CSnapContext(SnappingClientVersion),m_aCrown[2],vec2(Charpos.x + 20,Charpos.y-100),vec2(Charpos.x+10,Charpos.y-80),Server()->Tick(),m_pPlayer->GetCid(),LASERTYPE_RIFLE,0,0);
-		GameServer()->SnapLaserObject(CSnapContext(SnappingClientVersion),m_aCrown[3],vec2(Charpos.x - 20,Charpos.y-100),vec2(Charpos.x-10,Charpos.y-80),Server()->Tick(),m_pPlayer->GetCid(),LASERTYPE_RIFLE,0,0);
-		GameServer()->SnapLaserObject(CSnapContext(SnappingClientVersion),m_aCrown[4],vec2(Charpos.x + 20,Charpos.y-100),vec2(Charpos.x+20,Charpos.y-60),Server()->Tick(),m_pPlayer->GetCid(),LASERTYPE_RIFLE,0,0);
-		GameServer()->SnapLaserObject(CSnapContext(SnappingClientVersion),m_aCrown[5],vec2(Charpos.x - 20,Charpos.y-100),vec2(Charpos.x-20,Charpos.y-60),Server()->Tick(),m_pPlayer->GetCid(),LASERTYPE_RIFLE,0,0);
-		GameServer()->SnapLaserObject(CSnapContext(SnappingClientVersion),m_aCrown[6],vec2(Charpos.x-20,Charpos.y-60),vec2(Charpos.x+20,Charpos.y-60),Server()->Tick(),m_pPlayer->GetCid(),LASERTYPE_RIFLE,0,0);
+		GameServer()->SnapLaserObject(CSnapContext(SnappingClientVersion, Sixup, SnappingClient),m_aCrown[0],vec2(Charpos.x,Charpos.y-100),vec2(Charpos.x+10,Charpos.y-80),Server()->Tick(),m_pPlayer->GetCid(),LASERTYPE_RIFLE,0,0);
+		GameServer()->SnapLaserObject(CSnapContext(SnappingClientVersion, Sixup, SnappingClient),m_aCrown[1],vec2(Charpos.x,Charpos.y-100),vec2(Charpos.x-10,Charpos.y-80),Server()->Tick(),m_pPlayer->GetCid(),LASERTYPE_RIFLE,0,0);
+		GameServer()->SnapLaserObject(CSnapContext(SnappingClientVersion, Sixup, SnappingClient),m_aCrown[2],vec2(Charpos.x + 20,Charpos.y-100),vec2(Charpos.x+10,Charpos.y-80),Server()->Tick(),m_pPlayer->GetCid(),LASERTYPE_RIFLE,0,0);
+		GameServer()->SnapLaserObject(CSnapContext(SnappingClientVersion, Sixup, SnappingClient),m_aCrown[3],vec2(Charpos.x - 20,Charpos.y-100),vec2(Charpos.x-10,Charpos.y-80),Server()->Tick(),m_pPlayer->GetCid(),LASERTYPE_RIFLE,0,0);
+		GameServer()->SnapLaserObject(CSnapContext(SnappingClientVersion, Sixup, SnappingClient),m_aCrown[4],vec2(Charpos.x + 20,Charpos.y-100),vec2(Charpos.x+20,Charpos.y-60),Server()->Tick(),m_pPlayer->GetCid(),LASERTYPE_RIFLE,0,0);
+		GameServer()->SnapLaserObject(CSnapContext(SnappingClientVersion, Sixup, SnappingClient),m_aCrown[5],vec2(Charpos.x - 20,Charpos.y-100),vec2(Charpos.x-20,Charpos.y-60),Server()->Tick(),m_pPlayer->GetCid(),LASERTYPE_RIFLE,0,0);
+		GameServer()->SnapLaserObject(CSnapContext(SnappingClientVersion, Sixup, SnappingClient),m_aCrown[6],vec2(Charpos.x-20,Charpos.y-60),vec2(Charpos.x+20,Charpos.y-60),Server()->Tick(),m_pPlayer->GetCid(),LASERTYPE_RIFLE,0,0);
 	}
 
 	SnapCharacter(SnappingClient, Id);
@@ -1468,7 +1478,7 @@ void CCharacter::Snap(int SnappingClient)
 	pDDNetCharacter->m_TuneZoneOverride = ((m_TuneZoneOverrideKZ < 0) ? (m_ForcedTuneKZ ? m_TuneZone : -1) : m_TuneZoneOverrideKZ); //+KZ modified
 }
 
-void CCharacter::PostSnap()
+void CCharacter::PostGlobalSnap()
 {
 	m_TriggeredEvents7 = 0;
 }
@@ -2659,7 +2669,7 @@ void CCharacter::Rescue()
 
 		m_LastRescue = Server()->Tick();
 		int StartTime = m_StartTime;
-		m_RescueTee[GetPlayer()->m_RescueMode].Load(this, Team());
+		m_RescueTee[GetPlayer()->m_RescueMode].Load(this);
 		// Don't load these from saved tee:
 		m_Core.m_Vel = vec2(0, 0);
 		m_Core.m_HookState = HOOK_IDLE;

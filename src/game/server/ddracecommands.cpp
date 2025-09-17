@@ -91,9 +91,13 @@ void CGameContext::ConKillPlayer(IConsole::IResult *pResult, void *pUserData)
 	{
 		pSelf->m_apPlayers[Victim]->KillCharacter(WEAPON_GAME);
 		char aBuf[512];
-		str_format(aBuf, sizeof(aBuf), "%s was killed by %s",
-			pSelf->Server()->ClientName(Victim),
-			pSelf->Server()->ClientName(pResult->m_ClientId));
+		if(pResult->NumArguments() == 2)
+			str_format(aBuf, sizeof(aBuf), "%s was killed by authorized player (%s)",
+				pSelf->Server()->ClientName(Victim),
+				pResult->GetString(1));
+		else
+			str_format(aBuf, sizeof(aBuf), "%s was killed by authorized player",
+				pSelf->Server()->ClientName(Victim));
 		pSelf->SendChat(-1, TEAM_ALL, aBuf);
 	}
 }
@@ -551,7 +555,7 @@ void CGameContext::ConDrySave(IConsole::IResult *pResult, void *pUserData)
 
 	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientId];
 
-	if(!pPlayer || pSelf->Server()->GetAuthedState(pResult->m_ClientId) != AUTHED_ADMIN)
+	if(!pPlayer || !pSelf->Server()->IsRconAuthedAdmin(pResult->m_ClientId))
 		return;
 
 	CSaveTeam SavedTeam;
@@ -614,7 +618,7 @@ void CGameContext::ConDumpLog(IConsole::IResult *pResult, void *pUserData)
 		if(Seconds > LimitSecs)
 			continue;
 
-		char aBuf[256];
+		char aBuf[sizeof(pEntry->m_aDescription) + 128];
 		if(pEntry->m_FromServer)
 			str_format(aBuf, sizeof(aBuf), "%s, %d seconds ago", pEntry->m_aDescription, Seconds);
 		else

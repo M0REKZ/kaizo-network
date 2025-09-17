@@ -1,7 +1,7 @@
 /* (c) Magnus Auvinen. See licence.txt in the root of the distribution for more information. */
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
 
-#include <game/generated/protocol.h>
+#include <generated/protocol.h>
 #include <game/mapitems.h>
 #include <game/teamscore.h>
 
@@ -248,8 +248,8 @@ void CKZPickup::Snap(int SnappingClient)
 	if(SnappingClientVersion < VERSION_DDNET_ENTITY_NETOBJS)
 	{
 
-		if(SnappingClient != SERVER_DEMO_CLIENT && (GameServer()->m_apPlayers[SnappingClient]->GetTeam() == TEAM_SPECTATORS || GameServer()->m_apPlayers[SnappingClient]->IsPaused()) && GameServer()->m_apPlayers[SnappingClient]->m_SpectatorId != SPEC_FREEVIEW)
-			pChar = GameServer()->GetPlayerChar(GameServer()->m_apPlayers[SnappingClient]->m_SpectatorId);
+		if(SnappingClient != SERVER_DEMO_CLIENT && (GameServer()->m_apPlayers[SnappingClient]->GetTeam() == TEAM_SPECTATORS || GameServer()->m_apPlayers[SnappingClient]->IsPaused()) && GameServer()->m_apPlayers[SnappingClient]->SpectatorId() != SPEC_FREEVIEW)
+			pChar = GameServer()->GetPlayerChar(GameServer()->m_apPlayers[SnappingClient]->SpectatorId());
 
 		int Tick = (Server()->Tick() % Server()->TickSpeed()) % 11;
 		if(pChar && pChar->IsAlive() && m_Number > 0 && !Switchers()[m_Number].m_aStatus[pChar->Team()] && !Tick)
@@ -266,8 +266,8 @@ void CKZPickup::Snap(int SnappingClient)
 		pos2.x = (int)m_Pos.x + 16*cos((float)Server()->Tick() / 25.0);
 		pos2.y = (int)m_Pos.y + -16*cos((float)Server()->Tick() / 25.0);
 		
-		GameServer()->SnapPickup(CSnapContext(SnappingClientVersion, Sixup), GetId(), pos1, m_Type, 0, m_Number,m_Flags);
-		GameServer()->SnapPickup(CSnapContext(SnappingClientVersion, Sixup), m_Id2, pos2, m_Type, 0, m_Number,m_Flags);
+		GameServer()->SnapPickup(CSnapContext(SnappingClientVersion, Sixup, SnappingClient), GetId(), pos1, m_Type, 0, m_Number,m_Flags);
+		GameServer()->SnapPickup(CSnapContext(SnappingClientVersion, Sixup, SnappingClient), m_Id2, pos2, m_Type, 0, m_Number,m_Flags);
 	}
 	else if(m_Subtype >=0 && m_Subtype < NUM_WEAPONS)
 	{
@@ -287,7 +287,7 @@ void CKZPickup::Snap(int SnappingClient)
 		pProj->m_VelY = 0;
 		pProj->m_StartTick = Server()->Tick();
 		pProj->m_Type = WEAPON_HAMMER;
-		GameServer()->SnapPickup(CSnapContext(SnappingClientVersion, Sixup), GetId(), m_Pos, m_Type, m_Subtype, m_Number, m_Flags);
+		GameServer()->SnapPickup(CSnapContext(SnappingClientVersion, Sixup, SnappingClient), GetId(), m_Pos, m_Type, m_Subtype, m_Number, m_Flags);
 	}
 	else
 	{
@@ -298,8 +298,8 @@ void CKZPickup::Snap(int SnappingClient)
 			postemp.x = m_Pos.x + 32*sin((float)Server()->Tick() / 25.0);
 			postemp.y = m_Pos.y + 32*cos((float)Server()->Tick() / 25.0);
 
-			GameServer()->SnapLaserObject(CSnapContext(SnappingClientVersion, Sixup),m_Id2,postemp,postemp,Server()->Tick(),-1,Server()->Tick() % 3);
-			GameServer()->SnapPickup(CSnapContext(SnappingClientVersion, Sixup), GetId(), m_Pos, m_Type, WEAPON_LASER, m_Number, m_Flags);
+			GameServer()->SnapLaserObject(CSnapContext(SnappingClientVersion, Sixup, SnappingClient),m_Id2,postemp,postemp,Server()->Tick(),-1,Server()->Tick() % 3);
+			GameServer()->SnapPickup(CSnapContext(SnappingClientVersion, Sixup, SnappingClient), GetId(), m_Pos, m_Type, WEAPON_LASER, m_Number, m_Flags);
 		}
 	}
 }

@@ -52,19 +52,29 @@ void CLayerTune::Resize(int NewW, int NewH)
 		m_pEditor->m_Map.m_pGameLayer->Resize(NewW, NewH);
 }
 
-void CLayerTune::Shift(int Direction)
+void CLayerTune::Shift(EShiftDirection Direction)
 {
 	CLayerTiles::Shift(Direction);
 	ShiftImpl(m_pTuneTile, Direction, m_pEditor->m_ShiftBy);
 }
 
-bool CLayerTune::IsEmpty(const std::shared_ptr<CLayerTiles> &pLayer)
+bool CLayerTune::IsEmpty() const
 {
-	for(int y = 0; y < pLayer->m_Height; y++)
-		for(int x = 0; x < pLayer->m_Width; x++)
-			if(m_pEditor->IsAllowPlaceUnusedTiles() || IsValidTuneTile(pLayer->GetTile(x, y).m_Index))
+	for(int y = 0; y < m_Height; y++)
+	{
+		for(int x = 0; x < m_Width; x++)
+		{
+			const int Index = GetTile(x, y).m_Index;
+			if(Index == 0)
+			{
+				continue;
+			}
+			if(m_pEditor->IsAllowPlaceUnusedTiles() || IsValidTuneTile(Index))
+			{
 				return false;
-
+			}
+		}
+	}
 	return true;
 }
 
@@ -81,7 +91,7 @@ void CLayerTune::BrushDraw(std::shared_ptr<CLayer> pBrush, vec2 WorldPos)
 		m_pEditor->m_TuningNum = pTuneLayer->m_TuningNumber;
 	}
 
-	bool Destructive = m_pEditor->m_BrushDrawDestructive || IsEmpty(pTuneLayer);
+	bool Destructive = m_pEditor->m_BrushDrawDestructive || pTuneLayer->IsEmpty();
 
 	for(int y = 0; y < pTuneLayer->m_Height; y++)
 		for(int x = 0; x < pTuneLayer->m_Width; x++)
@@ -206,7 +216,7 @@ void CLayerTune::FillSelection(bool Empty, std::shared_ptr<CLayer> pBrush, CUIRe
 	if(m_Readonly || (!Empty && pBrush->m_Type != LAYERTYPE_TILES))
 		return;
 
-	Snap(&Rect); // corrects Rect; no need of <=
+	Snap(&Rect);
 
 	int sx = ConvertX(Rect.x);
 	int sy = ConvertY(Rect.y);
@@ -215,7 +225,7 @@ void CLayerTune::FillSelection(bool Empty, std::shared_ptr<CLayer> pBrush, CUIRe
 
 	std::shared_ptr<CLayerTune> pLt = std::static_pointer_cast<CLayerTune>(pBrush);
 
-	bool Destructive = m_pEditor->m_BrushDrawDestructive || Empty || IsEmpty(pLt);
+	bool Destructive = m_pEditor->m_BrushDrawDestructive || Empty || pLt->IsEmpty();
 
 	for(int y = 0; y < h; y++)
 	{

@@ -25,8 +25,8 @@ public:
 	unsigned char m_TuningNumber;
 
 	void Resize(int NewW, int NewH) override;
-	void Shift(int Direction) override;
-	bool IsEmpty(const std::shared_ptr<CLayerTiles> &pLayer) override;
+	void Shift(EShiftDirection Direction) override;
+	[[nodiscard]] bool IsEmpty() const override;
 	void BrushDraw(std::shared_ptr<CLayer> pBrush, vec2 WorldPos) override;
 	void BrushFlipX() override;
 	void BrushFlipY() override;

@@ -51,7 +51,28 @@ void CGameControllerKZ::SetArmorProgress(CCharacter *pCharacter, int Progress)
 
 void CGameControllerKZ::OnPlayerConnect(CPlayer *pPlayer)
 {
-	CGameControllerDDRace::OnPlayerConnect(pPlayer);
+	IGameController::OnPlayerConnect(pPlayer);
+	int ClientId = pPlayer->GetCid();
+
+	// init the player
+	Score()->PlayerData(ClientId)->Reset();
+
+	// Can't set score here as LoadScore() is threaded, run it in
+	// LoadScoreThreaded() instead
+	Score()->LoadPlayerData(ClientId);
+
+	if(!Server()->ClientPrevIngame(ClientId))
+	{
+		char aBuf[512];
+		char aClientName[64];
+		GameServer()->IdentifyClientName(ClientId, aClientName, sizeof(aClientName));
+		str_format(aBuf, sizeof(aBuf), "'%s' entered and joined the %s using %s", Server()->ClientName(ClientId), GetTeamName(pPlayer->GetTeam()), aClientName);
+		GameServer()->SendChat(-1, TEAM_ALL, aBuf, -1, CGameContext::FLAG_SIX);
+		GameServer()->SendDiscordChatMessage(-1,aBuf); //+KZ
+
+		GameServer()->SendChatTarget(ClientId, "Kaizo Network mod by +KZ based on DDNet Version: " GAME_VERSION);
+		GameServer()->SendChatTarget(ClientId, "visit m0rekz.github.io and make sure to read our /rules");
+	}
 
 	if(pPlayer)
 		pPlayer->m_SentKZWelcomeMsg = false;

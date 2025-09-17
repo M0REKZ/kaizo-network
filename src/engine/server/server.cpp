@@ -50,8 +50,6 @@
 
 using namespace std::chrono_literals;
 
-extern bool IsInterrupted();
-
 #if defined(CONF_PLATFORM_ANDROID)
 extern std::vector<std::string> FetchAndroidServerCommandQueue();
 #endif
@@ -100,7 +98,7 @@ int CServerBan::BanExt(T *pBanPool, const typename T::CDataType *pData, int Seco
 			if(Server()->m_aClients[i].m_State == CServer::CClient::STATE_EMPTY)
 				continue;
 
-			if(Server()->m_aClients[i].m_Authed != AUTHED_NO && NetMatch(pData, Server()->ClientAddr(i)))
+			if(Server()->IsRconAuthed(i) && NetMatch(pData, Server()->ClientAddr(i)))
 			{
 				Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "net_ban", "ban error (command denied)");
 				return -1;
@@ -295,6 +293,41 @@ CServer::~CServer()
 
 	delete m_pRegister;
 	delete m_pConnectionPool;
+}
+
+const char *CServer::DnsblStateStr(EDnsblState State)
+{
+	switch(State)
+	{
+	case EDnsblState::NONE:
+		return "n/a";
+	case EDnsblState::PENDING:
+		return "pending";
+	case EDnsblState::BLACKLISTED:
+		return "black";
+	case EDnsblState::WHITELISTED:
+		return "white";
+	}
+
+	dbg_assert(false, "unreachable");
+	dbg_break();
+}
+
+int CServer::ConsoleAccessLevel(int ClientId) const
+{
+	int AuthLevel = GetAuthedState(ClientId);
+	switch(AuthLevel)
+	{
+	case AUTHED_ADMIN:
+		return IConsole::ACCESS_LEVEL_ADMIN;
+	case AUTHED_MOD:
+		return IConsole::ACCESS_LEVEL_MOD;
+	case AUTHED_HELPER:
+		return IConsole::ACCESS_LEVEL_HELPER;
+	};
+
+	dbg_assert(false, "invalid auth level: %d", AuthLevel);
+	dbg_break();
 }
 
 bool CServer::IsClientNameAvailable(int ClientId, const char *pNameRequest)
@@ -566,6 +599,13 @@ int CServer::Init()
 		Client.m_Latency = 0;
 		Client.m_Sixup = false;
 		Client.m_RedirectDropTime = 0;
+		Client.m_InfClassVersion = 0;
+		Client.m_IsTaterClient = false; //+KZ
+		Client.m_IsQxdClient = false;
+		Client.m_IsChillerbotClient = false;
+		Client.m_IsStAClient = false;
+		Client.m_IsAllTheHaxxClient = false;
+		Client.m_IsPulseClient = false;
 	}
 
 	m_CurrentGameTick = MIN_TICK;
@@ -598,6 +638,16 @@ int CServer::GetAuthedState(int ClientId) const
 	dbg_assert(ClientId >= 0 && ClientId < MAX_CLIENTS, "ClientId is not valid");
 	dbg_assert(m_aClients[ClientId].m_State != CServer::CClient::STATE_EMPTY, "Client slot is empty");
 	return m_aClients[ClientId].m_Authed;
+}
+
+bool CServer::IsRconAuthed(int ClientId) const
+{
+	return GetAuthedState(ClientId) != AUTHED_NO;
+}
+
+bool CServer::IsRconAuthedAdmin(int ClientId) const
+{
+	return GetAuthedState(ClientId) == AUTHED_ADMIN;
 }
 
 const char *CServer::GetAuthName(int ClientId) const
@@ -932,7 +982,7 @@ void CServer::SendMsgRaw(int ClientId, const void *pData, int Size, int Flags)
 
 void CServer::DoSnapshot()
 {
-	GameServer()->OnPreSnap();
+	bool IsGlobalSnap = Config()->m_SvHighBandwidth || (m_CurrentGameTick % 2) == 0;
 
 	if(m_aDemoRecorder[RECORDER_MANUAL].IsRecording() || m_aDemoRecorder[RECORDER_AUTO].IsRecording())
 	{
@@ -941,7 +991,7 @@ void CServer::DoSnapshot()
 
 		// build snap and possibly add some messages
 		m_SnapshotBuilder.Init();
-		GameServer()->OnSnap(-1);
+		GameServer()->OnSnap(-1, IsGlobalSnap);
 		int SnapshotSize = m_SnapshotBuilder.Finish(aData);
 
 		// write snapshot
@@ -966,10 +1016,15 @@ void CServer::DoSnapshot()
 		if(m_aClients[i].m_SnapRate == CClient::SNAPRATE_INIT && (Tick() % 10) != 0)
 			continue;
 
+		// only allow clients with forced high bandwidth on spectate to receive snapshots on non-global ticks
+		if(!IsGlobalSnap && !(m_aClients[i].m_ForceHighBandwidthOnSpectate && GameServer()->IsClientHighBandwidth(i)))
+			continue;
+
 		{
 			m_SnapshotBuilder.Init(m_aClients[i].m_Sixup);
 
-			GameServer()->OnSnap(i);
+			// only snap events on global ticks
+			GameServer()->OnSnap(i, IsGlobalSnap);
 
 			// finish snapshot
 			char aData[CSnapshot::MAX_SIZE];
@@ -1060,7 +1115,10 @@ void CServer::DoSnapshot()
 		}
 	}
 
-	GameServer()->OnPostSnap();
+	if(IsGlobalSnap)
+	{
+		GameServer()->OnPostGlobalSnap();
+	}
 }
 
 int CServer::ClientRejoinCallback(int ClientId, void *pUser)
@@ -1090,7 +1148,15 @@ int CServer::NewClientNoAuthCallback(int ClientId, void *pUser)
 {
 	CServer *pThis = (CServer *)pUser;
 
-	pThis->m_aClients[ClientId].m_DnsblState = CClient::DNSBL_STATE_NONE;
+	pThis->m_aClients[ClientId].m_InfClassVersion = 0; //+KZ
+	pThis->m_aClients[ClientId].m_IsTaterClient = false; //+KZ
+	pThis->m_aClients[ClientId].m_IsQxdClient = false;
+	pThis->m_aClients[ClientId].m_IsChillerbotClient = false;
+	pThis->m_aClients[ClientId].m_IsStAClient = false;
+	pThis->m_aClients[ClientId].m_IsAllTheHaxxClient = false;
+	pThis->m_aClients[ClientId].m_IsPulseClient = false;
+
+	pThis->m_aClients[ClientId].m_DnsblState = EDnsblState::NONE;
 
 	pThis->m_aClients[ClientId].m_State = CClient::STATE_CONNECTING;
 	pThis->m_aClients[ClientId].m_aName[0] = 0;
@@ -1104,6 +1170,7 @@ int CServer::NewClientNoAuthCallback(int ClientId, void *pUser)
 	pThis->m_aClients[ClientId].m_MaplistEntryToSend = CClient::MAPLIST_UNINITIALIZED;
 	pThis->m_aClients[ClientId].m_ShowIps = false;
 	pThis->m_aClients[ClientId].m_DebugDummy = false;
+	pThis->m_aClients[ClientId].m_ForceHighBandwidthOnSpectate = false;
 	pThis->m_aClients[ClientId].m_DDNetVersion = VERSION_NONE;
 	pThis->m_aClients[ClientId].m_GotDDNetVersionPacket = false;
 	pThis->m_aClients[ClientId].m_DDNetVersionSettled = false;
@@ -1123,8 +1190,17 @@ int CServer::NewClientNoAuthCallback(int ClientId, void *pUser)
 int CServer::NewClientCallback(int ClientId, void *pUser, bool Sixup)
 {
 	CServer *pThis = (CServer *)pUser;
+
+	pThis->m_aClients[ClientId].m_InfClassVersion = 0; //+KZ
+	pThis->m_aClients[ClientId].m_IsTaterClient = false; //+KZ
+	pThis->m_aClients[ClientId].m_IsQxdClient = false;
+	pThis->m_aClients[ClientId].m_IsChillerbotClient = false;
+	pThis->m_aClients[ClientId].m_IsStAClient = false;
+	pThis->m_aClients[ClientId].m_IsAllTheHaxxClient = false;
+	pThis->m_aClients[ClientId].m_IsPulseClient = false;
+
 	pThis->m_aClients[ClientId].m_State = CClient::STATE_PREAUTH;
-	pThis->m_aClients[ClientId].m_DnsblState = CClient::DNSBL_STATE_NONE;
+	pThis->m_aClients[ClientId].m_DnsblState = EDnsblState::NONE;
 	pThis->m_aClients[ClientId].m_aName[0] = 0;
 	pThis->m_aClients[ClientId].m_aClan[0] = 0;
 	pThis->m_aClients[ClientId].m_Country = -1;
@@ -1138,10 +1214,10 @@ int CServer::NewClientCallback(int ClientId, void *pUser, bool Sixup)
 	pThis->m_aClients[ClientId].m_TrafficSince = 0;
 	pThis->m_aClients[ClientId].m_ShowIps = false;
 	pThis->m_aClients[ClientId].m_DebugDummy = false;
+	pThis->m_aClients[ClientId].m_ForceHighBandwidthOnSpectate = false;
 	pThis->m_aClients[ClientId].m_DDNetVersion = VERSION_NONE;
 	pThis->m_aClients[ClientId].m_GotDDNetVersionPacket = false;
 	pThis->m_aClients[ClientId].m_DDNetVersionSettled = false;
-	mem_zero(&pThis->m_aClients[ClientId].m_Addr, sizeof(NETADDR));
 	pThis->m_aClients[ClientId].Reset();
 	pThis->m_aClients[ClientId].m_Sixup = Sixup;
 
@@ -1177,7 +1253,7 @@ void CServer::InitDnsbl(int ClientId)
 
 	m_aClients[ClientId].m_pDnsblLookup = std::make_shared<CHostLookup>(aBuf, NETTYPE_IPV4);
 	Engine()->AddJob(m_aClients[ClientId].m_pDnsblLookup);
-	m_aClients[ClientId].m_DnsblState = CClient::DNSBL_STATE_PENDING;
+	m_aClients[ClientId].m_DnsblState = EDnsblState::PENDING;
 }
 
 #ifdef CONF_FAMILY_UNIX
@@ -1228,6 +1304,7 @@ int CServer::DelClientCallback(int ClientId, const char *pReason, void *pUser)
 	pThis->m_aClients[ClientId].m_TrafficSince = 0;
 	pThis->m_aClients[ClientId].m_ShowIps = false;
 	pThis->m_aClients[ClientId].m_DebugDummy = false;
+	pThis->m_aClients[ClientId].m_ForceHighBandwidthOnSpectate = false;
 	pThis->m_aPrevStates[ClientId] = CClient::STATE_EMPTY;
 	pThis->m_aClients[ClientId].m_Snapshots.PurgeAll();
 	pThis->m_aClients[ClientId].m_Sixup = false;
@@ -1389,7 +1466,7 @@ void CServer::SendRconLogLine(int ClientId, const CLogMessage *pMessage)
 	{
 		for(int i = 0; i < MAX_CLIENTS; i++)
 		{
-			if(m_aClients[i].m_State != CClient::STATE_EMPTY && m_aClients[i].m_Authed >= AUTHED_ADMIN)
+			if(m_aClients[i].m_State != CClient::STATE_EMPTY && IsRconAuthedAdmin(i))
 				SendRconLine(i, m_aClients[i].m_ShowIps ? pLine : pLineWithoutIps);
 		}
 	}
@@ -1432,9 +1509,9 @@ void CServer::SendRconCmdGroupEnd(int ClientId)
 int CServer::NumRconCommands(int ClientId)
 {
 	int Num = 0;
-	const int ConsoleAccessLevel = m_aClients[ClientId].ConsoleAccessLevel();
-	for(const IConsole::CCommandInfo *pCmd = Console()->FirstCommandInfo(ConsoleAccessLevel, CFGFLAG_SERVER);
-		pCmd; pCmd = pCmd->NextCommandInfo(ConsoleAccessLevel, CFGFLAG_SERVER))
+	const int AccessLevel = ConsoleAccessLevel(ClientId);
+	for(const IConsole::CCommandInfo *pCmd = Console()->FirstCommandInfo(AccessLevel, CFGFLAG_SERVER);
+		pCmd; pCmd = pCmd->NextCommandInfo(AccessLevel, CFGFLAG_SERVER))
 	{
 		Num++;
 	}
@@ -1445,17 +1522,17 @@ void CServer::UpdateClientRconCommands(int ClientId)
 {
 	CClient &Client = m_aClients[ClientId];
 	if(Client.m_State != CClient::STATE_INGAME ||
-		!Client.m_Authed ||
+		!IsRconAuthed(ClientId) ||
 		Client.m_pRconCmdToSend == nullptr)
 	{
 		return;
 	}
 
-	const int ConsoleAccessLevel = Client.ConsoleAccessLevel();
+	const int AccessLevel = ConsoleAccessLevel(ClientId);
 	for(int i = 0; i < MAX_RCONCMD_SEND && Client.m_pRconCmdToSend; ++i)
 	{
 		SendRconCmdAdd(Client.m_pRconCmdToSend, ClientId);
-		Client.m_pRconCmdToSend = Client.m_pRconCmdToSend->NextCommandInfo(ConsoleAccessLevel, CFGFLAG_SERVER);
+		Client.m_pRconCmdToSend = Client.m_pRconCmdToSend->NextCommandInfo(AccessLevel, CFGFLAG_SERVER);
 		if(Client.m_pRconCmdToSend == nullptr)
 		{
 			SendRconCmdGroupEnd(ClientId);
@@ -1490,7 +1567,7 @@ void CServer::UpdateClientMaplistEntries(int ClientId)
 {
 	CClient &Client = m_aClients[ClientId];
 	if(Client.m_State != CClient::STATE_INGAME ||
-		!Client.m_Authed ||
+		!IsRconAuthed(ClientId) ||
 		Client.m_Sixup ||
 		Client.m_pRconCmdToSend != nullptr || // wait for command sending
 		Client.m_MaplistEntryToSend == CClient::MAPLIST_DISABLED ||
@@ -1502,11 +1579,11 @@ void CServer::UpdateClientMaplistEntries(int ClientId)
 	if(Client.m_MaplistEntryToSend == CClient::MAPLIST_UNINITIALIZED)
 	{
 		static const char *const MAP_COMMANDS[] = {"sv_map", "change_map"};
-		const int ConsoleAccessLevel = Client.ConsoleAccessLevel();
+		const int AccessLevel = ConsoleAccessLevel(ClientId);
 		const bool MapCommandAllowed = std::any_of(std::begin(MAP_COMMANDS), std::end(MAP_COMMANDS), [&](const char *pMapCommand) {
 			const IConsole::CCommandInfo *pInfo = Console()->GetCommandInfo(pMapCommand, CFGFLAG_SERVER, false);
 			dbg_assert(pInfo != nullptr, "Map command not found");
-			return ConsoleAccessLevel <= pInfo->GetAccessLevel();
+			return AccessLevel <= pInfo->GetAccessLevel();
 		});
 		if(MapCommandAllowed)
 		{
@@ -1668,6 +1745,42 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 				m_aClients[ClientId].m_State = CClient::STATE_AUTH;
 			}
 		}
+		else if(Msg == NETMSG_CLIENTVER_INFCLASS)
+		{
+			if((pPacket->m_Flags & NET_CHUNKFLAG_VITAL) != 0) // Ignore STATE_AUTH for now, see ddnet#4445 // && m_aClients[ClientId].m_State == CClient::STATE_AUTH)
+			{ //+KZ identify infclass client
+				int InfClassVersion = Unpacker.GetInt();
+				if(Unpacker.Error() || InfClassVersion < 0)
+				{
+					return;
+				}
+				m_aClients[ClientId].m_InfClassVersion = InfClassVersion;
+			}
+		}
+		else if(Msg == NETMSG_IAMTATER)
+		{
+			m_aClients[ClientId].m_IsTaterClient = true;
+		}
+		else if(Msg == NETMSG_IAMQXD)
+		{
+			m_aClients[ClientId].m_IsQxdClient = true;
+		}
+		else if(Msg == NETMSG_IAMCHILLERBOT)
+		{
+			m_aClients[ClientId].m_IsChillerbotClient = true;
+		}
+		else if(Msg == NETMSG_IAMSTA)
+		{
+			m_aClients[ClientId].m_IsStAClient = true;
+		}
+		else if(Msg == NETMSG_IAMALLTHEHAXX)
+		{
+			m_aClients[ClientId].m_IsAllTheHaxxClient = true;
+		}
+		else if(Msg == NETMSG_IAMPULSE)
+		{
+			m_aClients[ClientId].m_IsPulseClient = true;
+		}
 		else if(Msg == NETMSG_INFO)
 		{
 			if((pPacket->m_Flags & NET_CHUNKFLAG_VITAL) != 0 && (m_aClients[ClientId].m_State == CClient::STATE_PREAUTH || m_aClients[ClientId].m_State == CClient::STATE_AUTH))
@@ -1698,8 +1811,17 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 					return;
 				}
 
+				int NumConnectedClients = 0;
+				for(int i = 0; i < MaxClients(); ++i)
+				{
+					if(m_aClients[i].m_State != CClient::STATE_EMPTY)
+					{
+						NumConnectedClients++;
+					}
+				}
+
 				// reserved slot
-				if(ClientId >= MaxClients() - Config()->m_SvReservedSlots && !CheckReservedSlotAuth(ClientId, pPassword))
+				if(NumConnectedClients > MaxClients() - Config()->m_SvReservedSlots && !CheckReservedSlotAuth(ClientId, pPassword))
 				{
 					m_NetServer.Drop(ClientId, "This server is full");
 					return;
@@ -1780,9 +1902,9 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 				}
 				else
 				{
-					CMsgPacker Msgp(protocol7::NETMSG_SERVERINFO, true, true);
-					GetServerInfoSixup(&Msgp, -1, false);
-					SendMsg(&Msgp, MSGFLAG_VITAL | MSGFLAG_FLUSH, ClientId);
+					CMsgPacker ServerInfoMessage(protocol7::NETMSG_SERVERINFO, true, true);
+					GetServerInfoSixup(&ServerInfoMessage, false);
+					SendMsg(&ServerInfoMessage, MSGFLAG_VITAL | MSGFLAG_FLUSH, ClientId);
 				}
 				GameServer()->OnClientEnter(ClientId);
 			}
@@ -1869,7 +1991,7 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 						if(!aPreInputClients[Id])
 							continue;
 
-						SendPackMsg(&PreInput, MSGFLAG_VITAL | MSGFLAG_NORECORD, Id);
+						SendPackMsg(&PreInput, MSGFLAG_FLUSH | MSGFLAG_NORECORD, Id);
 					}
 				}
 			}
@@ -1899,7 +2021,7 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 					m_aClients[ClientId].m_DDNetVersion = VERSION_DDNET_OLD;
 				}
 			}
-			else if((pPacket->m_Flags & NET_CHUNKFLAG_VITAL) != 0 && m_aClients[ClientId].m_Authed)
+			else if((pPacket->m_Flags & NET_CHUNKFLAG_VITAL) != 0 && IsRconAuthed(ClientId))
 			{
 				if(GameServer()->PlayerExists(ClientId))
 				{
@@ -1908,7 +2030,7 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 					Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", aBuf);
 					m_RconClientId = ClientId;
 					m_RconAuthLevel = m_aClients[ClientId].m_Authed;
-					Console()->SetAccessLevel(m_aClients[ClientId].ConsoleAccessLevel());
+					Console()->SetAccessLevel(ConsoleAccessLevel(ClientId));
 					{
 						CRconClientLogger Logger(this, ClientId);
 						CLogScope Scope(&Logger);
@@ -1978,7 +2100,7 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 					int SendRconCmds = IsSixup(ClientId) ? true : Unpacker.GetInt();
 					if(!Unpacker.Error() && SendRconCmds)
 					{
-						m_aClients[ClientId].m_pRconCmdToSend = Console()->FirstCommandInfo(m_aClients[ClientId].ConsoleAccessLevel(), CFGFLAG_SERVER);
+						m_aClients[ClientId].m_pRconCmdToSend = Console()->FirstCommandInfo(ConsoleAccessLevel(ClientId), CFGFLAG_SERVER);
 						SendRconCmdGroupStart(ClientId);
 						if(m_aClients[ClientId].m_pRconCmdToSend == nullptr)
 						{
@@ -2270,7 +2392,7 @@ void CServer::CacheServerInfo(CCache *pCache, int Type, bool SendClients)
 	case SERVERINFO_64_LEGACY: Remaining = 24; break;
 	case SERVERINFO_VANILLA: Remaining = VANILLA_MAX_CLIENTS; break;
 	case SERVERINFO_INGAME: Remaining = VANILLA_MAX_CLIENTS; break;
-	default: dbg_assert(0, "caught earlier, unreachable"); return;
+	default: dbg_assert(false, "unreachable"); return;
 	}
 
 	// Use the following strategy for sending:
@@ -2496,17 +2618,8 @@ void CServer::SendServerInfo(const NETADDR *pAddr, int Token, int Type, bool Sen
 	}
 }
 
-void CServer::GetServerInfoSixup(CPacker *pPacker, int Token, bool SendClients)
+void CServer::GetServerInfoSixup(CPacker *pPacker, bool SendClients)
 {
-	if(Token != -1)
-	{
-		pPacker->Reset();
-		pPacker->AddRaw(SERVERBROWSE_INFO, sizeof(SERVERBROWSE_INFO));
-		pPacker->AddInt(Token);
-	}
-
-	SendClients = SendClients && Token != -1;
-
 	CCache::CCacheChunk &FirstChunk = m_aSixupServerInfoCache[SendClients].m_vCache.front();
 	pPacker->AddRaw(FirstChunk.m_vData.data(), FirstChunk.m_vData.size());
 }
@@ -2528,10 +2641,10 @@ void CServer::FillAntibot(CAntibotRoundData *pData)
 			static_assert(std::is_same_v<decltype(CServer{}.ClientAddrStringImpl(ClientId, true)), const std::array<char, NETADDR_MAXSTRSIZE> &>);
 			mem_copy(pPlayer->m_aAddress, ClientAddrStringImpl(ClientId, true).data(), NETADDR_MAXSTRSIZE);
 			pPlayer->m_Sixup = m_aClients[ClientId].m_Sixup;
-			pPlayer->m_DnsblNone = m_aClients[ClientId].m_DnsblState == CClient::DNSBL_STATE_NONE;
-			pPlayer->m_DnsblPending = m_aClients[ClientId].m_DnsblState == CClient::DNSBL_STATE_PENDING;
-			pPlayer->m_DnsblBlacklisted = m_aClients[ClientId].m_DnsblState == CClient::DNSBL_STATE_BLACKLISTED;
-			pPlayer->m_Authed = m_aClients[ClientId].m_Authed > AUTHED_NO;
+			pPlayer->m_DnsblNone = m_aClients[ClientId].m_DnsblState == EDnsblState::NONE;
+			pPlayer->m_DnsblPending = m_aClients[ClientId].m_DnsblState == EDnsblState::PENDING;
+			pPlayer->m_DnsblBlacklisted = m_aClients[ClientId].m_DnsblState == EDnsblState::BLACKLISTED;
+			pPlayer->m_Authed = IsRconAuthed(ClientId);
 		}
 	}
 }
@@ -2659,9 +2772,9 @@ void CServer::UpdateServerInfo(bool Resend)
 					SendServerInfo(ClientAddr(i), -1, SERVERINFO_INGAME, false);
 				else
 				{
-					CMsgPacker Msg(protocol7::NETMSG_SERVERINFO, true, true);
-					GetServerInfoSixup(&Msg, -1, false);
-					SendMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_FLUSH, i);
+					CMsgPacker ServerInfoMessage(protocol7::NETMSG_SERVERINFO, true, true);
+					GetServerInfoSixup(&ServerInfoMessage, false);
+					SendMsg(&ServerInfoMessage, MSGFLAG_VITAL | MSGFLAG_FLUSH, i);
 				}
 			}
 		}
@@ -2718,8 +2831,10 @@ void CServer::PumpNetwork(bool PacketWaiting)
 						}
 
 						CPacker Packer;
-						GetServerInfoSixup(&Packer, SrvBrwsToken, RateLimitServerInfoConnless());
-
+						Packer.Reset();
+						Packer.AddRaw(SERVERBROWSE_INFO, sizeof(SERVERBROWSE_INFO));
+						Packer.AddInt(SrvBrwsToken);
+						GetServerInfoSixup(&Packer, RateLimitServerInfoConnless());
 						CNetBase::SendPacketConnlessWithToken7(m_NetServer.Socket(), &Packet.m_Address, Packer.Data(), Packer.Size(), ResponseToken, m_NetServer.GetToken(Packet.m_Address));
 					}
 					else if(Type != -1)
@@ -2792,6 +2907,11 @@ int CServer::LoadMap(const char *pMapName)
 
 	char aBuf[IO_MAX_PATH_LENGTH];
 	str_format(aBuf, sizeof(aBuf), "maps/%s.map", pMapName);
+	if(!str_valid_filename(fs_filename(aBuf)))
+	{
+		log_error("server", "The name '%s' cannot be used for maps because not all platforms support it", aBuf);
+		return 0;
+	}
 	if(!GameServer()->OnMapChange(aBuf, sizeof(aBuf)))
 	{
 		return 0;
@@ -3163,6 +3283,7 @@ int CServer::Run()
 						{
 							GameServer()->OnClientPredictedEarlyInput(c, Input.m_aData);
 							ClientHadInput = true;
+							break;
 						}
 					}
 					if(!ClientHadInput)
@@ -3201,8 +3322,7 @@ int CServer::Run()
 			// snap game
 			if(NewTicks)
 			{
-				if(Config()->m_SvHighBandwidth || (m_CurrentGameTick % 2) == 0)
-					DoSnapshot();
+				DoSnapshot();
 
 				const int CommandSendingClientId = Tick() % MAX_CLIENTS;
 				UpdateClientRconCommands(CommandSendingClientId);
@@ -3234,18 +3354,18 @@ int CServer::Run()
 						if(m_aClients[ClientId].m_State == CClient::STATE_EMPTY)
 							continue;
 
-						if(m_aClients[ClientId].m_DnsblState == CClient::DNSBL_STATE_NONE)
+						if(m_aClients[ClientId].m_DnsblState == EDnsblState::NONE)
 						{
 							// initiate dnsbl lookup
 							InitDnsbl(ClientId);
 						}
-						else if(m_aClients[ClientId].m_DnsblState == CClient::DNSBL_STATE_PENDING &&
+						else if(m_aClients[ClientId].m_DnsblState == EDnsblState::PENDING &&
 							m_aClients[ClientId].m_pDnsblLookup->State() == IJob::STATE_DONE)
 						{
 							if(m_aClients[ClientId].m_pDnsblLookup->Result() != 0)
 							{
 								// entry not found -> whitelisted
-								m_aClients[ClientId].m_DnsblState = CClient::DNSBL_STATE_WHITELISTED;
+								m_aClients[ClientId].m_DnsblState = EDnsblState::WHITELISTED;
 
 								str_format(aBuf, sizeof(aBuf), "ClientId=%d addr=<{%s}> secure=%s whitelisted", ClientId, ClientAddrString(ClientId, true), m_NetServer.HasSecurityToken(ClientId) ? "yes" : "no");
 								Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "dnsbl", aBuf);
@@ -3253,7 +3373,7 @@ int CServer::Run()
 							else
 							{
 								// entry found -> blacklisted
-								m_aClients[ClientId].m_DnsblState = CClient::DNSBL_STATE_BLACKLISTED;
+								m_aClients[ClientId].m_DnsblState = EDnsblState::BLACKLISTED;
 
 								str_format(aBuf, sizeof(aBuf), "ClientId=%d addr=<{%s}> secure=%s blacklisted", ClientId, ClientAddrString(ClientId, true), m_NetServer.HasSecurityToken(ClientId) ? "yes" : "no");
 								Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "dnsbl", aBuf);
@@ -3399,11 +3519,7 @@ void CServer::ConStatus(IConsole::IResult *pResult, void *pUser)
 			aDnsblStr[0] = '\0';
 			if(pThis->Config()->m_SvDnsbl)
 			{
-				const char *pDnsblStr = pThis->m_aClients[i].m_DnsblState == CClient::DNSBL_STATE_WHITELISTED ? "white" :
-																pThis->m_aClients[i].m_DnsblState == CClient::DNSBL_STATE_BLACKLISTED ? "black" :
-																									pThis->m_aClients[i].m_DnsblState == CClient::DNSBL_STATE_PENDING ? "pending" : "n/a";
-
-				str_format(aDnsblStr, sizeof(aDnsblStr), " dnsbl=%s", pDnsblStr);
+				str_format(aDnsblStr, sizeof(aDnsblStr), " dnsbl=%s", DnsblStateStr(pThis->m_aClients[i].m_DnsblState));
 			}
 
 			char aAuthStr[128];
@@ -3860,6 +3976,26 @@ void CServer::ConHideAuthStatus(IConsole::IResult *pResult, void *pUser)
 	}
 }
 
+void CServer::ConForceHighBandwidthOnSpectate(IConsole::IResult *pResult, void *pUser)
+{
+	CServer *pServer = (CServer *)pUser;
+
+	if(pServer->m_RconClientId >= 0 && pServer->m_RconClientId < MAX_CLIENTS &&
+		pServer->m_aClients[pServer->m_RconClientId].m_State != CServer::CClient::STATE_EMPTY)
+	{
+		if(pResult->NumArguments())
+		{
+			pServer->m_aClients[pServer->m_RconClientId].m_ForceHighBandwidthOnSpectate = pResult->GetInteger(0);
+		}
+		else
+		{
+			char aStr[9];
+			str_format(aStr, sizeof(aStr), "Value: %d", pServer->m_aClients[pServer->m_RconClientId].m_ForceHighBandwidthOnSpectate);
+			pServer->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", aStr);
+		}
+	}
+}
+
 void CServer::ConAddSqlServer(IConsole::IResult *pResult, void *pUserData)
 {
 	CServer *pSelf = (CServer *)pUserData;
@@ -3881,9 +4017,9 @@ void CServer::ConAddSqlServer(IConsole::IResult *pResult, void *pUserData)
 
 	CMysqlConfig Config;
 	bool Write;
-	if(str_comp_nocase(pResult->GetString(0), "w") == 0)
+	if(str_comp_nocase(pResult->GetString(0), "r") == 0)
 		Write = false;
-	else if(str_comp_nocase(pResult->GetString(0), "r") == 0)
+	else if(str_comp_nocase(pResult->GetString(0), "w") == 0)
 		Write = true;
 	else
 	{
@@ -3975,7 +4111,9 @@ void CServer::ConchainCommandAccessUpdate(IConsole::IResult *pResult, void *pUse
 			{
 				if(pThis->m_aClients[i].m_State == CServer::CClient::STATE_EMPTY)
 					continue;
-				const int ClientAccessLevel = pThis->m_aClients[i].ConsoleAccessLevel();
+				if(!pThis->IsRconAuthed(i))
+					continue;
+				const int ClientAccessLevel = pThis->ConsoleAccessLevel(i);
 				if((pInfo->GetAccessLevel() > ClientAccessLevel && ClientAccessLevel < OldAccessLevel) ||
 					(pInfo->GetAccessLevel() < ClientAccessLevel && ClientAccessLevel > OldAccessLevel) ||
 					(pThis->m_aClients[i].m_pRconCmdToSend && str_comp(pResult->GetString(0), pThis->m_aClients[i].m_pRconCmdToSend->m_pName) >= 0))
@@ -4195,6 +4333,7 @@ void CServer::RegisterCommands()
 	Console()->Register("logout", "", CFGFLAG_SERVER, ConLogout, this, "Logout of rcon");
 	Console()->Register("show_ips", "?i[show]", CFGFLAG_SERVER, ConShowIps, this, "Show IP addresses in rcon commands (1 = on, 0 = off)");
 	Console()->Register("hide_auth_status", "?i[hide]", CFGFLAG_SERVER, ConHideAuthStatus, this, "Opt out of spectator count and hide auth status to non-authed players (1 = hidden, 0 = shown)");
+	Console()->Register("force_high_bandwidth_on_spectate", "?i[enable]", CFGFLAG_SERVER, ConForceHighBandwidthOnSpectate, this, "Force high bandwidth mode when spectating (1 = on, 0 = off)");
 
 	Console()->Register("record", "?s[file]", CFGFLAG_SERVER | CFGFLAG_STORE, ConRecord, this, "Record to a file");
 	Console()->Register("stoprecord", "", CFGFLAG_SERVER, ConStopRecord, this, "Stop recording");
@@ -4404,7 +4543,7 @@ bool CServer::SetTimedOut(int ClientId, int OrigId)
 	}
 	m_aClients[ClientId].m_Sixup = m_aClients[OrigId].m_Sixup;
 
-	if(m_aClients[OrigId].m_Authed != AUTHED_NO)
+	if(IsRconAuthed(OrigId))
 	{
 		LogoutClient(ClientId, "Timeout Protection");
 	}
@@ -4414,6 +4553,15 @@ bool CServer::SetTimedOut(int ClientId, int OrigId)
 	m_aClients[ClientId].m_DDNetVersion = m_aClients[OrigId].m_DDNetVersion;
 	m_aClients[ClientId].m_GotDDNetVersionPacket = m_aClients[OrigId].m_GotDDNetVersionPacket;
 	m_aClients[ClientId].m_DDNetVersionSettled = m_aClients[OrigId].m_DDNetVersionSettled;
+
+	//+KZ
+	m_aClients[ClientId].m_InfClassVersion = m_aClients[OrigId].m_InfClassVersion;
+	m_aClients[ClientId].m_IsTaterClient = m_aClients[OrigId].m_IsTaterClient;
+	m_aClients[ClientId].m_IsQxdClient = m_aClients[OrigId].m_IsQxdClient;
+	m_aClients[ClientId].m_IsChillerbotClient = m_aClients[OrigId].m_IsChillerbotClient;
+	m_aClients[ClientId].m_IsStAClient = m_aClients[OrigId].m_IsStAClient;
+	m_aClients[ClientId].m_IsAllTheHaxxClient = m_aClients[OrigId].m_IsAllTheHaxxClient;
+	m_aClients[ClientId].m_IsPulseClient = m_aClients[OrigId].m_IsPulseClient;
 	return true;
 }
 
@@ -4426,4 +4574,20 @@ void CServer::SetLoggers(std::shared_ptr<ILogger> &&pFileLogger, std::shared_ptr
 {
 	m_pFileLogger = pFileLogger;
 	m_pStdoutLogger = pStdoutLogger;
+}
+
+//+KZ
+int CServer::GetClientInfclassVersion(int ClientId)
+{
+	if(ClientId == SERVER_DEMO_CLIENT)
+	{
+		return 1000;
+	}
+
+	if(m_aClients[ClientId].m_State == CClient::STATE_INGAME)
+	{
+		return m_aClients[ClientId].m_InfClassVersion;
+	}
+
+	return 0;
 }

@@ -5,14 +5,17 @@
 
 #include <base/vmath.h>
 
-#include <map>
 #include <set>
 #include <vector>
 
 #include <engine/shared/protocol.h>
-#include <game/generated/protocol.h>
+
+#include <generated/protocol.h>
+
 #include <game/teamscore.h>
 #include <game/mapitems.h>
+
+#include "params_kz.h"
 
 #include "prng.h"
 
@@ -66,6 +69,8 @@ public:
 	bool Get(const char *pName, float *pValue) const;
 	static const char *Name(int Index) { return ms_apNames[Index]; }
 	float GetWeaponFireDelay(int Weapon) const;
+
+	static const CTuningParams DEFAULT;
 };
 
 // Do not use these function unless for legacy code!
@@ -113,8 +118,8 @@ enum
 	HOOK_IDLE = 0,
 	HOOK_RETRACT_START = 1,
 	HOOK_RETRACT_END = 3,
-	HOOK_FLYING,
-	HOOK_GRABBED,
+	HOOK_FLYING = 4,
+	HOOK_GRABBED = 5,
 
 	COREEVENT_GROUND_JUMP = 0x01,
 	COREEVENT_AIR_JUMP = 0x02,
@@ -212,8 +217,9 @@ public: // KZ
 	void SetHookedPlayer(int HookedPlayer);
 
 	int m_ActiveWeapon;
-	struct WeaponStat
+	class CWeaponStat
 	{
+	public:
 		int m_AmmoRegenStart;
 		int m_Ammo;
 		int m_Ammocost;
@@ -296,6 +302,8 @@ public: // KZ
 	bool m_SendCoreThisTick = false;
 	bool HandleKZTileOnMoveBox(vec2 *pMoveBoxPos, vec2 *pMoveBoxVel, vec2 MoveBoxSize, vec2 MoveBoxElasticity);
 	CKZTile *pTouchingKZTiles[4] = {nullptr, nullptr, nullptr, nullptr};
+	SKZColCharCoreParams m_CharCoreParams;
+	SKZColGenericParams m_GenericParams;
 };
 
 // input count

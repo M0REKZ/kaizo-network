@@ -17,12 +17,16 @@ struct STileStateChange
 template<typename T>
 using EditorTileStateChangeHistory = std::map<int, std::map<int, T>>;
 
-enum
+/**
+ * Represents a direction to shift a tile layer with the CLayerTiles::Shift function.
+ * The underlying type is `int` as this is also used with the CEditor::DoPropertiesWithState function.
+ */
+enum class EShiftDirection : int
 {
-	DIRECTION_LEFT = 0,
-	DIRECTION_RIGHT,
-	DIRECTION_UP,
-	DIRECTION_DOWN,
+	LEFT,
+	RIGHT,
+	UP,
+	DOWN,
 };
 
 struct RECTi
@@ -35,11 +39,11 @@ class CLayerTiles : public CLayer
 {
 protected:
 	template<typename T>
-	void ShiftImpl(T *pTiles, int Direction, int ShiftBy)
+	void ShiftImpl(T *pTiles, EShiftDirection Direction, int ShiftBy)
 	{
 		switch(Direction)
 		{
-		case DIRECTION_LEFT:
+		case EShiftDirection::LEFT:
 			ShiftBy = minimum(ShiftBy, m_Width);
 			for(int y = 0; y < m_Height; ++y)
 			{
@@ -48,7 +52,7 @@ protected:
 				mem_zero(&pTiles[y * m_Width + (m_Width - ShiftBy)], ShiftBy * sizeof(T));
 			}
 			break;
-		case DIRECTION_RIGHT:
+		case EShiftDirection::RIGHT:
 			ShiftBy = minimum(ShiftBy, m_Width);
 			for(int y = 0; y < m_Height; ++y)
 			{
@@ -57,7 +61,7 @@ protected:
 				mem_zero(&pTiles[y * m_Width], ShiftBy * sizeof(T));
 			}
 			break;
-		case DIRECTION_UP:
+		case EShiftDirection::UP:
 			ShiftBy = minimum(ShiftBy, m_Height);
 			for(int y = ShiftBy; y < m_Height; ++y)
 			{
@@ -68,7 +72,7 @@ protected:
 				mem_zero(&pTiles[y * m_Width], m_Width * sizeof(T));
 			}
 			break;
-		case DIRECTION_DOWN:
+		case EShiftDirection::DOWN:
 			ShiftBy = minimum(ShiftBy, m_Height);
 			for(int y = m_Height - ShiftBy - 1; y >= 0; --y)
 			{
@@ -78,6 +82,9 @@ protected:
 			{
 				mem_zero(&pTiles[y * m_Width], m_Width * sizeof(T));
 			}
+			break;
+		default:
+			dbg_assert(false, "Direction invalid: %d", (int)Direction);
 			break;
 		}
 	}
@@ -101,12 +108,12 @@ public:
 	CLayerTiles(const CLayerTiles &Other);
 	~CLayerTiles();
 
-	virtual CTile GetTile(int x, int y);
+	[[nodiscard]] virtual CTile GetTile(int x, int y) const;
 	virtual void SetTile(int x, int y, CTile Tile);
 	void SetTileIgnoreHistory(int x, int y, CTile Tile) const;
 
 	virtual void Resize(int NewW, int NewH);
-	virtual void Shift(int Direction);
+	virtual void Shift(EShiftDirection Direction);
 
 	void MakePalette() const;
 	void Render(bool Tileset = false) override;
@@ -117,9 +124,9 @@ public:
 	void Snap(CUIRect *pRect) const;
 	void Clamp(RECTi *pRect) const;
 
-	virtual bool IsEntitiesLayer() const override;
+	bool IsEntitiesLayer() const override;
 
-	virtual bool IsEmpty(const std::shared_ptr<CLayerTiles> &pLayer);
+	[[nodiscard]] virtual bool IsEmpty() const;
 	void BrushSelecting(CUIRect Rect) override;
 	int BrushGrab(std::shared_ptr<CLayerGroup> pBrush, CUIRect Rect) override;
 	void FillSelection(bool Empty, std::shared_ptr<CLayer> pBrush, CUIRect Rect) override;
@@ -150,8 +157,8 @@ public:
 	};
 	static CUi::EPopupMenuFunctionResult RenderCommonProperties(SCommonPropState &State, CEditor *pEditor, CUIRect *pToolbox, std::vector<std::shared_ptr<CLayerTiles>> &vpLayers, std::vector<int> &vLayerIndices);
 
-	void ModifyImageIndex(FIndexModifyFunction pfnFunc) override;
-	void ModifyEnvelopeIndex(FIndexModifyFunction pfnFunc) override;
+	void ModifyImageIndex(const FIndexModifyFunction &IndexModifyFunction) override;
+	void ModifyEnvelopeIndex(const FIndexModifyFunction &IndexModifyFunction) override;
 
 	void PrepareForSave();
 	void ExtractTiles(int TilemapItemVersion, const CTile *pSavedTiles, size_t SavedTilesSize) const;
@@ -187,6 +194,7 @@ public:
 	bool m_HasSwitch;
 	bool m_HasTune;
 	char m_aFileName[IO_MAX_PATH_LENGTH];
+	bool m_KnownTextModeLayer = false;
 
 	// KZ
 	bool m_HasKZGame;

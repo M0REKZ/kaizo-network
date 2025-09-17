@@ -78,43 +78,7 @@ std::optional<ColorHSLA> CConsole::CResult::GetColor(unsigned Index, float Darke
 {
 	if(Index >= m_NumArgs)
 		return std::nullopt;
-
-	const char *pStr = m_apArgs[Index];
-	if(str_isallnum(pStr) || ((pStr[0] == '-' || pStr[0] == '+') && str_isallnum(pStr + 1))) // Teeworlds Color (Packed HSL)
-	{
-		unsigned long Value = str_toulong_base(pStr, 10);
-		if(Value == std::numeric_limits<unsigned long>::max())
-			return std::nullopt;
-		return ColorHSLA(Value, true).UnclampLighting(DarkestLighting);
-	}
-	else if(*pStr == '$') // Hex RGB/RGBA
-	{
-		auto ParsedColor = color_parse<ColorRGBA>(pStr + 1);
-		if(ParsedColor)
-			return color_cast<ColorHSLA>(ParsedColor.value());
-		else
-			return std::nullopt;
-	}
-	else if(!str_comp_nocase(pStr, "red"))
-		return ColorHSLA(0.0f / 6.0f, 1, .5f);
-	else if(!str_comp_nocase(pStr, "yellow"))
-		return ColorHSLA(1.0f / 6.0f, 1, .5f);
-	else if(!str_comp_nocase(pStr, "green"))
-		return ColorHSLA(2.0f / 6.0f, 1, .5f);
-	else if(!str_comp_nocase(pStr, "cyan"))
-		return ColorHSLA(3.0f / 6.0f, 1, .5f);
-	else if(!str_comp_nocase(pStr, "blue"))
-		return ColorHSLA(4.0f / 6.0f, 1, .5f);
-	else if(!str_comp_nocase(pStr, "magenta"))
-		return ColorHSLA(5.0f / 6.0f, 1, .5f);
-	else if(!str_comp_nocase(pStr, "white"))
-		return ColorHSLA(0, 0, 1);
-	else if(!str_comp_nocase(pStr, "gray"))
-		return ColorHSLA(0, 0, .5f);
-	else if(!str_comp_nocase(pStr, "black"))
-		return ColorHSLA(0, 0, 0);
-
-	return std::nullopt;
+	return ColorParse(m_apArgs[Index], DarkestLighting);
 }
 
 const IConsole::CCommandInfo *CConsole::CCommand::NextCommandInfo(int AccessLevel, int FlagMask) const
@@ -143,6 +107,47 @@ const IConsole::CCommandInfo *CConsole::FirstCommandInfo(int AccessLevel, int Fl
 	}
 
 	return nullptr;
+}
+
+std::optional<int> CConsole::AccessLevelToInt(const char *pAccessLevel)
+{
+	// alias for legacy integer access levels
+	if(!str_comp(pAccessLevel, "0"))
+		return ACCESS_LEVEL_ADMIN;
+	if(!str_comp(pAccessLevel, "1"))
+		return ACCESS_LEVEL_MOD;
+	if(!str_comp(pAccessLevel, "2"))
+		return ACCESS_LEVEL_HELPER;
+	if(!str_comp(pAccessLevel, "3"))
+		return ACCESS_LEVEL_USER;
+
+	// string access levels
+	if(!str_comp(pAccessLevel, "admin"))
+		return ACCESS_LEVEL_ADMIN;
+	if(!str_comp(pAccessLevel, "moderator"))
+		return ACCESS_LEVEL_MOD;
+	if(!str_comp(pAccessLevel, "helper"))
+		return ACCESS_LEVEL_HELPER;
+	if(!str_comp(pAccessLevel, "all"))
+		return ACCESS_LEVEL_USER;
+	return std::nullopt;
+}
+
+const char *CConsole::AccessLevelToString(int AccessLevel)
+{
+	switch(AccessLevel)
+	{
+	case ACCESS_LEVEL_ADMIN:
+		return "admin";
+	case ACCESS_LEVEL_MOD:
+		return "moderator";
+	case ACCESS_LEVEL_HELPER:
+		return "helper";
+	case ACCESS_LEVEL_USER:
+		return "all";
+	}
+	dbg_assert(false, "invalid access level: %d", AccessLevel);
+	dbg_break();
 }
 
 // the maximum number of tokens occurs in a string of length CONSOLE_MAX_STR_LENGTH with tokens size 1 separated by single spaces
@@ -356,7 +361,7 @@ int IConsole::ToLogLevelFilter(int Level)
 	return Level + 2;
 }
 
-LOG_COLOR ColorToLogColor(ColorRGBA Color)
+static LOG_COLOR ColorToLogColor(ColorRGBA Color)
 {
 	return LOG_COLOR{
 		(uint8_t)(Color.r * 255.0),
@@ -503,7 +508,14 @@ void CConsole::ExecuteLineStroked(int Stroke, const char *pStr, int ClientId, bo
 			return;
 
 		if(!*Result.m_pCommand)
+		{
+			if(pNextPart)
+			{
+				pStr = pNextPart;
+				continue;
+			}
 			return;
+		}
 
 		CCommand *pCommand;
 		if(ClientId == IConsole::CLIENT_ID_GAME)
@@ -739,7 +751,13 @@ void CConsole::ConCommandAccess(IResult *pResult, void *pUser)
 	{
 		if(pResult->NumArguments() == 2)
 		{
-			pCommand->SetAccessLevel(pResult->GetInteger(1));
+			std::optional<int> AccessLevel = AccessLevelToInt(pResult->GetString(1));
+			if(!AccessLevel.has_value())
+			{
+				log_error("console", "Invalid access level '%s'. Allowed values are admin, moderator, helper and all.", pResult->GetString(1));
+				return;
+			}
+			pCommand->SetAccessLevel(AccessLevel.value());
 			str_format(aBuf, sizeof(aBuf), "moderator access for '%s' is now %s", pResult->GetString(0), pCommand->GetAccessLevel() ? "enabled" : "disabled");
 			pConsole->Print(OUTPUT_LEVEL_STANDARD, "console", aBuf);
 			str_format(aBuf, sizeof(aBuf), "helper access for '%s' is now %s", pResult->GetString(0), pCommand->GetAccessLevel() >= ACCESS_LEVEL_HELPER ? "enabled" : "disabled");
@@ -767,10 +785,16 @@ void CConsole::ConCommandStatus(IResult *pResult, void *pUser)
 	char aBuf[240];
 	mem_zero(aBuf, sizeof(aBuf));
 	int Used = 0;
+	std::optional<int> AccessLevel = AccessLevelToInt(pResult->GetString(0));
+	if(!AccessLevel.has_value())
+	{
+		log_error("console", "Invalid access level '%s'. Allowed values are admin, moderator, helper and all.", pResult->GetString(0));
+		return;
+	}
 
 	for(CCommand *pCommand = pConsole->m_pFirstCommand; pCommand; pCommand = pCommand->m_pNext)
 	{
-		if(pCommand->m_Flags & pConsole->m_FlagMask && pCommand->GetAccessLevel() >= std::clamp(pResult->GetInteger(0), (int)ACCESS_LEVEL_ADMIN, (int)ACCESS_LEVEL_USER))
+		if(pCommand->m_Flags & pConsole->m_FlagMask && pCommand->GetAccessLevel() >= AccessLevel.value())
 		{
 			int Length = str_length(pCommand->m_pName);
 			if(Used + Length + 2 < (int)(sizeof(aBuf)))
@@ -801,9 +825,7 @@ void CConsole::ConUserCommandStatus(IResult *pResult, void *pUser)
 	CConsole *pConsole = static_cast<CConsole *>(pUser);
 	CResult Result(pResult->m_ClientId);
 	Result.m_pCommand = "access_status";
-	char aBuf[4];
-	str_format(aBuf, sizeof(aBuf), "%d", (int)IConsole::ACCESS_LEVEL_USER);
-	Result.AddArgument(aBuf);
+	Result.AddArgument(AccessLevelToString((int)IConsole::ACCESS_LEVEL_USER));
 
 	CConsole::ConCommandStatus(&Result, pConsole);
 }
@@ -838,8 +860,8 @@ CConsole::CConsole(int FlagMask)
 	Register("echo", "r[text]", CFGFLAG_SERVER, Con_Echo, this, "Echo the text");
 	Register("exec", "r[file]", CFGFLAG_SERVER | CFGFLAG_CLIENT, Con_Exec, this, "Execute the specified file");
 
-	Register("access_level", "s[command] ?i[accesslevel]", CFGFLAG_SERVER, ConCommandAccess, this, "Specify command accessibility (admin = 0, moderator = 1, helper = 2, all = 3)");
-	Register("access_status", "i[accesslevel]", CFGFLAG_SERVER, ConCommandStatus, this, "List all commands which are accessible for admin = 0, moderator = 1, helper = 2, all = 3");
+	Register("access_level", "s[command] ?s['admin'|'moderator'|'helper'|'all']", CFGFLAG_SERVER, ConCommandAccess, this, "Specify command accessibility for given access level");
+	Register("access_status", "s['admin'|'moderator'|'helper'|'all']", CFGFLAG_SERVER, ConCommandStatus, this, "List all commands which are accessible for given access level");
 	Register("cmdlist", "", CFGFLAG_SERVER | CFGFLAG_CHAT, ConUserCommandStatus, this, "List all commands which are accessible for users");
 
 	// DDRace
@@ -1128,4 +1150,43 @@ void CConsole::CResult::SetVictim(const char *pVictim)
 		m_Victim = VICTIM_ALL;
 	else
 		m_Victim = std::clamp<int>(str_toint(pVictim), 0, MAX_CLIENTS - 1);
+}
+
+std::optional<ColorHSLA> CConsole::ColorParse(const char *pStr, float DarkestLighting)
+{
+	if(str_isallnum(pStr) || ((pStr[0] == '-' || pStr[0] == '+') && str_isallnum(pStr + 1))) // Teeworlds Color (Packed HSL)
+	{
+		unsigned long Value = str_toulong_base(pStr, 10);
+		if(Value == std::numeric_limits<unsigned long>::max())
+			return std::nullopt;
+		return ColorHSLA(Value, true).UnclampLighting(DarkestLighting);
+	}
+	else if(*pStr == '$') // Hex RGB/RGBA
+	{
+		auto ParsedColor = color_parse<ColorRGBA>(pStr + 1);
+		if(ParsedColor)
+			return color_cast<ColorHSLA>(ParsedColor.value());
+		else
+			return std::nullopt;
+	}
+	else if(!str_comp_nocase(pStr, "red"))
+		return ColorHSLA(0.0f / 6.0f, 1.0f, 0.5f);
+	else if(!str_comp_nocase(pStr, "yellow"))
+		return ColorHSLA(1.0f / 6.0f, 1.0f, 0.5f);
+	else if(!str_comp_nocase(pStr, "green"))
+		return ColorHSLA(2.0f / 6.0f, 1.0f, 0.5f);
+	else if(!str_comp_nocase(pStr, "cyan"))
+		return ColorHSLA(3.0f / 6.0f, 1.0f, 0.5f);
+	else if(!str_comp_nocase(pStr, "blue"))
+		return ColorHSLA(4.0f / 6.0f, 1.0f, 0.5f);
+	else if(!str_comp_nocase(pStr, "magenta"))
+		return ColorHSLA(5.0f / 6.0f, 1.0f, 0.5f);
+	else if(!str_comp_nocase(pStr, "white"))
+		return ColorHSLA(0.0f, 0.0f, 1.0f);
+	else if(!str_comp_nocase(pStr, "gray"))
+		return ColorHSLA(0.0f, 0.0f, 0.5f);
+	else if(!str_comp_nocase(pStr, "black"))
+		return ColorHSLA(0.0f, 0.0f, 0.0f);
+
+	return std::nullopt;
 }

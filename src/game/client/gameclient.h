@@ -14,14 +14,15 @@
 #include <game/collision.h>
 #include <game/gamecore.h>
 #include <game/layers.h>
+#include <game/map/render_map.h>
 #include <game/mapbugs.h>
 #include <game/teamscore.h>
 
 #include <game/client/prediction/gameworld.h>
 #include <game/client/race.h>
 
-#include <game/generated/protocol7.h>
-#include <game/generated/protocolglue.h>
+#include <generated/protocol7.h>
+#include <generated/protocolglue.h>
 
 // components
 #include "components/background.h"
@@ -163,8 +164,8 @@ public:
 	CItems m_Items;
 	CMapImages m_MapImages;
 
-	CMapLayers m_MapLayersBackground = CMapLayers{CMapLayers::TYPE_BACKGROUND};
-	CMapLayers m_MapLayersForeground = CMapLayers{CMapLayers::TYPE_FOREGROUND};
+	CMapLayers m_MapLayersBackground = CMapLayers{ERenderType::RENDERTYPE_BACKGROUND};
+	CMapLayers m_MapLayersForeground = CMapLayers{ERenderType::RENDERTYPE_FOREGROUND};
 	CBackground m_Background;
 	CMenuBackground m_MenuBackground;
 
@@ -272,6 +273,7 @@ public:
 	class IFavorites *Favorites() const { return m_pFavorites; }
 	class IServerBrowser *ServerBrowser() const { return m_pServerBrowser; }
 	class CRenderTools *RenderTools() { return &m_RenderTools; }
+	class CRenderMap *RenderMap() { return &m_RenderMap; }
 	class CLayers *Layers() { return &m_Layers; }
 	CCollision *Collision() { return &m_Collision; }
 	const CCollision *Collision() const { return &m_Collision; }
@@ -481,7 +483,7 @@ public:
 		CNetObj_Character m_Snapped;
 		CNetObj_Character m_Evolved;
 
-		CNetMsg_Sv_PreInput m_PreInput[200];
+		CNetMsg_Sv_PreInput m_aPreInputs[200];
 
 		// rendered characters
 		CNetObj_Character m_RenderCur;
@@ -561,6 +563,7 @@ public:
 	CClientStats m_aStats[MAX_CLIENTS];
 
 	CRenderTools m_RenderTools;
+	CRenderMap m_RenderMap;
 
 	void OnReset();
 
@@ -611,6 +614,7 @@ public:
 	void CollectManagedTeeRenderInfos(const std::function<void(const char *pSkinName)> &ActiveSkinAcceptor);
 
 	void RenderShutdownMessage() override;
+	void ProcessDemoSnapshot(CSnapshot *pSnap) override;
 
 	const char *GetItemName(int Type) const override;
 	const char *Version() const override;
@@ -618,7 +622,7 @@ public:
 	const char *NetVersion7() const override;
 	int DDNetVersion() const override;
 	const char *DDNetVersionStr() const override;
-	virtual int ClientVersion7() const override;
+	int ClientVersion7() const override;
 
 	void DoTeamChangeMessage7(const char *pName, int ClientId, int Team, const char *pPrefix = "");
 

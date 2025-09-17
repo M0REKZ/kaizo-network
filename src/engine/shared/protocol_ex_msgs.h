@@ -19,6 +19,11 @@
 
 // This file can be included several times.
 
+#ifndef UUID
+// This helps IDEs properly syntax highlight the uses of the macro below.
+#define UUID(Id, Name)
+#endif
+
 UUID(NETMSG_WHATIS, "what-is@ddnet.tw")
 UUID(NETMSG_ITIS, "it-is@ddnet.tw")
 UUID(NETMSG_IDONTKNOW, "i-dont-know@ddnet.tw")
@@ -40,3 +45,12 @@ UUID(NETMSG_RECONNECT, "reconnect@ddnet.org")
 UUID(NETMSG_MAPLIST_ADD, "sv-maplist-add@ddnet.org")
 UUID(NETMSG_MAPLIST_GROUP_START, "sv-maplist-start@ddnet.org")
 UUID(NETMSG_MAPLIST_GROUP_END, "sv-maplist-end@ddnet.org")
+
+//+KZ
+UUID(NETMSG_CLIENTVER_INFCLASS, "clientver@infclass")
+UUID(NETMSG_IAMTATER, "iamtater@sjrc6.github.io")
+UUID(NETMSG_IAMQXD, "i-am-qxd@qxdFox.github.io")
+UUID(NETMSG_IAMCHILLERBOT, "i-am-chillerbot@chillerbot.github.io")
+UUID(NETMSG_IAMSTA, "i-am-StA@stormaxs.github.io/sta.github.io")
+UUID(NETMSG_IAMALLTHEHAXX, "i-am-allthehaxx@allthehaxx.github.io")
+UUID(NETMSG_IAMPULSE, "i-am-pulse@pulse-client.xyz")

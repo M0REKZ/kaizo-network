@@ -6,7 +6,7 @@
 
 #include "prompt.h"
 
-bool FuzzyMatch(const char *pHaystack, const char *pNeedle)
+static bool FuzzyMatch(const char *pHaystack, const char *pNeedle)
 {
 	if(!pNeedle || !pNeedle[0])
 		return false;
@@ -27,14 +27,13 @@ bool FuzzyMatch(const char *pHaystack, const char *pNeedle)
 
 bool CPrompt::IsActive()
 {
-	return CEditorComponent::IsActive() || Editor()->m_Dialog == DIALOG_QUICK_PROMPT;
+	return Editor()->m_Dialog == DIALOG_QUICK_PROMPT;
 }
 
 void CPrompt::SetActive()
 {
 	Editor()->m_Dialog = DIALOG_QUICK_PROMPT;
-	CEditorComponent::SetActive();
-
+	Ui()->ClosePopupMenus();
 	Ui()->SetActiveItem(&m_PromptInput);
 }
 
@@ -43,13 +42,14 @@ void CPrompt::SetInactive()
 	m_ResetFilterResults = true;
 	m_PromptInput.Clear();
 	if(Editor()->m_Dialog == DIALOG_QUICK_PROMPT)
-		Editor()->m_Dialog = DIALOG_NONE;
-	CEditorComponent::SetInactive();
+	{
+		Editor()->OnDialogClose();
+	}
 }
 
 bool CPrompt::OnInput(const IInput::CEvent &Event)
 {
-	if(Input()->ModifierIsPressed() && Input()->KeyIsPressed(KEY_P))
+	if(Editor()->m_Dialog == DIALOG_NONE && Input()->ModifierIsPressed() && Input()->KeyPress(KEY_P))
 	{
 		SetActive();
 	}
@@ -75,6 +75,9 @@ void CPrompt::OnRender(CUIRect _)
 		SetInactive();
 		return;
 	}
+
+	// Prevent UI elements below the prompt dialog from being activated.
+	Ui()->SetHotItem(this);
 
 	static CListBox s_ListBox;
 	CUIRect Prompt, PromptBox;

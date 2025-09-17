@@ -124,11 +124,11 @@ void CPortalProjectile::Snap(int SnappingClient)
 		postemp.x = m_Pos.x + m_Dir.x * 15 + 32*sin((float)Server()->Tick() / 25.0);
 		postemp.y = m_Pos.y + m_Dir.y * 15 + 32*cos((float)Server()->Tick() / 25.0);
 
-		GameServer()->SnapLaserObject(CSnapContext(SnappingClientVersion, Sixup),m_ParticleID[0],postemp,postemp,Server()->Tick(),m_Owner,m_BluePortal ? LASERTYPE_PLASMA : LASERTYPE_SHOTGUN);
+		GameServer()->SnapLaserObject(CSnapContext(SnappingClientVersion, Sixup, SnappingClient),m_ParticleID[0],postemp,postemp,Server()->Tick(),m_Owner,m_BluePortal ? LASERTYPE_PLASMA : LASERTYPE_SHOTGUN);
 
 		postemp.x = m_Pos.x + -32*sin((float)Server()->Tick() / 25.0);
 
-		GameServer()->SnapLaserObject(CSnapContext(SnappingClientVersion, Sixup),m_ParticleID[1],postemp,postemp,Server()->Tick(),m_Owner,m_BluePortal ? LASERTYPE_PLASMA : LASERTYPE_SHOTGUN);
+		GameServer()->SnapLaserObject(CSnapContext(SnappingClientVersion, Sixup, SnappingClient),m_ParticleID[1],postemp,postemp,Server()->Tick(),m_Owner,m_BluePortal ? LASERTYPE_PLASMA : LASERTYPE_SHOTGUN);
 	}
 }
 

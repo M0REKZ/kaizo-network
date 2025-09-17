@@ -1,4 +1,6 @@
 #include "test.h"
+#include <game/server/gamecontroller.h>
+#include <game/server/player.h>
 #include <gtest/gtest.h>
 
 #include <base/logger.h>
@@ -13,7 +15,9 @@
 #include <engine/server/server_logger.h>
 #include <engine/shared/assertion_logger.h>
 #include <engine/shared/config.h>
-#include <game/generated/protocol.h>
+
+#include <generated/protocol.h>
+
 #include <game/server/entities/character.h>
 #include <game/server/gamecontext.h>
 #include <game/server/gameworld.h>
@@ -247,4 +251,15 @@ TEST_F(CTestGameWorld, IntersectEntity)
 		-1, // CollideWith
 		nullptr /* pThisOnly */);
 	EXPECT_EQ(pIntersectedChar, pChrRight);
+}
+
+TEST_F(CTestGameWorld, BasicTick)
+{
+	int ClientId = 0;
+	bool Afk = true;
+	int LastWhisperTo = -1;
+	const int StartTeam = GameServer()->m_pController->GetAutoTeam(ClientId);
+	GameServer()->CreatePlayer(ClientId, StartTeam, Afk, LastWhisperTo);
+
+	GameServer()->OnTick();
 }

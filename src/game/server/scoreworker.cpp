@@ -714,6 +714,7 @@ bool CScoreWorker::SaveTeamScore(IDbConnection *pSqlServer, const ISqlData *pGam
 	{
 		// get the names sorted in a tab separated string
 		std::vector<std::string> vNames;
+		vNames.reserve(pData->m_Size);
 		for(unsigned int i = 0; i < pData->m_Size; i++)
 			vNames.emplace_back(pData->m_aaNames[i]);
 
@@ -1729,7 +1730,7 @@ bool CScoreWorker::SaveTeam(IDbConnection *pSqlServer, const ISqlData *pGameData
 			else
 			{
 				str_copy(pResult->m_aBroadcast,
-					"Database connection failed, teamsave written to a file instead. Admins will add it manually in a few days.",
+					"Database connection failed, teamsave written to a file instead. On official DDNet servers this will automatically be inserted into the database every full hour.",
 					sizeof(pResult->m_aBroadcast));
 				if(str_comp(pData->m_aServer, g_Config.m_SvSqlServerName) == 0)
 				{

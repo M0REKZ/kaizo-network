@@ -6,7 +6,7 @@
 #include <engine/server.h>
 #include <engine/shared/config.h>
 
-#include <game/generated/protocol.h>
+#include <generated/protocol.h>
 #include <game/mapitems.h>
 
 #include <game/server/gamecontext.h>
@@ -161,8 +161,8 @@ void CKZGun::Snap(int SnappingClient)
 		if(SnappingClient != SERVER_DEMO_CLIENT &&
 			(GameServer()->m_apPlayers[SnappingClient]->GetTeam() == TEAM_SPECTATORS ||
 				GameServer()->m_apPlayers[SnappingClient]->IsPaused()) &&
-			GameServer()->m_apPlayers[SnappingClient]->m_SpectatorId != SPEC_FREEVIEW)
-			pChar = GameServer()->GetPlayerChar(GameServer()->m_apPlayers[SnappingClient]->m_SpectatorId);
+			GameServer()->m_apPlayers[SnappingClient]->SpectatorId() != SPEC_FREEVIEW)
+			pChar = GameServer()->GetPlayerChar(GameServer()->m_apPlayers[SnappingClient]->SpectatorId());
 
 		int Tick = (Server()->Tick() % Server()->TickSpeed()) % 11;
 		if(pChar && m_Layer == LAYER_SWITCH && m_Number > 0 &&
@@ -172,6 +172,6 @@ void CKZGun::Snap(int SnappingClient)
 		StartTick = m_EvalTick;
 	}
 
-	GameServer()->SnapLaserObject(CSnapContext(SnappingClientVersion), GetId(),
+	GameServer()->SnapLaserObject(CSnapContext(SnappingClientVersion, Server()->IsSixup(SnappingClient), SnappingClient), GetId(),
 		m_Pos, m_Pos, StartTick, -1, Server()->Tick() % 2, Subtype, m_Number);
 }

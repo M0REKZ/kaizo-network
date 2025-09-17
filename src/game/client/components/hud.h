@@ -5,8 +5,10 @@
 #include <engine/client.h>
 #include <engine/shared/protocol.h>
 #include <engine/textrender.h>
+
+#include <generated/protocol.h>
+
 #include <game/client/component.h>
-#include <game/generated/protocol.h>
 
 struct SScoreInfo
 {
@@ -107,18 +109,18 @@ class CHud : public CComponent
 
 public:
 	CHud();
-	virtual int Sizeof() const override { return sizeof(*this); }
+	int Sizeof() const override { return sizeof(*this); }
 
 	void ResetHudContainers();
-	virtual void OnWindowResize() override;
-	virtual void OnReset() override;
-	virtual void OnRender() override;
-	virtual void OnInit() override;
-	virtual void OnNewSnapshot() override;
+	void OnWindowResize() override;
+	void OnReset() override;
+	void OnRender() override;
+	void OnInit() override;
+	void OnNewSnapshot() override;
 
 	// DDRace
 
-	virtual void OnMessage(int MsgType, void *pRawMsg) override;
+	void OnMessage(int MsgType, void *pRawMsg) override;
 	void RenderNinjaBarPos(float x, float y, float Width, float Height, float Progress, float Alpha = 1.0f);
 
 private:

@@ -11,6 +11,7 @@
 
 #include <game/mapitems.h> // KZ
 #include <game/gamecore.h> // KZ
+#include <game/params_kz.h> // KZ
 
 class CTile;
 class CLayers;
@@ -41,20 +42,11 @@ public:
 
 	// KZ
 
-	struct CKZColLaserParams //TODO: Do it for Projectiles too
-	{
-		vec2 From;
-		vec2 To;
-		int Type;
-		int OwnerId;
-		int BounceNum;
-	};
-
-	int CheckPointForCore(float x, float y, CCharacterCore* pCore, bool IsHook = false, bool IsWeapon = false) const;
-	int CheckPointForProjectile(vec2 Pos, vec2 *pProjPos, int OwnerId, vec2 *pOutCollision, vec2 *pOutBeforeCollision, int Weapon = -1) const;
-	int CheckPointForLaser(vec2 Pos, CKZColLaserParams *pLaserParams) const;
-	int FastIntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, CCharacterCore *pCore = nullptr, bool IsHook = false, bool IsWeapon = false) const;
-	int FastIntersectLinePortalLaser(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, CKZTile **pKZTile = nullptr, int *pTeleNr = nullptr, CCharacterCore *pCore = nullptr, bool IsHook = false, bool IsWeapon = false) const;
+	int CheckPointForCore(float x, float y, SKZColCharCoreParams *pCharCoreParams) const;
+	int CheckPointForProjectile(vec2 Pos, SKZColProjectileParams *pProjectileParams) const;
+	int CheckPointForLaser(vec2 Pos, SKZColLaserParams *pLaserParams) const;
+	int FastIntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, SKZColCharCoreParams *pCharCoreParams) const;
+	int FastIntersectLinePortalLaser(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, CKZTile **pKZTile = nullptr, int *pTeleNr = nullptr, SKZColCharCoreParams *pCharCoreParams = nullptr) const;
 	bool DDNetLayerExists(int Layer);
 	CPortalCore *IntersectCharacterWithPortal(vec2 Pos, CCharacterCore *pCore)const;
 	CCharacterCore *IntersectCharacterCore(vec2 Pos0, vec2 Pos1, float Radius, vec2 &NewPos, CCharacterCore *pThisOnly = nullptr) const;
@@ -95,17 +87,17 @@ public:
 	void Unload();
 	void FillAntibot(CAntibotMapData *pMapData) const;
 
-	bool CheckPoint(float x, float y, CCharacterCore *pCore = nullptr, bool IsHook = false, bool IsWeapon = false) const { return IsSolid(round_to_int(x), round_to_int(y)) || CheckPointForCore(x, y, pCore, IsHook, IsWeapon); } // KZ: modified
-	bool CheckPoint(vec2 Pos, CCharacterCore *pCore = nullptr, bool IsHook = false, bool IsWeapon = false) const { return CheckPoint(Pos.x, Pos.y, pCore, IsHook, IsWeapon); } // KZ: modified
-	int GetCollisionAt(float x, float y, CCharacterCore *pCore = nullptr, bool IsHook = false, bool IsWeapon = false) const; // KZ: modified
+	bool CheckPoint(float x, float y, SKZColCharCoreParams *pCharCoreParams = nullptr) const { return IsSolid(round_to_int(x), round_to_int(y)) || CheckPointForCore(x, y, pCharCoreParams); } // KZ: modified
+	bool CheckPoint(vec2 Pos, SKZColCharCoreParams *pCharCoreParams = nullptr) const { return CheckPoint(Pos.x, Pos.y, pCharCoreParams); } // KZ: modified
+	int GetCollisionAt(float x, float y, SKZColCharCoreParams *pCharCoreParams = nullptr) const; // KZ: modified
 	int GetWidth() const { return m_Width; }
 	int GetHeight() const { return m_Height; }
-	int IntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, CCharacterCore *pCore = nullptr, bool IsHook = false, bool IsWeapon = false, vec2 *pProjPos = nullptr, int Weapon = -1) const; // KZ modified
-	int IntersectLineTeleWeapon(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, int *pTeleNr = nullptr, CCharacterCore *pCore = nullptr, CKZColLaserParams *pLaserParams = nullptr) const;
-	int IntersectLineTeleHook(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, int *pTeleNr = nullptr, CCharacterCore *pCore = nullptr) const;
-	void MovePoint(vec2 *pInoutPos, vec2 *pInoutVel, float Elasticity, int *pBounces, CCharacterCore *pCore = nullptr) const;
-	void MoveBox(vec2 *pInoutPos, vec2 *pInoutVel, vec2 Size, vec2 Elasticity, bool *pGrounded = nullptr, CCharacterCore *pCore = nullptr) const;
-	bool TestBox(vec2 Pos, vec2 Size, CCharacterCore *pCore = nullptr) const;
+	int IntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, SKZColIntersectLineParams *pIntersectLineParams = nullptr) const; // KZ modified
+	int IntersectLineTeleWeapon(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, int *pTeleNr = nullptr, SKZColTeleWeaponParams *pTeleWeaponParams = nullptr) const; //KZ modified
+	int IntersectLineTeleHook(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, int *pTeleNr = nullptr, SKZColGenericParams *pGenericParams = nullptr) const; // KZ modified
+	void MovePoint(vec2 *pInoutPos, vec2 *pInoutVel, float Elasticity, int *pBounces, SKZColCharCoreParams *pCharCoreParams = nullptr) const; // KZ modified
+	void MoveBox(vec2 *pInoutPos, vec2 *pInoutVel, vec2 Size, vec2 Elasticity, bool *pGrounded = nullptr, SKZColCharCoreParams *pCharCoreParams = nullptr) const; // KZ modified
+	bool TestBox(vec2 Pos, vec2 Size, SKZColCharCoreParams *pCharCoreParams = nullptr) const; // KZ modified
 
 	// DDRace
 	void SetCollisionAt(float x, float y, int Index);

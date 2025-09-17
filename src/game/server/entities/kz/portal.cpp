@@ -2,7 +2,7 @@
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
 #include "portal.h"
 
-#include <game/generated/protocol.h>
+#include <generated/protocol.h>
 #include <game/mapitems.h>
 #include <game/teamscore.h>
 
@@ -122,8 +122,8 @@ void CPortalKZ::Snap(int SnappingClient)
 	int SnappingClientVersion = GameServer()->GetClientVersion(SnappingClient);
 	bool Sixup = Server()->IsSixup(SnappingClient);
 
-	GameServer()->SnapLaserObject(CSnapContext(SnappingClientVersion, Sixup),GetId(),m_Pos,m_Pos2,Server()->Tick(),m_Owner,m_Blue ? LASERTYPE_PLASMA : LASERTYPE_SHOTGUN);
-	GameServer()->SnapLaserObject(CSnapContext(SnappingClientVersion, Sixup),m_Laser2ID,m_Pos2,m_Pos,Server()->Tick(),m_Owner,m_Blue ? LASERTYPE_PLASMA : LASERTYPE_SHOTGUN);
+	GameServer()->SnapLaserObject(CSnapContext(SnappingClientVersion, Sixup, SnappingClient),GetId(),m_Pos,m_Pos2,Server()->Tick(),m_Owner,m_Blue ? LASERTYPE_PLASMA : LASERTYPE_SHOTGUN);
+	GameServer()->SnapLaserObject(CSnapContext(SnappingClientVersion, Sixup, SnappingClient),m_Laser2ID,m_Pos2,m_Pos,Server()->Tick(),m_Owner,m_Blue ? LASERTYPE_PLASMA : LASERTYPE_SHOTGUN);
 }
 
 CPortalKZ *CPortalKZ::GetOtherPortal()

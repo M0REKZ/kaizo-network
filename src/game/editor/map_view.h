@@ -21,7 +21,7 @@ public:
 	void UpdateZoom();
 
 	void RenderGroupBorder();
-	void RenderMap();
+	void RenderEditorMap();
 
 	bool IsFocused();
 	void Focus();
@@ -35,8 +35,6 @@ public:
 	 * Scale length according to zoom value.
 	 */
 	float ScaleLength(float Value) const;
-
-	bool m_ShowPicker; // TODO: make private
 
 	float GetWorldZoom() const;
 

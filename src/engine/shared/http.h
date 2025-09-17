@@ -2,6 +2,7 @@
 #define ENGINE_SHARED_HTTP_H
 
 #include <base/hash_ctxt.h>
+#include <base/system.h>
 
 #include <engine/shared/jobs.h>
 
@@ -75,8 +76,8 @@ class CHttpRequest : public IHttpRequest
 			return "POST";
 		}
 
-		// Unreachable, maybe assert instead?
-		return "UNKNOWN";
+		dbg_assert(false, "unreachable");
+		dbg_break();
 	}
 
 	char m_aUrl[256] = {0};
@@ -336,7 +337,7 @@ public:
 	bool Init(std::chrono::milliseconds ShutdownDelay);
 
 	// User
-	virtual void Run(std::shared_ptr<IHttpRequest> pRequest) override;
+	void Run(std::shared_ptr<IHttpRequest> pRequest) override;
 	void Shutdown() override;
 	~CHttp();
 };

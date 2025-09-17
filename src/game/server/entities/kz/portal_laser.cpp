@@ -5,7 +5,7 @@
 
 #include <engine/shared/config.h>
 
-#include <game/generated/protocol.h>
+#include <generated/protocol.h>
 #include <game/mapitems.h>
 
 #include <game/server/gamecontext.h>
@@ -79,8 +79,10 @@ void CPortalLaser::DoBounce()
 
 	vec2 To = m_Pos + m_Dir * m_Energy;
 	CKZTile *pKZTile = nullptr;
+	SKZColCharCoreParams ParamsKZ;
+	ParamsKZ.pCore = pOwnerCore;
 
-	Res = GameServer()->Collision()->FastIntersectLinePortalLaser(m_Pos, To, &Coltile, &To, &pKZTile, &z, pOwnerCore); // KZ added pOwnerCore
+	Res = GameServer()->Collision()->FastIntersectLinePortalLaser(m_Pos, To, &Coltile, &To, &pKZTile, &z, &ParamsKZ); // KZ added pOwnerCore
 
 	//+KZ Portal Start
 	{
@@ -145,7 +147,7 @@ void CPortalLaser::DoBounce()
 			f = GameServer()->Collision()->GetTile(round_to_int(Coltile.x), round_to_int(Coltile.y));
 			GameServer()->Collision()->SetCollisionAt(round_to_int(Coltile.x), round_to_int(Coltile.y), TILE_SOLID);
 		}
-		GameServer()->Collision()->MovePoint(&TempPos, &TempDir, 1.0f, nullptr, pOwnerCore); // KZ added pOwnerCore
+		GameServer()->Collision()->MovePoint(&TempPos, &TempDir, 1.0f, nullptr, &ParamsKZ); // KZ added pOwnerCore
 		if(Res == -1)
 		{
 			GameServer()->Collision()->SetCollisionAt(round_to_int(Coltile.x), round_to_int(Coltile.y), f);
@@ -260,7 +262,7 @@ void CPortalLaser::Snap(int SnappingClient)
 	int SnappingClientVersion = GameServer()->GetClientVersion(SnappingClient);
 	int LaserType = m_BluePortal ? LASERTYPE_RIFLE : LASERTYPE_SHOTGUN;
 
-	GameServer()->SnapLaserObject(CSnapContext(SnappingClientVersion), GetId(),
+	GameServer()->SnapLaserObject(CSnapContext(SnappingClientVersion, Server()->IsSixup(SnappingClient), SnappingClient), GetId(),
 		m_Pos, m_From, Server()->Tick() - 4, m_Owner, LaserType, 0, m_Number);
 }
 

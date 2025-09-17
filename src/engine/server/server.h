@@ -89,6 +89,14 @@ class CServer : public IServer
 	void UpdateDebugDummies(bool ForceDisconnect);
 #endif
 
+	virtual int GetClientInfclassVersion(int ClientId) override;
+	virtual bool IsTaterClient(int ClientId) override { return m_aClients[ClientId].m_IsTaterClient; }
+	virtual bool IsQxdClient(int ClientId) override { return m_aClients[ClientId].m_IsQxdClient; }
+	virtual bool IsChillerbotClient(int ClientId) override { return m_aClients[ClientId].m_IsChillerbotClient; }
+	virtual bool IsStAClient(int ClientId) override { return m_aClients[ClientId].m_IsStAClient; }
+	virtual bool IsAllTheHaxxClient(int ClientId) override { return m_aClients[ClientId].m_IsAllTheHaxxClient; }
+	virtual bool IsPulseClient(int ClientId) override { return m_aClients[ClientId].m_IsPulseClient; }
+
 public:
 	class IGameServer *GameServer() { return m_pGameServer; }
 	class CConfig *Config() { return m_pConfig; }
@@ -103,6 +111,16 @@ public:
 	{
 		MAX_RCONCMD_SEND = 16,
 	};
+
+	enum class EDnsblState
+	{
+		NONE,
+		PENDING,
+		BLACKLISTED,
+		WHITELISTED,
+	};
+
+	static const char *DnsblStateStr(EDnsblState State);
 
 	class CClient
 	{
@@ -120,11 +138,6 @@ public:
 			SNAPRATE_INIT = 0,
 			SNAPRATE_FULL,
 			SNAPRATE_RECOVER,
-
-			DNSBL_STATE_NONE = 0,
-			DNSBL_STATE_PENDING,
-			DNSBL_STATE_BLACKLISTED,
-			DNSBL_STATE_WHITELISTED,
 		};
 
 		class CInput
@@ -163,9 +176,19 @@ public:
 		int m_Flags;
 		bool m_ShowIps;
 		bool m_DebugDummy;
+		bool m_ForceHighBandwidthOnSpectate;
 		NETADDR m_DebugDummyAddr;
 		std::array<char, NETADDR_MAXSTRSIZE> m_aDebugDummyAddrString;
 		std::array<char, NETADDR_MAXSTRSIZE> m_aDebugDummyAddrStringNoPort;
+
+		//+KZ
+		int m_InfClassVersion; // to identify infclass clients
+		bool m_IsTaterClient; // to identify tater clients
+		bool m_IsQxdClient; // to identify qxd clients
+		bool m_IsChillerbotClient; // to identify chillerbot clients
+		bool m_IsStAClient; // to identify StA clients
+		bool m_IsAllTheHaxxClient; // to identify allthehaxx clients
+		bool m_IsPulseClient; // to identify pulse clients
 
 		const IConsole::CCommandInfo *m_pRconCmdToSend;
 		enum
@@ -183,7 +206,6 @@ public:
 
 		// DDRace
 
-		NETADDR m_Addr;
 		bool m_GotDDNetVersionPacket;
 		bool m_DDNetVersionSettled;
 		int m_DDNetVersion;
@@ -192,7 +214,7 @@ public:
 		int64_t m_RedirectDropTime;
 
 		// DNSBL
-		int m_DnsblState;
+		EDnsblState m_DnsblState;
 		std::shared_ptr<CHostLookup> m_pDnsblLookup;
 
 		bool m_Sixup;
@@ -201,12 +223,9 @@ public:
 		{
 			return m_State != STATE_EMPTY && !m_DebugDummy;
 		}
-
-		int ConsoleAccessLevel() const
-		{
-			return m_Authed == AUTHED_ADMIN ? IConsole::ACCESS_LEVEL_ADMIN : m_Authed == AUTHED_MOD ? IConsole::ACCESS_LEVEL_MOD : IConsole::ACCESS_LEVEL_HELPER;
-		}
 	};
+
+	int ConsoleAccessLevel(int ClientId) const;
 
 	CClient m_aClients[MAX_CLIENTS];
 	int m_aIdMap[MAX_CLIENTS * VANILLA_MAX_CLIENTS];
@@ -312,6 +331,8 @@ public:
 	void SendLogLine(const CLogMessage *pMessage);
 	void SetRconCid(int ClientId) override;
 	int GetAuthedState(int ClientId) const override;
+	bool IsRconAuthed(int ClientId) const override;
+	bool IsRconAuthedAdmin(int ClientId) const override;
 	const char *GetAuthName(int ClientId) const override;
 	bool HasAuthHidden(int ClientId) const override;
 	void GetMapInfo(char *pMapName, int MapNameSize, int *pMapSize, SHA256_DIGEST *pMapSha256, int *pMapCrc) override;
@@ -405,7 +426,7 @@ public:
 	void CacheServerInfo(CCache *pCache, int Type, bool SendClients);
 	void CacheServerInfoSixup(CCache *pCache, bool SendClients, int MaxConsideredClients);
 	void SendServerInfo(const NETADDR *pAddr, int Token, int Type, bool SendClients);
-	void GetServerInfoSixup(CPacker *pPacker, int Token, bool SendClients);
+	void GetServerInfoSixup(CPacker *pPacker, bool SendClients);
 	bool RateLimitServerInfoConnless();
 	void SendServerInfoConnless(const NETADDR *pAddr, int Token, int Type);
 	void UpdateRegisterServerInfo();
@@ -435,6 +456,7 @@ public:
 	static void ConLogout(IConsole::IResult *pResult, void *pUser);
 	static void ConShowIps(IConsole::IResult *pResult, void *pUser);
 	static void ConHideAuthStatus(IConsole::IResult *pResult, void *pUser);
+	static void ConForceHighBandwidthOnSpectate(IConsole::IResult *pResult, void *pUser);
 
 	static void ConAuthAdd(IConsole::IResult *pResult, void *pUser);
 	static void ConAuthAddHashed(IConsole::IResult *pResult, void *pUser);
@@ -493,16 +515,16 @@ public:
 	void InitDnsbl(int ClientId);
 	bool DnsblWhite(int ClientId) override
 	{
-		return m_aClients[ClientId].m_DnsblState == CClient::DNSBL_STATE_NONE ||
-		       m_aClients[ClientId].m_DnsblState == CClient::DNSBL_STATE_WHITELISTED;
+		return m_aClients[ClientId].m_DnsblState == EDnsblState::NONE ||
+		       m_aClients[ClientId].m_DnsblState == EDnsblState::WHITELISTED;
 	}
 	bool DnsblPending(int ClientId) override
 	{
-		return m_aClients[ClientId].m_DnsblState == CClient::DNSBL_STATE_PENDING;
+		return m_aClients[ClientId].m_DnsblState == EDnsblState::PENDING;
 	}
 	bool DnsblBlack(int ClientId) override
 	{
-		return m_aClients[ClientId].m_DnsblState == CClient::DNSBL_STATE_BLACKLISTED;
+		return m_aClients[ClientId].m_DnsblState == EDnsblState::BLACKLISTED;
 	}
 
 	void AuthRemoveKey(int KeySlot);
@@ -531,6 +553,8 @@ public:
 	void SendConnLoggingCommand(CONN_LOGGING_CMD Cmd, const NETADDR *pAddr);
 #endif
 };
+
+bool IsInterrupted();
 
 extern CServer *CreateServer();
 #endif

@@ -36,17 +36,20 @@ class CBinds : public CComponent
 	};
 	CBindSlot GetBindSlot(const char *pBindString) const;
 
+	// free buffer after use
+	char *GetKeyBindCommand(int ModifierCombination, int Key) const;
+
 public:
 	CBinds();
 	~CBinds();
-	virtual int Sizeof() const override { return sizeof(*this); }
+	int Sizeof() const override { return sizeof(*this); }
 
 	class CBindsSpecial : public CComponent
 	{
 	public:
 		CBinds *m_pBinds;
-		virtual int Sizeof() const override { return sizeof(*this); }
-		virtual bool OnInput(const IInput::CEvent &Event) override;
+		int Sizeof() const override { return sizeof(*this); }
+		bool OnInput(const IInput::CEvent &Event) override;
 	};
 
 	bool m_MouseOnAction;
@@ -74,8 +77,8 @@ public:
 	static const char *GetModifierName(int Modifier);
 	static void GetKeyBindModifiersName(int ModifierCombination, char *pBuf, size_t BufSize);
 
-	virtual void OnConsoleInit() override;
-	virtual bool OnInput(const IInput::CEvent &Event) override;
+	void OnConsoleInit() override;
+	bool OnInput(const IInput::CEvent &Event) override;
 
 	// DDRace
 

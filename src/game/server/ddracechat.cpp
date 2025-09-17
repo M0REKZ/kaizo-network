@@ -125,7 +125,7 @@ void CGameContext::ConSettings(IConsole::IResult *pResult, void *pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"to check a server setting say /settings and setting's name, setting names are:");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
-			"teams, cheats, collision, hooking, endlesshooking, me, ");
+			"teams, cheats, collision, hooking, endlesshooking,");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"hitting, oldlaser, timeout, votes, pause and scores");
 	}
@@ -189,13 +189,6 @@ void CGameContext::ConSettings(IConsole::IResult *pResult, void *pUserData)
 				g_Config.m_SvOldLaser ?
 					"Lasers can hit you if you shot them and they pull you towards the bounce origin (Like DDRace Beta)" :
 					"Lasers can't hit you if you shot them, and they pull others towards the shooter");
-		}
-		else if(str_comp_nocase(pArg, "me") == 0)
-		{
-			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
-				g_Config.m_SvSlashMe ?
-					"Players can use /me commands the famous IRC Command" :
-					"Players can't use the /me command");
 		}
 		else if(str_comp_nocase(pArg, "timeout") == 0)
 		{
@@ -299,7 +292,7 @@ static void ToggleSpecPause(IConsole::IResult *pResult, void *pUserData, int Pau
 	}
 	else if(pResult->NumArguments() > 0)
 	{
-		if(-PauseState == PauseType && pPlayer->m_SpectatorId != pResult->m_ClientId && pServ->ClientIngame(pPlayer->m_SpectatorId) && !str_comp(pServ->ClientName(pPlayer->m_SpectatorId), pResult->GetString(0)))
+		if(-PauseState == PauseType && pPlayer->SpectatorId() != pResult->m_ClientId && pServ->ClientIngame(pPlayer->SpectatorId()) && !str_comp(pServ->ClientName(pPlayer->SpectatorId()), pResult->GetString(0)))
 		{
 			pPlayer->Pause(CPlayer::PAUSE_NONE, false);
 		}
@@ -343,7 +336,7 @@ static void ToggleSpecPauseVoted(IConsole::IResult *pResult, void *pUserData, in
 				  (pSelf->IsKickVote() || pSelf->IsSpecVote()) &&
 				  pResult->m_ClientId != pSelf->m_VoteVictim;
 	if((!IsPlayerBeingVoted && -PauseState == PauseType) ||
-		(IsPlayerBeingVoted && PauseState && pPlayer->m_SpectatorId == pSelf->m_VoteVictim))
+		(IsPlayerBeingVoted && PauseState && pPlayer->SpectatorId() == pSelf->m_VoteVictim))
 	{
 		pPlayer->Pause(CPlayer::PAUSE_NONE, false);
 	}
@@ -351,7 +344,7 @@ static void ToggleSpecPauseVoted(IConsole::IResult *pResult, void *pUserData, in
 	{
 		pPlayer->Pause(PauseType, false);
 		if(IsPlayerBeingVoted)
-			pPlayer->m_SpectatorId = pSelf->m_VoteVictim;
+			pPlayer->SetSpectatorId(pSelf->m_VoteVictim);
 	}
 }
 
@@ -1143,7 +1136,7 @@ void CGameContext::AttemptJoinTeam(int ClientId, int Team)
 	if(!pPlayer)
 		return;
 
-	if(m_VoteCloseTime && m_VoteCreator == ClientId && (IsKickVote() || IsSpecVote()))
+	if(IsRunningKickOrSpecVote(ClientId))
 	{
 		Console()->Print(
 			IConsole::OUTPUT_LEVEL_STANDARD,
@@ -1176,7 +1169,7 @@ void CGameContext::AttemptJoinTeam(int ClientId, int Team)
 		if(Team < 0 || Team >= TEAM_SUPER)
 			Team = m_pController->Teams().GetFirstEmptyTeam();
 
-		if(pPlayer->m_Last_Team + (int64_t)Server()->TickSpeed() * g_Config.m_SvTeamChangeDelay > Server()->Tick())
+		if(pPlayer->m_LastDDRaceTeamChange + (int64_t)Server()->TickSpeed() * g_Config.m_SvTeamChangeDelay > Server()->Tick())
 		{
 			Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 				"You can\'t change teams that fast!");
@@ -1212,7 +1205,7 @@ void CGameContext::AttemptJoinTeam(int ClientId, int Team)
 				Server()->ClientName(pPlayer->GetCid()),
 				Team);
 			SendChat(-1, TEAM_ALL, aBuf);
-			pPlayer->m_Last_Team = Server()->Tick();
+			pPlayer->m_LastDDRaceTeamChange = Server()->Tick();
 
 			if(m_pController->Teams().IsPractice(Team))
 				SendChatTarget(pPlayer->GetCid(), "Practice mode enabled for your team, happy practicing!");
@@ -1438,26 +1431,6 @@ void CGameContext::ConJoin(IConsole::IResult *pResult, void *pUserData)
 		return;
 
 	pSelf->AttemptJoinTeam(pResult->m_ClientId, Team);
-}
-
-void CGameContext::ConMe(IConsole::IResult *pResult, void *pUserData)
-{
-	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientId(pResult->m_ClientId))
-		return;
-
-	char aBuf[256 + 24];
-
-	str_format(aBuf, 256 + 24, "'%s' %s",
-		pSelf->Server()->ClientName(pResult->m_ClientId),
-		pResult->GetString(0));
-	if(g_Config.m_SvSlashMe)
-		pSelf->SendChat(-2, TEAM_ALL, aBuf, pResult->m_ClientId);
-	else
-		pSelf->Console()->Print(
-			IConsole::OUTPUT_LEVEL_STANDARD,
-			"chatresp",
-			"/me is disabled on this server");
 }
 
 void CGameContext::ConConverse(IConsole::IResult *pResult, void *pUserData)
@@ -2118,7 +2091,7 @@ void CGameContext::ConLastTele(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(pPlayer->GetCid(), "You haven't previously teleported. Use /tp before using this command.");
 		return;
 	}
-	pPlayer->m_LastTeleTee.Load(pChr, pChr->Team(), true);
+	pPlayer->m_LastTeleTee.Load(pChr);
 	pPlayer->Pause(CPlayer::PAUSE_NONE, true);
 }
 
@@ -2436,6 +2409,7 @@ void CGameContext::ConProtectedKill(IConsole::IResult *pResult, void *pUserData)
 	if(g_Config.m_SvKillProtection != 0 && CurrTime >= (60 * g_Config.m_SvKillProtection) && pChr->m_DDRaceState == ERaceState::STARTED)
 	{
 		pPlayer->KillCharacter(WEAPON_SELF);
+		pPlayer->Respawn();
 	}
 }
 
