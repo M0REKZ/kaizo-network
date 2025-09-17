@@ -20,6 +20,35 @@ freely, subject to the following restrictions:
 
 ------------------------------------------------------------------------
 
+Kaizo Network Copyright (C) 2025 Benjamín Gajardo (also known as "+KZ")
+
+Kaizo Network expands DDNet code with new features, all terms from
+the DDNet version 19.5 license applies, however there are extra restrictions:
+
+4. ⁠Source code of altered versions that is not in a official
+  source code of the original software must be made available to EVERYONE
+  for FREE by publishing it to the internet on a public website that can
+  be accessed by other people across the world, allowing them to download
+  it to their device.
+    -   That source code must NOT be obfuscated, protected with a password
+        or inaccessible in any way.
+5. Altered versions must be under one of the next licenses:
+    -   This exact same license.
+    -   The license currently used in the original software source code
+        made by the original official author.
+    -   Other license approved by the original official author.
+
+This notice must NOT be removed or altered from any binary or source distribution.
+
+If you want to do something that these restrictions does not allow, feel free to contact
+the original official author for a different license:
+
+Original software: Kaizo Network
+Original official author: Benjamín Gajardo (also known as "+KZ")
+E-mail: pluskaizo@gmail.com
+
+------------------------------------------------------------------------
+
 All content under 'data' except the assets, font, language & skin files,
 (which have their own licenses) are released under
 CC-BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0/).
