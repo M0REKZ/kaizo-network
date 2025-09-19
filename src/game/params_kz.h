@@ -1,3 +1,5 @@
+// Copyright (C) Benjamín Gajardo (also known as +KZ)
+
 #ifndef GAME_PARAMS_KZ_H
 #define GAME_PARAMS_KZ_H
 

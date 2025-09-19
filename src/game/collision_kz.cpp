@@ -1,4 +1,7 @@
-// (c) +KZ
+// Copyright (C) Benjamín Gajardo (also known as +KZ)
+// FastIntersectLine Originally made by nheir, modified for Kaizo Network by +KZ
+// FastIntersectLinePortalLaser based on FastIntersectLine by nheir
+// IntersectCharacterCore based on IntersectCharacter from Teeworlds
 
 #include <base/math.h>
 #include <base/system.h>

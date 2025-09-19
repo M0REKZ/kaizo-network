@@ -1,3 +1,7 @@
+// Copyright (C) Benjamín Gajardo (also known as +KZ)
+
+// SendGameMsg taken from ddnet-insta by Chillerdragon, it is not under +KZ copyright
+
 #include "gamecontext.h"
 
 #include <vector>

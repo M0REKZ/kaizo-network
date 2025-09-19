@@ -1,3 +1,5 @@
+// Copyright (C) Benjamín Gajardo (also known as +KZ)
+
 #include <game/server/gamecontext.h>
 #include "fdd_stable_projectile.h"
 #include "portal_projectile.h"

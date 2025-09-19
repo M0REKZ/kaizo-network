@@ -1,6 +1,8 @@
+// Copyright (C) Benjamín Gajardo (also known as +KZ)
+
 #include "save.h"
 
-#include <cstdio> // sscanf
+#include <cstdio>
 
 #include "entities/character.h"
 #include "gamemodes/DDRace.h"

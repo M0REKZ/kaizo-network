@@ -1,5 +1,5 @@
-/* (c) Magnus Auvinen. See licence.txt in the root of the distribution for more information. */
-/* If you are missing that file, acquire a complete release at teeworlds.com.                */
+// Copyright (C) Benjamín Gajardo (also known as +KZ)
+
 #include "eventhandler.h"
 
 #include "entity.h"
@@ -7,10 +7,6 @@
 
 #include <base/system.h>
 #include <base/vmath.h>
-
-//////////////////////////////////////////////////
-// Event handler +KZ
-//////////////////////////////////////////////////
 
 void *CEventHandler::CreateForClient(int Type, int Size, int ClientId, CClientMask Mask)
 {

@@ -1,5 +1,11 @@
 /* (c) Magnus Auvinen. See licence.txt in the root of the distribution for more information. */
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
+
+// Has changes from mods:
+// Kaizo-Insta
+// Pointer's TW+
+// ICTFX
+
 #include <game/server/entities/character.h>
 #include <game/mapitems.h>
 #include <game/server/gamecontext.h>

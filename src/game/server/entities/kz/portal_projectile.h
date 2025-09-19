@@ -1,3 +1,5 @@
+// Copyright (C) Benjamín Gajardo (also known as +KZ)
+
 #ifndef GAME_SERVER_ENTITIES_PORTAL_PROJECTILE_H
 #define GAME_SERVER_ENTITIES_PORTAL_PROJECTILE_H
 

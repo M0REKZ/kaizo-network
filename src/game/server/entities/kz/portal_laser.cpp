@@ -1,5 +1,8 @@
 /* (c) Magnus Auvinen. See licence.txt in the root of the distribution for more information. */
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
+
+// modified by +KZ for Kaizo Network
+
 #include "portal_laser.h"
 #include <game/server/entities/character.h>
 

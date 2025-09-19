@@ -1,5 +1,8 @@
-/* (c) Magnus Auvinen. See licence.txt in the root of the distribution for more information. */
-/* If you are missing that file, acquire a complete release at teeworlds.com.                */
+// Copyright (C) Benjamín Gajardo (also known as +KZ)
+
+// Move() taken from DDNet and is not under +KZ copyright
+// m_Core taken from DDNet and is not under +KZ copyright
+
 #ifndef GAME_SERVER_ENTITIES_MINE_H
 #define GAME_SERVER_ENTITIES_MINE_H
 
@@ -13,9 +16,7 @@ public:
 	void Snap(int SnappingClient) override;
 	void Reset() override;
 	
-	//virtual int GetOwnerId() const override { return m_Owner; }
 private:
-	//int m_Owner;
 	int m_RespawnTicks[NUM_DDRACE_TEAMS];
 	
 	// DDRace
