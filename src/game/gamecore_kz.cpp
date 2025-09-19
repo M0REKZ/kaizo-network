@@ -95,6 +95,8 @@ bool CCharacterCore::HandleKZTileOnMoveBox(vec2 *pMoveBoxPos, vec2 *pMoveBoxVel,
 			{
 				pMoveBoxVel->y = -pMoveBoxVel->y;
 			}
+
+			m_SendCoreThisTick = true;
 		}
 	}
 
