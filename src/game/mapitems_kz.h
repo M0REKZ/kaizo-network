@@ -1,4 +1,5 @@
-// (c) +KZ
+// Copyright (C) Benjamín Gajardo (also known as +KZ)
+
 #ifndef GAME_MAPITEMS_KZ_H
 #define GAME_MAPITEMS_KZ_H
 

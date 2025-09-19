@@ -1,4 +1,7 @@
 /* (c) Shereef Marzouk. See "licence DDRace.txt" and the readme.txt in the root of the distribution for more information. */
+
+// modified by +KZ
+
 #include "kz_light.h"
 #include <game/server/entities/character.h>
 

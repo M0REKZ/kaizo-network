@@ -1,4 +1,8 @@
-// (c) +KZ
+// Copyright (C) Benjamín Gajardo (also known as +KZ)
+
+// Flags related code is not under +KZ copyright, that code was taken from the following mods:
+// Pointer's TW+
+// ddnet-insta
 
 #ifndef GAME_SERVER_GAMEMODES_KZ_KZ_H
 #define GAME_SERVER_GAMEMODES_KZ_KZ_H

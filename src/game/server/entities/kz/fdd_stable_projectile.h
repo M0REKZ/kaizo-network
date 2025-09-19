@@ -1,3 +1,5 @@
+// F-DDrace Stable Projectile adapted for Kaizo Network by +KZ
+
 #ifndef GAME_SERVER_ENTITIES_STABLE_PROJECTILE_H
 #define GAME_SERVER_ENTITIES_STABLE_PROJECTILE_H
 

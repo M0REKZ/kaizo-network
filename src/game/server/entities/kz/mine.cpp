@@ -1,5 +1,8 @@
-/* (c) Magnus Auvinen. See licence.txt in the root of the distribution for more information. */
-/* If you are missing that file, acquire a complete release at teeworlds.com.                */
+// Copyright (C) Benjamín Gajardo (also known as +KZ)
+
+// Move() taken from DDNet and is not under +KZ copyright
+// m_Core taken from DDNet and is not under +KZ copyright
+
 #include "mine.h"
 
 #include <game/server/entities/character.h>

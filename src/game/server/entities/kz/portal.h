@@ -1,5 +1,5 @@
-/* (c) Magnus Auvinen. See licence.txt in the root of the distribution for more information. */
-/* If you are missing that file, acquire a complete release at teeworlds.com.                */
+// Copyright (C) Benjamín Gajardo (also known as +KZ)
+
 #ifndef GAME_SERVER_ENTITIES_KZ_PORTAL_H
 #define GAME_SERVER_ENTITIES_KZ_PORTAL_H
 
@@ -9,9 +9,6 @@
 class CPortalKZ : public CEntity
 {
 public:
-//	int m_LastCarrier;
-//	int m_LastCarrierTeam;
-//	int m_IdleTick;
 
 	CPortalKZ(CGameWorld *pGameWorld, vec2 StartPos, int Owner, bool Blue);
 	~CPortalKZ();

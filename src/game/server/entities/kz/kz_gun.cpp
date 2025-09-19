@@ -1,4 +1,7 @@
 /* copyright (c) 2007 magnus auvinen, see licence.txt for more info */
+
+// modified by +KZ
+
 #include "kz_gun.h"
 #include <game/server/entities/character.h>
 #include <game/server/entities/kz/kz_plasma.h>

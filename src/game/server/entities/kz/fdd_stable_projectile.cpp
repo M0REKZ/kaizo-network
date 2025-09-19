@@ -1,3 +1,5 @@
+// F-DDrace Stable Projectile adapted for Kaizo Network by +KZ
+
 #include <game/server/gamecontext.h>
 #include "fdd_stable_projectile.h"
 #include <game/server/teams.h>
