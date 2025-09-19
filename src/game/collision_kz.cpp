@@ -993,6 +993,7 @@ bool CCollision::TestBoxKZ(vec2 OrigPos, vec2 *pInOutPos, vec2 *pInOutVel, vec2 
 									pInOutVel->y *= -ElasticityY;
 									pInOutPos->y = OrigPos.y;
 									updatedpos = true;
+									pCore->m_SendCoreThisTick = true;
 									if(pGrounded && ElasticityY > 0)
 										*pGrounded = true;
 								}
@@ -1005,6 +1006,7 @@ bool CCollision::TestBoxKZ(vec2 OrigPos, vec2 *pInOutPos, vec2 *pInOutVel, vec2 
 									pInOutVel->x *= -ElasticityX;
 									pInOutPos->x = OrigPos.x;
 									updatedpos = true;
+									pCore->m_SendCoreThisTick = true;
 								}
 								break;
 							}
@@ -1015,6 +1017,7 @@ bool CCollision::TestBoxKZ(vec2 OrigPos, vec2 *pInOutPos, vec2 *pInOutVel, vec2 
 									pInOutVel->y *= -ElasticityY;
 									pInOutPos->y = OrigPos.y;
 									updatedpos = true;
+									pCore->m_SendCoreThisTick = true;
 								}
 								break;
 							}
@@ -1025,6 +1028,7 @@ bool CCollision::TestBoxKZ(vec2 OrigPos, vec2 *pInOutPos, vec2 *pInOutVel, vec2 
 									pInOutVel->x *= -ElasticityX;
 									pInOutPos->x = OrigPos.x;
 									updatedpos = true;
+									pCore->m_SendCoreThisTick = true;
 								}
 								break;
 							}
