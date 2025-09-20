@@ -411,7 +411,11 @@ void CGameContext::IdentifyClientName(int ClientId, char *pName, int StrSize)
 	if(!m_apPlayers[ClientId])
 		return;
 
-	char aName[StrSize];
+	char * aName = nullptr;
+    aName = new char[StrSize];
+
+    if(!aName)
+		return;
 
 	aName[0] = '\0';
 
@@ -512,4 +516,5 @@ void CGameContext::IdentifyClientName(int ClientId, char *pName, int StrSize)
 		}
 	}
 	str_copy(pName, aName, StrSize);
+	delete[] aName;
 }
