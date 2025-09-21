@@ -2443,6 +2443,8 @@ void CCharacter::DDRacePostCoreTick()
 			return;
 	}
 
+	if(g_Config.m_SvGoresQuadsEnable)
+		HandleQuads();
 	HandleKZTiles();
 
 	// teleport gun
@@ -3015,6 +3017,65 @@ void CCharacter::HandleKZTiles()
 		if(pKZTileFront->m_Index == KZ_FRONTTILE_TUNE_LOCK && (pKZTileFront->m_Number ? Switchers()[pKZTileFront->m_Number].m_aStatus[Team()] : true))
 		{
 			m_TuneZoneOverrideKZ = std::clamp((int)pKZTileFront->m_Value1,-1,255);
+		}
+	}
+}
+
+void CCharacter::HandleQuads()
+{
+	std::vector<SKZQuadData *> apQuads = Collision()->GetQuadsAt(m_Pos);
+
+	for(int i = 0; i < apQuads.size(); i++)
+	{
+		switch (Collision()->QuadTypeToTileId(apQuads[i]->m_Type))
+		{
+		case TILE_FREEZE:
+			Freeze();
+			break;
+		case TILE_UNFREEZE:
+			UnFreeze();
+			break;
+		case TILE_DEATH:
+			Die(m_pPlayer->GetCid(),WEAPON_SELF);
+			break;
+		case TILE_TELECHECKINEVIL:
+			{
+				if(m_Core.m_Super || m_Core.m_Invincible)
+					return;
+				// first check if there is a TeleCheckOut for the current recorded checkpoint, if not check previous checkpoints
+				for(int k = m_TeleCheckpoint - 1; k >= 0; k--)
+				{
+					if(!Collision()->TeleCheckOuts(k).empty())
+					{
+						int TeleOut = GameWorld()->m_Core.RandomOr0(Collision()->TeleCheckOuts(k).size());
+						m_Core.m_Pos = Collision()->TeleCheckOuts(k)[TeleOut];
+						m_Core.m_Vel = vec2(0, 0);
+
+						if(!g_Config.m_SvTeleportHoldHook)
+						{
+							ResetHook();
+							GameWorld()->ReleaseHooked(GetPlayer()->GetCid());
+						}
+
+						return;
+					}
+				}
+				// if no checkpointout have been found (or if there no recorded checkpoint), teleport to start
+				vec2 SpawnPos;
+				if(GameServer()->m_pController->CanSpawn(m_pPlayer->GetTeam(), &SpawnPos, GameServer()->GetDDRaceTeam(GetPlayer()->GetCid())))
+				{
+					m_Core.m_Pos = SpawnPos;
+					m_Core.m_Vel = vec2(0, 0);
+
+					if(!g_Config.m_SvTeleportHoldHook)
+					{
+						ResetHook();
+						GameWorld()->ReleaseHooked(GetPlayer()->GetCid());
+					}
+				}
+				return;
+			}
+			break;
 		}
 	}
 }

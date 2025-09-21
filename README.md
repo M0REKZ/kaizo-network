@@ -19,3 +19,5 @@ This repo also uses code from the following mods that are NOT made by +KZ:
 [Pointer's TW+](https://github.com/Pointer31/tw_plus)
 
 [Nheir's Bot Mod for Teeworlds](https://github.com/nheir/teeworlds)
+
+[Kaffeine's Infclass](https://github.com/infclass/teeworlds-infclassR)

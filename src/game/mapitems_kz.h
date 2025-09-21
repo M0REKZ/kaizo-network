@@ -9,6 +9,9 @@
 const char KZ_GAME_LAYER_NAME[9] = {'+','K', 'Z', 'G', 'a', 'm', 'e', (char)27, '\0'};
 const char KZ_FRONT_LAYER_NAME[10] = {'+','K', 'Z', 'F', 'r', 'o', 'n', 't', (char)27, '\0'};
 
+class CQuad;
+class CMapItemLayerQuads;
+
 enum
 {
 	KZ_TILE_SWITCHABLE = 1,
@@ -75,6 +78,27 @@ public:
 	int64_t m_Value1;
     int64_t m_Value2;
     int64_t m_Value3;
+};
+
+enum KZQuadType
+{
+	KZQUADTYPE_AIR = 0,
+	KZQUADTYPE_FREEZE,
+	KZQUADTYPE_UNFREEZE,
+	KZQUADTYPE_HOOK,
+	KZQUADTYPE_UNHOOK,
+	KZQUADTYPE_STOPA,
+	KZQUADTYPE_DEATH,
+	KZQUADTYPE_CFRM,
+};
+
+struct SKZQuadData
+{
+	CQuad *m_pQuad = nullptr;
+	CMapItemLayerQuads *m_pLayer = nullptr;
+	int m_Type = KZQuadType::KZQUADTYPE_AIR;
+	vec2 m_CachedPos[5];
+	float m_CachedAngle;
 };
 
 inline int64_t BitWiseAndInt64(int64_t a, int64_t b)

@@ -57,6 +57,7 @@ void CCollision::Init(class CLayers *pLayers)
 	m_Height = m_pLayers->GameLayer()->m_Height;
 	m_pTiles = static_cast<CTile *>(m_pLayers->Map()->GetData(m_pLayers->GameLayer()->m_Data));
 
+	//+KZ Start
 	if(m_pLayers->KZGameLayer())
 	{
 		unsigned int Size = m_pLayers->Map()->GetDataSize(m_pLayers->KZGameLayer()->m_KZGame);
@@ -74,6 +75,60 @@ void CCollision::Init(class CLayers *pLayers)
 		if(Size >= (size_t)m_KZFrontWidth * m_KZFrontHeight * sizeof(CKZTile))
 			m_pKZFront = static_cast<CKZTile *>(m_pLayers->Map()->GetData(m_pLayers->KZFrontLayer()->m_KZFront));
 	}
+
+	if(m_pLayers->m_apKZQuadLayers.size())
+	{
+		for(int i = 0; i < m_pLayers->m_apKZQuadLayers.size(); i++)
+		{
+
+			CQuad *pQuads = (CQuad*) m_pLayers->Map()->GetDataSwapped(m_pLayers->m_apKZQuadLayers[i]->m_Data);
+			SKZQuadData p;
+
+			for(int j = 0; j < m_pLayers->m_apKZQuadLayers[i]->m_NumQuads; j++)
+			{
+				p.m_pLayer = m_pLayers->m_apKZQuadLayers[i];
+				p.m_pQuad = pQuads + j;
+
+				char aBuf[30] = {0}; //for now
+
+				IntsToStr(p.m_pLayer->m_aName, std::size(p.m_pLayer->m_aName), aBuf, std::size(aBuf));
+
+				//get type by name, compat with Gores gamemode
+
+				if(!str_comp_nocase("QFr", aBuf))
+				{
+					p.m_Type = KZQuadType::KZQUADTYPE_FREEZE;
+				}
+				else if(!str_comp_nocase("QUnFr", aBuf))
+				{
+					p.m_Type = KZQuadType::KZQUADTYPE_UNFREEZE;
+				}
+				else if(!str_comp_nocase("QHook", aBuf))
+				{
+					p.m_Type = KZQuadType::KZQUADTYPE_HOOK;
+				}
+				else if(!str_comp_nocase("QUnHook", aBuf))
+				{
+					p.m_Type = KZQuadType::KZQUADTYPE_UNHOOK;
+				}
+				else if(!str_comp_nocase("QStopa", aBuf))
+				{
+					p.m_Type = KZQuadType::KZQUADTYPE_STOPA;
+				}
+				else if(!str_comp_nocase("QDeath", aBuf))
+				{
+					p.m_Type = KZQuadType::KZQUADTYPE_DEATH;
+				}
+				else if(!str_comp_nocase("QCfrm", aBuf))
+				{
+					p.m_Type = KZQuadType::KZQUADTYPE_CFRM;
+				}
+
+				m_aKZQuads.push_back(p);
+			}
+		}
+	}
+	//+KZ End
 
 	if(m_pLayers->TeleLayer())
 	{
@@ -219,6 +274,8 @@ void CCollision::Unload()
 
 	m_pWorldCore = nullptr;
 	m_pTeamsCore = nullptr;
+
+	m_aKZQuads.clear();
 }
 
 void CCollision::FillAntibot(CAntibotMapData *pMapData) const

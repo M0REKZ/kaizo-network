@@ -3,6 +3,9 @@
 #ifndef GAME_LAYERS_H
 #define GAME_LAYERS_H
 
+#include "mapitems.h"
+#include <vector>
+
 class IMap;
 
 class CMapItemGroup;
@@ -59,6 +62,10 @@ private:
 
 	CMapItemLayerTilemap *m_pKZGameLayer;
 	CMapItemLayerTilemap *m_pKZFrontLayer;
+
+public:
+
+	std::vector<CMapItemLayerQuads *> m_apKZQuadLayers;
 };
 
 #endif

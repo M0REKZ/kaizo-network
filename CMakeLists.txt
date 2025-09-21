@@ -2841,7 +2841,11 @@ if(SERVER)
     "src/generated/server_data.h"
     "src/generated/wordlist.h"
   )
-  set(SERVER_SRC ${ENGINE_SERVER_WITHOUT_MAIN} ${GAME_SERVER} ${GAME_GENERATED_SERVER})
+  set_src(GAME_KZ GLOB_RECURSE src/game/kz
+    envelopeaccess.cpp
+    envelopeaccess.h
+  )
+  set(SERVER_SRC ${ENGINE_SERVER_WITHOUT_MAIN} ${GAME_SERVER} ${GAME_GENERATED_SERVER} ${GAME_KZ})
   if(TARGET_OS STREQUAL "windows")
     set(VERSION_EXECUTABLE "${SERVER_EXECUTABLE}")
     set(VERSION_COMPANY "${CLIENT_EXECUTABLE} Team")

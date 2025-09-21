@@ -276,6 +276,7 @@ public:
 
 	//+KZ
 	void HandleKZTiles();
+	void HandleQuads();
 	bool TakeDamageVanilla(vec2 Force, int Dmg, int From, int Weapon);
 	int GetOverriddenTuneZoneKZ() const { return ((m_TuneZoneOverrideKZ >= 0 && !m_TuneZone) || m_ForcedTuneKZ) ? m_TuneZoneOverrideKZ : m_TuneZone; }
 	int m_TuneZoneOverrideKZ = -1;

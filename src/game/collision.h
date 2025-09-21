@@ -225,6 +225,23 @@ public:
 
 	CWorldCore *m_pWorldCore;
 	CTeamsCore *m_pTeamsCore;
+
+	// KZQuads
+	std::vector<SKZQuadData> m_aKZQuads;
+
+	void UpdateQuadCache();
+	std::vector<SKZQuadData *> GetQuadsAt(vec2 Pos);
+	int QuadTypeToTileId(int Type);
+
+	void GetAnimationTransform(float GlobalTime, int Env, vec2& Position, float& Angle) const;
+	double m_Time;
+	void SetTime(double Time) { m_Time = Time; }
+	bool OutOfRange(double value, double q0, double q1, double q2, double q3) const;
+	bool InsideTriangle(const vec2& t0, const vec2& t1, const vec2& t2, const vec2& p) const;
+	bool InsideQuad(const vec2& q0, const vec2& q1, const vec2& q2, const vec2& q3, const vec2& p) const;
+	vec3 BarycentricCoordinates(const vec2& t0, const vec2& t1, const vec2& t2, const vec2& p) const;
+	void Rotate(const vec2 Center, vec2 * pPoint, float Rotation) const;
+	
 };
 
 void ThroughOffset(vec2 Pos0, vec2 Pos1, int *pOffsetX, int *pOffsetY);

@@ -29,7 +29,21 @@ void CLayers::Init(IMap *pMap, bool GameOnly)
 		{
 			CMapItemLayer *pLayer = GetLayer(pGroup->m_StartLayer + LayerIndex);
 			if(pLayer->m_Type != LAYERTYPE_TILES)
+			{
+				if(pLayer->m_Type == LAYERTYPE_QUADS)
+				{
+					char aBuf[30] = {0}; //for now
+
+					CMapItemLayerQuads *pQuadLayer = reinterpret_cast<CMapItemLayerQuads *>(pLayer);
+					IntsToStr(pQuadLayer->m_aName, std::size(pQuadLayer->m_aName), aBuf, std::size(aBuf));
+					bool IsEntities = false;
+					if(!str_comp_nocase("QFr", aBuf) || !str_comp_nocase("QUnFr", aBuf) || !str_comp_nocase("QHook", aBuf) || !str_comp_nocase("QUnHook", aBuf) || !str_comp_nocase("QStopa", aBuf) || !str_comp_nocase("QDeath", aBuf) || !str_comp_nocase("QCfrm", aBuf))
+					{
+						m_apKZQuadLayers.push_back(pQuadLayer);
+					}
+				}
 				continue;
+			}
 
 			CMapItemLayerTilemap *pTilemap = reinterpret_cast<CMapItemLayerTilemap *>(pLayer);
 			bool IsEntities = false;
@@ -158,6 +172,8 @@ void CLayers::Unload()
 	//+KZ
 	m_pKZGameLayer = nullptr;
 	m_pKZFrontLayer = nullptr;
+
+	m_apKZQuadLayers.clear();
 }
 
 void CLayers::InitTilemapSkip()

@@ -1035,6 +1035,9 @@ void CGameContext::OnTick()
 {
 	//+KZ
 	m_World.m_Core.m_WorldTickKZ = Server()->Tick();
+	m_Collision.SetTime(m_pController->GetTime());
+	if(g_Config.m_SvGoresQuadsEnable)
+		m_Collision.UpdateQuadCache();
 
 	// check tuning
 	CheckPureTuning();
