@@ -545,6 +545,9 @@ void CCharacterCore::Move()
 
 	vec2 OldVel = m_Vel;
 	bool Grounded = false;
+
+	m_pCollision->PushBoxOutsideQuads(&NewPos, &m_Vel, PhysicalSizeVec2(), this);
+
 	m_pCollision->MoveBox(&NewPos, &m_Vel, PhysicalSizeVec2(),
 		vec2(m_Tuning.m_GroundElasticityX,
 			m_Tuning.m_GroundElasticityY),

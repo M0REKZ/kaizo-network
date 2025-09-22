@@ -11,6 +11,7 @@
 #include <antibot/antibot_data.h>
 
 #include <cmath>
+#include <vector>
 #include <engine/map.h>
 
 #include <game/collision.h>
@@ -1122,6 +1123,316 @@ int CCollision::QuadTypeToTileId(int Type)
 		return TILE_TELECHECKINEVIL;
 	}
 	return TILE_AIR;
+}
+
+void CCollision::PushBoxOutsideQuads(vec2 *pPos, vec2 *pInOutVel, vec2 Size, CCharacterCore * pCore)
+{
+	vec2 BoxCorners[4];
+
+	Size *= 0.5f;
+
+	//vertically first, then horizontally
+
+	bool exit = false;
+	bool horizontal = false;
+	do
+	{
+
+		if(!horizontal)
+		{
+			BoxCorners[0].x = pPos->x - Size.x + 1;
+			BoxCorners[0].y = pPos->y - Size.y + pInOutVel->y;
+
+			BoxCorners[1].x = pPos->x + Size.x - 1;
+			BoxCorners[1].y = pPos->y - Size.y + pInOutVel->y;
+
+			BoxCorners[2].x = pPos->x - Size.x + 1;
+			BoxCorners[2].y = pPos->y + Size.y + pInOutVel->y;
+
+			BoxCorners[3].x = pPos->x + Size.x - 1;
+			BoxCorners[3].y = pPos->y + Size.y + pInOutVel->y;
+		}
+		else
+		{
+			BoxCorners[0].x = pPos->x - Size.x + pInOutVel->x;
+			BoxCorners[0].y = pPos->y - Size.y + pInOutVel->y + 1;
+
+			BoxCorners[1].x = pPos->x + Size.x + pInOutVel->x;
+			BoxCorners[1].y = pPos->y - Size.y + pInOutVel->y - 1;
+
+			BoxCorners[2].x = pPos->x - Size.x + pInOutVel->x;
+			BoxCorners[2].y = pPos->y + Size.y + pInOutVel->y + 1;
+
+			BoxCorners[3].x = pPos->x + Size.x + pInOutVel->x;
+			BoxCorners[3].y = pPos->y + Size.y + pInOutVel->y - 1;
+		}
+
+		bool docontinue;
+		for(int i = 0; i < m_aKZQuads.size(); i++)
+		{
+			docontinue = true;
+			for(int j = 0; j < 4; j++)
+			{
+				if(!OutOfRange(BoxCorners[j].x, m_aKZQuads[i].m_CachedPos[0].x, m_aKZQuads[i].m_CachedPos[1].x, m_aKZQuads[i].m_CachedPos[2].x, m_aKZQuads[i].m_CachedPos[3].x) && !OutOfRange(BoxCorners[j].y, m_aKZQuads[i].m_CachedPos[0].y, m_aKZQuads[i].m_CachedPos[1].y, m_aKZQuads[i].m_CachedPos[2].y, m_aKZQuads[i].m_CachedPos[3].y))
+				{
+					docontinue = false;
+					break;
+				}
+			}
+
+			if(docontinue)
+				continue;
+
+			
+				if(!horizontal)
+				{
+					float altdown[4] = {-9999,-9999,-9999,-9999};
+					
+					if(std::abs(m_aKZQuads[i].m_CachedPos[0].x - m_aKZQuads[i].m_CachedPos[1].x) >= std::abs(m_aKZQuads[i].m_CachedPos[0].y - m_aKZQuads[i].m_CachedPos[1].y))
+						altdown[0] = CalculateSlopeAltitude(BoxCorners[2].x, BoxCorners[3].x, m_aKZQuads[i].m_CachedPos[0], m_aKZQuads[i].m_CachedPos[1]);
+					if(std::abs(m_aKZQuads[i].m_CachedPos[1].x - m_aKZQuads[i].m_CachedPos[3].x) >= std::abs(m_aKZQuads[i].m_CachedPos[1].y - m_aKZQuads[i].m_CachedPos[3].y))
+						altdown[1] = CalculateSlopeAltitude(BoxCorners[2].x, BoxCorners[3].x, m_aKZQuads[i].m_CachedPos[1], m_aKZQuads[i].m_CachedPos[3]);
+					if(std::abs(m_aKZQuads[i].m_CachedPos[3].x - m_aKZQuads[i].m_CachedPos[2].x) >= std::abs(m_aKZQuads[i].m_CachedPos[3].y - m_aKZQuads[i].m_CachedPos[2].y))
+						altdown[2] = CalculateSlopeAltitude(BoxCorners[2].x, BoxCorners[3].x, m_aKZQuads[i].m_CachedPos[3], m_aKZQuads[i].m_CachedPos[2]);
+					if(std::abs(m_aKZQuads[i].m_CachedPos[2].x - m_aKZQuads[i].m_CachedPos[0].x) >= std::abs(m_aKZQuads[i].m_CachedPos[2].y - m_aKZQuads[i].m_CachedPos[0].y))
+						altdown[3] = CalculateSlopeAltitude(BoxCorners[2].x, BoxCorners[3].x, m_aKZQuads[i].m_CachedPos[2], m_aKZQuads[i].m_CachedPos[0]);
+					
+					float finalaltdown = altdown[0];
+
+					for(int k = 1; k < 4; k++)
+					{
+						if(std::abs(finalaltdown - pPos->y) > std::abs(altdown[k] - pPos->y))
+							finalaltdown = altdown[k];
+					}
+
+					if (finalaltdown == -9999)
+					{
+						continue;
+					}
+
+					if(finalaltdown <= pPos->y + Size.y && finalaltdown > pPos->y)
+					{
+						pPos->y = finalaltdown - Size.y;
+						if(pInOutVel->y > 0)
+							pInOutVel->y = 0;
+					}
+					else if(finalaltdown >= pPos->y - Size.y && finalaltdown < pPos->y)
+					{
+						pPos->y = finalaltdown + Size.y;
+						if(pInOutVel->y < 0)
+							pInOutVel->y = 0;
+					}
+				}
+				else
+				{
+					
+				}
+
+				if(pCore)
+				{
+					pCore->m_SendCoreThisTick = true;
+				}
+			
+		}
+
+		if(!horizontal)
+			horizontal = true;
+		else
+			exit = true;
+	} while(!exit);
+	
+}
+
+bool CCollision::AreBoxesColliding(vec2 boxa1, vec2 boxa2, vec2 boxa3, vec2 boxa4, vec2 boxb1, vec2 boxb2, vec2 boxb3, vec2 boxb4)
+{
+	if(AreLinesColliding(boxa1,boxa2,boxb1,boxb2) || AreLinesColliding(boxa1,boxa2,boxb2,boxb3) || AreLinesColliding(boxa1,boxa2,boxb3,boxb4) || AreLinesColliding(boxa1,boxa2,boxb4,boxb1))
+		return true;
+	if(AreLinesColliding(boxa2,boxa3,boxb1,boxb2) || AreLinesColliding(boxa2,boxa3,boxb2,boxb3) || AreLinesColliding(boxa2,boxa3,boxb3,boxb4) || AreLinesColliding(boxa2,boxa3,boxb4,boxb1))
+		return true;
+	if(AreLinesColliding(boxa3,boxa4,boxb1,boxb2) || AreLinesColliding(boxa3,boxa4,boxb2,boxb3) || AreLinesColliding(boxa3,boxa4,boxb3,boxb4) || AreLinesColliding(boxa3,boxa4,boxb4,boxb1))
+		return true;
+	if(AreLinesColliding(boxa4,boxa1,boxb1,boxb2) || AreLinesColliding(boxa4,boxa1,boxb2,boxb3) || AreLinesColliding(boxa4,boxa1,boxb3,boxb4) || AreLinesColliding(boxa4,boxa1,boxb4,boxb1))
+		return true;
+
+	return false;
+}
+
+bool CCollision::AreLinesColliding(vec2 a1, vec2 a2, vec2 b1, vec2 b2)
+{
+    float s1_x, s1_y, s2_x, s2_y;
+    s1_x = a2.x - a1.x;
+	s1_y = a1.y - a1.y;
+    s2_x = b2.x - b1.x;
+	s2_y = b2.y - b1.y;
+
+	float temp;
+
+	temp = (-s2_x * s1_y + s1_x * s2_y);
+
+	if(temp == 0)
+		return false;
+
+    float s, t;
+    s = (-s1_y * (a1.x - b1.x) + s1_x * (a1.y - b1.y)) / temp;
+    t = ( s2_x * (a1.y - b1.y) - s2_y * (a1.x - b1.x)) / temp;
+
+    if(s >= 0 && s <= 1 && t >= 0 && t <= 1)
+    {
+        return true;
+    }
+
+    return false; // No collision
+
+}
+
+float CCollision::CalculateSlopeAltitude(float xleft, float xright, vec2 pos1, vec2 pos2)
+{
+	float linewidth = pos1.x - pos2.x;
+	float lineheight = pos1.y - pos2.y;
+
+	if(linewidth < 0) // -> 
+	{
+		if(xright < pos1.x || xleft > pos2.x)
+			return -9999; //invalid
+
+		if(lineheight < 0) // up-down
+		{
+			if(xleft < pos1.x)
+			{
+				return pos1.y;
+			}
+			else
+			{
+				return pos2.y - (lineheight / linewidth) * (xleft - pos1.x);
+			}
+		}
+		else // down-up
+		{
+			if(xright < pos1.x)
+			{
+				return pos1.y;
+			}
+			else if(xright > pos2.x)
+			{
+				return pos2.y;
+			}
+			else
+			{
+				return pos1.y + (lineheight / linewidth) * (xright - pos1.x);
+			}
+		}
+		
+	}
+	else // <-
+	{
+		if(xright < pos2.x || xleft > pos1.x)
+			return -9999; //invalid
+
+		if(lineheight > 0) // down-up
+		{
+			if(xright < pos2.x)
+			{
+				return pos2.y;
+			}
+			else if(xright > pos1.x)
+			{
+				return pos1.y;
+			}
+			else
+			{
+				return pos2.y + (lineheight / linewidth) * (xright - pos2.x);
+			}
+		}
+		else // up-down
+		{
+			if(xleft < pos2.x)
+			{
+				return pos2.y;
+			}
+			else if(xleft > pos1.x)
+			{
+				return pos1.y;
+			}
+			else
+			{
+				return pos1.y - (lineheight / linewidth) * (xleft - pos1.x);
+			}
+		}
+	}
+}
+
+float CCollision::CalculateSlopeAltitudeSide(float xup, float xdown, vec2 pos1, vec2 pos2)
+{
+	float linewidth = pos1.x - pos2.x;
+	float lineheight = pos1.y - pos2.y;
+
+	if(lineheight < 0) // V
+	{
+		if(linewidth < 0) // down-up
+		{
+			if(xdown < pos1.y)
+			{
+				return pos1.x;
+			}
+			else if(xdown > pos2.y)
+			{
+				return pos2.x;
+			}
+			else
+			{
+				return pos2.x - (linewidth / lineheight) * (xdown - pos1.y);
+			}
+		}
+		else // up-down
+		{
+			if(xup < pos1.y)
+			{
+				return pos1.x;
+			}
+			else if(xup > pos2.y)
+			{
+				return pos2.x;
+			}
+			else
+			{
+				return pos2.x - (linewidth / lineheight) * (xup - pos1.x);
+			}
+		}
+		
+	}
+	else // ^
+	{
+		if(linewidth > 0) // down-up
+		{
+			if(xdown < pos2.y)
+			{
+				return pos2.x;
+			}
+			else if(xdown > pos1.y)
+			{
+				return pos1.x;
+			}
+			else
+			{
+				return pos1.x - (linewidth / lineheight) * (xdown - pos2.y);
+			}
+		}
+		else // up-down
+		{
+			if(xup < pos2.x)
+			{
+				return pos2.y;
+			}
+			else if(xup > pos1.x)
+			{
+				return pos1.y;
+			}
+			else
+			{
+				return pos1.y - (linewidth / lineheight) * (xup - pos1.x);
+			}
+		}
+	}
 }
 
 void CCollision::Rotate(const vec2 Center, vec2 * pPoint, float Rotation) const
