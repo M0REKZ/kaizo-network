@@ -1515,7 +1515,7 @@ void CCollision::GetAnimationTransform(float GlobalTime, int Env, vec2 &Position
 						else if(c == 1)
 							Position.y = bezier(p0.y, p1.y, p2.y, p3.y, a);
 						else if(c == 2)
-							Angle = bezier(p0.y, p1.y, p2.y, p3.y, a);
+							Angle = bezier(p0.y, p1.y, p2.y, p3.y, a)/360.0f*pi*2.0f;
 					}
 
 					return;
