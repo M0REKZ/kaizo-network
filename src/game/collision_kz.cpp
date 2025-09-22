@@ -1058,12 +1058,17 @@ void CCollision::UpdateQuadCache()
 
 		//Get moved quad pos
 
-		GetAnimationTransform(m_Time + (m_aKZQuads[i].m_pQuad->m_PosEnvOffset / 1000.0), m_aKZQuads[i].m_pQuad->m_PosEnv, m_aKZQuads[i].m_CachedPos[4], m_aKZQuads[i].m_CachedAngle);
+		vec2 Position = vec2(0,0);
+
+		GetAnimationTransform(m_Time + (m_aKZQuads[i].m_pQuad->m_PosEnvOffset / 1000.0), m_aKZQuads[i].m_pQuad->m_PosEnv, Position, m_aKZQuads[i].m_CachedAngle);
+
+		//Set Center first
+		m_aKZQuads[i].m_CachedPos[4] = vec2(fx2f(m_aKZQuads[i].m_pQuad->m_aPoints[4].x), fx2f(m_aKZQuads[i].m_pQuad->m_aPoints[4].y));
 
 		//Cache corners
 		for(int j = 0; j < 4; j ++)
 		{
-			m_aKZQuads[i].m_CachedPos[j] = m_aKZQuads[i].m_CachedPos[4] + vec2(fx2f(m_aKZQuads[i].m_pQuad->m_aPoints[j].x), fx2f(m_aKZQuads[i].m_pQuad->m_aPoints[j].y));
+			m_aKZQuads[i].m_CachedPos[j] = Position + vec2(fx2f(m_aKZQuads[i].m_pQuad->m_aPoints[j].x), fx2f(m_aKZQuads[i].m_pQuad->m_aPoints[j].y));
 		}
 
 		//Rotate Cached corners
