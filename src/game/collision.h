@@ -233,8 +233,6 @@ public:
 	std::vector<SKZQuadData *> GetQuadsAt(vec2 Pos);
 	int QuadTypeToTileId(int Type);
 	void PushBoxOutsideQuads(vec2 * pPos, vec2 * pInOutVel, vec2 Size, CCharacterCore * pCore = nullptr);
-	bool AreBoxesColliding(vec2 boxa1, vec2 boxa2, vec2 boxa3, vec2 boxa4, vec2 boxb1, vec2 boxb2, vec2 boxb3, vec2 boxb4);
-	bool AreLinesColliding(vec2 a1, vec2 a2, vec2 b1, vec2 b2);
 	float CalculateSlopeAltitude(float xleft, float xright, vec2 pos1, vec2 pos2);
 	float CalculateSlopeAltitudeSide(float xup, float xdown, vec2 pos1, vec2 pos2);
 
