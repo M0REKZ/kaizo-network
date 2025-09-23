@@ -156,7 +156,8 @@ void CLaser::DoBounce()
 	vec2 QuadColPos;
 	vec2 LineStart;
 
-	pQuadData = Collision()->IntersectQuad(m_Pos,To, &QuadColPos, &LineStart);
+	if(g_Config.m_SvGoresQuadsEnable)
+		pQuadData = Collision()->IntersectQuad(m_Pos,To, &QuadColPos, &LineStart);
 	Res = GameServer()->Collision()->IntersectLineTeleWeapon(m_Pos, To, &Coltile, &To, &z, &ParamsKZ); // KZ added ParamsKZ
 
 	bool quadbounce = false;

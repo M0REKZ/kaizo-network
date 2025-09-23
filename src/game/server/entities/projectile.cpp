@@ -148,7 +148,8 @@ void CProjectile::Tick()
 	SKZQuadData * pQuadData = nullptr;
 	vec2 QuadColPos;
 
-	pQuadData = Collision()->IntersectQuad(PrevPos, CurPos, &QuadColPos);
+	if(g_Config.m_SvGoresQuadsEnable)
+		pQuadData = Collision()->IntersectQuad(PrevPos, CurPos, &QuadColPos);
 	int Collide = GameServer()->Collision()->IntersectLine(PrevPos, CurPos, &ColPos, &NewPos, &ParamsKZ); // KZ
 
 	//+KZ Quads:
