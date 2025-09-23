@@ -145,7 +145,26 @@ void CProjectile::Tick()
 	ParamsKZ.pProjPos = &m_Pos;
 	ParamsKZ.Weapon = m_Type;
 
-	int Collide = GameServer()->Collision()->IntersectLine(PrevPos, CurPos, &ColPos, &NewPos, &ParamsKZ); // KZ	
+	SKZQuadData * pQuadData = nullptr;
+	vec2 QuadColPos;
+
+	pQuadData = Collision()->IntersectQuad(PrevPos, CurPos, &QuadColPos);
+	int Collide = GameServer()->Collision()->IntersectLine(PrevPos, CurPos, &ColPos, &NewPos, &ParamsKZ); // KZ
+
+	//+KZ Quads:
+	if(pQuadData && Collide)
+	{
+		if(distance(PrevPos, QuadColPos) < distance(PrevPos, ColPos))
+		{
+			Collide = TILE_NOHOOK;
+			ColPos = NewPos = QuadColPos;
+		}
+	}
+	else if(pQuadData)
+	{
+		Collide = TILE_NOHOOK;
+		ColPos = NewPos = QuadColPos;
+	}
 
 	CCharacter *pTargetChr = nullptr;
 
