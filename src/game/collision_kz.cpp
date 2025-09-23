@@ -1192,13 +1192,14 @@ void CCollision::PushBoxOutsideQuads(vec2 *pPos, vec2 *pInOutVel, vec2 Size, CCh
 				{
 					float altdown[4] = {-9999,-9999,-9999,-9999};
 					
-					if(std::abs(m_aKZQuads[i].m_CachedPos[0].x - m_aKZQuads[i].m_CachedPos[1].x) >= std::abs(m_aKZQuads[i].m_CachedPos[0].y - m_aKZQuads[i].m_CachedPos[1].y))
+					//commented, always do vertical collision for all lines
+					//if(std::abs(m_aKZQuads[i].m_CachedPos[0].x - m_aKZQuads[i].m_CachedPos[1].x) >= std::abs(m_aKZQuads[i].m_CachedPos[0].y - m_aKZQuads[i].m_CachedPos[1].y))
 						altdown[0] = CalculateSlopeAltitude(BoxCorners[2].x, BoxCorners[3].x, m_aKZQuads[i].m_CachedPos[0], m_aKZQuads[i].m_CachedPos[1]);
-					if(std::abs(m_aKZQuads[i].m_CachedPos[1].x - m_aKZQuads[i].m_CachedPos[3].x) >= std::abs(m_aKZQuads[i].m_CachedPos[1].y - m_aKZQuads[i].m_CachedPos[3].y))
+					//if(std::abs(m_aKZQuads[i].m_CachedPos[1].x - m_aKZQuads[i].m_CachedPos[3].x) >= std::abs(m_aKZQuads[i].m_CachedPos[1].y - m_aKZQuads[i].m_CachedPos[3].y))
 						altdown[1] = CalculateSlopeAltitude(BoxCorners[2].x, BoxCorners[3].x, m_aKZQuads[i].m_CachedPos[1], m_aKZQuads[i].m_CachedPos[3]);
-					if(std::abs(m_aKZQuads[i].m_CachedPos[3].x - m_aKZQuads[i].m_CachedPos[2].x) >= std::abs(m_aKZQuads[i].m_CachedPos[3].y - m_aKZQuads[i].m_CachedPos[2].y))
+					//if(std::abs(m_aKZQuads[i].m_CachedPos[3].x - m_aKZQuads[i].m_CachedPos[2].x) >= std::abs(m_aKZQuads[i].m_CachedPos[3].y - m_aKZQuads[i].m_CachedPos[2].y))
 						altdown[2] = CalculateSlopeAltitude(BoxCorners[2].x, BoxCorners[3].x, m_aKZQuads[i].m_CachedPos[3], m_aKZQuads[i].m_CachedPos[2]);
-					if(std::abs(m_aKZQuads[i].m_CachedPos[2].x - m_aKZQuads[i].m_CachedPos[0].x) >= std::abs(m_aKZQuads[i].m_CachedPos[2].y - m_aKZQuads[i].m_CachedPos[0].y))
+					//if(std::abs(m_aKZQuads[i].m_CachedPos[2].x - m_aKZQuads[i].m_CachedPos[0].x) >= std::abs(m_aKZQuads[i].m_CachedPos[2].y - m_aKZQuads[i].m_CachedPos[0].y))
 						altdown[3] = CalculateSlopeAltitude(BoxCorners[2].x, BoxCorners[3].x, m_aKZQuads[i].m_CachedPos[2], m_aKZQuads[i].m_CachedPos[0]);
 					
 					float finalaltdown = altdown[0];
@@ -1253,9 +1254,6 @@ void CCollision::PushBoxOutsideQuads(vec2 *pPos, vec2 *pInOutVel, vec2 Size, CCh
 						if(std::abs(finalaltdown - pPos->x) > std::abs(altdown[k] - pPos->x))
 							finalaltdown = altdown[k];
 					}
-
-					printf("Pos %f %f\n",pPos->x,pPos->y);
-					printf("%f %f %f %f final %f\n",altdown[0],altdown[1],altdown[2],altdown[3],finalaltdown);
 
 					if (finalaltdown == -9999)
 					{
@@ -1396,24 +1394,26 @@ float CCollision::CalculateSlopeAltitude(float xleft, float xright, vec2 pos1, v
 	float linewidth = pos1.x - pos2.x;
 	float lineheight = pos1.y - pos2.y;
 
-	if(linewidth < 0) // -> 
+	if(linewidth < 0) // pos1 -> pos2
 	{
 		if(xright < pos1.x || xleft > pos2.x)
 			return -9999; //invalid
 
 		if(lineheight < 0) // up-down
 		{
+			//printf("-> updown\n");
 			if(xleft < pos1.x)
 			{
 				return pos1.y;
 			}
 			else
 			{
-				return pos2.y - (lineheight / linewidth) * (xleft - pos1.x);
+				return pos1.y + (lineheight / linewidth) * (xleft - pos1.x);
 			}
 		}
-		else // down-up
+		else if (lineheight > 0) // down-up
 		{
+			//printf("-> downup\n");
 			if(xright > pos2.x)
 			{
 				return pos2.y;
@@ -1423,34 +1423,44 @@ float CCollision::CalculateSlopeAltitude(float xleft, float xright, vec2 pos1, v
 				return pos1.y + (lineheight / linewidth) * (xright - pos1.x);
 			}
 		}
+		else
+		{
+			return pos1.y;
+		}
 		
 	}
-	else // <-
+	else // pos2 -> pos1
 	{
 		if(xright < pos2.x || xleft > pos1.x)
 			return -9999; //invalid
 
-		if(lineheight > 0) // down-up
+		if(lineheight > 0) // up-down
 		{
-			if(xright > pos1.x)
-			{
-				return pos1.y;
-			}
-			else
-			{
-				return pos2.y + (lineheight / linewidth) * (xright - pos2.x);
-			}
-		}
-		else // up-down
-		{
+			//printf("<- updown\n");
 			if(xleft < pos2.x)
 			{
 				return pos2.y;
 			}
 			else
 			{
-				return pos1.y - (lineheight / linewidth) * (xleft - pos1.x);
+				return pos1.y + (lineheight / linewidth) * (xleft - pos1.x);
 			}
+		}
+		else if(lineheight < 0) // down-up
+		{
+			//printf("<- downup\n");
+			if(xright > pos1.x)
+			{
+				return pos1.y;
+			}
+			else
+			{
+				return pos1.y + (lineheight / linewidth) * (xright - pos1.x);
+			}
+		}
+		else
+		{
+			return pos1.y;
 		}
 	}
 }
@@ -1460,26 +1470,14 @@ float CCollision::CalculateSlopeAltitudeSide(float xup, float xdown, vec2 pos1, 
 	float linewidth = pos1.x - pos2.x;
 	float lineheight = pos1.y - pos2.y;
 
-	if(lineheight < 0) // V
+	if(lineheight < 0) // pos1 V pos 2
 	{
 		if(xdown < pos1.y || xup > pos2.y)
 			return -9999; //invalid
 
 		if(linewidth > 0) // left-right
 		{
-			printf("V leftright\n");
-			if(xup < pos1.y)
-			{
-				return pos1.x;
-			}
-			else
-			{
-				return pos2.x - (linewidth / lineheight) * (xup - pos1.y);
-			}
-		}
-		else // right-left
-		{
-			printf("V rightleft\n");
+			//printf("V leftright\n");
 			if(xdown > pos2.y)
 			{
 				return pos2.x;
@@ -1489,36 +1487,56 @@ float CCollision::CalculateSlopeAltitudeSide(float xup, float xdown, vec2 pos1, 
 				return pos1.x + (linewidth / lineheight) * (xdown - pos1.y);
 			}
 		}
+		else if(linewidth < 0)// right-left
+		{
+			//printf("V rightleft\n");
+			if(xup < pos1.y)
+			{
+				return pos2.x;
+			}
+			else
+			{
+				return pos1.x + (linewidth / lineheight) * (xup - pos1.y);
+			}
+		}
+		else
+		{
+			return pos1.x;
+		}
 		
 	}
-	else // ^
+	else // pos2 V pos1
 	{
 		if(xdown < pos2.y || xup > pos1.y)
 			return -9999; //invalid
 
 		if(linewidth > 0) // right-left
 		{
-			printf("^ rightleft\n");
-			if(xdown > pos1.y)
-			{
-				return pos1.x;
-			}
-			else
-			{
-				return pos2.x + (linewidth / lineheight) * (xdown - pos2.y);
-			}
-		}
-		else // left-right
-		{
-			printf("^ leftright\n");
+			//printf("^ rightleft\n");
 			if(xup < pos2.y)
 			{
 				return pos2.x;
 			}
 			else
 			{
-				return pos1.x - (linewidth / lineheight) * (xup - pos1.y);
+				return pos1.x + (linewidth / lineheight) * (xup - pos1.y);
 			}
+		}
+		else if(linewidth < 0) // left-right
+		{
+			//printf("^ leftright\n");
+			if(xdown > pos1.y)
+			{
+				return pos1.x;
+			}
+			else
+			{
+				return pos1.x + (linewidth / lineheight) * (xdown - pos1.y);
+			}
+		}
+		else
+		{
+			return pos1.x;
 		}
 	}
 }
