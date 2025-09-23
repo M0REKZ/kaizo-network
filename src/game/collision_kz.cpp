@@ -1322,7 +1322,7 @@ bool CCollision::AreLinesColliding(vec2 p1, vec2 p2, vec2 p3, vec2 p4, vec2 *int
     return 0;
 }
 
-bool CCollision::IntersectQuad(vec2 From, vec2 To, vec2 *pOut, vec2 pos1, vec2 pos2, vec2 pos3, vec2 pos4)
+bool CCollision::IntersectQuad(vec2 From, vec2 To, vec2 *pOut, vec2 *pLineStart, vec2 *pLineEnd, vec2 pos1, vec2 pos2, vec2 pos3, vec2 pos4)
 {
 	vec2 intersect[4];
 	bool intersected[4] = {false,false,false,false};
@@ -1332,14 +1332,14 @@ bool CCollision::IntersectQuad(vec2 From, vec2 To, vec2 *pOut, vec2 pos1, vec2 p
 	intersected[2] = AreLinesColliding(From,To,pos4,pos3, &intersect[2]);
 	intersected[3] = AreLinesColliding(From,To,pos3,pos1, &intersect[3]);
 
-	if(pOut)
+	if(pOut || pLineStart || pLineEnd)
 	{
 		bool intersectedbool = false;
-		vec2 best = To;
+		int best = -1;
 		
 		if(intersected[0])
 		{
-			best = intersect[0];
+			best = 0;
 			intersectedbool = true;
 		}
 
@@ -1350,13 +1350,64 @@ bool CCollision::IntersectQuad(vec2 From, vec2 To, vec2 *pOut, vec2 pos1, vec2 p
 
 			intersectedbool = true;
 
-			if(distance(From,best) > distance(From,intersect[i]))
+			if(best == -1)
 			{
-				best = intersect[i];
+				best = i;
+				continue;
+			}
+
+			if(distance(From,intersect[best]) > distance(From,intersect[i]))
+			{
+				best = i;
 			}
 		}
 
-		*pOut = best;
+		if(best == -1)
+		{
+			if(pOut)
+				*pOut = To;
+		}
+		else
+		{
+			if(pOut)
+				*pOut = intersect[best];
+			if(pLineStart)
+			{
+				switch(best)
+				{
+					case 0:
+						*pLineStart = pos1;
+						break;
+					case 1:
+						*pLineStart = pos2;
+						break;
+					case 2:
+						*pLineStart = pos4;
+						break;
+					case 3:
+						*pLineStart = pos3;
+						break;
+				}
+			}
+			if(pLineEnd)
+			{
+				switch(best)
+				{
+					case 0:
+						*pLineEnd = pos2;
+						break;
+					case 1:
+						*pLineEnd = pos4;
+						break;
+					case 2:
+						*pLineEnd = pos3;
+						break;
+					case 3:
+						*pLineEnd = pos1;
+						break;
+				}
+			}
+		}
 		return intersectedbool;
 	}
 	else
@@ -1370,7 +1421,7 @@ bool CCollision::IntersectQuad(vec2 From, vec2 To, vec2 *pOut, vec2 pos1, vec2 p
 	}
 }
 
-SKZQuadData * CCollision::IntersectQuad(vec2 From, vec2 To, vec2 *pOut)
+SKZQuadData * CCollision::IntersectQuad(vec2 From, vec2 To, vec2 *pOut, vec2 *pLineStart, vec2 *pLineEnd)
 {
 	SKZQuadData * pQuad = nullptr;
 
@@ -1379,7 +1430,7 @@ SKZQuadData * CCollision::IntersectQuad(vec2 From, vec2 To, vec2 *pOut)
 		if(m_aKZQuads[i].m_Type != KZQUADTYPE_HOOK && m_aKZQuads[i].m_Type != KZQUADTYPE_UNHOOK)
 			continue;
 
-		if(IntersectQuad(From,To,pOut,m_aKZQuads[i].m_CachedPos[0],m_aKZQuads[i].m_CachedPos[1],m_aKZQuads[i].m_CachedPos[2],m_aKZQuads[i].m_CachedPos[3]))
+		if(IntersectQuad(From,To,pOut,pLineStart,pLineStart,m_aKZQuads[i].m_CachedPos[0],m_aKZQuads[i].m_CachedPos[1],m_aKZQuads[i].m_CachedPos[2],m_aKZQuads[i].m_CachedPos[3]))
 		{
 			pQuad = &m_aKZQuads[i];
 			break;
@@ -1387,6 +1438,23 @@ SKZQuadData * CCollision::IntersectQuad(vec2 From, vec2 To, vec2 *pOut)
 	}
 
 	return pQuad;
+}
+
+vec2 CCollision::ReflexLineOnLine(vec2 Point, vec2 Center, vec2 P1)
+{
+	float wallangle = atan2(Center.x - P1.x,Center.y - P1.y);
+
+	float lineangle = atan2(Point.x - Center.x,Point.y - Center.y);
+
+	float bounceangle = lineangle - wallangle;
+	
+	bounceangle = 3.14159f - bounceangle;
+
+	bounceangle += wallangle;
+
+	Point = vec2(sin(bounceangle),cos(bounceangle));
+
+	return Point;
 }
 
 float CCollision::CalculateSlopeAltitude(float xleft, float xright, vec2 pos1, vec2 pos2)

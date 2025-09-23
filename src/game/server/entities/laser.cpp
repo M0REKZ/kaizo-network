@@ -152,7 +152,59 @@ void CLaser::DoBounce()
 	ParamsKZ.pCharCoreParams = &ParamsKZ2;
 	ParamsKZ2.pCore = pOwnerCore;
 
+	SKZQuadData *pQuadData = nullptr;
+	vec2 QuadColPos;
+	vec2 LineStart;
+
+	pQuadData = Collision()->IntersectQuad(m_Pos,To, &QuadColPos, &LineStart);
 	Res = GameServer()->Collision()->IntersectLineTeleWeapon(m_Pos, To, &Coltile, &To, &z, &ParamsKZ); // KZ added ParamsKZ
+
+	bool quadbounce = false;
+
+	if(pQuadData && Res)
+	{
+		if(distance(m_Pos, QuadColPos) < distance(m_Pos, To))
+		{
+			quadbounce = true;
+		}
+	}
+	else if(pQuadData)
+	{
+		quadbounce = true;
+	}
+
+	if(quadbounce)
+	{
+		Res = 0;
+		m_Dir = normalize(Collision()->ReflexLineOnLine(m_Pos, QuadColPos, LineStart));
+		m_From = m_Pos;
+		m_Pos = QuadColPos + normalize(m_Pos - QuadColPos);
+
+		const float Distance = distance(m_From, m_Pos);
+		// Prevent infinite bounces
+		if(Distance == 0.0f && m_ZeroEnergyBounceInLastTick)
+		{
+			m_Energy = -1;
+		}
+		else if(!m_TuneZone)
+		{
+			m_Energy -= Distance + Tuning()->m_LaserBounceCost;
+		}
+		else
+		{
+			m_Energy -= distance(m_From, m_Pos) + GameServer()->TuningList()[m_TuneZone].m_LaserBounceCost;
+		}
+
+		int BounceNum = Tuning()->m_LaserBounceNum;
+		if(m_TuneZone)
+			BounceNum = TuningList()[m_TuneZone].m_LaserBounceNum;
+		
+		if(m_Bounces > BounceNum)
+			m_Energy = -1;
+
+		GameServer()->CreateSound(m_Pos, SOUND_LASER_BOUNCE, m_TeamMask);
+		return;
+	}
 
 	if(m_Bounces != ParamsKZ.BounceNum)
 	{

@@ -236,8 +236,9 @@ public:
 	float CalculateSlopeAltitude(float xleft, float xright, vec2 pos1, vec2 pos2);
 	float CalculateSlopeAltitudeSide(float xup, float xdown, vec2 pos1, vec2 pos2);
 	bool AreLinesColliding(vec2 a1, vec2 a2, vec2 b1, vec2 b2, vec2 *pintersect = nullptr);
-	bool IntersectQuad(vec2 From, vec2 To, vec2 *pOut, vec2 pos1, vec2 pos2, vec2 pos3, vec2 pos4);
-	SKZQuadData * IntersectQuad(vec2 From, vec2 To, vec2 *pOut);
+	bool IntersectQuad(vec2 From, vec2 To, vec2 *pOut, vec2 *pLineStart, vec2 *pLineEnd, vec2 pos1, vec2 pos2, vec2 pos3, vec2 pos4);
+	SKZQuadData * IntersectQuad(vec2 From, vec2 To, vec2 *pOut = nullptr, vec2 *pLineStart = nullptr, vec2 *pLineEnd = nullptr);
+	vec2 ReflexLineOnLine(vec2 Point, vec2 Center, vec2 P1);
 
 	//Infclass
 	void GetAnimationTransform(float GlobalTime, int Env, vec2& Position, float& Angle) const;
