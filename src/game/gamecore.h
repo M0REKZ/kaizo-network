@@ -300,6 +300,10 @@ public: // KZ
 
 	// +KZ
 	bool m_SendCoreThisTick = false;
+	bool m_QuadGrounded = false;
+	SKZQuadData * m_pHookedQuad = nullptr;
+	vec2 m_HookedQuadPos;
+	float m_HookedQuadAngle;
 	bool HandleKZTileOnMoveBox(vec2 *pMoveBoxPos, vec2 *pMoveBoxVel, vec2 MoveBoxSize, vec2 MoveBoxElasticity);
 	CKZTile *pTouchingKZTiles[4] = {nullptr, nullptr, nullptr, nullptr};
 	SKZColCharCoreParams m_CharCoreParams;

@@ -3,6 +3,7 @@
 // FastIntersectLinePortalLaser based on FastIntersectLine by nheir
 // IntersectCharacterCore based on IntersectCharacter from Teeworlds
 // GetAnimationTransform m_Time OutOfRange InsideTriangle InsideQuad BarycentricCoordinates and Rotate were taken from Kaffeine's Infclass, modified by +KZ for Kaizo Network
+// det() and AreLinesColliding() were taken from internet code examples
 
 #include <base/math.h>
 #include <base/system.h>
@@ -1064,7 +1065,7 @@ void CCollision::UpdateQuadCache()
 		GetAnimationTransform(m_Time + (m_aKZQuads[i].m_pQuad->m_PosEnvOffset / 1000.0), m_aKZQuads[i].m_pQuad->m_PosEnv, Position, m_aKZQuads[i].m_CachedAngle);
 
 		//Set Center first
-		m_aKZQuads[i].m_CachedPos[4] = vec2(fx2f(m_aKZQuads[i].m_pQuad->m_aPoints[4].x), fx2f(m_aKZQuads[i].m_pQuad->m_aPoints[4].y));
+		m_aKZQuads[i].m_CachedPos[4] = vec2(fx2f(m_aKZQuads[i].m_pQuad->m_aPoints[4].x), fx2f(m_aKZQuads[i].m_pQuad->m_aPoints[4].y)) + Position;
 
 		//Cache corners
 		for(int j = 0; j < 4; j ++)
@@ -1125,7 +1126,7 @@ int CCollision::QuadTypeToTileId(int Type)
 	return TILE_AIR;
 }
 
-void CCollision::PushBoxOutsideQuads(vec2 *pPos, vec2 *pInOutVel, vec2 Size, CCharacterCore * pCore)
+void CCollision::PushBoxOutsideQuads(vec2 *pPos, vec2 *pInOutVel, vec2 Size, CCharacterCore * pCore, bool * pGrounded)
 {
 	vec2 BoxCorners[4];
 
@@ -1218,6 +1219,11 @@ void CCollision::PushBoxOutsideQuads(vec2 *pPos, vec2 *pInOutVel, vec2 Size, CCh
 						pPos->y = finalaltdown - Size.y;
 						if(pInOutVel->y > 0)
 							pInOutVel->y = 0;
+
+						if(pGrounded && m_aKZQuads[i].m_Type != KZQUADTYPE_STOPA) //set grounded if not stopper quad
+						{
+							*pGrounded = true;
+						}
 					}
 					else if(finalaltdown >= pPos->y - Size.y && finalaltdown < pPos->y)
 					{
@@ -1283,6 +1289,106 @@ void CCollision::PushBoxOutsideQuads(vec2 *pPos, vec2 *pInOutVel, vec2 Size, CCh
 			exit = true;
 	} while(!exit);
 	
+}
+
+static inline float det(float a, float b, float c, float d) {
+    return a * d - b * c;
+}
+
+bool CCollision::AreLinesColliding(vec2 p1, vec2 p2, vec2 p3, vec2 p4, vec2 *interseccion) {
+    float dx1 = p2.x - p1.x;
+    float dy1 = p2.y - p1.y;
+    float dx2 = p4.x - p3.x;
+    float dy2 = p4.y - p3.y;
+
+    float denom = det(dx1, dy1, dx2, dy2);
+
+    if (fabsf(denom) < 1e-6f) {
+        return 0;
+    }
+
+    float dx = p3.x - p1.x;
+    float dy = p3.y - p1.y;
+
+    float t = det(dx, dy, dx2, dy2) / denom;
+    float u = det(dx, dy, dx1, dy1) / denom;
+
+    if (t >= 0.0f && t <= 1.0f && u >= 0.0f && u <= 1.0f) {
+        if (interseccion) {
+            interseccion->x = p1.x + t * dx1;
+            interseccion->y = p1.y + t * dy1;
+        }
+        return 1;
+    }
+
+    return 0;
+}
+
+bool CCollision::IntersectQuad(vec2 From, vec2 To, vec2 *pOut, vec2 pos1, vec2 pos2, vec2 pos3, vec2 pos4)
+{
+	vec2 intersect[4];
+	bool intersected[4] = {false,false,false,false};
+
+	intersected[0] = AreLinesColliding(From,To,pos1,pos2, &intersect[0]);
+	intersected[1] = AreLinesColliding(From,To,pos2,pos4, &intersect[1]);
+	intersected[2] = AreLinesColliding(From,To,pos4,pos3, &intersect[2]);
+	intersected[3] = AreLinesColliding(From,To,pos3,pos1, &intersect[3]);
+
+	if(pOut)
+	{
+		bool intersectedbool = false;
+		vec2 best = To;
+		
+		if(intersected[0])
+		{
+			best = intersect[0];
+			intersectedbool = true;
+		}
+
+		for(int i = 1; i < 4;i++)
+		{
+			if(!intersected[i])
+				continue;
+
+			intersectedbool = true;
+
+			if(distance(From,best) > distance(From,intersect[i]))
+			{
+				best = intersect[i];
+			}
+		}
+
+		*pOut = best;
+		return intersectedbool;
+	}
+	else
+	{
+		for(int i = 0; i < 4; i++)
+		{
+			if(intersected[i])
+				return true;
+		}
+		return false;
+	}
+}
+
+SKZQuadData * CCollision::IntersectQuad(vec2 From, vec2 To, vec2 *pOut)
+{
+	SKZQuadData * pQuad = nullptr;
+
+	for(int i = 0; i < m_aKZQuads.size(); i++)
+	{
+		if(m_aKZQuads[i].m_Type != KZQUADTYPE_HOOK && m_aKZQuads[i].m_Type != KZQUADTYPE_UNHOOK)
+			continue;
+
+		if(IntersectQuad(From,To,pOut,m_aKZQuads[i].m_CachedPos[0],m_aKZQuads[i].m_CachedPos[1],m_aKZQuads[i].m_CachedPos[2],m_aKZQuads[i].m_CachedPos[3]))
+		{
+			pQuad = &m_aKZQuads[i];
+			break;
+		}
+	}
+
+	return pQuad;
 }
 
 float CCollision::CalculateSlopeAltitude(float xleft, float xright, vec2 pos1, vec2 pos2)

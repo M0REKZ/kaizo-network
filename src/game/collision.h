@@ -232,9 +232,12 @@ public:
 	void UpdateQuadCache();
 	std::vector<SKZQuadData *> GetQuadsAt(vec2 Pos);
 	int QuadTypeToTileId(int Type);
-	void PushBoxOutsideQuads(vec2 * pPos, vec2 * pInOutVel, vec2 Size, CCharacterCore * pCore = nullptr);
+	void PushBoxOutsideQuads(vec2 * pPos, vec2 * pInOutVel, vec2 Size, CCharacterCore * pCore = nullptr, bool * pGrounded = nullptr);
 	float CalculateSlopeAltitude(float xleft, float xright, vec2 pos1, vec2 pos2);
 	float CalculateSlopeAltitudeSide(float xup, float xdown, vec2 pos1, vec2 pos2);
+	bool AreLinesColliding(vec2 a1, vec2 a2, vec2 b1, vec2 b2, vec2 *pintersect = nullptr);
+	bool IntersectQuad(vec2 From, vec2 To, vec2 *pOut, vec2 pos1, vec2 pos2, vec2 pos3, vec2 pos4);
+	SKZQuadData * IntersectQuad(vec2 From, vec2 To, vec2 *pOut);
 
 	//Infclass
 	void GetAnimationTransform(float GlobalTime, int Env, vec2& Position, float& Angle) const;
