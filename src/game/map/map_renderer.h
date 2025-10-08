@@ -19,6 +19,10 @@ private:
 	int GetLayerType(const CMapItemLayer *pLayer, const CLayers *pLayers) const;
 
 	std::vector<std::unique_ptr<CRenderLayer>> m_vpRenderLayers;
+
+	//+KZ
+	private:
+	std::unique_ptr<CRenderLayer> GetKZLayerInLoad(CMapItemLayerTilemap *pTileLayer, int GroupId, int LayerId);
 };
 
 #endif

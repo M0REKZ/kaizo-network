@@ -2588,11 +2588,13 @@ if(CLIENT)
     envelope_extrema.cpp
     envelope_extrema.h
     envelope_manager.h
+    map_renderer_kz.cpp
     map_renderer.cpp
     map_renderer.h
     render_component.cpp
     render_component.h
     render_interfaces.h
+    render_layer_kz.cpp
     render_layer.cpp
     render_layer.h
     render_map.cpp

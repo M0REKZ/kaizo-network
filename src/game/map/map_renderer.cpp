@@ -111,6 +111,9 @@ void CMapRenderer::Load(ERenderType Type, CLayers *pLayers, IMapImages *pMapImag
 						pTileLayer);
 					break;
 				default:
+					//+KZ
+					if(pRenderLayer = GetKZLayerInLoad(pTileLayer, GroupId, LayerId))
+						break;
 					dbg_assert(false, "Unknown LayerType %d", LayerType);
 					break;
 				}

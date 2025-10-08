@@ -110,7 +110,10 @@ public:
 protected:
 	virtual void *GetRawData() const;
 	template<class T>
-	T *GetData() const;
+	T *GetData() const //+KZ moved this here
+	{
+		return (T *)GetRawData();
+	}
 
 	virtual ColorRGBA GetRenderColor(const CRenderLayerParams &Params) const;
 	virtual void InitTileData();
@@ -370,5 +373,36 @@ protected:
 
 private:
 	CTuneTile *m_pTuneTiles;
+};
+
+//+KZ
+class CRenderLayerEntityKZGame final : public CRenderLayerEntityBase
+{
+public:
+	CRenderLayerEntityKZGame(int GroupId, int LayerId, int Flags, CMapItemLayerTilemap *pLayerTilemap);
+	int GetDataIndex(unsigned int &TileSize) const override;
+	void InitTileData() override;
+
+protected:
+	void RenderTileLayerNoTileBuffer(const ColorRGBA &Color, const CRenderLayerParams &Params) override;
+	void GetTileData(unsigned char *pIndex, unsigned char *pFlags, int *pAngleRotate, unsigned int x, unsigned int y, int CurOverlay) const override;
+
+private:
+	CKZTile *m_pKZTiles;
+};
+
+class CRenderLayerEntityKZFront final : public CRenderLayerEntityBase
+{
+public:
+	CRenderLayerEntityKZFront(int GroupId, int LayerId, int Flags, CMapItemLayerTilemap *pLayerTilemap);
+	int GetDataIndex(unsigned int &TileSize) const override;
+	void InitTileData() override;
+
+protected:
+	void RenderTileLayerNoTileBuffer(const ColorRGBA &Color, const CRenderLayerParams &Params) override;
+	void GetTileData(unsigned char *pIndex, unsigned char *pFlags, int *pAngleRotate, unsigned int x, unsigned int y, int CurOverlay) const override;
+
+private:
+	CKZTile *m_pKZTiles;
 };
 #endif

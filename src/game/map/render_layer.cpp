@@ -834,11 +834,7 @@ void CRenderLayerTile::InitTileData()
 	m_pTiles = GetData<CTile>();
 }
 
-template<class T>
-T *CRenderLayerTile::GetData() const
-{
-	return (T *)GetRawData();
-}
+//+KZ moved GetData to header
 
 void CRenderLayerTile::GetTileData(unsigned char *pIndex, unsigned char *pFlags, int *pAngleRotate, unsigned int x, unsigned int y, int CurOverlay) const
 {
