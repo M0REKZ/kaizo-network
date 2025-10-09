@@ -9,6 +9,7 @@
 
 #include <game/localization.h>
 #include <game/mapitems.h>
+#include <game/gamecore.h>
 
 #include <array>
 #include <chrono>
@@ -877,7 +878,10 @@ void CRenderLayerQuads::RenderQuadLayer(float Alpha)
 
 			ColorRGBA Color = ColorRGBA(1.0f, 1.0f, 1.0f, 1.0f);
 			m_pEnvelopeManager->EnvelopeEval()->EnvelopeEval(pQuad->m_ColorEnvOffset, pQuad->m_ColorEnv, Color, 4);
-			Color.a *= Alpha;
+			if(m_IsEntitiesQuads && g_Config.m_ClOverlayEntities)
+				Color.a = g_Config.m_ClOverlayEntities/100.f;
+			else
+				Color.a *= Alpha;
 
 			const bool IsFullyTransparent = Color.a <= 0.0f;
 			const bool NeedsFlush = QuadsRenderCount == gs_GraphicsMaxQuadsRenderCount || IsFullyTransparent;
@@ -919,7 +923,10 @@ void CRenderLayerQuads::RenderQuadLayer(float Alpha)
 			m_pEnvelopeManager->EnvelopeEval()->EnvelopeEval(m_QuadRenderGroup.m_ColorEnvOffset, m_QuadRenderGroup.m_ColorEnv, Color, 4);
 		}
 
-		Color.a *= Alpha;
+		if(m_IsEntitiesQuads && g_Config.m_ClOverlayEntities)
+			Color.a = g_Config.m_ClOverlayEntities/100.f;
+		else
+			Color.a *= Alpha;
 		if(Color.a <= 0.0f)
 			return;
 
@@ -948,6 +955,13 @@ void CRenderLayerQuads::OnInit(IGraphics *pGraphics, ITextRender *pTextRender, C
 
 void CRenderLayerQuads::Init()
 {
+	char aBuf[30] = {0};
+
+	IntsToStr(m_pLayerQuads->m_aName, std::size(m_pLayerQuads->m_aName), aBuf, std::size(aBuf));
+	bool IsEntities = false;
+	if(!str_comp_nocase("QFr", aBuf) || !str_comp_nocase("QUnFr", aBuf) || !str_comp_nocase("QHook", aBuf) || !str_comp_nocase("QUnHook", aBuf) || !str_comp_nocase("QStopa", aBuf) || !str_comp_nocase("QDeath", aBuf) || !str_comp_nocase("QCfrm", aBuf) || !str_comp_nocase("KaizoQuads", aBuf))
+		m_IsEntitiesQuads = true;
+
 	if(m_pLayerQuads->m_Image >= 0 && m_pLayerQuads->m_Image < m_pMapImages->Num())
 		m_TextureHandle = m_pMapImages->Get(m_pLayerQuads->m_Image);
 	else
@@ -1188,6 +1202,8 @@ void CRenderLayerQuads::Render(const CRenderLayerParams &Params)
 
 	bool Force = Params.m_RenderType == ERenderType::RENDERTYPE_BACKGROUND_FORCE || Params.m_RenderType == ERenderType::RENDERTYPE_FULL_DESIGN;
 	float Alpha = Force ? 1.f : (100 - Params.m_EntityOverlayVal) / 100.0f;
+	if(m_IsEntitiesQuads && g_Config.m_ClOverlayEntities) //+KZ added isentitiesquads
+		Alpha = Params.m_EntityOverlayVal/100.f;
 	if(!Graphics()->IsQuadBufferingEnabled() || !Params.m_TileAndQuadBuffering)
 	{
 		Graphics()->BlendNormal();
@@ -1208,6 +1224,13 @@ void CRenderLayerQuads::Render(const CRenderLayerParams &Params)
 
 bool CRenderLayerQuads::DoRender(const CRenderLayerParams &Params)
 {
+	//+KZ added entities quads handling
+	if(g_Config.m_SvGoresQuadsEnable && m_IsEntitiesQuads)
+	{
+		//ALWAYS render
+		return true;
+	}
+
 	// skip rendering anything but entities if we only want to render entities
 	if(Params.m_EntityOverlayVal == 100 && Params.m_RenderType != ERenderType::RENDERTYPE_BACKGROUND_FORCE)
 		return false;

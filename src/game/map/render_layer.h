@@ -264,6 +264,10 @@ protected:
 
 private:
 	IGraphics::CTextureHandle m_TextureHandle;
+
+	//+KZ
+	public:
+	bool m_IsEntitiesQuads = false;
 };
 
 class CRenderLayerEntityBase : public CRenderLayerTile
