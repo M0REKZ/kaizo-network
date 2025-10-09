@@ -1,4 +1,4 @@
-
+// Copyright (C) Benjamín Gajardo (also known as +KZ)
 
 #include "render_layer.h"
 #include "map_renderer.h"
