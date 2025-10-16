@@ -2616,6 +2616,9 @@ void CCharacter::DDRacePostCoreTick()
 		m_Core.m_Jumped = 1;
 	}
 
+	//+KZ
+	HandleSubTickStartFinish();
+
 	int CurrentIndex = Collision()->GetMapIndex(m_Pos);
 	HandleSkippableTiles(CurrentIndex);
 	if(!m_Alive)

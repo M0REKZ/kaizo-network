@@ -54,7 +54,7 @@ void CGameControllerDDRace::HandleCharacterTiles(CCharacter *pChr, int MapIndex)
 	const ERaceState PlayerDDRaceState = pChr->m_DDRaceState;
 	bool IsOnStartTile = (TileIndex == TILE_START) || (TileFIndex == TILE_START) || FTile1 == TILE_START || FTile2 == TILE_START || FTile3 == TILE_START || FTile4 == TILE_START || Tile1 == TILE_START || Tile2 == TILE_START || Tile3 == TILE_START || Tile4 == TILE_START;
 	// start
-	if(IsOnStartTile && PlayerDDRaceState != ERaceState::CHEATED)
+	if((IsOnStartTile || (pChr->m_StartSubTick >= 0 && !(PlayerDDRaceState == ERaceState::STARTED))) && PlayerDDRaceState != ERaceState::CHEATED)
 	{
 		const int Team = GameServer()->GetDDRaceTeam(ClientId);
 		if(Teams().GetSaving(Team))
@@ -90,7 +90,7 @@ void CGameControllerDDRace::HandleCharacterTiles(CCharacter *pChr, int MapIndex)
 	}
 
 	// finish
-	if(((TileIndex == TILE_FINISH) || (TileFIndex == TILE_FINISH) || FTile1 == TILE_FINISH || FTile2 == TILE_FINISH || FTile3 == TILE_FINISH || FTile4 == TILE_FINISH || Tile1 == TILE_FINISH || Tile2 == TILE_FINISH || Tile3 == TILE_FINISH || Tile4 == TILE_FINISH) && PlayerDDRaceState == ERaceState::STARTED)
+	if((pChr->m_FinishSubTick >= 0 || (TileIndex == TILE_FINISH) || (TileFIndex == TILE_FINISH) || FTile1 == TILE_FINISH || FTile2 == TILE_FINISH || FTile3 == TILE_FINISH || FTile4 == TILE_FINISH || Tile1 == TILE_FINISH || Tile2 == TILE_FINISH || Tile3 == TILE_FINISH || Tile4 == TILE_FINISH) && PlayerDDRaceState == ERaceState::STARTED)
 		Teams().OnCharacterFinish(ClientId);
 
 	// unlock team

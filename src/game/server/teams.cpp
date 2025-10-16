@@ -710,6 +710,47 @@ void CGameTeams::OnFinish(CPlayer *Player, int TimeTicks, const char *pTimestamp
 
 	float Time = TimeTicks / (float)Server()->TickSpeed();
 
+	float OrigTime = Time;
+
+	//+KZ subtick time
+	if(Player->GetCharacter() && Player->GetCharacter()->m_FinishSubTick >= 0)
+	{
+		if(Player->GetCharacter()->m_FinishedTickKZ >=0 && (Player->GetCharacter()->m_FinishedTickKZ == Player->GetCharacter()->m_StartedTickKZ)) //in the same tick
+		{
+			float MinusTime = ((float)(Player->GetCharacter()->m_FinishSubTick - Player->GetCharacter()->m_StartSubTick)/Player->GetCharacter()->m_StartDivisor);
+			MinusTime /= (float)Server()->TickSpeed();
+			printf("IntervalTick %d Result %f\n",(Player->GetCharacter()->m_FinishSubTick - Player->GetCharacter()->m_StartSubTick), MinusTime);
+			Time += MinusTime;
+		}
+		else //different ticks
+		{
+			if(Player->GetCharacter()->m_StartSubTick >= 0)
+			{
+				float MinusTime = 1.0f - ((float)Player->GetCharacter()->m_StartSubTick/Player->GetCharacter()->m_StartDivisor);
+				MinusTime /= (float)Server()->TickSpeed();
+				printf("Startsubtick %d FinalSubtick %d Result %f\n",Player->GetCharacter()->m_StartSubTick,Player->GetCharacter()->m_StartDivisor,MinusTime);
+				Time -= MinusTime;
+			}
+
+			if(Player->GetCharacter()->m_FinishSubTick >= 0)
+			{
+				float MinusTime = ((float)Player->GetCharacter()->m_FinishSubTick/Player->GetCharacter()->m_FinishDivisor);
+				MinusTime /= (float)Server()->TickSpeed();
+				printf("Finishsubtick %d FinalSubtick %d Result %f\n",Player->GetCharacter()->m_FinishSubTick,Player->GetCharacter()->m_FinishDivisor, MinusTime);
+				Time += MinusTime;
+			}
+		}
+		//reset values
+		Player->GetCharacter()->m_StartSubTick = -1;
+		Player->GetCharacter()->m_FinishSubTick = -1;
+		Player->GetCharacter()->m_StartDivisor = 1;
+		Player->GetCharacter()->m_FinishDivisor = 1;
+		Player->GetCharacter()->m_StartedTickKZ = -1;
+		Player->GetCharacter()->m_FinishedTickKZ = -1;
+	}
+
+	printf(" Orig %f Real %f\n",OrigTime,Time);
+
 	// TODO:DDRace:btd: this ugly
 	const int ClientId = Player->GetCid();
 	CPlayerData *pData = GameServer()->Score()->PlayerData(ClientId);
@@ -718,7 +759,7 @@ void CGameTeams::OnFinish(CPlayer *Player, int TimeTicks, const char *pTimestamp
 	SetLastTimeCp(Player, -1);
 	// Note that the "finished in" message is parsed by the client
 	str_format(aBuf, sizeof(aBuf),
-		"%s finished in: %d minute(s) %5.2f second(s)",
+		"%s finished in: %d minute(s) %f second(s)",
 		Server()->ClientName(ClientId), (int)Time / 60,
 		Time - ((int)Time / 60 * 60));
 	if(g_Config.m_SvHideScore)
@@ -735,10 +776,10 @@ void CGameTeams::OnFinish(CPlayer *Player, int TimeTicks, const char *pTimestamp
 		pData->m_RecordFinishTime = Time;
 
 		if(Diff >= 60)
-			str_format(aBuf, sizeof(aBuf), "New record: %d minute(s) %5.2f second(s) better.",
+			str_format(aBuf, sizeof(aBuf), "New record: %d minute(s) %f second(s) better.",
 				(int)Diff / 60, Diff - ((int)Diff / 60 * 60));
 		else
-			str_format(aBuf, sizeof(aBuf), "New record: %5.2f second(s) better.",
+			str_format(aBuf, sizeof(aBuf), "New record: %f second(s) better.",
 				Diff);
 		if(g_Config.m_SvHideScore)
 			GameServer()->SendChatTarget(ClientId, aBuf, CGameContext::FLAG_SIX);
@@ -757,11 +798,11 @@ void CGameTeams::OnFinish(CPlayer *Player, int TimeTicks, const char *pTimestamp
 		else
 		{
 			if(Diff >= 60)
-				str_format(aBuf, sizeof(aBuf), "%d minute(s) %5.2f second(s) worse, better luck next time.",
+				str_format(aBuf, sizeof(aBuf), "%d minute(s) %f second(s) worse, better luck next time.",
 					(int)Diff / 60, Diff - ((int)Diff / 60 * 60));
 			else
 				str_format(aBuf, sizeof(aBuf),
-					"%5.2f second(s) worse, better luck next time.",
+					"%f second(s) worse, better luck next time.",
 					Diff);
 			GameServer()->SendChatTarget(ClientId, aBuf, CGameContext::FLAG_SIX); // this is private, sent only to the tee
 		}
@@ -785,7 +826,7 @@ void CGameTeams::OnFinish(CPlayer *Player, int TimeTicks, const char *pTimestamp
 
 	if(CallSaveScore)
 		if(g_Config.m_SvNamelessScore || !str_startswith(Server()->ClientName(ClientId), "nameless tee"))
-			GameServer()->Score()->SaveScore(ClientId, TimeTicks, pTimestamp,
+			GameServer()->Score()->SaveScoreFloat(ClientId, Time, pTimestamp,
 				GetCurrentTimeCp(Player), Player->m_NotEligibleForFinish);
 
 	if(CallSaveScore) //+KZ only call if save score is called

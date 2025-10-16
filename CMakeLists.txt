@@ -2813,6 +2813,7 @@ if(SERVER)
   set_src(GAME_SERVER GLOB_RECURSE src/game/server
     ddracechat.cpp
     ddracecommands.cpp
+    entities/character_kz.cpp
     entities/character.cpp
     entities/character.h
     entities/door.cpp
@@ -2878,6 +2879,7 @@ if(SERVER)
     save.cpp
     save.h
     save_kz.cpp
+    score_kz.cpp
     score.cpp
     score.h
     scoreworker.cpp
