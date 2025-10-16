@@ -618,7 +618,7 @@ bool CScoreWorker::SaveScore(IDbConnection *pSqlServer, const ISqlData *pGameDat
 		"	cp1, cp2, cp3, cp4, cp5, cp6, cp7, cp8, cp9, cp10, cp11, cp12, cp13, "
 		"	cp14, cp15, cp16, cp17, cp18, cp19, cp20, cp21, cp22, cp23, cp24, cp25, "
 		"	GameId, DDNet7) "
-		"VALUES (?, ?, %s, %f, ?, " //+KZ modified
+		"VALUES (?, ?, %s, %f, ?, " //+KZ modified for time
 		"	%.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, "
 		"	%.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, "
 		"	%.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, "
@@ -767,7 +767,7 @@ bool CScoreWorker::SaveTeamScore(IDbConnection *pSqlServer, const ISqlData *pGam
 			if(pData->m_Time < Time)
 			{
 				str_format(aBuf, sizeof(aBuf),
-					"UPDATE %s_teamrace SET Time=%.2f, Timestamp=%s, DDNet7=%s, GameId=? WHERE Id = ?",
+					"UPDATE %s_teamrace SET Time=%f, Timestamp=%s, DDNet7=%s, GameId=? WHERE Id = ?", //+KZ modified time
 					pSqlServer->GetPrefix(), pData->m_Time, pSqlServer->InsertTimestampAsUtc(), pSqlServer->False());
 				if(!pSqlServer->PrepareStatement(aBuf, pError, ErrorSize))
 				{
@@ -794,7 +794,7 @@ bool CScoreWorker::SaveTeamScore(IDbConnection *pSqlServer, const ISqlData *pGam
 		// if no entry found... create a new one
 		str_format(aBuf, sizeof(aBuf),
 			"%s INTO %s_teamrace%s(Map, Name, Timestamp, Time, Id, GameId, DDNet7) "
-			"VALUES (?, ?, %s, %.2f, ?, ?, %s)",
+			"VALUES (?, ?, %s, %f, ?, ?, %s)", //+KZ modified time
 			pSqlServer->InsertIgnore(), pSqlServer->GetPrefix(),
 			w == Write::NORMAL ? "" : "_backup",
 			pSqlServer->InsertTimestampAsUtc(), pData->m_Time, pSqlServer->False());

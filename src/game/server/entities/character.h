@@ -317,7 +317,7 @@ public:
 	int m_FinishSubTick = -1;
 	int m_FinishDivisor = 1;
 	int m_FinishedTickKZ = -1;
-	#define MAX_KAIZO_STARTFINISH_SUBTICK 20
+	vec2 m_PrevVelKZ;
 	void HandleSubTickStartFinish();
 };
 

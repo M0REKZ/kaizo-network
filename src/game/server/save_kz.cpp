@@ -23,6 +23,8 @@ void CSaveTee::SaveKZ(CCharacter *pchr, bool AddPenalty)
 	    m_aCustomWeapons[i].m_Ammo = pchr->m_aCustomWeapons[i].m_Ammo;
         m_aCustomWeapons[i].m_Got = pchr->m_aCustomWeapons[i].m_Got;
     }
+
+    m_SavedSubtick.Keep(pchr);
 }
 
 bool CSaveTee::LoadKZ(CCharacter *pchr, std::optional<int> Team)
@@ -37,6 +39,8 @@ bool CSaveTee::LoadKZ(CCharacter *pchr, std::optional<int> Team)
 	    pchr->m_aCustomWeapons[i].m_Ammo = m_aCustomWeapons[i].m_Ammo;
         pchr->m_aCustomWeapons[i].m_Got = m_aCustomWeapons[i].m_Got;
     }
+
+    m_SavedSubtick.Restore(pchr);
 
 	return true;
 }

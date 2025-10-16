@@ -13,6 +13,8 @@
 
 #include <game/mapitems.h>
 
+#include "classes_kz.h"
+
 class IGameController;
 class CGameContext;
 class CGameWorld;
@@ -171,6 +173,8 @@ private:
 		//int m_Snap = 0; not needed for save
 		int m_Ammo = -1;
 	} m_aCustomWeapons[KZ_NUM_CUSTOM_WEAPONS];
+
+	CKZSubTickKeep m_SavedSubtick;
 };
 
 class CSaveHotReloadTee

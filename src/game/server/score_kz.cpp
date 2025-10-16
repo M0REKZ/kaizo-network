@@ -26,7 +26,7 @@ void CScore::SaveScoreFloat(int ClientId, float Time, const char *pTimestamp, co
 	if(pCon->Cheated() || NotEligible)
 		return;
 
-	GameServer()->TeehistorianRecordPlayerFinish(ClientId, (int)Time);
+	GameServer()->TeehistorianRecordPlayerFinish(ClientId, (int)(Time*Server()->TickSpeed()));
 
 	CPlayer *pCurPlayer = GameServer()->m_apPlayers[ClientId];
 	if(pCurPlayer->m_ScoreFinishResult != nullptr)
@@ -43,4 +43,30 @@ void CScore::SaveScoreFloat(int ClientId, float Time, const char *pTimestamp, co
 		Tmp->m_aCurrentTimeCp[i] = aTimeCp[i];
 
 	m_pPool->ExecuteWrite(CScoreWorker::SaveScore, std::move(Tmp), "save score");
+}
+
+void CScore::SaveTeamScoreFloat(int Team, int *pClientIds, unsigned int Size, float Time, const char *pTimestamp)
+{
+	CConsole *pCon = (CConsole *)GameServer()->Console();
+	if(pCon->Cheated())
+		return;
+	for(unsigned int i = 0; i < Size; i++)
+	{
+		if(GameServer()->m_apPlayers[pClientIds[i]]->m_NotEligibleForFinish)
+			return;
+	}
+
+	GameServer()->TeehistorianRecordTeamFinish(Team, (int)(Time*Server()->TickSpeed()));
+
+	auto Tmp = std::make_unique<CSqlTeamScoreData>();
+	for(unsigned int i = 0; i < Size; i++)
+		str_copy(Tmp->m_aaNames[i], Server()->ClientName(pClientIds[i]), sizeof(Tmp->m_aaNames[i]));
+	Tmp->m_Size = Size;
+	Tmp->m_Time = Time;
+	str_copy(Tmp->m_aTimestamp, pTimestamp, sizeof(Tmp->m_aTimestamp));
+	FormatUuid(GameServer()->GameUuid(), Tmp->m_aGameUuid, sizeof(Tmp->m_aGameUuid));
+	str_copy(Tmp->m_aMap, Server()->GetMapName(), sizeof(Tmp->m_aMap));
+	Tmp->m_TeamrankUuid = RandomUuid();
+
+	m_pPool->ExecuteWrite(CScoreWorker::SaveTeamScore, std::move(Tmp), "save team score");
 }

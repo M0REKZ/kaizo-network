@@ -69,6 +69,7 @@ CCharacter::CCharacter(CGameWorld *pWorld, CNetObj_PlayerInput LastInput) :
 
 	m_KaizoNetworkChar.m_RealCurrentWeapon = -1;
 	m_Core.m_pKaizoNetworkChar = &m_KaizoNetworkChar; //+KZ
+	m_PrevVelKZ = m_Core.m_Vel;
 }
 
 CCharacter::~CCharacter()
@@ -379,6 +380,9 @@ void CCharacter::HandleNinja()
 		//+KZ: Ninja dont skip quads
 		Collision()->PushBoxOutsideQuads(&m_Core.m_Pos, &m_Core.m_Vel, vec2(GetProximityRadius(), GetProximityRadius()), &m_Core);
 		Collision()->MoveBox(&m_Core.m_Pos, &m_Core.m_Vel, vec2(GetProximityRadius(), GetProximityRadius()), GroundElasticity, nullptr, &m_Core.m_CharCoreParams); // KZ added m_Core
+
+		//+KZ: set prevvelocity to the real previous velocity
+		m_PrevVelKZ = m_Core.m_Vel;
 
 		// reset velocity so the client doesn't predict stuff
 		ResetVelocity();
@@ -1015,6 +1019,7 @@ void CCharacter::Tick()
 
 	//+KZ
 	m_StillPressingFire = (m_Input.m_Fire & 1);
+	m_PrevVelKZ = m_Core.m_Vel;
 }
 
 void CCharacter::TickDeferred()

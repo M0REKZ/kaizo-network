@@ -74,6 +74,7 @@ public:
 
 	//+KZ
 	void SaveScoreFloat(int ClientId, float Time, const char *pTimestamp, const float aTimeCp[NUM_CHECKPOINTS], bool NotEligible);
+	void SaveTeamScoreFloat(int Team, int *pClientIds, unsigned int Size, float Time, const char *pTimestamp);
 };
 
 #endif // GAME_SERVER_SCORE_H

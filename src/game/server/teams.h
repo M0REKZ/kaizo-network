@@ -9,6 +9,8 @@
 #include <game/team_state.h>
 #include <game/teamscore.h>
 
+#include "classes_kz.h"
+
 class CCharacter;
 class CPlayer;
 struct CScoreSaveResult;
@@ -119,6 +121,9 @@ public:
 	bool GetSaving(int TeamId) const;
 	void SetPractice(int Team, bool Enabled);
 	bool IsPractice(int Team);
+
+	//+KZ
+	CKZSubTickKeep m_aKZSubTickKeep[NUM_DDRACE_TEAMS];
 };
 
 #endif
