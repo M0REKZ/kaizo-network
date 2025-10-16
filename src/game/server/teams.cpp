@@ -41,6 +41,9 @@ void CGameTeams::Reset()
 		if(m_pGameContext->PracticeByDefault())
 			m_aPractice[i] = true;
 		ResetRoundState(i);
+
+		//+KZ
+		m_aTeamTimeOverride[i] = -1.f;
 	}
 }
 
@@ -714,7 +717,12 @@ void CGameTeams::OnTeamFinish(int Team, CPlayer **Players, unsigned int Size, in
 		float Time = (float)TimeTicks/Server()->TickSpeed();
 		float OrigTime = Time;
 		//+KZ subtick time
-		if(m_aKZSubTickKeep[Team].m_FinishSubTick >= 0)
+		if(m_aTeamTimeOverride[Team] >= 0)
+		{
+			Time = m_aTeamTimeOverride[Team];
+			m_aTeamTimeOverride[Team] = -1.f;
+		}
+		else if(m_aKZSubTickKeep[Team].m_FinishSubTick >= 0)
 		{
 			printf(" ticks %d %d\n",m_aKZSubTickKeep[Team].m_StartSubTick,m_aKZSubTickKeep[Team].m_FinishSubTick);
 	
@@ -780,7 +788,7 @@ void CGameTeams::OnTeamFinish(int Team, CPlayer **Players, unsigned int Size, in
 	}
 
 	if(Size >= (unsigned int)g_Config.m_SvMinTeamSize)
-		GameServer()->Score()->SaveTeamScore(Team, aPlayerCids, Size, TimeTicks, pTimestamp);
+		GameServer()->Score()->SaveTeamScoreFloat(Team, aPlayerCids, Size, Time, pTimestamp);
 }
 
 void CGameTeams::OnFinish(CPlayer *Player, int TimeTicks, const char *pTimestamp)
@@ -793,7 +801,44 @@ void CGameTeams::OnFinish(CPlayer *Player, int TimeTicks, const char *pTimestamp
 	float OrigTime = Time;
 
 	//+KZ subtick time
-	if(Player->GetCharacter() && Player->GetCharacter()->m_FinishSubTick >= 0)
+	if(m_Core.Team(Player->GetCid()))
+	{
+		int Team = m_Core.Team(Player->GetCid());
+		//Time = m_aTeamTimeOverride[m_Core.Team(Player->GetCid())];
+		if(m_aKZSubTickKeep[Team].m_FinishSubTick >= 0)
+		{
+			printf(" ticks %d %d\n",m_aKZSubTickKeep[Team].m_StartSubTick,m_aKZSubTickKeep[Team].m_FinishSubTick);
+	
+			if(m_aKZSubTickKeep[Team].m_FinishedTickKZ >=0 && (m_aKZSubTickKeep[Team].m_FinishedTickKZ == m_aKZSubTickKeep[Team].m_StartedTickKZ)) //in the same tick
+			{
+				float IntervalTime = ((float)(m_aKZSubTickKeep[Team].m_FinishSubTick - m_aKZSubTickKeep[Team].m_StartSubTick)/m_aKZSubTickKeep[Team].m_StartDivisor);
+				IntervalTime /= (float)Server()->TickSpeed();
+				printf("IntervalTick %d Result %f\n",(m_aKZSubTickKeep[Team].m_FinishSubTick - m_aKZSubTickKeep[Team].m_StartSubTick), IntervalTime);
+				Time = IntervalTime;
+			}
+			else //different ticks
+			{
+				//Time = (TimeTicks - 1) / (float)Server()->TickSpeed();
+
+				if(m_aKZSubTickKeep[Team].m_StartSubTick >= 0)
+				{
+					float MinusTime = 1.0f - ((float)m_aKZSubTickKeep[Team].m_StartSubTick/m_aKZSubTickKeep[Team].m_StartDivisor);
+					MinusTime /= (float)Server()->TickSpeed();
+					printf("Startsubtick %d FinalSubtick %d Result %f\n",m_aKZSubTickKeep[Team].m_StartSubTick,m_aKZSubTickKeep[Team].m_StartDivisor,MinusTime);
+					Time += MinusTime;
+				}
+
+				if(m_aKZSubTickKeep[Team].m_FinishSubTick >= 0)
+				{
+					float MinusTime = ((float)m_aKZSubTickKeep[Team].m_FinishSubTick/m_aKZSubTickKeep[Team].m_FinishDivisor);
+					MinusTime /= (float)Server()->TickSpeed();
+					printf("Finishsubtick %d FinalSubtick %d Result %f\n",m_aKZSubTickKeep[Team].m_FinishSubTick,m_aKZSubTickKeep[Team].m_FinishDivisor, MinusTime);
+					Time += MinusTime;
+				}
+			}
+		}
+	}
+	else if(Player->GetCharacter() && Player->GetCharacter()->m_FinishSubTick >= 0)
 	{
 		if(Player->GetCharacter()->m_FinishedTickKZ >=0 && (Player->GetCharacter()->m_FinishedTickKZ == Player->GetCharacter()->m_StartedTickKZ)) //in the same tick
 		{
@@ -801,6 +846,11 @@ void CGameTeams::OnFinish(CPlayer *Player, int TimeTicks, const char *pTimestamp
 			IntervalTime /= (float)Server()->TickSpeed();
 			printf("IntervalTick %d Result %f\n",(Player->GetCharacter()->m_FinishSubTick - Player->GetCharacter()->m_StartSubTick), IntervalTime);
 			Time = IntervalTime;
+
+			if(m_Core.Team(Player->GetCid()))
+			{
+				m_aTeamTimeOverride[m_Core.Team(Player->GetCid())] = IntervalTime;
+			}
 		}
 		else //different ticks
 		{

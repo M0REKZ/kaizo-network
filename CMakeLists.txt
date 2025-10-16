@@ -2020,6 +2020,8 @@ set_src(BASE GLOB_RECURSE src/base
   hash_ctxt.h
   hash_libtomcrypt.cpp
   hash_openssl.cpp
+  helper_kz.cpp
+  helper_kz.h
   lock.h
   log.cpp
   log.h

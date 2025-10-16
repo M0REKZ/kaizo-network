@@ -124,6 +124,7 @@ public:
 
 	//+KZ
 	CKZSubTickKeep m_aKZSubTickKeep[NUM_DDRACE_TEAMS];
+	float m_aTeamTimeOverride[NUM_DDRACE_TEAMS];
 };
 
 #endif
