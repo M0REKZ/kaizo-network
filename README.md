@@ -1,15 +1,15 @@
-# KAIZO NETWORK HAS BEEN DISCONTINUED, FEEL FREE TO FORK THIS, BUT KEEP YOUR FORK SOURCE CODE PUBLIC AS THE LICENSE SAYS
-
 ![](https://m0rekz.github.io/Kaizo-Network/img/g135.png)
 
 * [Website](https://m0rekz.github.io/Kaizo-Network/)
 * [Discord Server](https://m0rekz.github.io/discord.html)
 
-This is the source code for Kaizo Network by +KZ, based on DDNet
+This is the source code for Kaizo Client by +KZ, based on Kaizo Network Client, which is based on DDNet
 
-Make sure to follow the terms of the new license if you use Kaizo Network specific code.
+For the discontinued Kaizo Network server check [discontinued-server branch](https://github.com/M0REKZ/kaizo-network/tree/discontinued-server)
 
-I tried to separate Kaizo Network code from DDNet code but that is not possible in some cases.
+Make sure to follow the terms of the new license if you use Kaizo Client specific code.
+
+I tried to separate Kaizo Client code from DDNet code but that is not possible in some cases.
 
 This repo also uses code from the following mods that are NOT made by +KZ:
 
