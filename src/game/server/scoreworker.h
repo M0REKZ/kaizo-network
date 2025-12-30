@@ -48,7 +48,7 @@ struct CScorePlayerResult : ISqlResult
 		char m_aBroadcast[1024];
 		struct
 		{
-			std::optional<double> m_Time; //+KZ modified double
+			std::optional<float> m_Time;
 			float m_aTimeCp[NUM_CHECKPOINTS];
 			int m_Birthday; // 0 indicates no birthday
 			char m_aRequestedPlayer[MAX_NAME_LENGTH];
@@ -66,11 +66,7 @@ struct CScorePlayerResult : ISqlResult
 
 struct CScoreLoadBestTimeResult : ISqlResult
 {
-	CScoreLoadBestTimeResult() :
-		m_CurrentRecord(0)
-	{
-	}
-	double m_CurrentRecord; //+KZ modified double
+	std::optional<float> m_CurrentRecord = std::nullopt;
 };
 
 struct CSqlLoadBestTimeRequest : ISqlData
@@ -140,7 +136,7 @@ struct CSqlScoreData : ISqlData
 	char m_aName[MAX_MAP_LENGTH];
 
 	int m_ClientId;
-	double m_Time; //+KZ modified double
+	float m_Time;
 	char m_aTimestamp[TIMESTAMP_STR_LENGTH];
 	float m_aCurrentTimeCp[NUM_CHECKPOINTS];
 	int m_Num;
@@ -191,7 +187,7 @@ struct CSqlTeamScoreData : ISqlData
 
 	char m_aGameUuid[UUID_MAXSTRSIZE];
 	char m_aMap[MAX_MAP_LENGTH];
-	double m_Time; //+KZ modified double
+	float m_Time;
 	char m_aTimestamp[TIMESTAMP_STR_LENGTH];
 	unsigned int m_Size;
 	char m_aaNames[MAX_CLIENTS][MAX_NAME_LENGTH];
@@ -238,14 +234,14 @@ public:
 
 	void Reset()
 	{
-		m_BestTime = 0;
+		m_BestTime.reset();
 		for(float &BestTimeCp : m_aBestTimeCp)
 			BestTimeCp = 0;
 
 		m_RecordStopTick = -1;
 	}
 
-	void Set(double Time, const float aTimeCp[NUM_CHECKPOINTS]) //+KZ modified double
+	void Set(float Time, const float aTimeCp[NUM_CHECKPOINTS])
 	{
 		m_BestTime = Time;
 		for(int i = 0; i < NUM_CHECKPOINTS; i++)
@@ -258,11 +254,11 @@ public:
 			m_aBestTimeCp[i] = aTimeCp[i];
 	}
 
-	double m_BestTime; //+KZ modified double
+	std::optional<float> m_BestTime;
 	float m_aBestTimeCp[NUM_CHECKPOINTS];
 
 	int m_RecordStopTick;
-	double m_RecordFinishTime; //+KZ modified double
+	float m_RecordFinishTime;
 };
 
 struct CTeamrank
@@ -317,10 +313,6 @@ struct CScoreWorker
 
 	static bool SaveScore(IDbConnection *pSqlServer, const ISqlData *pGameData, Write w, char *pError, int ErrorSize);
 	static bool SaveTeamScore(IDbConnection *pSqlServer, const ISqlData *pGameData, Write w, char *pError, int ErrorSize);
-
-	//+KZ
-	static bool SaveKaizoTeam(IDbConnection *pSqlServer, const ISqlData *pGameData, Write w, char *pError, int ErrorSize, const char * apCode);
-	static bool LoadKaizoTeam(IDbConnection *pSqlServer, const ISqlData *pGameData, Write w, char *pError, int ErrorSize);
 };
 
 #endif // GAME_SERVER_SCOREWORKER_H

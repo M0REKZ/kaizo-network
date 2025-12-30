@@ -12,7 +12,7 @@
 #include <game/server/gamecontext.h>
 #include <game/server/gamemodes/DDRace.h>
 
-CLaser::CLaser(CGameWorld *pGameWorld, vec2 Pos, vec2 Direction, float StartEnergy, int Owner, int Type, SKZLaserParams *pParams) :
+CLaser::CLaser(CGameWorld *pGameWorld, vec2 Pos, vec2 Direction, float StartEnergy, int Owner, int Type) :
 	CEntity(pGameWorld, CGameWorld::ENTTYPE_LASER)
 {
 	m_Pos = Pos;
@@ -31,20 +31,6 @@ CLaser::CLaser(CGameWorld *pGameWorld, vec2 Pos, vec2 Direction, float StartEner
 	CCharacter *pOwnerChar = GameServer()->GetPlayerChar(m_Owner);
 	m_TeamMask = pOwnerChar ? pOwnerChar->TeamMask() : CClientMask();
 	m_BelongsToPracticeTeam = pOwnerChar && pOwnerChar->Teams()->IsPractice(pOwnerChar->Team());
-
-	//+KZ
-	if(pOwnerChar && (pOwnerChar->m_ForcedTuneKZ || pOwnerChar->m_TuneZoneOverrideKZ >= 0))
-	{
-		if(pOwnerChar->m_TuneZoneOverrideKZ >= 0 && !m_TuneZone) //+KZ
-			m_TuneZone = pOwnerChar->m_TuneZoneOverrideKZ;
-		else if(pOwnerChar->m_ForcedTuneKZ)
-			m_TuneZone = pOwnerChar->m_TuneZone;
-	}
-
-	if(pParams)
-	{
-		m_IsRecoverJump = pParams->m_IsRecoverJump;
-	}
 
 	GameWorld()->InsertEntity(this);
 	DoBounce();
@@ -105,30 +91,11 @@ bool CLaser::HitCharacter(vec2 From, vec2 To)
 		pHit->UnFreeze();
 	}
 	pHit->TakeDamage(vec2(0, 0), 0, m_Owner, m_Type);
-
-	//+KZ Recover jump
-
-	if(m_IsRecoverJump)
-	{
-		pHit->GetCoreKZ().m_Jumped = 0;
-		pHit->GetCoreKZ().m_JumpedTotal = 0;
-	}
-
 	return true;
 }
 
 void CLaser::DoBounce()
 {
-	// KZ
-	CCharacter *pOwnerChar = GameServer()->GetPlayerChar(m_Owner); 
-	CCharacterCore *pOwnerCore = nullptr;
-
-	if(pOwnerChar)
-	{
-		pOwnerCore = (CCharacterCore *)pOwnerChar->Core();
-	}
-	// End KZ
-
 	m_EvalTick = Server()->Tick();
 
 	if(m_Energy < 0)
@@ -151,107 +118,7 @@ void CLaser::DoBounce()
 
 	vec2 To = m_Pos + m_Dir * m_Energy;
 
-	//+KZ
-	SKZColTeleWeaponParams ParamsKZ;
-	ParamsKZ.From = m_Pos;
-	ParamsKZ.To = To;
-	ParamsKZ.Type = m_Type;
-	ParamsKZ.OwnerId = m_Owner;
-	ParamsKZ.BounceNum = m_Bounces;
-	SKZColCharCoreParams ParamsKZ2;
-	ParamsKZ.pCharCoreParams = &ParamsKZ2;
-	ParamsKZ2.pCore = pOwnerCore;
-
-	SKZQuadData *pQuadData = nullptr;
-	vec2 QuadColPos;
-	vec2 LineStart;
-
-	if(g_Config.m_SvGoresQuadsEnable)
-		pQuadData = Collision()->IntersectQuadTeleWeapon(m_Pos,To, &QuadColPos, &LineStart);
-	Res = GameServer()->Collision()->IntersectLineTeleWeapon(m_Pos, To, &Coltile, &To, &z, &ParamsKZ); // KZ added ParamsKZ
-
-	bool quadbounce = false;
-
-	if(pQuadData && Res)
-	{
-		if(distance(m_Pos, QuadColPos) < distance(m_Pos, To))
-		{
-			quadbounce = true;
-		}
-	}
-	else if(pQuadData)
-	{
-		quadbounce = true;
-	}
-
-	if(quadbounce)
-	{
-		int Index = GameServer()->Collision()->QuadTypeToTileId(pQuadData);
-
-		if(Index == -1) //Kaizo-Insta Quad
-		{
-			Index = pQuadData->m_pQuad->m_ColorEnvOffset;
-		}
-
-		if(pQuadData->m_pQuad && (g_Config.m_SvOldTeleportWeapons ? (Index == TILE_TELEIN) : (Index == TILE_TELEINWEAPON)) && !GameServer()->Collision()->TeleOuts(pQuadData->m_pQuad->m_aColors[0].r - 1).empty())
-		{
-			int TeleOut = GameServer()->m_World.m_Core.RandomOr0(GameServer()->Collision()->TeleOuts(pQuadData->m_pQuad->m_aColors[0].r - 1).size());
-			m_TelePos = GameServer()->Collision()->TeleOuts(pQuadData->m_pQuad->m_aColors[0].r - 1)[TeleOut];
-			m_WasTele = true;
-		}
-
-		Res = 0;
-		vec2 OldDir = m_Dir;
-		m_Dir = normalize(Collision()->ReflexLineOnLine(m_Pos, QuadColPos, LineStart));
-		if(m_WasTele)
-			m_Dir = OldDir;
-		m_From = m_Pos;
-		m_Pos = QuadColPos + normalize(m_Pos - QuadColPos);
-
-		const float Distance = distance(m_From, m_Pos);
-		// Prevent infinite bounces
-		if(Distance == 0.0f && m_ZeroEnergyBounceInLastTick)
-		{
-			m_Energy = -1;
-		}
-		else if(!m_TuneZone)
-		{
-			m_Energy -= Distance + Tuning()->m_LaserBounceCost;
-		}
-		else
-		{
-			m_Energy -= distance(m_From, m_Pos) + GameServer()->TuningList()[m_TuneZone].m_LaserBounceCost;
-		}
-
-		int BounceNum = Tuning()->m_LaserBounceNum;
-		if(m_TuneZone)
-			BounceNum = TuningList()[m_TuneZone].m_LaserBounceNum;
-		
-		if(m_Bounces > BounceNum)
-			m_Energy = -1;
-
-		m_ZeroEnergyBounceInLastTick = Distance == 0.0f;
-
-		GameServer()->CreateSound(m_Pos, SOUND_LASER_BOUNCE, m_TeamMask);
-		return;
-	}
-
-	if(m_Bounces != ParamsKZ.BounceNum)
-	{
-		m_Bounces = ParamsKZ.BounceNum;
-
-		int BounceNum = Tuning()->m_LaserBounceNum;
-		if(m_TuneZone)
-			BounceNum = TuningList()[m_TuneZone].m_LaserBounceNum;
-		if(m_Bounces > BounceNum)
-		{
-			m_Energy = -1;
-			m_From = m_Pos;
-			m_Pos = To;
-		}
-		GameServer()->CreateSound(m_Pos, SOUND_LASER_BOUNCE, m_TeamMask);
-		return;
-	}
+	Res = GameServer()->Collision()->IntersectLineTeleWeapon(m_Pos, To, &Coltile, &To, &z);
 
 	if(Res)
 	{
@@ -270,7 +137,7 @@ void CLaser::DoBounce()
 				f = GameServer()->Collision()->GetTile(round_to_int(Coltile.x), round_to_int(Coltile.y));
 				GameServer()->Collision()->SetCollisionAt(round_to_int(Coltile.x), round_to_int(Coltile.y), TILE_SOLID);
 			}
-			GameServer()->Collision()->MovePoint(&TempPos, &TempDir, 1.0f, nullptr, &ParamsKZ2); // KZ added ParamsKZ2
+			GameServer()->Collision()->MovePoint(&TempPos, &TempDir, 1.0f, nullptr);
 			if(Res == -1)
 			{
 				GameServer()->Collision()->SetCollisionAt(round_to_int(Coltile.x), round_to_int(Coltile.y), f);
@@ -320,7 +187,7 @@ void CLaser::DoBounce()
 		}
 	}
 
-	//CCharacter *pOwnerChar = GameServer()->GetPlayerChar(m_Owner); //KZ
+	CCharacter *pOwnerChar = GameServer()->GetPlayerChar(m_Owner);
 	if(m_Owner >= 0 && m_Energy <= 0 && !m_TeleportCancelled && pOwnerChar &&
 		pOwnerChar->IsAlive() && pOwnerChar->HasTelegunLaser() && m_Type == WEAPON_LASER)
 	{

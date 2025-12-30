@@ -62,8 +62,8 @@ protected:
 		float m_Score;
 	};
 
-	float EvaluateSpawnPos(CSpawnEval *pEval, vec2 Pos, int DDTeam);
-	void EvaluateSpawnType(CSpawnEval *pEval, ESpawnType SpawnType, int DDTeam);
+	float EvaluateSpawnPos(CSpawnEval *pEval, vec2 Pos, int ClientId);
+	void EvaluateSpawnType(CSpawnEval *pEval, ESpawnType SpawnType, int ClientId);
 
 	void ResetGame();
 
@@ -106,7 +106,7 @@ public:
 	virtual void OnCharacterSpawn(class CCharacter *pChr);
 
 	virtual void HandleCharacterTiles(class CCharacter *pChr, int MapIndex);
-	virtual void SetArmorProgress(CCharacter *pCharacter, int Progress){};
+	virtual void SetArmorProgress(CCharacter *pCharacter, int Progress) {}
 
 	/*
 		Function: OnEntity
@@ -141,8 +141,52 @@ public:
 
 	virtual void Snap(int SnappingClient);
 
-	//spawn
-	virtual bool CanSpawn(int Team, vec2 *pOutPos, int DDTeam);
+	/**
+	 * Sets the score value that will be shown in the scoreboard.
+	 *
+	 * @param SnappingClient Client ID of the player that will receive the snapshot.
+	 * @param pPlayer Player that is being snapped.
+	 *
+	 * @return the score value that will be included in the snapshot.
+	 */
+	virtual int SnapPlayerScore(int SnappingClient, CPlayer *pPlayer) { return 0; }
+
+	class CFinishTime
+	{
+	public:
+		CFinishTime(int Seconds, int Milliseconds) :
+			m_Seconds(Seconds), m_Milliseconds(Milliseconds)
+		{
+			dbg_assert(Seconds >= 0, "Invalid Seconds: %d", Seconds);
+			dbg_assert(Milliseconds >= 0 && Milliseconds < 1000, "Invalid Milliseconds: %d", Milliseconds);
+		}
+
+		int m_Seconds;
+		int m_Milliseconds;
+
+		static CFinishTime Unset() { return CFinishTime(FinishTime::UNSET); }
+		static CFinishTime NotFinished() { return CFinishTime(FinishTime::NOT_FINISHED_MILLIS); }
+
+	private:
+		CFinishTime(int Type)
+		{
+			m_Seconds = Type;
+			m_Milliseconds = 0;
+		}
+	};
+
+	/**
+	 * Returns the finish time value that will be shown in the scoreboard.
+	 *
+	 * @param SnappingClient Client ID of the player that will receive the snapshot.
+	 * @param pPlayer Player that is being snapped.
+	 *
+	 * @return The time split into seconds and the milliseconds remainder, use CFinishTime::Unset if you want the server to prefer scores.
+	 */
+	virtual CFinishTime SnapPlayerTime(int SnappingClient, CPlayer *pPlayer) { return CFinishTime::Unset(); }
+
+	// spawn
+	virtual bool CanSpawn(int Team, vec2 *pOutPos, int ClientId);
 
 	virtual void DoTeamChange(class CPlayer *pPlayer, int Team, bool DoChatMsg = true);
 
@@ -151,29 +195,19 @@ public:
 	/*
 
 	*/
+	virtual bool IsValidTeam(int Team);
 	virtual const char *GetTeamName(int Team);
 	virtual int GetAutoTeam(int NotThisId);
 	virtual bool CanJoinTeam(int Team, int NotThisId, char *pErrorReason, int ErrorReasonSize);
-	virtual int ClampTeam(int Team);
 
 	CClientMask GetMaskForPlayerWorldEvent(int Asker, int ExceptID = -1);
 
 	bool IsTeamPlay() const { return m_GameFlags & GAMEFLAG_TEAMS; }
 	// DDRace
 
-	double m_CurrentRecord; //+KZ to double
+	std::optional<float> m_CurrentRecord;
 	CGameTeams &Teams() { return m_Teams; }
 	std::shared_ptr<CScoreLoadBestTimeResult> m_pLoadBestTimeResult;
-
-	// KZ
-	virtual bool OnEntityKZ(int Index, int x, int y, int Layer, int Flags, bool Initial, unsigned char Number = 0, int64_t Value1 = 0, int64_t Value2 = 0, int64_t Value3 = 0) { return false; };
-	virtual void OnNewRecordKZ(int ClientId, double Time, double PrevTime) {};
-	virtual void HandleCharacterQuad(CCharacter *pChr, SKZQuadData *pQuadData) {};
-	virtual bool HandleCharacterSubTickStart(CCharacter *pChr, vec2 Pos, int SubTick, int Divisor) { return false; };
-	virtual bool HandleCharacterSubTickFinish(CCharacter *pChr, vec2 Pos, int SubTick, int Divisor) { return false; };
-	bool m_ShowHealth = false;
-	//Time for Moving tiles:
-	double GetTime() { return static_cast<double>(Server()->Tick() - m_RoundStartTick)/Server()->TickSpeed(); }
 };
 
 #endif

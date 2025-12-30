@@ -295,23 +295,6 @@ public:
 	virtual const char *GetMapName() const = 0;
 
 	virtual bool IsSixup(int ClientId) const = 0;
-
-	//+KZ
-	virtual int GetKaizoNetworkVersion(int ClientId) { return 0; } //+KZ: identify kaizo network clients
-
-	virtual int GetClientInfclassVersion(int ClientId) { return 0; } //identify infclass clients
-	virtual bool IsTaterClient(int ClientId) { return false; } // identify tater clients
-	virtual bool IsQxdClient(int ClientId) { return false; } // identify qxd clients
-	virtual bool IsChillerbotClient(int ClientId) { return false; } // identify chillerbot clients
-	virtual bool IsStAClient(int ClientId) { return false; } // identify StA clients
-	virtual bool IsAllTheHaxxClient(int ClientId) { return false; } // identify allthehaxx clients
-	virtual bool IsPulseClient(int ClientId) { return false; } // identify pulse clients
-	virtual bool IsCactusClient(int ClientId) { return false; } // identify Cactus clients
-	virtual bool IsAiodobClient(int ClientId) { return false; } // identify Aiodob clients
-	virtual bool IsFexClient(int ClientId) { return false; } // identify FeX clients
-	virtual bool IsRushieClient(int ClientId) { return false; } // identify Rushie clients
-	virtual bool IsSClientClient(int ClientId) { return false; } // identify SClient clients
-
 };
 
 class IGameServer : public IInterface
@@ -410,9 +393,6 @@ public:
 	 * @param ClientId The client ID.
 	 */
 	virtual void OnUpdatePlayerServerInfo(CJsonWriter *pJsonWriter, int ClientId) = 0;
-
-	//+KZ
-	virtual void SetPlayerLastAckedTick(int ClientId, int Tick) = 0;
 };
 
 extern IGameServer *CreateGameServer();

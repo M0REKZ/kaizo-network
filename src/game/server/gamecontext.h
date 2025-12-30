@@ -21,8 +21,6 @@
 #include <memory>
 #include <string>
 
-#include <engine/http.h>
-
 /*
 	Tick
 		Game Context (CGameContext::tick)
@@ -284,7 +282,7 @@ public:
 	void CreateSoundGlobal(int Sound, int Target = -1) const;
 
 	void SnapSwitchers(int SnappingClient);
-	bool SnapLaserObject(const CSnapContext &Context, int SnapId, const vec2 &To, const vec2 &From, int StartTick, int Owner = -1, int LaserType = -1, int Subtype = -1, int SwitchNumber = -1, int FlagsKZ = 0) const; //+KZ modified: added FlagsKZ
+	bool SnapLaserObject(const CSnapContext &Context, int SnapId, const vec2 &To, const vec2 &From, int StartTick, int Owner = -1, int LaserType = -1, int Subtype = -1, int SwitchNumber = -1) const;
 	bool SnapPickup(const CSnapContext &Context, int SnapId, const vec2 &Pos, int Type, int SubType, int SwitchNumber, int Flags) const;
 
 	enum
@@ -642,44 +640,6 @@ public:
 	void OnSetAuthed(int ClientId, int Level) override;
 
 	void ResetTuning();
-
-	//+KZ
-	IHttp *m_pHttp;
-	void SendDiscordChatMessage(int ClientID, const char* msg);
-	void SendDiscordRecordMessage(int ClientID, double Time, double PrevTime);
-
-	void SendGameMsg(int GameMsgId, int ClientId) const;
-	void SendGameMsg(int GameMsgId, int ParaI1, int ClientId) const;
-	void SendGameMsg(int GameMsgId, int ParaI1, int ParaI2, int ParaI3, int ClientId) const;
-
-	void CreateMapSoundEvent(vec2 Pos, int Id, CClientMask Mask = CClientMask().set());
-	void CreateMapSoundEventForClient(vec2 Pos, int Id, int ClientId, CClientMask Mask = CClientMask().set());
-
-	bool HandleClientMessage(const char *pMsg, int ClientId);
-	bool CheckBotPointer(int ClientID, const char *msg);
-
-	void RegisterKZCommands();
-
-	static void ConRejoinShutdown(IConsole::IResult *pResult, void *pUserData);
-	static void ConShowCrowns(IConsole::IResult *pResult, void *pUserData);
-
-	//+KZ Weapons
-
-	//Portal Gun
-	static void ConPortalGun(IConsole::IResult *pResult, void *pUserData);
-	static void ConUnPortalGun(IConsole::IResult *pResult, void *pUserData);
-	static void ConGetPortalGun(IConsole::IResult *pResult, void *pUserData);
-	static void ConOrangePortal(IConsole::IResult *pResult, void *pUserData);
-	static void ConBluePortal(IConsole::IResult *pResult, void *pUserData);
-	static void ConResetPortals(IConsole::IResult *pResult, void *pUserData);
-
-	//Attractor Beam
-	static void ConAttractorBeam(IConsole::IResult *pResult, void *pUserData);
-	static void ConGetAttractorBeam(IConsole::IResult *pResult, void *pUserData);
-
-	void IdentifyClientName(int ClientId, char *pName, int StrSize);
-
-	virtual void SetPlayerLastAckedTick(int ClientId, int Tick) override;
 };
 
 static inline bool CheckClientId(int ClientId)

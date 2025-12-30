@@ -23,7 +23,7 @@ struct SKZTileStateChange
 class CLayerKZGame : public CLayerTiles
 {
 public:
-	CLayerKZGame(CEditor *pEditor, int w, int h);
+	CLayerKZGame(CEditorMap *pMap, int w, int h);
 	CLayerKZGame(const CLayerKZGame &Other);
 	~CLayerKZGame();
 
@@ -59,7 +59,7 @@ protected:
 class CLayerKZFront : public CLayerKZGame
 {
 public:
-    CLayerKZFront(CEditor *pEditor, int w, int h);
+    CLayerKZFront(CEditorMap *pMap, int w, int h);
     CLayerKZFront(const CLayerKZFront &Other);
     ~CLayerKZFront() = default;
 

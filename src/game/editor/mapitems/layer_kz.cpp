@@ -4,8 +4,8 @@
 
 #include <game/editor/editor.h>
 
-CLayerKZGame::CLayerKZGame(CEditor *pEditor, int w, int h) :
-	CLayerTiles(pEditor, w, h)
+CLayerKZGame::CLayerKZGame(CEditorMap *pMap, int w, int h) :
+	CLayerTiles(pMap, w, h)
 {
 	str_copy(m_aName, KZ_GAME_LAYER_NAME);
 	m_HasKZGame = true;
@@ -49,21 +49,21 @@ void CLayerKZGame::Resize(int NewW, int NewH)
 	CLayerTiles::Resize(NewW, NewH);
 
 	// resize gamelayer too
-	if(m_pEditor->m_Map.m_pGameLayer->m_Width != NewW || m_pEditor->m_Map.m_pGameLayer->m_Height != NewH)
-		m_pEditor->m_Map.m_pGameLayer->Resize(NewW, NewH);
+	if(Map()->m_pGameLayer->m_Width != NewW || Map()->m_pGameLayer->m_Height != NewH)
+		Map()->m_pGameLayer->Resize(NewW, NewH);
 }
 
 void CLayerKZGame::Shift(EShiftDirection Direction)
 {
 	CLayerTiles::Shift(Direction);
-	ShiftImpl(m_pKZTile, Direction, m_pEditor->m_ShiftBy);
+	ShiftImpl(m_pKZTile, Direction, Map()->m_ShiftBy);
 }
 
 bool CLayerKZGame::IsEmpty() const
 {
 	for(int y = 0; y < m_Height; y++)
 		for(int x = 0; x < m_Width; x++)
-			if(m_pEditor->IsAllowPlaceUnusedTiles() || IsValidSwitchTile(GetTile(x, y).m_Index))
+			if(Editor()->IsAllowPlaceUnusedTiles() || IsValidSwitchTile(GetTile(x, y).m_Index))
 				return false;
 
 	return true;
@@ -77,15 +77,15 @@ void CLayerKZGame::BrushDraw(CLayer *pBrush, vec2 WorldPos)
 	CLayerKZGame *pSwitchLayer = static_cast<CLayerKZGame *>(pBrush);
 	int sx = ConvertX(WorldPos.x);
 	int sy = ConvertY(WorldPos.y);
-	if(str_comp(pSwitchLayer->m_aFileName, m_pEditor->m_aFileName))
+	if(str_comp(pSwitchLayer->m_aFilename, pSwitchLayer->Map()->m_aFilename))
 	{
-		m_pEditor->m_KZGameNumber = pSwitchLayer->m_Number;
-		m_pEditor->m_KZGameValue1 = pSwitchLayer->m_Value1;
-		m_pEditor->m_KZGameValue2 = pSwitchLayer->m_Value2;
-		m_pEditor->m_KZGameValue3 = pSwitchLayer->m_Value3;
+		Editor()->m_KZGameNumber = pSwitchLayer->m_Number;
+		Editor()->m_KZGameValue1 = pSwitchLayer->m_Value1;
+		Editor()->m_KZGameValue2 = pSwitchLayer->m_Value2;
+		Editor()->m_KZGameValue3 = pSwitchLayer->m_Value3;
 	}
 
-	bool Destructive = m_pEditor->m_BrushDrawDestructive || pSwitchLayer->IsEmpty();
+	bool Destructive = Editor()->m_BrushDrawDestructive || pSwitchLayer->IsEmpty();
 
 	for(int y = 0; y < pSwitchLayer->m_Height; y++)
 		for(int x = 0; x < pSwitchLayer->m_Width; x++)
@@ -113,12 +113,12 @@ void CLayerKZGame::BrushDraw(CLayer *pBrush, vec2 WorldPos)
 
 			if(pSwitchLayer->m_pTiles[SrcIndex].m_Index != TILE_AIR)
 			{
-				if(m_pEditor->m_KZGameNumber != pSwitchLayer->m_Number || m_pEditor->m_KZGameValue1 != pSwitchLayer->m_Value1 || m_pEditor->m_KZGameValue2 != pSwitchLayer->m_Value2 || m_pEditor->m_KZGameValue3 != pSwitchLayer->m_Value3)
+				if(Editor()->m_KZGameNumber != pSwitchLayer->m_Number || Editor()->m_KZGameValue1 != pSwitchLayer->m_Value1 || Editor()->m_KZGameValue2 != pSwitchLayer->m_Value2 || Editor()->m_KZGameValue3 != pSwitchLayer->m_Value3)
 				{
-					m_pKZTile[TgtIndex].m_Number = m_pEditor->m_KZGameNumber;
-					m_pKZTile[TgtIndex].m_Value1 = m_pEditor->m_KZGameValue1;
-					m_pKZTile[TgtIndex].m_Value2 = m_pEditor->m_KZGameValue2;
-					m_pKZTile[TgtIndex].m_Value3 = m_pEditor->m_KZGameValue3;
+					m_pKZTile[TgtIndex].m_Number = Editor()->m_KZGameNumber;
+					m_pKZTile[TgtIndex].m_Value1 = Editor()->m_KZGameValue1;
+					m_pKZTile[TgtIndex].m_Value2 = Editor()->m_KZGameValue2;
+					m_pKZTile[TgtIndex].m_Value3 = Editor()->m_KZGameValue3;
 				}
 				else if(pSwitchLayer->m_pKZTile[SrcIndex].m_Number)
 				{
@@ -129,10 +129,10 @@ void CLayerKZGame::BrushDraw(CLayer *pBrush, vec2 WorldPos)
 				}
 				else
 				{
-					m_pKZTile[TgtIndex].m_Number = m_pEditor->m_KZGameNumber;
-					m_pKZTile[TgtIndex].m_Value1 = m_pEditor->m_KZGameValue1;
-					m_pKZTile[TgtIndex].m_Value2 = m_pEditor->m_KZGameValue2;
-					m_pKZTile[TgtIndex].m_Value3 = m_pEditor->m_KZGameValue3;
+					m_pKZTile[TgtIndex].m_Number = Editor()->m_KZGameNumber;
+					m_pKZTile[TgtIndex].m_Value1 = Editor()->m_KZGameValue1;
+					m_pKZTile[TgtIndex].m_Value2 = Editor()->m_KZGameValue2;
+					m_pKZTile[TgtIndex].m_Value3 = Editor()->m_KZGameValue3;
 				}
 
 				m_pKZTile[TgtIndex].m_Index = pSwitchLayer->m_pTiles[SrcIndex].m_Index;
@@ -243,7 +243,7 @@ void CLayerKZGame::FillSelection(bool Empty, CLayer *pBrush, CUIRect Rect)
 
 	CLayerKZGame *pLt = static_cast<CLayerKZGame *>(pBrush);
 
-	bool Destructive = m_pEditor->m_BrushDrawDestructive || Empty || pLt->IsEmpty();
+	bool Destructive = Editor()->m_BrushDrawDestructive || Empty || pLt->IsEmpty();
 
 	for(int y = 0; y < h; y++)
 	{

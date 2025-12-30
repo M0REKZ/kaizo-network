@@ -11,10 +11,6 @@
 
 #include <optional>
 
-#include <game/mapitems.h>
-
-#include "classes_kz.h"
-
 class IGameController;
 class CGameContext;
 class CGameWorld;
@@ -156,31 +152,6 @@ private:
 	int m_ReloadTimer;
 
 	char m_aGameUuid[UUID_MAXSTRSIZE];
-
-
-	//+KZ
-
-	void SaveKZ(CCharacter *pchr, bool AddPenalty = true);
-	bool LoadKZ(CCharacter *pchr, std::optional<int> Team);
-
-	int m_Health = 10;
-	int m_CustomWeapon = 0;
-	bool m_BluePortal = true;
-	int m_TuneZoneOverrideKZ = -1; //+KZ
-	bool m_NODAMAGE = false; //+KZ
-	bool m_HasRecoverJumpLaser = false; //+KZ
-	struct
-	{
-		bool m_Got = false;
-		//int m_Snap = 0; not needed for save
-		int m_Ammo = -1;
-	} m_aCustomWeapons[KZ_NUM_CUSTOM_WEAPONS];
-
-	CKZSubTickKeep m_SavedSubtick;
-
-public:
-	char *GetKaizoString(const CSaveTeam *pTeam);
-	int FromKaizoString(const char *pString);
 };
 
 class CSaveHotReloadTee
@@ -236,11 +207,6 @@ private:
 	int m_HighestSwitchNumber = 0;
 	int m_TeamLocked = 0;
 	int m_Practice = 0;
-
-	//+KZ
-	public:
-	char *GetKaizoString();
-	int FromKaizoString(const char *pString);
 };
 
 #endif // GAME_SERVER_SAVE_H

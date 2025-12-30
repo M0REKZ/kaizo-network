@@ -78,7 +78,7 @@ public:
 	virtual bool ExecuteUpdate(int *pNumUpdated, char *pError, int ErrorSize) = 0;
 
 	virtual bool IsNull(int Col) = 0;
-	virtual double GetFloat(int Col) = 0; //+KZ to double
+	virtual float GetFloat(int Col) = 0;
 	virtual int GetInt(int Col) = 0;
 	virtual int64_t GetInt64(int Col) = 0;
 	// ensures that the string is null terminated
@@ -98,9 +98,6 @@ protected:
 	void FormatCreateMaps(char *aBuf, unsigned int BufferSize) const;
 	void FormatCreateSaves(char *aBuf, unsigned int BufferSize, bool Backup) const;
 	void FormatCreatePoints(char *aBuf, unsigned int BufferSize) const;
-
-	//+KZ
-	void FormatCreateKaizoSaves(char *aBuf, unsigned int BufferSize, bool Backup) const;
 };
 
 bool MysqlAvailable();

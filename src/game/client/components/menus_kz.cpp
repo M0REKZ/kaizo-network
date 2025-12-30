@@ -12,7 +12,6 @@
 enum
 {
 	KAIZO_SETTINGS_TAB_KAIZO = 0,
-	KAIZO_SETTINGS_TAB_BINDS,
 	KAIZO_SETTINGS_TAB_INFO,
 	NUM_KAIZO_SETTINGS_TABS,
 };
@@ -53,7 +52,6 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 	static CButtonContainer s_aPageTabs[NUM_KAIZO_SETTINGS_TABS] = {};
 	const char *apTabNames[NUM_KAIZO_SETTINGS_TABS] = {
 		Localize("Kaizo"),
-		Localize("Binds"),
 		Localize("Info"),
 		};
 
@@ -280,56 +278,6 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 				g_Config.m_KaizoShowRechargeBar ^= 1;
 			}
 			
-			break;
-		}
-		case KAIZO_SETTINGS_TAB_BINDS:
-		{
-			// this is kinda slow, but whatever
-			for(auto &Key : gs_aKeys)
-				Key.m_KeyId = Key.m_ModifierCombination = 0;
-
-			for(int Mod = 0; Mod < CBinds::MODIFIER_COMBINATION_COUNT; Mod++)
-			{
-				for(int KeyId = 0; KeyId < KEY_LAST; KeyId++)
-				{
-					const char *pBind = GameClient()->m_Binds.Get(KeyId, Mod);
-					if(!pBind[0])
-						continue;
-
-					for(auto &Key : gs_aKeys)
-						if(str_comp(pBind, Key.m_pCommand) == 0)
-						{
-							Key.m_KeyId = KeyId;
-							Key.m_ModifierCombination = Mod;
-							break;
-						}
-				}
-			}
-
-			for(int i = 0; i < NUM_KAIZO_KEYBINDS; i++)
-			{
-				const CKeyInfo &Key = gs_aKeys[i];
-
-				CUIRect BindButton, BindLabel;
-				SettingsBox.HSplitTop(20.0f, &BindButton, &SettingsBox);
-				BindButton.VSplitLeft(135.0f, &BindLabel, &BindButton);
-
-				char aBuf[64];
-				str_format(aBuf, sizeof(aBuf), "%s:", Localize(Key.m_pName));
-
-				Ui()->DoLabel(&BindLabel, aBuf, 13.0f, TEXTALIGN_ML);
-				int OldId = Key.m_KeyId, OldModifierCombination = Key.m_ModifierCombination, NewModifierCombination;
-				int NewId = GameClient()->m_KeyBinder.DoKeyReader(&Key.m_KeyId, &BindButton, OldId, OldModifierCombination, &NewModifierCombination);
-				if(NewId != OldId || NewModifierCombination != OldModifierCombination)
-				{
-					if(OldId != 0 || NewId == 0)
-						GameClient()->m_Binds.Bind(OldId, "", false, OldModifierCombination);
-					if(NewId != 0)
-						GameClient()->m_Binds.Bind(NewId, Key.m_pCommand, false, NewModifierCombination);
-				}
-
-				SettingsBox.HSplitTop(2.0f, nullptr, &SettingsBox);
-			}
 			break;
 		}
 		case KAIZO_SETTINGS_TAB_INFO:

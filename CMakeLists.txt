@@ -2810,7 +2810,6 @@ if(SERVER)
     antibot.h
     authmanager.cpp
     authmanager.h
-    databases/connection_kz.cpp
     databases/connection.cpp
     databases/connection.h
     databases/connection_pool.cpp
@@ -2822,7 +2821,6 @@ if(SERVER)
     name_ban.h
     register.cpp
     register.h
-    server_kz.cpp
     server.cpp
     server.h
     server_logger.cpp
@@ -2838,11 +2836,8 @@ if(SERVER)
   list(REMOVE_ITEM ENGINE_SERVER_WITHOUT_MAIN "${PROJECT_SOURCE_DIR}/src/engine/server/main.cpp")
 
   set_src(GAME_SERVER GLOB_RECURSE src/game/server
-    classes_kz.cpp
-    classes_kz.h
     ddracechat.cpp
     ddracecommands.cpp
-    entities/character_kz.cpp
     entities/character.cpp
     entities/character.h
     entities/door.cpp
@@ -2863,55 +2858,27 @@ if(SERVER)
     entities/plasma.h
     entities/projectile.cpp
     entities/projectile.h
-    entities/kz/fdd_stable_projectile.cpp
-    entities/kz/fdd_stable_projectile.h
-    entities/kz/flag.cpp
-    entities/kz/flag.h
-    entities/kz/kz_gun.cpp
-    entities/kz/kz_gun.h
-    entities/kz/kz_pickup.cpp
-    entities/kz/kz_pickup.h
-    entities/kz/kz_plasma.cpp
-    entities/kz/kz_plasma.h
-    entities/kz/kz_light.cpp
-    entities/kz/kz_light.h
-    entities/kz/mine.cpp
-    entities/kz/mine.h
-    entities/kz/portal.cpp
-    entities/kz/portal.h
-    entities/kz/portal_laser.cpp
-    entities/kz/portal_laser.h
-    entities/kz/portal_projectile.cpp
-    entities/kz/portal_projectile.h
     entity.cpp
     entity.h
-    eventhandler_kz.cpp
     eventhandler.cpp
     eventhandler.h
     gamecontext.cpp
     gamecontext.h
-    gamecontext_kz.cpp
     gamecontroller.cpp
     gamecontroller.h
     gamemodes/DDRace.cpp
     gamemodes/DDRace.h
     gamemodes/mod.cpp
     gamemodes/mod.h
-    gamemodes/kz/kz.cpp
-    gamemodes/kz/kz.h
     gameworld.cpp
     gameworld.h
     mutes.cpp
-    player_kz.cpp
     player.cpp
     player.h
     save.cpp
     save.h
-    save_kz.cpp
-    score_kz.cpp
     score.cpp
     score.h
-    scoreworker_kz.cpp
     scoreworker.cpp
     scoreworker.h
     teams.cpp

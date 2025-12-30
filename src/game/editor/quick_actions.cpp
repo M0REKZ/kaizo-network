@@ -261,24 +261,24 @@ void CEditor::TestMapLocally()
 
 void CEditor::AddKZGameLayer()
 {
-	std::shared_ptr<CLayer> pKZGameLayer = std::make_shared<CLayerKZGame>(this, m_Map.m_pGameLayer->m_Width, m_Map.m_pGameLayer->m_Height);
+	std::shared_ptr<CLayer> pKZGameLayer = std::make_shared<CLayerKZGame>(Map(), Map()->m_pGameLayer->m_Width, Map()->m_pGameLayer->m_Height);
 	if(pKZGameLayer)
 		printf("KZGameLayer created\n");
-	m_Map.MakeKZGameLayer(pKZGameLayer);
-	m_Map.m_vpGroups[m_SelectedGroup]->AddLayer(pKZGameLayer);
-	int LayerIndex = m_Map.m_vpGroups[m_SelectedGroup]->m_vpLayers.size() - 1;
+	Map()->MakeKZGameLayer(pKZGameLayer);
+	Map()->m_vpGroups[m_SelectedGroup]->AddLayer(pKZGameLayer);
+	int LayerIndex = Map()->m_vpGroups[m_SelectedGroup]->m_vpLayers.size() - 1;
 	SelectLayer(LayerIndex);
 	m_pBrush->Clear();
-	m_EditorHistory.RecordAction(std::make_shared<CEditorActionAddLayer>(this, m_SelectedGroup, LayerIndex));
+	Map()->m_EditorHistory.RecordAction(std::make_shared<CEditorActionAddLayer>(Map(), m_SelectedGroup, LayerIndex));
 }
 
 void CEditor::AddKZFrontLayer()
 {
-	std::shared_ptr<CLayer> pKZFrontLayer = std::make_shared<CLayerKZFront>(this, m_Map.m_pGameLayer->m_Width, m_Map.m_pGameLayer->m_Height);
-	m_Map.MakeKZFrontLayer(pKZFrontLayer);
-	m_Map.m_vpGroups[m_SelectedGroup]->AddLayer(pKZFrontLayer);
-	int LayerIndex = m_Map.m_vpGroups[m_SelectedGroup]->m_vpLayers.size() - 1;
+	std::shared_ptr<CLayer> pKZFrontLayer = std::make_shared<CLayerKZFront>(Map(), Map()->m_pGameLayer->m_Width, Map()->m_pGameLayer->m_Height);
+	Map()->MakeKZFrontLayer(pKZFrontLayer);
+	Map()->m_vpGroups[m_SelectedGroup]->AddLayer(pKZFrontLayer);
+	int LayerIndex = Map()->m_vpGroups[m_SelectedGroup]->m_vpLayers.size() - 1;
 	SelectLayer(LayerIndex);
 	m_pBrush->Clear();
-	m_EditorHistory.RecordAction(std::make_shared<CEditorActionAddLayer>(this, m_SelectedGroup, LayerIndex));
+	Map()->m_EditorHistory.RecordAction(std::make_shared<CEditorActionAddLayer>(Map(), m_SelectedGroup, LayerIndex));
 }

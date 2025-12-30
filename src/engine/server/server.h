@@ -88,22 +88,6 @@ class CServer : public IServer
 	void UpdateDebugDummies(bool ForceDisconnect);
 #endif
 
-	virtual int GetKaizoNetworkVersion(int ClientId) override; // +KZ Kaizo Network client version
-
-	//Other Clients
-	virtual int GetClientInfclassVersion(int ClientId) override;
-	virtual bool IsTaterClient(int ClientId) override { return m_aClients[ClientId].m_IsTaterClient; }
-	virtual bool IsQxdClient(int ClientId) override { return m_aClients[ClientId].m_IsQxdClient; }
-	virtual bool IsChillerbotClient(int ClientId) override { return m_aClients[ClientId].m_IsChillerbotClient; }
-	virtual bool IsStAClient(int ClientId) override { return m_aClients[ClientId].m_IsStAClient; }
-	virtual bool IsAllTheHaxxClient(int ClientId) override { return m_aClients[ClientId].m_IsAllTheHaxxClient; }
-	virtual bool IsPulseClient(int ClientId) override { return m_aClients[ClientId].m_IsPulseClient; }
-	virtual bool IsCactusClient(int ClientId) override { return m_aClients[ClientId].m_IsCactusClient; }
-	virtual bool IsAiodobClient(int ClientId) override { return m_aClients[ClientId].m_IsAiodobClient; }
-	virtual bool IsFexClient(int ClientId) override { return m_aClients[ClientId].m_IsFexClient; }
-	virtual bool IsRushieClient(int ClientId) override { return m_aClients[ClientId].m_IsRushieClient; }
-	virtual bool IsSClientClient(int ClientId) override { return m_aClients[ClientId].m_IsSClientClient; }
-
 public:
 	class IGameServer *GameServer() { return m_pGameServer; }
 	class CConfig *Config() { return m_pConfig; }
@@ -155,7 +139,6 @@ public:
 		public:
 			int m_aData[MAX_INPUT_SIZE];
 			int m_GameTick; // the tick that was chosen for the input
-			int m_AckedTick; // +KZ: the tick that client last received
 		};
 
 		// connection state info
@@ -190,22 +173,6 @@ public:
 		NETADDR m_DebugDummyAddr;
 		std::array<char, NETADDR_MAXSTRSIZE> m_aDebugDummyAddrString;
 		std::array<char, NETADDR_MAXSTRSIZE> m_aDebugDummyAddrStringNoPort;
-
-		//+KZ
-		int m_KaizoNetworkVersion; // +KZ: Kaizo Network client version
-
-		int m_InfClassVersion; // to identify infclass clients
-		bool m_IsTaterClient; // to identify tater clients
-		bool m_IsQxdClient; // to identify qxd clients
-		bool m_IsChillerbotClient; // to identify chillerbot clients
-		bool m_IsStAClient; // to identify StA clients
-		bool m_IsAllTheHaxxClient; // to identify allthehaxx clients
-		bool m_IsPulseClient; // to identify pulse clients
-		bool m_IsCactusClient; // to identify Cactus clients
-		bool m_IsAiodobClient; // to identify Aiodob clients
-		bool m_IsFexClient; // to identify FeX clients
-		bool m_IsRushieClient; // to identify Rushie clients
-		bool m_IsSClientClient; // to identify SClient clients
 
 		const IConsole::ICommandInfo *m_pRconCmdToSend;
 		enum

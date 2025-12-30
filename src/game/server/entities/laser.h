@@ -4,12 +4,11 @@
 #define GAME_SERVER_ENTITIES_LASER_H
 
 #include <game/server/entity.h>
-#include <game/params_kz.h> //+KZ
 
 class CLaser : public CEntity
 {
 public:
-	CLaser(CGameWorld *pGameWorld, vec2 Pos, vec2 Direction, float StartEnergy, int Owner, int Type, SKZLaserParams *pParams = nullptr);
+	CLaser(CGameWorld *pGameWorld, vec2 Pos, vec2 Direction, float StartEnergy, int Owner, int Type);
 
 	void Reset() override;
 	void Tick() override;
@@ -43,9 +42,6 @@ private:
 	bool m_TeleportCancelled;
 	bool m_IsBlueTeleport;
 	bool m_BelongsToPracticeTeam;
-
-	//+KZ
-	bool m_IsRecoverJump = false;
 };
 
 #endif

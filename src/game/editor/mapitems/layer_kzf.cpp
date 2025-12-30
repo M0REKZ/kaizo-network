@@ -4,8 +4,8 @@
 
 #include <game/editor/editor.h>
 
-CLayerKZFront::CLayerKZFront(CEditor *pEditor, int w, int h) :
-	CLayerKZGame(pEditor, w, h)
+CLayerKZFront::CLayerKZFront(CEditorMap *pMap, int w, int h) :
+	CLayerKZGame(pMap, w, h)
 {
 	str_copy(m_aName, KZ_FRONT_LAYER_NAME);
     m_HasKZGame = false;
@@ -34,15 +34,15 @@ void CLayerKZFront::BrushDraw(CLayer *pBrush, vec2 WorldPos)
 	CLayerKZGame *pSwitchLayer = static_cast<CLayerKZGame *>(pBrush);
 	int sx = ConvertX(WorldPos.x);
 	int sy = ConvertY(WorldPos.y);
-	if(str_comp(pSwitchLayer->m_aFileName, m_pEditor->m_aFileName))
+	if(str_comp(pSwitchLayer->m_aFilename, pSwitchLayer->Map()->m_aFilename))
 	{
-		m_pEditor->m_KZFrontNumber = pSwitchLayer->m_Number;
-		m_pEditor->m_KZFrontValue1 = pSwitchLayer->m_Value1;
-		m_pEditor->m_KZFrontValue2 = pSwitchLayer->m_Value2;
-		m_pEditor->m_KZFrontValue3 = pSwitchLayer->m_Value3;
+		Editor()->m_KZFrontNumber = pSwitchLayer->m_Number;
+		Editor()->m_KZFrontValue1 = pSwitchLayer->m_Value1;
+		Editor()->m_KZFrontValue2 = pSwitchLayer->m_Value2;
+		Editor()->m_KZFrontValue3 = pSwitchLayer->m_Value3;
 	}
 
-	bool Destructive = m_pEditor->m_BrushDrawDestructive || pSwitchLayer->IsEmpty();
+	bool Destructive = Editor()->m_BrushDrawDestructive || pSwitchLayer->IsEmpty();
 
 	for(int y = 0; y < pSwitchLayer->m_Height; y++)
 		for(int x = 0; x < pSwitchLayer->m_Width; x++)
@@ -70,12 +70,12 @@ void CLayerKZFront::BrushDraw(CLayer *pBrush, vec2 WorldPos)
 
 			if(pSwitchLayer->m_pTiles[SrcIndex].m_Index != TILE_AIR)
 			{
-				if(m_pEditor->m_KZFrontNumber != pSwitchLayer->m_Number || m_pEditor->m_KZFrontValue1 != pSwitchLayer->m_Value1 || m_pEditor->m_KZFrontValue2 != pSwitchLayer->m_Value2 || m_pEditor->m_KZFrontValue3 != pSwitchLayer->m_Value3)
+				if(Editor()->m_KZFrontNumber != pSwitchLayer->m_Number || Editor()->m_KZFrontValue1 != pSwitchLayer->m_Value1 || Editor()->m_KZFrontValue2 != pSwitchLayer->m_Value2 || Editor()->m_KZFrontValue3 != pSwitchLayer->m_Value3)
 				{
-					m_pKZTile[TgtIndex].m_Number = m_pEditor->m_KZFrontNumber;
-					m_pKZTile[TgtIndex].m_Value1 = m_pEditor->m_KZFrontValue1;
-					m_pKZTile[TgtIndex].m_Value2 = m_pEditor->m_KZFrontValue2;
-					m_pKZTile[TgtIndex].m_Value3 = m_pEditor->m_KZFrontValue3;
+					m_pKZTile[TgtIndex].m_Number = Editor()->m_KZFrontNumber;
+					m_pKZTile[TgtIndex].m_Value1 = Editor()->m_KZFrontValue1;
+					m_pKZTile[TgtIndex].m_Value2 = Editor()->m_KZFrontValue2;
+					m_pKZTile[TgtIndex].m_Value3 = Editor()->m_KZFrontValue3;
 				}
 				else if(pSwitchLayer->m_pKZTile[SrcIndex].m_Number)
 				{
@@ -86,10 +86,10 @@ void CLayerKZFront::BrushDraw(CLayer *pBrush, vec2 WorldPos)
 				}
 				else
 				{
-					m_pKZTile[TgtIndex].m_Number = m_pEditor->m_KZFrontNumber;
-					m_pKZTile[TgtIndex].m_Value1 = m_pEditor->m_KZFrontValue1;
-					m_pKZTile[TgtIndex].m_Value2 = m_pEditor->m_KZFrontValue2;
-					m_pKZTile[TgtIndex].m_Value3 = m_pEditor->m_KZFrontValue3;
+					m_pKZTile[TgtIndex].m_Number = Editor()->m_KZFrontNumber;
+					m_pKZTile[TgtIndex].m_Value1 = Editor()->m_KZFrontValue1;
+					m_pKZTile[TgtIndex].m_Value2 = Editor()->m_KZFrontValue2;
+					m_pKZTile[TgtIndex].m_Value3 = Editor()->m_KZFrontValue3;
 				}
 
 				m_pKZTile[TgtIndex].m_Index = pSwitchLayer->m_pTiles[SrcIndex].m_Index;
@@ -142,7 +142,7 @@ void CLayerKZFront::FillSelection(bool Empty, CLayer *pBrush, CUIRect Rect)
 
 	CLayerKZGame *pLt = static_cast<CLayerKZGame *>(pBrush);
 
-	bool Destructive = m_pEditor->m_BrushDrawDestructive || Empty || pLt->IsEmpty();
+	bool Destructive = Editor()->m_BrushDrawDestructive || Empty || pLt->IsEmpty();
 
 	for(int y = 0; y < h; y++)
 	{

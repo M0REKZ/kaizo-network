@@ -149,7 +149,7 @@ const CEnvPointBezier *CMapBasedEnvelopePointAccess::GetBezier(int Index) const
 	return nullptr;
 }
 
-static float SolveBezier(float x, float p0, float p1, float p2, float p3)
+float SolveBezier(float x, float p0, float p1, float p2, float p3)
 {
 	const double x3 = -p0 + 3.0 * p1 - 3.0 * p2 + p3;
 	const double x2 = 3.0 * p0 - 6.0 * p1 + 3.0 * p2;

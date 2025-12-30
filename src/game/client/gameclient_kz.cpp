@@ -248,7 +248,7 @@ void CGameClient::KaizoPostUpdate()
     {
         if(Client.m_Active)
         {
-            if(Client.m_ClientId == m_Snap.m_LocalClientId || Client.m_ClientId == m_PredictedDummyId)
+            if(Client.m_ClientId == m_Snap.m_LocalClientId || Client.m_ClientId == m_aLocalIds[!g_Config.m_ClDummy])
             {
                 Client.m_CustomClient = CUSTOM_CLIENT_ID_KAIZO_NETWORK; //force Kaizo Network client for us
             }

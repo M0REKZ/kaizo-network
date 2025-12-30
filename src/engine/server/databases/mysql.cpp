@@ -97,7 +97,7 @@ public:
 	bool ExecuteUpdate(int *pNumUpdated, char *pError, int ErrorSize) override;
 
 	bool IsNull(int Col) override;
-	double GetFloat(int Col) override; //+KZ to double
+	float GetFloat(int Col) override;
 	int GetInt(int Col) override;
 	int64_t GetInt64(int Col) override;
 	void GetString(int Col, char *pBuffer, int BufferSize) override;
@@ -298,17 +298,11 @@ bool CMysqlConnection::ConnectImpl()
 		FormatCreateSaves(aCreateSaves, sizeof(aCreateSaves), /* Backup */ false);
 		FormatCreatePoints(aCreatePoints, sizeof(aCreatePoints));
 
-		//+KZ
-		char aCreateKaizoSaves[1024];
-		FormatCreateKaizoSaves(aCreateKaizoSaves, sizeof(aCreateKaizoSaves), false);
-
 		if(!PrepareAndExecuteStatement(aCreateRace) ||
 			!PrepareAndExecuteStatement(aCreateTeamrace) ||
 			!PrepareAndExecuteStatement(aCreateMaps) ||
 			!PrepareAndExecuteStatement(aCreateSaves) ||
-			!PrepareAndExecuteStatement(aCreatePoints) ||
-			!PrepareAndExecuteStatement(aCreateKaizoSaves) //+KZ
-			)
+			!PrepareAndExecuteStatement(aCreatePoints))
 		{
 			return false;
 		}
@@ -522,20 +516,15 @@ bool CMysqlConnection::IsNull(int Col)
 	return IsNull;
 }
 
-double CMysqlConnection::GetFloat(int Col) //+KZ to double
+float CMysqlConnection::GetFloat(int Col)
 {
-	char aBuf[512] = {0};
-	GetString(Col, aBuf, sizeof(aBuf)); //get it as string first
-	double Var = atof(aBuf); //then convert to double
-	return Var;
-
 	Col -= 1;
 
 	MYSQL_BIND Bind;
-	double Value;
+	float Value;
 	my_bool IsNull;
 	mem_zero(&Bind, sizeof(Bind));
-	Bind.buffer_type = MYSQL_TYPE_DOUBLE;
+	Bind.buffer_type = MYSQL_TYPE_FLOAT;
 	Bind.buffer = &Value;
 	Bind.buffer_length = sizeof(Value);
 	Bind.length = nullptr;

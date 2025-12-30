@@ -756,12 +756,12 @@ bool CEditorMap::Load(const char *pFilename, int StorageType, const FErrorHandle
 					}
 					else if(str_comp(aBuf, KZ_GAME_LAYER_NAME) == 0)
 					{
-						pTiles = std::make_shared<CLayerKZGame>(m_pEditor, pTilemapItem->m_Width, pTilemapItem->m_Height);
+						pTiles = std::make_shared<CLayerKZGame>(this, pTilemapItem->m_Width, pTilemapItem->m_Height);
 						MakeKZGameLayer(pTiles);
 					}
 					else if(str_comp(aBuf, KZ_FRONT_LAYER_NAME) == 0)
 					{
-						pTiles = std::make_shared<CLayerKZFront>(m_pEditor, pTilemapItem->m_Width, pTilemapItem->m_Height);
+						pTiles = std::make_shared<CLayerKZFront>(this, pTilemapItem->m_Width, pTilemapItem->m_Height);
 						MakeKZFrontLayer(pTiles);
 					}
 					else

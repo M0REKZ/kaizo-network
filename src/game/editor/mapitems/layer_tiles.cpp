@@ -490,7 +490,7 @@ int CLayerTiles::BrushGrab(CLayerGroup *pBrush, CUIRect Rect)
 	}
 	else if(m_HasKZGame)
 	{
-		std::shared_ptr<CLayerKZGame> pGrabbed = std::make_shared<CLayerKZGame>(m_pEditor, r.w, r.h);
+		std::shared_ptr<CLayerKZGame> pGrabbed = std::make_shared<CLayerKZGame>(pBrush->Map(), r.w, r.h);
 		InitGrabbedLayer(pGrabbed, this);
 
 		pBrush->AddLayer(pGrabbed);
@@ -503,37 +503,37 @@ int CLayerTiles::BrushGrab(CLayerGroup *pBrush, CUIRect Rect)
 				pGrabbed->m_pTiles[y * pGrabbed->m_Width + x] = GetTile(r.x + x, r.y + y);
 
 				// copy the switch data
-				if(!m_pEditor->Input()->KeyIsPressed(KEY_SPACE))
+				if(!Editor()->Input()->KeyIsPressed(KEY_SPACE))
 				{
 					pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x] = static_cast<CLayerKZGame *>(this)->m_pKZTile[(r.y + y) * m_Width + (r.x + x)];					
-					m_pEditor->m_KZGameNumber = pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Number;
-					m_pEditor->m_KZGameValue1 = pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Value1;
-					m_pEditor->m_KZGameValue2 = pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Value2;
-					m_pEditor->m_KZGameValue3 = pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Value3;		
+					Editor()->m_KZGameNumber = pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Number;
+					Editor()->m_KZGameValue1 = pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Value1;
+					Editor()->m_KZGameValue2 = pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Value2;
+					Editor()->m_KZGameValue3 = pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Value3;		
 				}
 				else
 				{
 					const CTile &Tile = pGrabbed->m_pTiles[y * pGrabbed->m_Width + x];
 					
 					pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Index = Tile.m_Index;
-					pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Number = m_pEditor->m_KZGameNumber;
-					pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Value1 = m_pEditor->m_KZGameValue1;
-					pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Value2 = m_pEditor->m_KZGameValue2;
-					pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Value3 = m_pEditor->m_KZGameValue3;
+					pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Number = Editor()->m_KZGameNumber;
+					pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Value1 = Editor()->m_KZGameValue1;
+					pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Value2 = Editor()->m_KZGameValue2;
+					pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Value3 = Editor()->m_KZGameValue3;
 					pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Flags = Tile.m_Flags;
 				}
 			}
 		}
 
-		pGrabbed->m_Number = m_pEditor->m_KZGameNumber;
-		pGrabbed->m_Value1 = m_pEditor->m_KZGameValue1;
-		pGrabbed->m_Value2 = m_pEditor->m_KZGameValue2;
-		pGrabbed->m_Value3 = m_pEditor->m_KZGameValue3;
-		str_copy(pGrabbed->m_aFileName, m_pEditor->m_aFileName);
+		pGrabbed->m_Number = Editor()->m_KZGameNumber;
+		pGrabbed->m_Value1 = Editor()->m_KZGameValue1;
+		pGrabbed->m_Value2 = Editor()->m_KZGameValue2;
+		pGrabbed->m_Value3 = Editor()->m_KZGameValue3;
+		str_copy(pGrabbed->m_aFilename, pGrabbed->Map()->m_aFilename);
 	}
 	else if(m_HasKZFront)
 	{
-		std::shared_ptr<CLayerKZFront> pGrabbed = std::make_shared<CLayerKZFront>(m_pEditor, r.w, r.h);
+		std::shared_ptr<CLayerKZFront> pGrabbed = std::make_shared<CLayerKZFront>(pBrush->Map(), r.w, r.h);
 		InitGrabbedLayer(pGrabbed, this);
 
 		pBrush->AddLayer(pGrabbed);
@@ -546,33 +546,33 @@ int CLayerTiles::BrushGrab(CLayerGroup *pBrush, CUIRect Rect)
 				pGrabbed->m_pTiles[y * pGrabbed->m_Width + x] = GetTile(r.x + x, r.y + y);
 
 				// copy the switch data
-				if(!m_pEditor->Input()->KeyIsPressed(KEY_SPACE))
+				if(!Editor()->Input()->KeyIsPressed(KEY_SPACE))
 				{
 					pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x] = static_cast<CLayerKZFront *>(this)->m_pKZTile[(r.y + y) * m_Width + (r.x + x)];					
-					m_pEditor->m_KZFrontNumber = pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Number;
-					m_pEditor->m_KZFrontValue1 = pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Value1;
-					m_pEditor->m_KZFrontValue2 = pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Value2;
-					m_pEditor->m_KZFrontValue3 = pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Value3;		
+					Editor()->m_KZFrontNumber = pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Number;
+					Editor()->m_KZFrontValue1 = pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Value1;
+					Editor()->m_KZFrontValue2 = pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Value2;
+					Editor()->m_KZFrontValue3 = pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Value3;		
 				}
 				else
 				{
 					const CTile &Tile = pGrabbed->m_pTiles[y * pGrabbed->m_Width + x];
 					
 					pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Index = Tile.m_Index;
-					pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Number = m_pEditor->m_KZFrontNumber;
-					pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Value1 = m_pEditor->m_KZFrontValue1;
-					pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Value2 = m_pEditor->m_KZFrontValue2;
-					pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Value3 = m_pEditor->m_KZFrontValue3;
+					pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Number = Editor()->m_KZFrontNumber;
+					pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Value1 = Editor()->m_KZFrontValue1;
+					pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Value2 = Editor()->m_KZFrontValue2;
+					pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Value3 = Editor()->m_KZFrontValue3;
 					pGrabbed->m_pKZTile[y * pGrabbed->m_Width + x].m_Flags = Tile.m_Flags;
 				}
 			}
 		}
 
-		pGrabbed->m_Number = m_pEditor->m_KZFrontNumber;
-		pGrabbed->m_Value1 = m_pEditor->m_KZFrontValue1;
-		pGrabbed->m_Value2 = m_pEditor->m_KZFrontValue2;
-		pGrabbed->m_Value3 = m_pEditor->m_KZFrontValue3;
-		str_copy(pGrabbed->m_aFileName, m_pEditor->m_aFileName);
+		pGrabbed->m_Number = Editor()->m_KZFrontNumber;
+		pGrabbed->m_Value1 = Editor()->m_KZFrontValue1;
+		pGrabbed->m_Value2 = Editor()->m_KZFrontValue2;
+		pGrabbed->m_Value3 = Editor()->m_KZFrontValue3;
+		str_copy(pGrabbed->m_aFilename, pGrabbed->Map()->m_aFilename);
 	}
 	else // game, front and tiles layers
 	{

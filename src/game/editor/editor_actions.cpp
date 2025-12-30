@@ -53,20 +53,20 @@ CEditorBrushDrawAction::CEditorBrushDrawAction(CEditorMap *pMap, int Group) :
 					Map()->m_pSpeedupLayer->ClearHistory();
 				}
 			}
-			else if(pLayer == Map.m_pKZGameLayer)
+			else if(pLayer == Map()->m_pKZGameLayer)
 			{
-				if(!Map.m_pKZGameLayer->m_History.empty())
+				if(!Map()->m_pKZGameLayer->m_History.empty())
 				{
-					m_KZGameTileChanges = std::map(Map.m_pKZGameLayer->m_History);
-					Map.m_pKZGameLayer->ClearHistory();
+					m_KZGameTileChanges = std::map(Map()->m_pKZGameLayer->m_History);
+					Map()->m_pKZGameLayer->ClearHistory();
 				}
 			}
-			else if(pLayer == Map.m_pKZFrontLayer)
+			else if(pLayer == Map()->m_pKZFrontLayer)
 			{
-				if(!Map.m_pKZFrontLayer->m_History.empty())
+				if(!Map()->m_pKZFrontLayer->m_History.empty())
 				{
-					m_KZFrontTileChanges = std::map(Map.m_pKZFrontLayer->m_History);
-					Map.m_pKZFrontLayer->ClearHistory();
+					m_KZFrontTileChanges = std::map(Map()->m_pKZFrontLayer->m_History);
+					Map()->m_pKZFrontLayer->ClearHistory();
 				}
 			}
 
@@ -272,17 +272,17 @@ void CEditorBrushDrawAction::Apply(bool Undo)
 		for(auto &Tile : Line)
 		{
 			int x = Tile.first;
-			int Index = y * Map.m_pKZGameLayer->m_Width + x;
+			int Index = y * Map()->m_pKZGameLayer->m_Width + x;
 			SKZTileStateChange State = Tile.second;
 			SKZTileStateChange::SData Data = Undo ? State.m_Previous : State.m_Current;
 
-			Map.m_pKZGameLayer->m_pKZTile[Index].m_Number = Data.m_Number;
-			Map.m_pKZGameLayer->m_pKZTile[Index].m_Index = Data.m_Index;
-			Map.m_pKZGameLayer->m_pKZTile[Index].m_Flags = Data.m_Flags;
-			Map.m_pKZGameLayer->m_pKZTile[Index].m_Value1 = Data.m_Value1;
-			Map.m_pKZGameLayer->m_pKZTile[Index].m_Value2 = Data.m_Value2;
-			Map.m_pKZGameLayer->m_pKZTile[Index].m_Value3 = Data.m_Value3;
-			Map.m_pKZGameLayer->m_pTiles[Index].m_Index = Data.m_Index;
+			Map()->m_pKZGameLayer->m_pKZTile[Index].m_Number = Data.m_Number;
+			Map()->m_pKZGameLayer->m_pKZTile[Index].m_Index = Data.m_Index;
+			Map()->m_pKZGameLayer->m_pKZTile[Index].m_Flags = Data.m_Flags;
+			Map()->m_pKZGameLayer->m_pKZTile[Index].m_Value1 = Data.m_Value1;
+			Map()->m_pKZGameLayer->m_pKZTile[Index].m_Value2 = Data.m_Value2;
+			Map()->m_pKZGameLayer->m_pKZTile[Index].m_Value3 = Data.m_Value3;
+			Map()->m_pKZGameLayer->m_pTiles[Index].m_Index = Data.m_Index;
 		}
 	}
 
@@ -294,17 +294,17 @@ void CEditorBrushDrawAction::Apply(bool Undo)
 		for(auto &Tile : Line)
 		{
 			int x = Tile.first;
-			int Index = y * Map.m_pKZFrontLayer->m_Width + x;
+			int Index = y * Map()->m_pKZFrontLayer->m_Width + x;
 			SKZTileStateChange State = Tile.second;
 			SKZTileStateChange::SData Data = Undo ? State.m_Previous : State.m_Current;
 
-			Map.m_pKZFrontLayer->m_pKZTile[Index].m_Number = Data.m_Number;
-			Map.m_pKZFrontLayer->m_pKZTile[Index].m_Index = Data.m_Index;
-			Map.m_pKZFrontLayer->m_pKZTile[Index].m_Flags = Data.m_Flags;
-			Map.m_pKZFrontLayer->m_pKZTile[Index].m_Value1 = Data.m_Value1;
-			Map.m_pKZFrontLayer->m_pKZTile[Index].m_Value2 = Data.m_Value2;
-			Map.m_pKZFrontLayer->m_pKZTile[Index].m_Value3 = Data.m_Value3;
-			Map.m_pKZFrontLayer->m_pTiles[Index].m_Index = Data.m_Index;
+			Map()->m_pKZFrontLayer->m_pKZTile[Index].m_Number = Data.m_Number;
+			Map()->m_pKZFrontLayer->m_pKZTile[Index].m_Index = Data.m_Index;
+			Map()->m_pKZFrontLayer->m_pKZTile[Index].m_Flags = Data.m_Flags;
+			Map()->m_pKZFrontLayer->m_pKZTile[Index].m_Value1 = Data.m_Value1;
+			Map()->m_pKZFrontLayer->m_pKZTile[Index].m_Value2 = Data.m_Value2;
+			Map()->m_pKZFrontLayer->m_pKZTile[Index].m_Value3 = Data.m_Value3;
+			Map()->m_pKZFrontLayer->m_pTiles[Index].m_Index = Data.m_Index;
 		}
 	}
 }

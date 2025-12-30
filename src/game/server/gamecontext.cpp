@@ -37,15 +37,6 @@
 #include <game/mapitems.h>
 #include <game/version.h>
 
-#include <generated/protocol7.h>
-#include <generated/protocolglue.h>
-
-#include "entities/character.h"
-#include "gamemodes/DDRace.h"
-#include "gamemodes/mod.h"
-#include "gamemodes/kz/kz.h" // KZ
-#include "player.h"
-#include "score.h"
 #include <vector>
 
 // Not thread-safe!
@@ -351,11 +342,7 @@ void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamag
 				TeamMask.reset(PlayerTeam);
 			}
 
-			//+KZ modified
-			if(g_Config.m_SvKaizoVanillaMode && Owner == pChr->GetPlayer()->GetCid())
-				pChr->TakeDamageVanilla(ForceDir * Dmg * 2, (int)Dmg, Owner, Weapon);
-			else
-				pChr->TakeDamage(ForceDir * Dmg * 2, (int)Dmg, Owner, Weapon);
+			pChr->TakeDamage(ForceDir * Dmg * 2, (int)Dmg, Owner, Weapon);
 		}
 	}
 }
@@ -488,7 +475,7 @@ void CGameContext::SnapSwitchers(int SnappingClient)
 	}
 }
 
-bool CGameContext::SnapLaserObject(const CSnapContext &Context, int SnapId, const vec2 &To, const vec2 &From, int StartTick, int Owner, int LaserType, int Subtype, int SwitchNumber, int FlagsKZ) const
+bool CGameContext::SnapLaserObject(const CSnapContext &Context, int SnapId, const vec2 &To, const vec2 &From, int StartTick, int Owner, int LaserType, int Subtype, int SwitchNumber) const
 {
 	if(Context.GetClientVersion() >= VERSION_DDNET_MULTI_LASER)
 	{
@@ -505,7 +492,7 @@ bool CGameContext::SnapLaserObject(const CSnapContext &Context, int SnapId, cons
 		pObj->m_Type = LaserType;
 		pObj->m_Subtype = Subtype;
 		pObj->m_SwitchNumber = SwitchNumber;
-		pObj->m_Flags = FlagsKZ; //+KZ modified
+		pObj->m_Flags = 0;
 	}
 	else
 	{
@@ -1018,7 +1005,7 @@ void CGameContext::SendTuningParams(int ClientId, int Zone)
 			{
 				if(m_apPlayers[i]->GetCharacter())
 				{
-					if(m_apPlayers[i]->GetCharacter()->GetOverriddenTuneZoneKZ() == Zone) //+KZ
+					if(m_apPlayers[i]->GetCharacter()->m_TuneZone == Zone)
 						SendTuningParams(i, Zone);
 				}
 				else if(m_apPlayers[i]->m_TuneZone == Zone)
@@ -1100,12 +1087,6 @@ void CGameContext::OnPreTickTeehistorian()
 
 void CGameContext::OnTick()
 {
-	//+KZ
-	m_World.m_Core.m_WorldTickKZ = Server()->Tick();
-	m_Collision.SetTime(m_pController->GetTime());
-	if(g_Config.m_SvGoresQuadsEnable)
-		m_Collision.UpdateQuadCache();
-
 	// check tuning
 	CheckPureTuning();
 
@@ -2288,10 +2269,6 @@ void CGameContext::OnSayNetMessage(const CNetMsg_Cl_Say *pMsg, int ClientId, con
 	if(pEnd != nullptr)
 		*(const_cast<char *>(pEnd)) = 0;
 
-	//+KZ
-	if(HandleClientMessage(pMsg->m_pMessage, ClientId))
-		return;
-
 	// drop empty and autocreated spam messages (more than 32 characters per second)
 	if(Length == 0 || (pMsg->m_pMessage[0] != '/' && (g_Config.m_SvSpamprotection && pPlayer->m_LastChat && pPlayer->m_LastChat + Server()->TickSpeed() * ((31 + Length) / 32) > Server()->Tick())))
 		return;
@@ -2351,7 +2328,6 @@ void CGameContext::OnSayNetMessage(const CNetMsg_Cl_Say *pMsg, int ClientId, con
 		char aCensoredMessage[256];
 		CensorMessage(aCensoredMessage, pMsg->m_pMessage, sizeof(aCensoredMessage));
 		SendChat(ClientId, Team, aCensoredMessage, ClientId);
-		SendDiscordChatMessage(ClientId, pMsg->m_pMessage); //+KZ
 	}
 }
 
@@ -3919,7 +3895,6 @@ void CGameContext::OnConsoleInit()
 
 	RegisterDDRaceCommands();
 	RegisterChatCommands();
-	RegisterKZCommands();
 }
 
 void CGameContext::RegisterDDRaceCommands()
@@ -4134,8 +4109,6 @@ void CGameContext::OnInit(const void *pPersistentData)
 	m_Collision.Init(&m_Layers);
 	m_World.Init(&m_Collision, m_aTuningList);
 
-	m_Collision.m_pWorldCore = &m_World.m_Core; //+KZ
-
 	char aMapName[IO_MAX_PATH_LENGTH];
 	int MapSize;
 	SHA256_DIGEST MapSha256;
@@ -4214,13 +4187,10 @@ void CGameContext::OnInit(const void *pPersistentData)
 		}
 	}
 
-	/*
 	if(!str_comp(Config()->m_SvGametype, "mod"))
 		m_pController = new CGameControllerMod(this);
 	else
 		m_pController = new CGameControllerDDRace(this);
-	*/
-	m_pController = new CGameControllerKZ(this);
 
 	ReadCensorList();
 
@@ -4299,7 +4269,6 @@ void CGameContext::OnInit(const void *pPersistentData)
 	CreateAllEntities(true);
 
 	m_pAntibot->RoundStart(this);
-	m_pHttp = Kernel()->RequestInterface<IHttp>();
 }
 
 void CGameContext::CreateAllEntities(bool Initial)
@@ -4314,14 +4283,6 @@ void CGameContext::CreateAllEntities(bool Initial)
 	const CSwitchTile *pSwitch = nullptr;
 	if(m_Layers.SwitchLayer())
 		pSwitch = static_cast<CSwitchTile *>(Kernel()->RequestInterface<IMap>()->GetData(m_Layers.SwitchLayer()->m_Switch));
-
-	const CKZTile *pKZGame = nullptr;
-	if(m_Layers.KZGameLayer())
-		pKZGame = static_cast<CKZTile *>(Kernel()->RequestInterface<IMap>()->GetData(m_Layers.KZGameLayer()->m_KZGame));
-
-	const CKZTile *pKZFront = nullptr;
-	if(m_Layers.KZFrontLayer())
-		pKZFront = static_cast<CKZTile *>(Kernel()->RequestInterface<IMap>()->GetData(m_Layers.KZFrontLayer()->m_KZFront));
 
 	for(int y = 0; y < pTileMap->m_Height; y++)
 	{
@@ -4406,36 +4367,6 @@ void CGameContext::CreateAllEntities(bool Initial)
 				{
 					m_pController->OnEntity(SwitchType - ENTITY_OFFSET, x, y, LAYER_SWITCH, pSwitch[Index].m_Flags, Initial, pSwitch[Index].m_Number);
 				}
-			}
-		}
-	}
-
-
-	for(int y = 0; y < Collision()->m_KZGameHeight; y++)
-	{
-		for(int x = 0; x < Collision()->m_KZGameWidth; x++)
-		{
-			const int Index = y * Collision()->m_KZGameWidth + x;
-			// KZ
-			if(pKZGame)
-			{
-				const int KZIndex = pKZGame[Index].m_Index;
-				m_pController->OnEntityKZ(KZIndex, x, y, LAYER_GAME, pKZGame[Index].m_Flags, Initial, pKZGame[Index].m_Number, pKZGame[Index].m_Value1, pKZGame[Index].m_Value2, pKZGame[Index].m_Value3);
-			}
-		}
-	}
-
-
-	for(int y = 0; y < Collision()->m_KZFrontHeight; y++)
-	{
-		for(int x = 0; x < Collision()->m_KZFrontWidth; x++)
-		{
-			const int Index = y * Collision()->m_KZFrontWidth + x;
-			// KZ
-			if(pKZFront)
-			{
-				const int KZIndex = pKZFront[Index].m_Index;
-				m_pController->OnEntityKZ(KZIndex, x, y, LAYER_FRONT, pKZFront[Index].m_Flags, Initial, pKZFront[Index].m_Number, pKZFront[Index].m_Value1, pKZFront[Index].m_Value2, pKZFront[Index].m_Value3);
 			}
 		}
 	}

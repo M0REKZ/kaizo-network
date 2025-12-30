@@ -596,19 +596,6 @@ int CServer::Init()
 		Client.m_Latency = 0;
 		Client.m_Sixup = false;
 		Client.m_RedirectDropTime = 0;
-		Client.m_KaizoNetworkVersion = 0; // +KZ Kaizo Network client version
-		Client.m_InfClassVersion = 0;
-		Client.m_IsTaterClient = false; //+KZ
-		Client.m_IsQxdClient = false;
-		Client.m_IsChillerbotClient = false;
-		Client.m_IsStAClient = false;
-		Client.m_IsAllTheHaxxClient = false;
-		Client.m_IsPulseClient = false;
-		Client.m_IsCactusClient = false;
-		Client.m_IsAiodobClient = false;
-		Client.m_IsFexClient = false;
-		Client.m_IsRushieClient = false;
-		Client.m_IsSClientClient = false;
 	}
 
 	m_CurrentGameTick = MIN_TICK;
@@ -1180,21 +1167,6 @@ int CServer::NewClientNoAuthCallback(int ClientId, void *pUser)
 {
 	CServer *pThis = (CServer *)pUser;
 
-	pThis->m_aClients[ClientId].m_KaizoNetworkVersion = 0; // +KZ Kaizo Network client version
-
-	pThis->m_aClients[ClientId].m_InfClassVersion = 0; //+KZ
-	pThis->m_aClients[ClientId].m_IsTaterClient = false; //+KZ
-	pThis->m_aClients[ClientId].m_IsQxdClient = false;
-	pThis->m_aClients[ClientId].m_IsChillerbotClient = false;
-	pThis->m_aClients[ClientId].m_IsStAClient = false;
-	pThis->m_aClients[ClientId].m_IsAllTheHaxxClient = false;
-	pThis->m_aClients[ClientId].m_IsPulseClient = false;
-	pThis->m_aClients[ClientId].m_IsCactusClient = false;
-	pThis->m_aClients[ClientId].m_IsAiodobClient = false;
-	pThis->m_aClients[ClientId].m_IsFexClient = false;
-	pThis->m_aClients[ClientId].m_IsRushieClient = false;
-	pThis->m_aClients[ClientId].m_IsSClientClient = false;
-
 	pThis->m_aClients[ClientId].m_DnsblState = EDnsblState::NONE;
 
 	pThis->m_aClients[ClientId].m_State = CClient::STATE_CONNECTING;
@@ -1228,22 +1200,6 @@ int CServer::NewClientNoAuthCallback(int ClientId, void *pUser)
 int CServer::NewClientCallback(int ClientId, void *pUser, bool Sixup)
 {
 	CServer *pThis = (CServer *)pUser;
-
-	pThis->m_aClients[ClientId].m_KaizoNetworkVersion = 0; // +KZ Kaizo Network client version
-
-	pThis->m_aClients[ClientId].m_InfClassVersion = 0; //+KZ
-	pThis->m_aClients[ClientId].m_IsTaterClient = false; //+KZ
-	pThis->m_aClients[ClientId].m_IsQxdClient = false;
-	pThis->m_aClients[ClientId].m_IsChillerbotClient = false;
-	pThis->m_aClients[ClientId].m_IsStAClient = false;
-	pThis->m_aClients[ClientId].m_IsAllTheHaxxClient = false;
-	pThis->m_aClients[ClientId].m_IsPulseClient = false;
-	pThis->m_aClients[ClientId].m_IsCactusClient = false;
-	pThis->m_aClients[ClientId].m_IsAiodobClient = false;
-	pThis->m_aClients[ClientId].m_IsFexClient = false;
-	pThis->m_aClients[ClientId].m_IsRushieClient = false;
-	pThis->m_aClients[ClientId].m_IsSClientClient = false;
-
 	pThis->m_aClients[ClientId].m_State = CClient::STATE_PREAUTH;
 	pThis->m_aClients[ClientId].m_DnsblState = EDnsblState::NONE;
 	pThis->m_aClients[ClientId].m_aName[0] = 0;
@@ -1759,71 +1715,6 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 				m_aClients[ClientId].m_State = CClient::STATE_AUTH;
 			}
 		}
-		else if(Msg == NETMSG_KZ_KAIZO_NETWORK_VERSION) //+KZ for Kaizo Network Client
-		{
-			int KaizoNetworkVersion = Unpacker.GetInt();
-			if(Unpacker.Error() || KaizoNetworkVersion < 0)
-			{
-				return;
-			}
-			m_aClients[ClientId].m_KaizoNetworkVersion = KaizoNetworkVersion;
-		}
-		else if(Msg == NETMSG_CLIENTVER_INFCLASS)
-		{
-			if((pPacket->m_Flags & NET_CHUNKFLAG_VITAL) != 0) // Ignore STATE_AUTH for now, see ddnet#4445 // && m_aClients[ClientId].m_State == CClient::STATE_AUTH)
-			{ //+KZ identify infclass client
-				int InfClassVersion = Unpacker.GetInt();
-				if(Unpacker.Error() || InfClassVersion < 0)
-				{
-					return;
-				}
-				m_aClients[ClientId].m_InfClassVersion = InfClassVersion;
-			}
-		}
-		else if(Msg == NETMSG_IAMTATER)
-		{
-			m_aClients[ClientId].m_IsTaterClient = true;
-		}
-		else if(Msg == NETMSG_IAMQXD)
-		{
-			m_aClients[ClientId].m_IsQxdClient = true;
-		}
-		else if(Msg == NETMSG_IAMCHILLERBOT)
-		{
-			m_aClients[ClientId].m_IsChillerbotClient = true;
-		}
-		else if(Msg == NETMSG_IAMSTA)
-		{
-			m_aClients[ClientId].m_IsStAClient = true;
-		}
-		else if(Msg == NETMSG_IAMALLTHEHAXX)
-		{
-			m_aClients[ClientId].m_IsAllTheHaxxClient = true;
-		}
-		else if(Msg == NETMSG_IAMPULSE)
-		{
-			m_aClients[ClientId].m_IsPulseClient = true;
-		}
-		else if(Msg == NETMSG_IAM_CACTUS)
-		{
-			m_aClients[ClientId].m_IsCactusClient = true;
-		}
-		else if(Msg == NETMSG_IAM_AIODOB)
-		{
-			m_aClients[ClientId].m_IsAiodobClient = true;
-		}
-		else if(Msg == NETMSG_IAM_FEX)
-		{
-			m_aClients[ClientId].m_IsFexClient = true;
-		}
-		else if(Msg == NETMSG_IAMRUSHIE)
-		{
-			m_aClients[ClientId].m_IsRushieClient = true;
-		}
-		else if(Msg == NETMSG_IAM_SCLIENT)
-		{
-			m_aClients[ClientId].m_IsSClientClient = true;
-		}
 		else if(Msg == NETMSG_INFO)
 		{
 			if((pPacket->m_Flags & NET_CHUNKFLAG_VITAL) != 0 && (m_aClients[ClientId].m_State == CClient::STATE_PREAUTH || m_aClients[ClientId].m_State == CClient::STATE_AUTH))
@@ -1990,7 +1881,6 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 				IntendedTick = Tick() + 1;
 
 			pInput->m_GameTick = IntendedTick;
-			pInput->m_AckedTick = LastAckedSnapshot; //+KZ
 
 			for(int i = 0; i < Size / 4; i++)
 			{
@@ -2035,7 +1925,7 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 						if(!aPreInputClients[Id])
 							continue;
 
-						SendPackMsg(&PreInput, MSGFLAG_VITAL | MSGFLAG_NORECORD, Id);
+						SendPackMsg(&PreInput, MSGFLAG_FLUSH | MSGFLAG_NORECORD, Id);
 					}
 				}
 			}
@@ -2742,7 +2632,7 @@ void CServer::UpdateRegisterServerInfo()
 	JsonWriter.WriteAttribute("map");
 	JsonWriter.BeginObject();
 	JsonWriter.WriteAttribute("name");
-	JsonWriter.WriteStrValue(Config()->m_SvKaizoSecretMap[0] ? Config()->m_SvKaizoSecretMap : GetMapName());
+	JsonWriter.WriteStrValue(GetMapName());
 	JsonWriter.WriteAttribute("sha256");
 	JsonWriter.WriteStrValue(aMapSha256);
 	JsonWriter.WriteAttribute("size");
@@ -3393,7 +3283,6 @@ int CServer::Run()
 					{
 						if(Input.m_GameTick == Tick())
 						{
-							GameServer()->SetPlayerLastAckedTick(c, Input.m_AckedTick); //+KZ
 							GameServer()->OnClientPredictedInput(c, Input.m_aData);
 							ClientHadInput = true;
 							break;
@@ -4704,23 +4593,6 @@ bool CServer::SetTimedOut(int ClientId, int OrigId)
 	m_aClients[ClientId].m_DDNetVersion = m_aClients[OrigId].m_DDNetVersion;
 	m_aClients[ClientId].m_GotDDNetVersionPacket = m_aClients[OrigId].m_GotDDNetVersionPacket;
 	m_aClients[ClientId].m_DDNetVersionSettled = m_aClients[OrigId].m_DDNetVersionSettled;
-
-	//+KZ
-	m_aClients[ClientId].m_KaizoNetworkVersion = m_aClients[OrigId].m_KaizoNetworkVersion;
-
-	//Other Clients
-	m_aClients[ClientId].m_InfClassVersion = m_aClients[OrigId].m_InfClassVersion;
-	m_aClients[ClientId].m_IsTaterClient = m_aClients[OrigId].m_IsTaterClient;
-	m_aClients[ClientId].m_IsQxdClient = m_aClients[OrigId].m_IsQxdClient;
-	m_aClients[ClientId].m_IsChillerbotClient = m_aClients[OrigId].m_IsChillerbotClient;
-	m_aClients[ClientId].m_IsStAClient = m_aClients[OrigId].m_IsStAClient;
-	m_aClients[ClientId].m_IsAllTheHaxxClient = m_aClients[OrigId].m_IsAllTheHaxxClient;
-	m_aClients[ClientId].m_IsPulseClient = m_aClients[OrigId].m_IsPulseClient;
-	m_aClients[ClientId].m_IsCactusClient = m_aClients[OrigId].m_IsCactusClient;
-	m_aClients[ClientId].m_IsAiodobClient = m_aClients[OrigId].m_IsAiodobClient;
-	m_aClients[ClientId].m_IsFexClient = m_aClients[OrigId].m_IsFexClient;
-	m_aClients[ClientId].m_IsRushieClient = m_aClients[OrigId].m_IsRushieClient;
-	m_aClients[ClientId].m_IsSClientClient = m_aClients[OrigId].m_IsSClientClient;
 	return true;
 }
 

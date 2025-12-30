@@ -71,10 +71,6 @@ public:
 	void SaveTeam(int ClientId, const char *pCode, const char *pServer);
 	void LoadTeam(const char *pCode, int ClientId);
 	void GetSaves(int ClientId);
-
-	//+KZ
-	void SaveScoreFloat(int ClientId, double Time, const char *pTimestamp, const float aTimeCp[NUM_CHECKPOINTS], bool NotEligible);
-	void SaveTeamScoreFloat(int Team, int *pClientIds, unsigned int Size, double Time, const char *pTimestamp);
 };
 
 #endif // GAME_SERVER_SCORE_H

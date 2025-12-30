@@ -6,7 +6,6 @@
 #include <game/race_state.h>
 #include <game/server/entity.h>
 #include <game/server/save.h>
-#include <game/mapitems.h>
 
 class CGameTeams;
 class CGameWorld;
@@ -34,7 +33,6 @@ class CCharacter : public CEntity
 
 public:
 	CCharacter(CGameWorld *pWorld, CNetObj_PlayerInput LastInput);
-	~CCharacter();
 
 	void Reset() override;
 	void Destroy() override;
@@ -59,6 +57,8 @@ public:
 	void SetSolo(bool Solo);
 	void SetSuper(bool Super);
 	void SetInvincible(bool Invincible);
+	void SetCollisionDisabled(bool CollisionDisabled);
+	void SetHookHitDisabled(bool HookHitDisabled);
 	void SetLiveFrozen(bool Active);
 	void SetDeepFrozen(bool Active);
 	void HandleWeaponSwitch();
@@ -121,7 +121,7 @@ private:
 	int m_NeededFaketuning;
 
 	// weapon info
-	CEntity *m_apHitObjects[10];
+	int m_aHitObjects[MAX_CLIENTS];
 	int m_NumObjectsHit;
 
 	int m_LastWeapon;
@@ -250,10 +250,10 @@ public:
 	CCharacterCore GetCore() { return m_Core; }
 	void SetCore(const CCharacterCore &Core) { m_Core = Core; }
 	const CCharacterCore *Core() const { return &m_Core; }
-	bool GetWeaponGot(int Type) { return (Type >= NUM_WEAPONS ? m_aCustomWeapons[Type-KZ_CUSTOM_WEAPONS_START].m_Got : m_Core.m_aWeapons[Type].m_Got); } //modified for custom weapons +KZ
-	void SetWeaponGot(int Type, bool Value) { (Type >= NUM_WEAPONS ? m_aCustomWeapons[Type-KZ_CUSTOM_WEAPONS_START].m_Got = Value : m_Core.m_aWeapons[Type].m_Got = Value); } //modified for custom weapons +KZ
-	int GetWeaponAmmo(int Type) { return (Type >= NUM_WEAPONS ? m_aCustomWeapons[Type-KZ_CUSTOM_WEAPONS_START].m_Ammo : m_Core.m_aWeapons[Type].m_Ammo); } //modified for custom weapons +KZ
-	void SetWeaponAmmo(int Type, int Value) { (Type >= NUM_WEAPONS ? m_aCustomWeapons[Type-KZ_CUSTOM_WEAPONS_START].m_Ammo = Value : m_Core.m_aWeapons[Type].m_Ammo = Value); } //modified for custom weapons +KZ
+	bool GetWeaponGot(int Type) { return m_Core.m_aWeapons[Type].m_Got; }
+	void SetWeaponGot(int Type, bool Value) { m_Core.m_aWeapons[Type].m_Got = Value; }
+	int GetWeaponAmmo(int Type) { return m_Core.m_aWeapons[Type].m_Ammo; }
+	void SetWeaponAmmo(int Type, int Value) { m_Core.m_aWeapons[Type].m_Ammo = Value; }
 	void SetNinjaActivationDir(vec2 ActivationDir) { m_Core.m_Ninja.m_ActivationDir = ActivationDir; }
 	void SetNinjaActivationTick(int ActivationTick) { m_Core.m_Ninja.m_ActivationTick = ActivationTick; }
 	void SetNinjaCurrentMoveTime(int CurrentMoveTime) { m_Core.m_Ninja.m_CurrentMoveTime = CurrentMoveTime; }
@@ -269,63 +269,15 @@ public:
 	bool LaserHitDisabled() const { return m_Core.m_LaserHitDisabled; }
 	bool GrenadeHitDisabled() const { return m_Core.m_GrenadeHitDisabled; }
 
+	void SetHammerHitDisabled(bool HammerHitDisabled) { m_Core.m_HammerHitDisabled = HammerHitDisabled; }
+	void SetShotgunHitDisabled(bool ShotgunHitDisabled) { m_Core.m_ShotgunHitDisabled = ShotgunHitDisabled; }
+	void SetGrenadeHitDisabled(bool GrenadeHitDisabled) { m_Core.m_GrenadeHitDisabled = GrenadeHitDisabled; }
+	void SetLaserHitDisabled(bool LaserHitDisabled) { m_Core.m_LaserHitDisabled = LaserHitDisabled; }
+
 	bool IsSuper() const { return m_Core.m_Super; }
 
 	CSaveTee &GetLastRescueTeeRef(int Mode = RESCUEMODE_AUTO) { return m_RescueTee[Mode]; }
-	CTuningParams *GetTuning(int Zone) { return Zone ? &TuningList()[Zone] : Tuning(); }
-
-	//+KZ
-	CCharacterCore &GetCoreKZ() { return m_Core; }
-
-	void HandleKZTiles();
-	void HandleQuads();
-	void ResetPortals();
-	bool TakeDamageVanilla(vec2 Force, int Dmg, int From, int Weapon);
-	int GetOverriddenTuneZoneKZ() const { return ((m_TuneZoneOverrideKZ >= 0 && !m_TuneZone) || m_ForcedTuneKZ) ? m_TuneZoneOverrideKZ : m_TuneZone; }
-	int m_TuneZoneOverrideKZ = -1;
-	bool m_ForcedTuneKZ = false;
-	int m_aCrown[7];
-	bool m_EnableCrown = false;
-	bool m_SnapCustomWeapon = false;
-	bool m_BluePortal = true;
-	int m_PortalKindId = -1;
-	bool m_AimPressed = false;
-	bool m_Waitingforreleaseaim = false;
-	int64_t m_LastSoundPlayed = -1;
-	int64_t m_LastLocalSoundPlayed = -1;
-	int64_t m_LastLocalInPosSoundPlayed = -1;
-	bool m_NODAMAGE = false;
-	bool m_StillPressingFire = false;
-	bool m_SpecTile = false;
-	vec2 m_SpecTilePos = vec2(0,0);
-	bool m_DidHookedQuadSound = false;
-	bool m_HasRecoverJumpLaser = false;
-
-	struct
-	{
-		bool m_Got = false;
-		int m_Snap = 0;
-		int m_Ammo = -1;
-	} m_aCustomWeapons[KZ_NUM_CUSTOM_WEAPONS];
-
-	CNetObj_KaizoNetworkCharacter m_KaizoNetworkChar;
-
-	int m_StartSubTick = -1;
-	int m_StartDivisor = 1;
-	int m_StartedTickKZ = -1;
-	int m_FinishSubTick = -1;
-	int m_FinishDivisor = 1;
-	int m_FinishedTickKZ = -1;
-	vec2 m_PrevVelKZ;
-	void HandleSubTickStartFinish();
-
-	enum CKZFastCapState
-	{
-		KZ_FASTCAP_STATE_NOTSTARTED = 0,
-		KZ_FASTCAP_STATE_TEAMRED = 1,
-		KZ_FASTCAP_STATE_TEAMBLUE = 2,
-		KZ_FASTCAP_STATE_FINISHED = 3,
-	} m_KZFastCapState;
+	CTuningParams *GetTuning(int Zone) { return &TuningList()[Zone]; }
 };
 
 #endif

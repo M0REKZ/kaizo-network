@@ -4943,7 +4943,7 @@ int main(int argc, const char **argv)
 	if(pStorage->FileExists(KAIZO_CONFIG_FILE, IStorage::TYPE_ALL))
 	{
 		pConsole->SetUnknownCommandCallback(SaveUnknownCommandCallback, pClient);
-		if(!pConsole->ExecuteFile(KAIZO_CONFIG_FILE))
+		if(!pConsole->ExecuteFile(KAIZO_CONFIG_FILE, IConsole::CLIENT_ID_UNSPECIFIED))
 		{
 			const char *pError = "Failed to load config from '" KAIZO_CONFIG_FILE "'.";
 			log_error("client", "%s", pError);
