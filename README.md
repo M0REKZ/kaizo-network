@@ -1,4 +1,4 @@
-![](https://m0rekz.github.io/Kaizo-Network/img/g135.png)
+![](https://raw.githubusercontent.com/M0REKZ/kaizo-client/refs/heads/client/data/kz/gui_logo.png)
 
 * [Website](https://m0rekz.github.io/Kaizo-Network/)
 * [Discord Server](https://m0rekz.github.io/discord.html)
