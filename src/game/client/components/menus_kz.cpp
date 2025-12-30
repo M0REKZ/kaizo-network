@@ -173,7 +173,7 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 			Left.HSplitTop(2.0f, nullptr, &Left);
 
 			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox(&g_Config.m_KaizoSendClientType, Localize("Let know other clients we are using Kaizo Network"), g_Config.m_KaizoSendClientType, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoSendClientType, Localize("Let know other clients we are using Kaizo Client"), g_Config.m_KaizoSendClientType, &Button))
 			{
 				g_Config.m_KaizoSendClientType ^= 1;
 			}
@@ -297,7 +297,7 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 			SettingsBox.HSplitTop(20.0f, nullptr, &SettingsBox);
 			SettingsBox.HSplitTop(20.0f, &Label, &SettingsBox);
 
-			Ui()->DoLabel(&Label, Localize("Kaizo Network By +KZ"), 30.0f, TEXTALIGN_MC);
+			Ui()->DoLabel(&Label, Localize("Kaizo Client By +KZ"), 30.0f, TEXTALIGN_MC);
 
 			SettingsBox.HSplitTop(30.0f, nullptr, &SettingsBox);
 			SettingsBox.HSplitTop(20.0f, &Label, &SettingsBox);
