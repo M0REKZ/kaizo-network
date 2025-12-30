@@ -1,6 +1,6 @@
 ![](https://raw.githubusercontent.com/M0REKZ/kaizo-client/refs/heads/client/data/kz/gui_logo.png)
 
-* [Website](https://m0rekz.github.io/Kaizo-Network/)
+* [+KZ Website](https://m0rekz.github.io/)
 * [Discord Server](https://m0rekz.github.io/discord.html)
 
 This is the source code for Kaizo Client by +KZ, based on Kaizo Network Client, which is based on DDNet
