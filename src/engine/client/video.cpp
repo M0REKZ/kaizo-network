@@ -49,8 +49,7 @@ static LEVEL AvLevelToLogLevel(int Level)
 	case AV_LOG_TRACE:
 		return LEVEL_TRACE;
 	default:
-		dbg_assert(false, "invalid log level: %d", Level);
-		dbg_break();
+		dbg_assert_failed("invalid log level: %d", Level);
 	}
 }
 
@@ -510,7 +509,7 @@ void CVideo::RunAudioThread(size_t ParentThreadIndex, size_t ThreadIndex)
 				std::unique_lock<std::mutex> LockAudio(pThreadData->m_AudioFillMutex);
 
 				{
-					CLockScope ls(m_WriteLock);
+					const CLockScope LockScope(m_WriteLock);
 					m_AudioStream.m_vpFrames[ThreadIndex]->pts = av_rescale_q(pThreadData->m_SampleCountStart, AVRational{1, m_AudioStream.m_pCodecContext->sample_rate}, m_AudioStream.m_pCodecContext->time_base);
 					WriteFrame(&m_AudioStream, ThreadIndex);
 				}
@@ -598,7 +597,7 @@ void CVideo::RunVideoThread(size_t ParentThreadIndex, size_t ThreadIndex)
 			{
 				std::unique_lock<std::mutex> LockVideo(pThreadData->m_VideoFillMutex);
 				{
-					CLockScope ls(m_WriteLock);
+					const CLockScope LockScope(m_WriteLock);
 #if LIBAVCODEC_VERSION_MAJOR >= 60
 					m_VideoStream.m_vpFrames[ThreadIndex]->pts = m_VideoStream.m_pCodecContext->frame_num;
 #else

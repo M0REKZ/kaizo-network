@@ -104,7 +104,6 @@ public:
 
 	int m_DieTick;
 	int m_PreviousDieTick;
-	std::optional<int> m_Score;
 	int m_JoinTick;
 	int m_LastActionTick;
 	int m_TeamChangeTick;
@@ -182,6 +181,7 @@ public:
 	int64_t m_LastDDRaceTeamChange;
 	int m_ShowOthers;
 	bool m_ShowAll;
+	bool m_EnableSpectatorCount;
 	vec2 m_ShowDistance;
 	bool m_SpecTeam;
 	bool m_NinjaJetpack;

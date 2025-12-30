@@ -1456,7 +1456,7 @@ Skip the main menu
 
 [Hertz]
 Hz
-== Hz 
+== Hz
 
 Save power by lowering refresh rate (higher input latency)
 == Poupa energia ao baixar a taxa de atualização (maior latência de entrada)
@@ -1844,9 +1844,6 @@ Adjust the opacity of entities belonging to other teams, such as tees and name p
 Show others (own team only)
 == Mostrar outros (apenas a tua equipa)
 
-Show quads
-== Mostrar quadriláteros
-
 Quads are used for background decoration
 == Os quadriláteros são usados para decoração de fundo
 
@@ -2044,6 +2041,21 @@ Press Ctrl+Shift+G to disable debug graphs.
 No demo with this filename exists
 == 
 
+Team save in progress. You'll be able to load with '/load %s'
+== 
+
+Team save in progress. You'll be able to load with '/load %s' if save is successful or with '/load %s' if it fails
+== 
+
+Team successfully saved by %s. The database connection failed, using generated save code instead to avoid collisions. Use '/load %s' to continue
+== 
+
+Team successfully saved by %s. The database connection failed, using generated save code instead to avoid collisions. Use '/load %s' on %s to continue
+== 
+
+Save failed!
+== 
+
 Auto-sync player camera
 == 
 
@@ -2074,6 +2086,16 @@ Loading maps…
 Following %d: %s
 == 
 
+[Important alert message]
+Press Esc or Tab to dismiss…
+== 
+
+Server alert
+== 
+
+Moderator alert
+== 
+
 Server could not be started
 == 
 
@@ -2081,6 +2103,9 @@ Loading map
 == 
 
 This name cannot be used for files and folders
+== 
+
+You will be disconnected from the server.
 == 
 
 Error checking player name
@@ -2101,6 +2126,9 @@ Go to Live
 == 
 
 Map size
+== 
+
+Are you sure that you want to disconnect and play this demo?
 == 
 
 Save all changes before turning off the editor?
@@ -2442,7 +2470,7 @@ Name plates offset
 Show friend icon in name plates
 == 
 
-Show client IDs on a seperate line
+Show client IDs on a separate line
 == 
 
 Client IDs size
@@ -2479,10 +2507,31 @@ Dragger Outline Color
 Dragger Inner Color
 == 
 
+Show background quads
+== 
+
 AntiPing: prediction margin
 == 
 
+Scoreboard cursor
+== 
+
 Download
+== 
+
+Add friend
+== 
+
+Unmute
+== 
+
+Mute
+== 
+
+Unmute emoticons
+== 
+
+Mute emoticons
 == 
 
 https://wiki.ddnet.org/wiki/Mapping

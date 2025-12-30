@@ -15,45 +15,45 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        name: [ubuntu-latest, macOS-latest, windows-latest, ubuntu-22.04, windows-latest-mingw]
+        name: [ubuntu-latest-fancy, macOS-latest, windows-latest, ubuntu-22.04, windows-latest-mingw]
         include:
-        - name: ubuntu-latest
+        - name: ubuntu-latest-fancy
           os: ubuntu-latest
           cmake-args: -G Ninja
           cmake-init-env: CXXFLAGS=-Werror
           package-file: "*-linux_x86_64.tar.xz"
-          fancy: true
         - name: ubuntu-22.04
           os: ubuntu-22.04
           cmake-path: /usr/bin/
-          cmake-args: -G Ninja -DTEST_MYSQL=ON
+          cmake-args: -G "Unix Makefiles" -DTEST_MYSQL=ON
           cmake-init-env: CXXFLAGS=-Werror
           gtest-env: GTEST_FILTER=-*SQLite*
           package-file: "*-linux_x86_64.tar.xz"
-          fancy: false
         - name: macOS-latest
           os: macOS-latest
           cmake-args: -G Ninja
           cmake-init-env: CXXFLAGS=-Werror
           package-file: "*-macos.dmg"
-          fancy: false
         - name: windows-latest
           os: windows-latest
           cmake-args: -A x64 -DEXCEPTION_HANDLING=ON
           cmake-init-env: CXXFLAGS=/WX LDFLAGS=/WX
           package-file: "*-win64.zip"
-          fancy: false
+          executable-suffix: .exe
         - name: windows-latest-mingw
           os: windows-latest
           cmake-args: -G Ninja -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DEXCEPTION_HANDLING=ON -DCMAKE_RC_COMPILER=windres -DCMAKE_AR=ar
           cmake-init-env: CXXFLAGS=-Werror LDFLAGS=-Werror
           package-file: "*-win64.zip"
-          fancy: false
+          executable-suffix: .exe
+          # Delete outdated libwinpthread-1.dll after configuring to workaround https://github.com/ddnet/ddnet/issues/10203 when using MinGW.
+          # Adding this condition into the individual steps is not possible without using bash shell consistently, which does not work for windows-latest.
+          workaround-issue10203-run-after-configure: rm libwinpthread-1.dll
 
     steps:
     - uses: actions/checkout@v4
       with:
-        submodules: true
+        submodules: recursive
 
     - name: Prepare Linux
       if: contains(matrix.os, 'ubuntu')
@@ -61,10 +61,10 @@ jobs:
         sudo apt-get update -y
         # mount: /var/lib/grub/esp: special device /dev/disk/by-id/scsi-... does not exist.
         # sudo apt-get upgrade -y
-        sudo apt-get install pkg-config ninja-build libfreetype6-dev libnotify-dev libsdl2-dev libsqlite3-dev libvulkan-dev glslang-tools spirv-tools libavcodec-dev libavformat-dev libavutil-dev libswresample-dev libswscale-dev libx264-dev libpng-dev valgrind gcovr libglew-dev -y
+        sudo apt-get install pkg-config ninja-build libfreetype6-dev libnotify-dev libsdl2-dev libsqlite3-dev libavcodec-dev libavformat-dev libavutil-dev libswresample-dev libswscale-dev libx264-dev libpng-dev valgrind gcovr libglew-dev -y
 
     - name: Prepare Linux (non-fancy)
-      if: contains(matrix.os, 'ubuntu') && !matrix.fancy
+      if: contains(matrix.os, 'ubuntu') && !contains(matrix.name, 'fancy')
       run: |
         curl -LO https://github.com/Kitware/CMake/releases/download/v3.13.4/cmake-3.13.4-Linux-x86_64.tar.gz
         sudo tar --strip-components 1 -C /usr -xf cmake-3.13.4-Linux-x86_64.tar.gz
@@ -84,7 +84,7 @@ jobs:
         EOF
 
     - name: Prepare Linux (fancy)
-      if: contains(matrix.os, 'ubuntu') && matrix.fancy
+      if: contains(matrix.os, 'ubuntu') && contains(matrix.name, 'fancy')
       run: |
         sudo apt-get install cmake libmariadb-dev libwebsockets-dev mariadb-server -y
         sudo systemctl stop mysql
@@ -103,7 +103,7 @@ jobs:
       if: contains(matrix.os, 'macOS')
       run: |
         brew update || true
-        brew install pkg-config sdl2 ffmpeg ninja molten-vk vulkan-headers glslang spirv-tools rust || true
+        brew install pkg-config sdl2 ffmpeg ninja molten-vk rust || true
         brew upgrade freetype
         pip3 install --break-system-packages dmgbuild
         echo /Library/Frameworks/Python.framework/Versions/3.12/bin >> $GITHUB_PATH
@@ -116,6 +116,12 @@ jobs:
         rustup target add x86_64-pc-windows-gnu
         rustup default stable-x86_64-pc-windows-gnu
         rustup set default-host x86_64-pc-windows-gnu
+
+    - name: Install Vulkan SDK
+      uses: humbletim/install-vulkan-sdk@v1.2
+      with:
+        version: 1.3.296.0
+        cache: true
 
     - name: Cache Rust dependencies
       uses: Swatinem/rust-cache@v2
@@ -143,6 +149,7 @@ jobs:
         cd debug
         ${{ matrix.cmake-path }}cmake --version
         ${{ matrix.cmake-path }}cmake -E env ${{ matrix.cmake-init-env }} ${{ matrix.cmake-path }}cmake ${{ matrix.cmake-args }} -DCMAKE_BUILD_TYPE=Debug -Werror=dev -DDOWNLOAD_GTEST=ON -DDEV=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG=. ..
+        ${{ matrix.workaround-issue10203-run-after-configure }}
         ${{ matrix.cmake-path }}cmake --build . --config Debug --target everything
 
     - name: Test debug
@@ -160,6 +167,7 @@ jobs:
         mkdir release
         cd release
         ${{ matrix.cmake-path }}cmake -E env ${{ matrix.cmake-init-env }} ${{ matrix.cmake-path }}cmake ${{ matrix.cmake-args }} -DCMAKE_BUILD_TYPE=Release -Werror=dev -DDOWNLOAD_GTEST=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE=. ..
+        ${{ matrix.workaround-issue10203-run-after-configure }}
         ${{ matrix.cmake-path }}cmake --build . --config Release --target everything
 
     - name: Test release
@@ -173,14 +181,30 @@ jobs:
         ./DDNet-Server shutdown
 
     - name: Build headless client
+      if: ${{ !contains(matrix.os, 'ubuntu') }}
+      run: |
+        mkdir headless
+        cd headless
+        ${{ matrix.cmake-path }}cmake -E env ${{ matrix.cmake-init-env }} ${{ matrix.cmake-path }}cmake ${{ matrix.cmake-args }} -DHEADLESS_CLIENT=ON -DCMAKE_BUILD_TYPE=Debug -Werror=dev -DDOWNLOAD_GTEST=ON -DDEV=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG=. ..
+        ${{ matrix.workaround-issue10203-run-after-configure }}
+        ${{ matrix.cmake-path }}cmake --build . --config Debug
+
+    - name: Build headless client with code coverage
       if: contains(matrix.os, 'ubuntu-latest')
       run: |
         mkdir headless
         cd headless
         ${{ matrix.cmake-path }}cmake -E env CXXFLAGS="--coverage -Werror" ${{ matrix.cmake-path }}cmake -E env LDFLAGS="--coverage -Werror" ${{ matrix.cmake-path }}cmake ${{ matrix.cmake-args }} -DHEADLESS_CLIENT=ON -DCMAKE_BUILD_TYPE=Debug -Werror=dev -DDOWNLOAD_GTEST=ON -DDEV=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG=. ..
+        ${{ matrix.workaround-issue10203-run-after-configure }}
         ${{ matrix.cmake-path }}cmake -E env RUSTFLAGS="-Clink-arg=--coverage" ${{ matrix.cmake-path }}cmake --build . --config Debug
 
     - name: Test headless client (unit tests)
+      if: ${{ !contains(matrix.os, 'ubuntu') }}
+      run: |
+        cd headless
+        ${{ matrix.cmake-path }}cmake --build . --config Debug --target run_tests
+
+    - name: Test headless client (unit tests) with code coverage
       if: contains(matrix.os, 'ubuntu-latest')
       run: |
         cd headless
@@ -193,32 +217,39 @@ jobs:
         flags: unittests
 
     - name: Build in release mode with debug info and all features on
-      if: matrix.fancy
+      if: contains(matrix.name, 'fancy')
       run: |
         mkdir fancy
         cd fancy
         ${{ matrix.cmake-path }}cmake -E env ${{ matrix.cmake-init-env }} ${{ matrix.cmake-path }}cmake ${{ matrix.cmake-args }} -DCMAKE_BUILD_TYPE=RelWithDebInfo -DDOWNLOAD_GTEST=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE=. -DANTIBOT=ON -DWEBSOCKETS=ON ..
+        ${{ matrix.workaround-issue10203-run-after-configure }}
         ${{ matrix.cmake-path }}cmake --build . --config RelWithDebInfo --target everything
 
     - name: Test fancy
-      if: matrix.fancy
+      if: contains(matrix.name, 'fancy')
       run: |
         cd fancy
         ${{ matrix.cmake-path }}cmake -E env ${{ matrix.gtest-env }} ${{ matrix.cmake-path }}cmake --build . --config RelWithDebInfo --target run_tests
 
     - name: Run fancy server
-      if: matrix.fancy
+      if: contains(matrix.name, 'fancy')
       run: |
         cd fancy
         ./DDNet-Server shutdown
 
-    - name: Run integration tests with Valgrind's Memcheck
+    - name: Run integration tests
+      if: ${{ !contains(matrix.os, 'ubuntu') }}
+      run: |
+        cp src/mastersrv/target/debug/mastersrv${{ matrix.executable-suffix }} headless
+        python scripts/integration_test.py --show-full-output --test-mastersrv headless
+
+    - name: Run integration tests with Valgrind's Memcheck and code coverage
       if: contains(matrix.os, 'ubuntu-latest')
       run: |
         # Remove old coverage data:
         find headless -name '*.gcno' -o -name '*.gcda' -delete
-        cp src/mastersrv/target/debug/mastersrv headless
-        python scripts/integration_test.py --test-mastersrv --valgrind-memcheck headless
+        cp src/mastersrv/target/debug/mastersrv${{ matrix.executable-suffix }} headless
+        python scripts/integration_test.py --show-full-output --test-mastersrv --valgrind-memcheck headless
 
     - name: Upload Codecov report (integration tests)
       if: contains(matrix.os, 'ubuntu-latest')
@@ -246,7 +277,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        submodules: true
+        submodules: recursive
 
     - name: Validate Gradle Wrapper
       uses: gradle/actions/wrapper-validation@v4
@@ -254,7 +285,7 @@ jobs:
     - name: Prepare Linux
       run: |
         sudo apt-get update -y
-        sudo apt-get install cmake ninja-build openjdk-21-jdk p7zip-full curl glslang-tools openssl
+        sudo apt-get install cmake ninja-build openjdk-21-jdk p7zip-full curl openssl
         cargo install cargo-ndk
         rustup target add armv7-linux-androideabi
         rustup target add i686-linux-android
@@ -284,6 +315,12 @@ jobs:
         rm commandlinetools-linux-11076708_latest.zip
         mv cmdline-tools latest
         yes | latest/bin/sdkmanager --licenses
+
+    - name: Install Vulkan SDK
+      uses: humbletim/install-vulkan-sdk@v1.2
+      with:
+        version: 1.3.296.0
+        cache: true
 
     - name: Cache Rust dependencies
       uses: Swatinem/rust-cache@v2

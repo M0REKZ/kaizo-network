@@ -179,9 +179,9 @@ bool CRenderLayerTile::CTileLayerVisuals::Init(unsigned int Width, unsigned int 
 	return true;
 }
 
-/*************
-* Base Layer *
-**************/
+/**************
+ * Base Layer *
+ **************/
 
 CRenderLayer::CRenderLayer(int GroupId, int LayerId, int Flags) :
 	m_GroupId(GroupId), m_LayerId(LayerId), m_Flags(Flags) {}
@@ -209,6 +209,22 @@ void CRenderLayer::RenderLoading() const
 	const char *pLoadingMessage = Localize("Uploading map data to GPU");
 	if(m_RenderUploadCallback.has_value())
 		(*m_RenderUploadCallback)(pLoadingTitle, pLoadingMessage, 0);
+}
+
+bool CRenderLayer::IsVisibleInClipRegion(const std::optional<CClipRegion> &ClipRegion) const
+{
+	// always show unclipped regions
+	if(!ClipRegion.has_value())
+		return true;
+
+	float ScreenX0, ScreenY0, ScreenX1, ScreenY1;
+	Graphics()->GetScreen(&ScreenX0, &ScreenY0, &ScreenX1, &ScreenY1);
+	float Left = ClipRegion->m_X;
+	float Top = ClipRegion->m_Y;
+	float Right = ClipRegion->m_X + ClipRegion->m_Width;
+	float Bottom = ClipRegion->m_Y + ClipRegion->m_Height;
+
+	return Right >= ScreenX0 && Left <= ScreenX1 && Bottom >= ScreenY0 && Top <= ScreenY1;
 }
 
 /**************
@@ -296,7 +312,7 @@ void CRenderLayerTile::RenderTileLayer(const ColorRGBA &Color, const CRenderLaye
 	int ScreenRectY1 = std::ceil(ScreenY1 / 32);
 	int ScreenRectX1 = std::ceil(ScreenX1 / 32);
 
-	if(ScreenRectX1 > 0 && ScreenRectY1 > 0 && ScreenRectX0 < (int)Visuals.m_Width && ScreenRectY0 < (int)Visuals.m_Height)
+	if(IsVisibleInClipRegion(m_LayerClip))
 	{
 		// create the indice buffers we want to draw -- reuse them
 		std::vector<char *> vpIndexOffsets;
@@ -304,7 +320,8 @@ void CRenderLayerTile::RenderTileLayer(const ColorRGBA &Color, const CRenderLaye
 
 		int X0 = std::max(ScreenRectX0, 0);
 		int X1 = std::min(ScreenRectX1, (int)Visuals.m_Width);
-		if(X0 <= X1)
+		int XR = X1 - 1;
+		if(X0 <= XR)
 		{
 			int Y0 = std::max(ScreenRectY0, 0);
 			int Y1 = std::min(ScreenRectY1, (int)Visuals.m_Height);
@@ -315,10 +332,7 @@ void CRenderLayerTile::RenderTileLayer(const ColorRGBA &Color, const CRenderLaye
 
 			for(int y = Y0; y < Y1; ++y)
 			{
-				int XR = X1 - 1;
-
-				dbg_assert(Visuals.m_vTilesOfLayer[y * Visuals.m_Width + XR].IndexBufferByteOffset() >= Visuals.m_vTilesOfLayer[y * Visuals.m_Width + X0].IndexBufferByteOffset(), "Tile count wrong.");
-
+				dbg_assert(Visuals.m_vTilesOfLayer[y * Visuals.m_Width + XR].IndexBufferByteOffset() >= Visuals.m_vTilesOfLayer[y * Visuals.m_Width + X0].IndexBufferByteOffset(), "Tile offsets are not monotone.");
 				unsigned int NumVertices = ((Visuals.m_vTilesOfLayer[y * Visuals.m_Width + XR].IndexBufferByteOffset() - Visuals.m_vTilesOfLayer[y * Visuals.m_Width + X0].IndexBufferByteOffset()) / sizeof(unsigned int)) + (Visuals.m_vTilesOfLayer[y * Visuals.m_Width + XR].DoDraw() ? 6lu : 0lu);
 
 				if(NumVertices)
@@ -339,6 +353,14 @@ void CRenderLayerTile::RenderTileLayer(const ColorRGBA &Color, const CRenderLaye
 	if(Params.m_RenderTileBorder && (ScreenRectX1 > (int)Visuals.m_Width || ScreenRectY1 > (int)Visuals.m_Height || ScreenRectX0 < 0 || ScreenRectY0 < 0))
 	{
 		RenderTileBorder(Color, ScreenRectX0, ScreenRectY0, ScreenRectX1, ScreenRectY1, &Visuals);
+	}
+
+	if(Params.m_DebugRenderTileClips && m_LayerClip.has_value())
+	{
+		const CClipRegion &Clip = m_LayerClip.value();
+		char aDebugText[32];
+		str_format(aDebugText, sizeof(aDebugText), "Group %d LayerId %d", m_GroupId, m_LayerId);
+		RenderMap()->RenderDebugClip(Clip.m_X, Clip.m_Y, Clip.m_Width, Clip.m_Height, ColorRGBA(1.0f, 0.5f, 0.0f, 1.0f), Params.m_Zoom, aDebugText);
 	}
 }
 
@@ -619,6 +641,11 @@ void CRenderLayerTile::UploadTileData(std::optional<CTileLayerVisuals> &VisualsO
 		vTmpBorderCornersTexCoords.reserve((size_t)4);
 	}
 
+	int DrawLeft = m_pLayerTilemap->m_Width;
+	int DrawRight = 0;
+	int DrawTop = m_pLayerTilemap->m_Height;
+	int DrawBottom = 0;
+
 	int x = 0;
 	int y = 0;
 	for(y = 0; y < m_pLayerTilemap->m_Height; ++y)
@@ -635,7 +662,15 @@ void CRenderLayerTile::UploadTileData(std::optional<CTileLayerVisuals> &VisualsO
 			Visuals.m_vTilesOfLayer[y * m_pLayerTilemap->m_Width + x].SetIndexBufferByteOffset((offset_ptr32)(TilesHandledCount));
 
 			if(AddTile(vTmpTiles, vTmpTileTexCoords, Index, Flags, x, y, DoTextureCoords, AddAsSpeedup, AngleRotate))
+			{
 				Visuals.m_vTilesOfLayer[y * m_pLayerTilemap->m_Width + x].Draw(true);
+
+				// calculate clip region boundaries based on draws
+				DrawLeft = std::min(DrawLeft, x);
+				DrawRight = std::max(DrawRight, x);
+				DrawTop = std::min(DrawTop, y);
+				DrawBottom = std::max(DrawBottom, y);
+			}
 
 			// do the border tiles
 			if(x == 0)
@@ -686,6 +721,26 @@ void CRenderLayerTile::UploadTileData(std::optional<CTileLayerVisuals> &VisualsO
 				if(AddTile(vTmpBorderBottomTiles, vTmpBorderBottomTilesTexCoords, Index, Flags, x, 0, DoTextureCoords, AddAsSpeedup, AngleRotate, ivec2{0, 0}))
 					Visuals.m_vBorderBottom[x].Draw(true);
 			}
+		}
+	}
+
+	// shrink clip region
+	// we only apply the clip once for the first overlay type (tile visuals). Physic layers can have multiple layers for text, e.g. speedup force
+	// the first overlay is always the largest and you will never find an overlay, where the text is written over AIR
+	if(CurOverlay == 0)
+	{
+		if(DrawLeft > DrawRight || DrawTop > DrawBottom)
+		{
+			// we are drawing nothing, layer is empty
+			m_LayerClip->m_Height = 0.0f;
+			m_LayerClip->m_Width = 0.0f;
+		}
+		else
+		{
+			m_LayerClip->m_X = DrawLeft * 32.0f;
+			m_LayerClip->m_Y = DrawTop * 32.0f;
+			m_LayerClip->m_Width = (DrawRight - DrawLeft + 1) * 32.0f;
+			m_LayerClip->m_Height = (DrawBottom - DrawTop + 1) * 32.0f;
 		}
 	}
 
@@ -828,6 +883,7 @@ void CRenderLayerTile::OnInit(IGraphics *pGraphics, ITextRender *pTextRender, CR
 {
 	CRenderLayer::OnInit(pGraphics, pTextRender, pRenderMap, pEnvelopeManager, pMap, pMapImages, FRenderUploadCallbackOptional);
 	InitTileData();
+	m_LayerClip = CClipRegion(0.0f, 0.0f, m_pLayerTilemap->m_Width * 32.0f, m_pLayerTilemap->m_Height * 32.0f);
 }
 
 void CRenderLayerTile::InitTileData()
@@ -873,7 +929,7 @@ void CRenderLayerQuads::RenderQuadLayer(float Alpha, const CRenderLayerParams &P
 				CQuad *pQuad = &m_pQuads[QuadCluster.m_StartIndex + QuadClusterId];
 
 				ColorRGBA Color = ColorRGBA(1.0f, 1.0f, 1.0f, 1.0f);
-				if(pQuad->m_ColorEnvOffset >= 0)
+				if(pQuad->m_ColorEnv >= 0)
 				{
 					m_pEnvelopeManager->EnvelopeEval()->EnvelopeEval(pQuad->m_ColorEnvOffset, pQuad->m_ColorEnv, Color, 4);
 				}
@@ -1007,10 +1063,10 @@ void CRenderLayerQuads::Init()
 			if(!Textured)
 			{
 				// ignore the conversion for the position coordinates
-				vTmpQuads[QuadId].m_aVertices[j].m_X = (pQuad->m_aPoints[QuadIdX].x);
-				vTmpQuads[QuadId].m_aVertices[j].m_Y = (pQuad->m_aPoints[QuadIdX].y);
-				vTmpQuads[QuadId].m_aVertices[j].m_CenterX = (pQuad->m_aPoints[4].x);
-				vTmpQuads[QuadId].m_aVertices[j].m_CenterY = (pQuad->m_aPoints[4].y);
+				vTmpQuads[QuadId].m_aVertices[j].m_X = fx2f(pQuad->m_aPoints[QuadIdX].x);
+				vTmpQuads[QuadId].m_aVertices[j].m_Y = fx2f(pQuad->m_aPoints[QuadIdX].y);
+				vTmpQuads[QuadId].m_aVertices[j].m_CenterX = fx2f(pQuad->m_aPoints[4].x);
+				vTmpQuads[QuadId].m_aVertices[j].m_CenterY = fx2f(pQuad->m_aPoints[4].y);
 				vTmpQuads[QuadId].m_aVertices[j].m_R = (unsigned char)pQuad->m_aColors[QuadIdX].r;
 				vTmpQuads[QuadId].m_aVertices[j].m_G = (unsigned char)pQuad->m_aColors[QuadIdX].g;
 				vTmpQuads[QuadId].m_aVertices[j].m_B = (unsigned char)pQuad->m_aColors[QuadIdX].b;
@@ -1019,10 +1075,10 @@ void CRenderLayerQuads::Init()
 			else
 			{
 				// ignore the conversion for the position coordinates
-				vTmpQuadsTextured[QuadId].m_aVertices[j].m_X = (pQuad->m_aPoints[QuadIdX].x);
-				vTmpQuadsTextured[QuadId].m_aVertices[j].m_Y = (pQuad->m_aPoints[QuadIdX].y);
-				vTmpQuadsTextured[QuadId].m_aVertices[j].m_CenterX = (pQuad->m_aPoints[4].x);
-				vTmpQuadsTextured[QuadId].m_aVertices[j].m_CenterY = (pQuad->m_aPoints[4].y);
+				vTmpQuadsTextured[QuadId].m_aVertices[j].m_X = fx2f(pQuad->m_aPoints[QuadIdX].x);
+				vTmpQuadsTextured[QuadId].m_aVertices[j].m_Y = fx2f(pQuad->m_aPoints[QuadIdX].y);
+				vTmpQuadsTextured[QuadId].m_aVertices[j].m_CenterX = fx2f(pQuad->m_aPoints[4].x);
+				vTmpQuadsTextured[QuadId].m_aVertices[j].m_CenterY = fx2f(pQuad->m_aPoints[4].y);
 				vTmpQuadsTextured[QuadId].m_aVertices[j].m_U = fx2f(pQuad->m_aTexcoords[QuadIdX].x);
 				vTmpQuadsTextured[QuadId].m_aVertices[j].m_V = fx2f(pQuad->m_aTexcoords[QuadIdX].y);
 				vTmpQuadsTextured[QuadId].m_aVertices[j].m_R = (unsigned char)pQuad->m_aColors[QuadIdX].r;
@@ -1152,7 +1208,7 @@ void CRenderLayerQuads::CQuadLayerVisuals::Unload()
 	Graphics()->DeleteBufferContainer(m_BufferContainerIndex);
 }
 
-bool CRenderLayerQuads::CalculateQuadClipping(const CQuadCluster &QuadCluster, int aQuadOffsetMin[2], int aQuadOffsetMax[2]) const
+bool CRenderLayerQuads::CalculateQuadClipping(const CQuadCluster &QuadCluster, float aQuadOffsetMin[2], float aQuadOffsetMax[2]) const
 {
 	// check if the grouped clipping is available for early exit
 	if(QuadCluster.m_Grouped)
@@ -1165,8 +1221,8 @@ bool CRenderLayerQuads::CalculateQuadClipping(const CQuadCluster &QuadCluster, i
 	// calculate quad position offsets
 	for(int Channel = 0; Channel < 2; ++Channel)
 	{
-		aQuadOffsetMin[Channel] = std::numeric_limits<int>::max(); // minimum of channel
-		aQuadOffsetMax[Channel] = std::numeric_limits<int>::min(); // maximum of channel
+		aQuadOffsetMin[Channel] = std::numeric_limits<float>::max(); // minimum of channel
+		aQuadOffsetMax[Channel] = std::numeric_limits<float>::min(); // maximum of channel
 	}
 
 	for(int QuadId = QuadCluster.m_StartIndex; QuadId < QuadCluster.m_StartIndex + QuadCluster.m_NumQuads; ++QuadId)
@@ -1184,14 +1240,14 @@ bool CRenderLayerQuads::CalculateQuadClipping(const CQuadCluster &QuadCluster, i
 			{
 				for(int Channel = 0; Channel < 2; ++Channel)
 				{
-					int OffsetMinimum = pQuad->m_aPoints[QuadIdPoint][Channel];
-					int OffsetMaximum = pQuad->m_aPoints[QuadIdPoint][Channel];
+					float OffsetMinimum = fx2f(pQuad->m_aPoints[QuadIdPoint][Channel]);
+					float OffsetMaximum = fx2f(pQuad->m_aPoints[QuadIdPoint][Channel]);
 
 					// calculate env offsets for every ungrouped quad
 					if(!QuadCluster.m_Grouped && pQuad->m_PosEnv >= 0)
 					{
-						OffsetMinimum += Extrema.m_Minima[Channel];
-						OffsetMaximum += Extrema.m_Maxima[Channel];
+						OffsetMinimum += fx2f(Extrema.m_Minima[Channel]);
+						OffsetMaximum += fx2f(Extrema.m_Maxima[Channel]);
 					}
 					aQuadOffsetMin[Channel] = std::min(aQuadOffsetMin[Channel], OffsetMinimum);
 					aQuadOffsetMax[Channel] = std::max(aQuadOffsetMax[Channel], OffsetMaximum);
@@ -1200,23 +1256,25 @@ bool CRenderLayerQuads::CalculateQuadClipping(const CQuadCluster &QuadCluster, i
 		}
 		else
 		{
-			const CPoint &Center = pQuad->m_aPoints[4];
-			int MaxDistance = 0;
+			const CPoint &CenterFX = pQuad->m_aPoints[4];
+			vec2 Center(fx2f(CenterFX.x), fx2f(CenterFX.y));
+			float MaxDistance = 0;
 			for(int QuadIdPoint = 0; QuadIdPoint < 4; ++QuadIdPoint)
 			{
-				const CPoint &QuadPoint = pQuad->m_aPoints[QuadIdPoint];
-				int Distance = (int)std::ceil(length(vec2(Center.x - QuadPoint.x, Center.y - QuadPoint.y)));
+				const CPoint &QuadPointFX = pQuad->m_aPoints[QuadIdPoint];
+				vec2 QuadPoint(fx2f(QuadPointFX.x), fx2f(QuadPointFX.y));
+				float Distance = length(Center - QuadPoint);
 				MaxDistance = std::max(Distance, MaxDistance);
 			}
 
 			for(int Channel = 0; Channel < 2; ++Channel)
 			{
-				int OffsetMinimum = Center[Channel] - MaxDistance;
-				int OffsetMaximum = Center[Channel] + MaxDistance;
+				float OffsetMinimum = Center[Channel] - MaxDistance;
+				float OffsetMaximum = Center[Channel] + MaxDistance;
 				if(!QuadCluster.m_Grouped && pQuad->m_PosEnv >= 0)
 				{
-					OffsetMinimum += Extrema.m_Minima[Channel];
-					OffsetMaximum += Extrema.m_Maxima[Channel];
+					OffsetMinimum += fx2f(Extrema.m_Minima[Channel]);
+					OffsetMaximum += fx2f(Extrema.m_Maxima[Channel]);
 				}
 				aQuadOffsetMin[Channel] = std::min(aQuadOffsetMin[Channel], OffsetMinimum);
 				aQuadOffsetMax[Channel] = std::max(aQuadOffsetMax[Channel], OffsetMaximum);
@@ -1231,8 +1289,8 @@ bool CRenderLayerQuads::CalculateQuadClipping(const CQuadCluster &QuadCluster, i
 
 		for(int Channel = 0; Channel < 2; ++Channel)
 		{
-			aQuadOffsetMin[Channel] += Extrema.m_Minima[Channel];
-			aQuadOffsetMax[Channel] += Extrema.m_Maxima[Channel];
+			aQuadOffsetMin[Channel] += fx2f(Extrema.m_Minima[Channel]);
+			aQuadOffsetMax[Channel] += fx2f(Extrema.m_Maxima[Channel]);
 		}
 	}
 	return true;
@@ -1240,8 +1298,8 @@ bool CRenderLayerQuads::CalculateQuadClipping(const CQuadCluster &QuadCluster, i
 
 void CRenderLayerQuads::CalculateClipping(CQuadCluster &QuadCluster)
 {
-	int aQuadOffsetMin[2];
-	int aQuadOffsetMax[2];
+	float aQuadOffsetMin[2];
+	float aQuadOffsetMax[2];
 
 	bool CreateClip = CalculateQuadClipping(QuadCluster, aQuadOffsetMin, aQuadOffsetMax);
 
@@ -1252,12 +1310,12 @@ void CRenderLayerQuads::CalculateClipping(CQuadCluster &QuadCluster)
 	std::optional<CClipRegion> &ClipRegion = QuadCluster.m_ClipRegion;
 
 	// X channel
-	ClipRegion->m_X = fx2f(aQuadOffsetMin[0]);
-	ClipRegion->m_Width = fx2f(aQuadOffsetMax[0]) - fx2f(aQuadOffsetMin[0]);
+	ClipRegion->m_X = aQuadOffsetMin[0];
+	ClipRegion->m_Width = aQuadOffsetMax[0] - aQuadOffsetMin[0];
 
 	// Y channel
-	ClipRegion->m_Y = fx2f(aQuadOffsetMin[1]);
-	ClipRegion->m_Height = fx2f(aQuadOffsetMax[1]) - fx2f(aQuadOffsetMin[1]);
+	ClipRegion->m_Y = aQuadOffsetMin[1];
+	ClipRegion->m_Height = aQuadOffsetMax[1] - aQuadOffsetMin[1];
 
 	// update layer clip
 	if(!m_LayerClip.has_value())
@@ -1299,22 +1357,6 @@ void CRenderLayerQuads::Render(const CRenderLayerParams &Params)
 		str_format(aDebugText, sizeof(aDebugText), "Group %d, quad layer %d", m_GroupId, m_LayerId);
 		RenderMap()->RenderDebugClip(m_LayerClip->m_X, m_LayerClip->m_Y, m_LayerClip->m_Width, m_LayerClip->m_Height, ColorRGBA(1.0f, 0.0f, 0.5f, 1.0f), Params.m_Zoom, aDebugText);
 	}
-}
-
-bool CRenderLayerQuads::IsVisibleInClipRegion(const std::optional<CClipRegion> &ClipRegion) const
-{
-	// always show unclipped regions
-	if(!ClipRegion.has_value())
-		return true;
-
-	float ScreenX0, ScreenY0, ScreenX1, ScreenY1;
-	Graphics()->GetScreen(&ScreenX0, &ScreenY0, &ScreenX1, &ScreenY1);
-	float Left = ClipRegion->m_X;
-	float Top = ClipRegion->m_Y;
-	float Right = ClipRegion->m_X + ClipRegion->m_Width;
-	float Bottom = ClipRegion->m_Y + ClipRegion->m_Height;
-
-	return Right >= ScreenX0 && Left <= ScreenX1 && Bottom >= ScreenY0 && Top <= ScreenY1;
 }
 
 bool CRenderLayerQuads::DoRender(const CRenderLayerParams &Params)

@@ -436,8 +436,6 @@ Yes
 You must restart the game for all settings to take effect.
 == Devi riavviare il gioco per rendere effettive le modifiche.
 
-##### needs translation #####
-
 New name:
 == Nuovo nome:
 
@@ -496,13 +494,10 @@ Name plates size
 == Dimensione nomi
 
 DDNet %s is out!
-== DDNet %s è uscito!
-
-%d new mentions
-== %d nuove menzioni
+== È uscito DDNet %s!
 
 Disconnect Dummy
-== Disconnetti Dummy
+== Disconnetti il dummy
 
 Are you sure that you want to disconnect your dummy?
 == Sei sicuro di voler disconnettere il tuo dummy?
@@ -510,14 +505,8 @@ Are you sure that you want to disconnect your dummy?
 Filter connecting players
 == Filtra i giocatori in conness.
 
-9+ new mentions
-== 9+ nuove menzioni
-
 Markers
 == Marcatrici
-
-Disconnect Dummy
-== Disconnetti il dummy
 
 Length
 == Lunghezza
@@ -525,29 +514,14 @@ Length
 Fetch Info
 == Recuperare informazioni
 
-Length
-== Lunghezza
-
 Downloading %s:
 == Scaricando %s:
 
 Update failed! Check log…
 == Aggiornamento non riuscito! Controlla registro…
 
-Filter connecting players
-== Filtra i giocatori in conness.
-
 Time
 == Tempo
-
-Downloading %s:
-== Scarica %s
-
-Are you sure that you want to disconnect your dummy?
-== Sei sicuro di voler scollegare il tuo dummy?
-
-1 new mention
-== 1 nuova menzione
 
 Successfully saved the replay!
 == Hai salvato il replay con successo!
@@ -912,9 +886,6 @@ Show text entities
 Show others (own team only)
 == Mostra altri (solo la propria squadra)
 
-Show quads
-== Mostra quads
-
 AntiPing
 == AntiPing
 
@@ -975,7 +946,6 @@ Learn
 https://wiki.ddnet.org/
 == https://wiki.ddnet.org/
 
-
 Website
 == Sito web
 
@@ -997,9 +967,6 @@ Editor
 [Start menu]
 Play
 == Gioca
-
-DDNet %s is out!
-== È uscito DDNet %s!
 
 Restart
 == Ricomincia
@@ -1050,7 +1017,7 @@ Grabs
 == %d nuove menzioni
 
 9+ new mentions
-== +9 nuove menzioni
+== 9+ nuove menzioni
 
 Preparing demo playback
 == Preparando la riproduzione della demo
@@ -1173,7 +1140,7 @@ Delete folder
 == Cancella cartella
 
 Download community skins
-== Scarica skin comunitá 
+== Scarica skin comunitá
 
 Choose default eyes when joining a server
 == Scegli degli occhi di default quando entri in un server
@@ -1291,7 +1258,7 @@ When you cross the start line, show a ghost tee replicating the movements of you
 == Quando attraversi la linea di partenza, mostra una maglietta fantasma che riproduce i movimenti del tuo miglior tempo
 
 Opacity
-== Opacitá 
+== Opacitá
 
 Adjust the opacity of entities belonging to other teams, such as tees and name plates
 == Regola l'opacità delle entità appartenenti ad altri team, come magliette e targhette
@@ -1423,6 +1390,21 @@ Why are you slowmo replaying to read this?
 Loading skin files
 == 
 
+Team save in progress. You'll be able to load with '/load %s'
+== 
+
+Team save in progress. You'll be able to load with '/load %s' if save is successful or with '/load %s' if it fails
+== 
+
+Team successfully saved by %s. The database connection failed, using generated save code instead to avoid collisions. Use '/load %s' to continue
+== 
+
+Team successfully saved by %s. The database connection failed, using generated save code instead to avoid collisions. Use '/load %s' on %s to continue
+== 
+
+Save failed!
+== 
+
 Auto-sync player camera
 == 
 
@@ -1491,6 +1473,19 @@ Following %s
 AUTO
 == 
 
+[Important alert message]
+Press Esc or Tab to dismiss…
+== 
+
+Server alert
+== 
+
+Moderator alert
+== 
+
+Press a key…
+== 
+
 Server could not be started. Make sure to grant the notification permission in the app settings so the server can run in the background.
 == 
 
@@ -1507,9 +1502,6 @@ Some map sounds could not be loaded. Check the local console for details.
 == 
 
 Loading menu themes
-== 
-
-Press a key…
 == 
 
 Main menu
@@ -1534,6 +1526,9 @@ Continue anyway?
 == 
 
 This name cannot be used for files and folders
+== 
+
+You will be disconnected from the server.
 == 
 
 Videos directory
@@ -1738,6 +1733,9 @@ map not included
 == 
 
 Open the directory that contains the demo files
+== 
+
+Are you sure that you want to disconnect and play this demo?
 == 
 
 Are you sure that you want to delete the folder '%s'?
@@ -2180,34 +2178,6 @@ Skin could not be found.
 No skins match your filter criteria
 == 
 
-Converse
-== 
-
-Chat command
-== 
-
-Controller
-== 
-
-[Ingame controller mode]
-Absolute
-== 
-
-Ingame controller sens.
-== 
-
-UI controller sens.
-== 
-
-Controller jitter tolerance
-== 
-
-Aim bind
-== 
-
-Mouse
-== 
-
 Allows maps to render with more detail
 == 
 
@@ -2305,7 +2275,7 @@ Show friend icon in name plates
 Show client IDs in name plates
 == 
 
-Show client IDs on a seperate line
+Show client IDs on a separate line
 == 
 
 Client IDs size
@@ -2426,6 +2396,9 @@ Only save improvements
 Overlay entities
 == 
 
+Show background quads
+== 
+
 AntiPing: prediction margin
 == 
 
@@ -2453,6 +2426,37 @@ Unable to delete skin
 Extras
 == 
 
+Converse
+== 
+
+Chat command
+== 
+
+Scoreboard cursor
+== 
+
+Mouse
+== 
+
+Controller
+== 
+
+[Ingame controller mode]
+Absolute
+== 
+
+Ingame controller sens.
+== 
+
+UI controller sens.
+== 
+
+Controller jitter tolerance
+== 
+
+Aim bind
+== 
+
 Discord
 == 
 
@@ -2477,6 +2481,21 @@ Super
 == 
 
 Team %d (%d/%d)
+== 
+
+Add friend
+== 
+
+Unmute
+== 
+
+Mute
+== 
+
+Unmute emoticons
+== 
+
+Mute emoticons
 == 
 
 [skins]

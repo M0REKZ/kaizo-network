@@ -1717,10 +1717,17 @@ public:
 				{
 					if((pCursor->m_Flags & TEXTFLAG_DISALLOW_NEWLINE) == 0)
 					{
-						pLastGlyph = nullptr;
-						if(!StartNewLine())
+						if(StartNewLine())
+						{
+							pLastGlyph = nullptr;
+							continue;
+						}
+						else
+						{
+							pCurrent = pEnd;
+							pCursor->m_Truncated = true;
 							break;
-						continue;
+						}
 					}
 					else
 					{
@@ -1757,6 +1764,7 @@ public:
 							// we hit the end, only render ellipsis and finish
 							pTmp = pEllipsis;
 							NextCharacter = 0x2026;
+							pCursor->m_Truncated = true;
 							continue;
 						}
 					}
@@ -1767,6 +1775,7 @@ public:
 					{
 						// we hit the end of the line, no more to render or count
 						pCurrent = pEnd;
+						pCursor->m_Truncated = true;
 						break;
 					}
 
@@ -2309,7 +2318,7 @@ public:
 			if(pTextContainer->m_ContainerIndex.Valid() && pTextContainer->m_ContainerIndex.m_UseCount.use_count() <= 1)
 			{
 				log_error("textrender", "Found non empty text container with index %d with %" PRIzu " quads '%s'", pTextContainer->m_StringInfo.m_QuadBufferContainerIndex, pTextContainer->m_StringInfo.m_vCharacterQuads.size(), pTextContainer->m_aDebugText);
-				dbg_assert(false, "Text container was forgotten by the implementation (the index was overwritten).");
+				dbg_assert_failed("Text container was forgotten by the implementation (the index was overwritten).");
 			}
 		}
 	}

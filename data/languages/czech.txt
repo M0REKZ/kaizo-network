@@ -436,8 +436,6 @@ Yes
 You must restart the game for all settings to take effect.
 == Změna nastavení se projeví až po restartu hry.
 
-##### needs translation #####
-
 New name:
 == Nové jméno:
 
@@ -824,9 +822,6 @@ Show text entities
 
 Show others (own team only)
 == Zobrazit ostatní (pouze vlastní tým)
-
-Show quads
-== Zobrazit quads
 
 AntiPing
 == AntiPing
@@ -2143,7 +2138,7 @@ Show friend icon in name plates
 Show client IDs in name plates
 == Zobrazit ID klientů na jmenovkách
 
-Show client IDs on a seperate line
+Show client IDs on a separate line
 == Zobrazit ID klientů na samostatném řádku
 
 Client IDs size
@@ -2489,3 +2484,55 @@ Censor profanity
 
 Download
 == Stáhnout
+
+Team save in progress. You'll be able to load with '/load %s'
+== 
+
+Team save in progress. You'll be able to load with '/load %s' if save is successful or with '/load %s' if it fails
+== 
+
+Team successfully saved by %s. The database connection failed, using generated save code instead to avoid collisions. Use '/load %s' to continue
+== 
+
+Team successfully saved by %s. The database connection failed, using generated save code instead to avoid collisions. Use '/load %s' on %s to continue
+== 
+
+Save failed!
+== 
+
+[Important alert message]
+Press Esc or Tab to dismiss…
+== 
+
+Server alert
+== 
+
+Moderator alert
+== 
+
+You will be disconnected from the server.
+== 
+
+Are you sure that you want to disconnect and play this demo?
+== 
+
+Show background quads
+== 
+
+Scoreboard cursor
+== 
+
+Add friend
+== 
+
+Unmute
+== 
+
+Mute
+== 
+
+Unmute emoticons
+== 
+
+Mute emoticons
+== 

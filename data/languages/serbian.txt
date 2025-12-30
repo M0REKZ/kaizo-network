@@ -439,8 +439,6 @@ Yes
 You must restart the game for all settings to take effect.
 == Morate ponovo pokrenuti igru da bi sva podešavanja bila primenjena
 
-##### needs translation #####
-
 Demo
 == Snimak
 
@@ -863,9 +861,6 @@ Show text entities
 
 Show others (own team only)
 == Prikaži ostale (samo svoj tim)
-
-Show quads
-== Prikaži quads
 
 AntiPing
 == AntiPing
@@ -1294,7 +1289,7 @@ Highlight Color
 == Istaknuta Boja
 
 When you cross the start line, show a ghost tee replicating the movements of your best time
-== Kada kreneš da se trkaš, prikaži tvog najbržeg duha 
+== Kada kreneš da se trkaš, prikaži tvog najbržeg duha
 
 Opacity
 == Providnost
@@ -1646,6 +1641,21 @@ Loading demo file from storage
 Some fonts could not be loaded. Check the local console for details.
 == 
 
+Team save in progress. You'll be able to load with '/load %s'
+== 
+
+Team save in progress. You'll be able to load with '/load %s' if save is successful or with '/load %s' if it fails
+== 
+
+Team successfully saved by %s. The database connection failed, using generated save code instead to avoid collisions. Use '/load %s' to continue
+== 
+
+Team successfully saved by %s. The database connection failed, using generated save code instead to avoid collisions. Use '/load %s' on %s to continue
+== 
+
+Save failed!
+== 
+
 Auto-sync player camera
 == 
 
@@ -1714,6 +1724,19 @@ Following %s
 AUTO
 == 
 
+[Important alert message]
+Press Esc or Tab to dismiss…
+== 
+
+Server alert
+== 
+
+Moderator alert
+== 
+
+Press a key…
+== 
+
 Server could not be started. Make sure to grant the notification permission in the app settings so the server can run in the background.
 == 
 
@@ -1730,9 +1753,6 @@ Some map sounds could not be loaded. Check the local console for details.
 == 
 
 Loading menu themes
-== 
-
-Press a key…
 == 
 
 Main menu
@@ -1757,6 +1777,9 @@ Continue anyway?
 == 
 
 This name cannot be used for files and folders
+== 
+
+You will be disconnected from the server.
 == 
 
 Videos directory
@@ -1858,6 +1881,9 @@ Map size
 
 [Demo details]
 map not included
+== 
+
+Are you sure that you want to disconnect and play this demo?
 == 
 
 Dummy is not allowed on this server
@@ -2334,7 +2360,7 @@ Show friend icon in name plates
 Show client IDs in name plates
 == 
 
-Show client IDs on a seperate line
+Show client IDs on a separate line
 == 
 
 Client IDs size
@@ -2416,6 +2442,9 @@ Enable ghost
 Only save improvements
 == 
 
+Show background quads
+== 
+
 AntiPing: prediction margin
 == 
 
@@ -2440,6 +2469,9 @@ Delete skin
 Unable to delete skin
 == 
 
+Scoreboard cursor
+== 
+
 Download
 == 
 
@@ -2452,6 +2484,21 @@ Download
 == 
 
 Team %d (%d/%d)
+== 
+
+Add friend
+== 
+
+Unmute
+== 
+
+Mute
+== 
+
+Unmute emoticons
+== 
+
+Mute emoticons
 == 
 
 [skins]

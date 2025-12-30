@@ -50,7 +50,7 @@ Body
 == Krop
 
 Call vote
-==  Lav afstemning
+== Lav afstemning
 
 Change settings
 == Ændre indstillinger
@@ -436,8 +436,6 @@ Yes
 You must restart the game for all settings to take effect.
 == Du skal genstarte spillet før alle indstillingerne virker.
 
-##### needs translation #####
-
 New name:
 == Nyt navn:
 
@@ -598,7 +596,7 @@ Exclude
 == %d ud af %d servere
 
 %d of %d server
-==  %d af %d server
+== %d af %d server
 
 %d players
 == %d spillere
@@ -888,9 +886,6 @@ Show text entities
 Show others (own team only)
 == Vis andre (kun eget hold)
 
-Show quads
-== Vis quads
-
 AntiPing
 == AntiPing
 
@@ -1096,7 +1091,7 @@ Error saving settings
 == Fejl under lagring af indstillinger
 
 The width of texture %s is not divisible by %d, or the height is not divisible by %d, which might cause visual bugs.
-== Bredden af ​​tekstur %s er ikke delelig med %d, eller højden er ikke delelig med %d, hvilket kan forårsage visuelle fejl.
+== Bredden af tekstur %s er ikke delelig med %d, eller højden er ikke delelig med %d, hvilket kan forårsage visuelle fejl.
 
 "%s" is not compatible with pnglite and cannot be loaded by old DDNet versions:
 == "%s" er ikke kompatibel med pnglite og kan ikke indlæses af gamle DDNet-versioner:
@@ -1451,10 +1446,10 @@ Speed up the demo
 == Søt farten for demoen op
 
 Mark the beginning of a cut (right click to reset)
-== Marker begyndelsen af ​​et klip (højreklik for at nulstille)
+== Marker begyndelsen af et klip (højreklik for at nulstille)
 
 Mark the end of a cut (right click to reset)
-== Marker slutningen af ​​et klip (højreklik for at nulstille)
+== Marker slutningen af et klip (højreklik for at nulstille)
 
 Export cut as a separate demo
 == Eksportér klip som en separat demo
@@ -1989,7 +1984,7 @@ Only save improvements
 == Gem kun forbedringer
 
 Adjust the opacity of entities belonging to other teams, such as tees and name plates
-== Juster opaciteten af ​​enheder, der tilhører andre hold, såsom tees og navneskilte
+== Juster opaciteten af enheder, der tilhører andre hold, såsom tees og navneskilte
 
 Quads are used for background decoration
 == Quads bruges til baggrundsdekoration
@@ -2123,8 +2118,33 @@ Press Ctrl+Shift+G to disable debug graphs.
 No demo with this filename exists
 == 
 
+Team save in progress. You'll be able to load with '/load %s'
+== 
+
+Team save in progress. You'll be able to load with '/load %s' if save is successful or with '/load %s' if it fails
+== 
+
+Team successfully saved by %s. The database connection failed, using generated save code instead to avoid collisions. Use '/load %s' to continue
+== 
+
+Team successfully saved by %s. The database connection failed, using generated save code instead to avoid collisions. Use '/load %s' on %s to continue
+== 
+
+Save failed!
+== 
+
 [Spectating]
 Following %d: %s
+== 
+
+[Important alert message]
+Press Esc or Tab to dismiss…
+== 
+
+Server alert
+== 
+
+Moderator alert
 == 
 
 Server could not be started
@@ -2134,6 +2154,9 @@ Loading map
 == 
 
 This name cannot be used for files and folders
+== 
+
+You will be disconnected from the server.
 == 
 
 Error checking player name
@@ -2154,6 +2177,9 @@ Go to Live
 == 
 
 Map size
+== 
+
+Are you sure that you want to disconnect and play this demo?
 == 
 
 Save all changes before turning off the editor?
@@ -2447,7 +2473,7 @@ Name plates offset
 Show friend icon in name plates
 == 
 
-Show client IDs on a seperate line
+Show client IDs on a separate line
 == 
 
 Client IDs size
@@ -2484,8 +2510,29 @@ Dragger Outline Color
 Dragger Inner Color
 == 
 
+Show background quads
+== 
+
 AntiPing: prediction margin
 == 
 
+Scoreboard cursor
+== 
+
 Download
+== 
+
+Add friend
+== 
+
+Unmute
+== 
+
+Mute
+== 
+
+Unmute emoticons
+== 
+
+Mute emoticons
 == 

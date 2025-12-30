@@ -17,17 +17,17 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
-        submodules: true
+        submodules: recursive
 
     - name: Prepare Linux
       run: |
         sudo apt-get update -y
-        sudo apt-get install ddnet-tools shellcheck tidy pkg-config cmake doxygen graphviz ninja-build libfreetype6-dev libnotify-dev libsdl2-dev libsqlite3-dev libavcodec-dev libavformat-dev libavutil-dev libswresample-dev libswscale-dev libx264-dev python3-clang libvulkan-dev glslang-tools spirv-tools libglew-dev -y
+        sudo apt-get install ddnet-tools shellcheck tidy pkg-config cmake doxygen graphviz ninja-build python3-clang -y
         rustup default stable
-        pip3 install pylint
-        wget https://github.com/muttleyxd/clang-tools-static-binaries/releases/download/master-46b8640/clang-format-10_linux-amd64
-        echo "b8ed0cfc9cded28f8c0c9dd0da402d1287453b7d55a68bf243b432035aebcaa4720bfff22440d1f1c5d4c82f7b8d85948214cca85a2aa976589b88459e440521 clang-format-10_linux-amd64" | sha512sum -c
-        mv clang-format-10_linux-amd64 ~/.local/bin/clang-format
+        pip3 install ruff
+        wget https://github.com/muttleyxd/clang-tools-static-binaries/releases/download/master-796e77c/clang-format-20_linux-amd64
+        echo "bbb30a777d075dfbe91aa146a1ea1fa0c1d4745efa9c5490ebf9f5a7a7dec679c22f1c6015d5c85cb5b5b22964d86ae65002f1d4145bfdd7f27022d981b58979  clang-format-20_linux-amd64" | sha512sum -c
+        mv clang-format-20_linux-amd64 ~/.local/bin/clang-format
         chmod +x ~/.local/bin/clang-format
         wget -O ~/.local/bin/shfmt https://github.com/mvdan/sh/releases/download/v3.8.0/shfmt_v3.8.0_linux_amd64
         chmod +x ~/.local/bin/shfmt
@@ -60,10 +60,15 @@ jobs:
     - name: Shell format (shfmt)
       run: find . -type f -name '*.sh' -print0 | xargs -0 shfmt -d
 
-    - name: Pylint
+    - name: Check Python code style (ruff format)
       run: |
-        pylint --version
-        find . -type f -name "*.py" -not -path './ddnet-libs/*' -not -path './googletest-src/*' -print0 | xargs -0 pylint --disable=no-else-raise,no-else-return,redefined-builtin,redefined-outer-name
+        ruff --version
+        ruff format
+
+    - name: Check Python code style (ruff check)
+      run: |
+        ruff --version
+        ruff check
 
     - name: Check header guards
       run: scripts/check_header_guards.py
@@ -107,7 +112,7 @@ jobs:
       run: |
         mkdir release
         cd release
-        cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DDOWNLOAD_GTEST=OFF -DCMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE=. ..
+        cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DCLIENT=OFF -DDOWNLOAD_GTEST=OFF ..
         cmake --build . --config Release --target dilate
 
     - name: Check dilated images

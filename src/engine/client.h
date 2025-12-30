@@ -399,6 +399,7 @@ public:
 
 	virtual void InitializeLanguage() = 0;
 
+	virtual void ForceUpdateConsoleRemoteCompletionSuggestions() = 0;
 	//+KZ
 	virtual bool CheckNewInput() = 0; // from Fast Input commit
 };

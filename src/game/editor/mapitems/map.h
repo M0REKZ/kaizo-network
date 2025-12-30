@@ -8,10 +8,11 @@
 #include <engine/shared/datafile.h>
 #include <engine/shared/jobs.h>
 
+#include <game/editor/editor_history.h>
 #include <game/editor/editor_server_settings.h>
+#include <game/editor/editor_trackers.h>
 #include <game/editor/mapitems/envelope.h>
 #include <game/editor/mapitems/layer.h>
-#include <game/editor/references.h>
 
 #include <functional>
 #include <memory>
@@ -30,25 +31,43 @@ class CLayerSwitch;
 class CLayerTele;
 class CLayerTune;
 class CQuad;
+class IEditorEnvelopeReference;
 
 class CDataFileWriterFinishJob : public IJob
 {
-	char m_aRealFileName[IO_MAX_PATH_LENGTH];
-	char m_aTempFileName[IO_MAX_PATH_LENGTH];
+	char m_aRealFilename[IO_MAX_PATH_LENGTH];
+	char m_aTempFilename[IO_MAX_PATH_LENGTH];
 	CDataFileWriter m_Writer;
 
 	void Run() override;
 
 public:
-	CDataFileWriterFinishJob(const char *pRealFileName, const char *pTempFileName, CDataFileWriter &&Writer);
-	const char *GetRealFileName() const { return m_aRealFileName; }
-	const char *GetTempFileName() const { return m_aTempFileName; }
+	CDataFileWriterFinishJob(const char *pRealFilename, const char *pTempFilename, CDataFileWriter &&Writer);
+	const char *GetRealFilename() const { return m_aRealFilename; }
+	const char *GetTempFilename() const { return m_aTempFilename; }
 };
+
+using FErrorHandler = std::function<void(const char *pErrorMessage)>;
 
 class CEditorMap
 {
 public:
 	explicit CEditorMap(CEditor *pEditor) :
+		m_EditorHistory(this),
+		m_ServerSettingsHistory(this),
+		m_EnvelopeEditorHistory(this),
+		m_QuadTracker(this),
+		m_EnvOpTracker(this),
+		m_LayerGroupPropTracker(this),
+		m_LayerPropTracker(this),
+		m_LayerTilesCommonPropTracker(this),
+		m_LayerTilesPropTracker(this),
+		m_LayerQuadPropTracker(this),
+		m_LayerSoundsPropTracker(this),
+		m_SoundSourceOperationTracker(this),
+		m_SoundSourcePropTracker(this),
+		m_SoundSourceRectShapePropTracker(this),
+		m_SoundSourceCircleShapePropTracker(this),
 		m_pEditor(pEditor)
 	{
 	}
@@ -56,6 +75,8 @@ public:
 	const CEditor *Editor() const { return m_pEditor; }
 	CEditor *Editor() { return m_pEditor; }
 
+	char m_aFilename[IO_MAX_PATH_LENGTH];
+	bool m_ValidSaveFilename;
 	/**
 	 * Map has unsaved changes for manual save.
 	 */
@@ -97,8 +118,38 @@ public:
 	CMapInfo m_MapInfo;
 	CMapInfo m_MapInfoTmp;
 
+	// Undo/Redo
+	CEditorHistory m_EditorHistory;
+	CEditorHistory m_ServerSettingsHistory;
+	CEditorHistory m_EnvelopeEditorHistory;
+	CQuadEditTracker m_QuadTracker;
+	CEnvelopeEditorOperationTracker m_EnvOpTracker;
+	CLayerGroupPropTracker m_LayerGroupPropTracker;
+	CLayerPropTracker m_LayerPropTracker;
+	CLayerTilesCommonPropTracker m_LayerTilesCommonPropTracker;
+	CLayerTilesPropTracker m_LayerTilesPropTracker;
+	CLayerQuadsPropTracker m_LayerQuadPropTracker;
+	CLayerSoundsPropTracker m_LayerSoundsPropTracker;
+	CSoundSourceOperationTracker m_SoundSourceOperationTracker;
+	CSoundSourcePropTracker m_SoundSourcePropTracker;
+	CSoundSourceRectShapePropTracker m_SoundSourceRectShapePropTracker;
+	CSoundSourceCircleShapePropTracker m_SoundSourceCircleShapePropTracker;
+
 	int m_SelectedImage;
 	int m_SelectedSound;
+
+	int m_ShiftBy;
+
+	// Quad knife
+	class CQuadKnife
+	{
+	public:
+		bool m_Active;
+		int m_SelectedQuadIndex;
+		int m_Count;
+		vec2 m_aPoints[4];
+	};
+	CQuadKnife m_QuadKnife;
 
 	std::shared_ptr<CEnvelope> NewEnvelope(CEnvelope::EType Type);
 	void InsertEnvelope(int Index, std::shared_ptr<CEnvelope> &pEnvelope);
@@ -115,14 +166,17 @@ public:
 	void ModifyEnvelopeIndex(const FIndexModifyFunction &IndexModifyFunction);
 	void ModifySoundIndex(const FIndexModifyFunction &IndexModifyFunction);
 
+	// Housekeeping
 	void Clean();
 	void CreateDefault();
+	void CheckIntegrity();
 
 	// io
-	bool Save(const char *pFilename, const std::function<void(const char *pErrorMessage)> &ErrorHandler);
-	bool PerformPreSaveSanityChecks(const std::function<void(const char *pErrorMessage)> &ErrorHandler);
-	bool Load(const char *pFilename, int StorageType, const std::function<void(const char *pErrorMessage)> &ErrorHandler);
-	void PerformSanityChecks(const std::function<void(const char *pErrorMessage)> &ErrorHandler);
+	bool Save(const char *pFilename, const FErrorHandler &ErrorHandler);
+	bool PerformPreSaveSanityChecks(const FErrorHandler &ErrorHandler);
+	bool Load(const char *pFilename, int StorageType, const FErrorHandler &ErrorHandler);
+	void PerformSanityChecks(const FErrorHandler &ErrorHandler);
+	bool PerformAutosave(const FErrorHandler &ErrorHandler);
 
 	void MakeGameGroup(std::shared_ptr<CLayerGroup> pGroup);
 	void MakeGameLayer(const std::shared_ptr<CLayer> &pLayer);

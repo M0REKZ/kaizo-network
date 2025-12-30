@@ -86,8 +86,7 @@ protected:
 			}
 			break;
 		default:
-			dbg_assert(false, "Direction invalid: %d", (int)Direction);
-			break;
+			dbg_assert_failed("Direction invalid: %d", (int)Direction);
 		}
 	}
 	template<typename T>
@@ -106,7 +105,7 @@ protected:
 	}
 
 public:
-	CLayerTiles(CEditor *pEditor, int w, int h);
+	CLayerTiles(CEditorMap *pMap, int w, int h);
 	CLayerTiles(const CLayerTiles &Other);
 	~CLayerTiles() override;
 
@@ -157,7 +156,7 @@ public:
 		int m_Height = -1;
 		int m_Color = 0;
 	};
-	static CUi::EPopupMenuFunctionResult RenderCommonProperties(SCommonPropState &State, CEditor *pEditor, CUIRect *pToolbox, std::vector<std::shared_ptr<CLayerTiles>> &vpLayers, std::vector<int> &vLayerIndices);
+	static CUi::EPopupMenuFunctionResult RenderCommonProperties(SCommonPropState &State, CEditorMap *pEditorMap, CUIRect *pToolbox, std::vector<std::shared_ptr<CLayerTiles>> &vpLayers, std::vector<int> &vLayerIndices);
 
 	void ModifyImageIndex(const FIndexModifyFunction &IndexModifyFunction) override;
 	void ModifyEnvelopeIndex(const FIndexModifyFunction &IndexModifyFunction) override;
@@ -195,7 +194,7 @@ public:
 	bool m_HasFront;
 	bool m_HasSwitch;
 	bool m_HasTune;
-	char m_aFileName[IO_MAX_PATH_LENGTH];
+	char m_aFilename[IO_MAX_PATH_LENGTH];
 	bool m_KnownTextModeLayer = false;
 
 	// KZ

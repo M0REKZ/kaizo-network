@@ -502,9 +502,6 @@ Ratio
 AntiPing
 == AntiPing
 
-Show quads
-== Quads ﺭﺎﻬﻇﺍ
-
 Map sound volume
 == ﺏﺎﻤﻟﺍ ﺕﻮﺻ
 
@@ -1149,6 +1146,21 @@ Restarting. Please wait…
 Loading skin files
 == 
 
+Team save in progress. You'll be able to load with '/load %s'
+== 
+
+Team save in progress. You'll be able to load with '/load %s' if save is successful or with '/load %s' if it fails
+== 
+
+Team successfully saved by %s. The database connection failed, using generated save code instead to avoid collisions. Use '/load %s' to continue
+== 
+
+Team successfully saved by %s. The database connection failed, using generated save code instead to avoid collisions. Use '/load %s' on %s to continue
+== 
+
+Save failed!
+== 
+
 Auto-sync player camera
 == 
 
@@ -1229,7 +1241,20 @@ Following %s
 AUTO
 == 
 
+[Important alert message]
+Press Esc or Tab to dismiss…
+== 
+
+Server alert
+== 
+
+Moderator alert
+== 
+
 Team %d
+== 
+
+Press a key…
 == 
 
 Server could not be started. Make sure to grant the notification permission in the app settings so the server can run in the background.
@@ -1251,9 +1276,6 @@ Some map sounds could not be loaded. Check the local console for details.
 == 
 
 Loading menu themes
-== 
-
-Press a key…
 == 
 
 Main menu
@@ -1299,6 +1321,9 @@ File '%s' already exists, do you want to overwrite it?
 == 
 
 (paused)
+== 
+
+You will be disconnected from the server.
 == 
 
 Videos directory
@@ -1554,6 +1579,9 @@ map not included
 == 
 
 Open the directory that contains the demo files
+== 
+
+Are you sure that you want to disconnect and play this demo?
 == 
 
 Are you sure that you want to delete the folder '%s'?
@@ -2014,62 +2042,6 @@ No skins match your filter criteria
 Open the directory to add custom skins
 == 
 
-Chat command
-== 
-
-Enable controller
-== 
-
-Controller
-== 
-
-Ingame controller mode
-== 
-
-[Ingame controller mode]
-Relative
-== 
-
-[Ingame controller mode]
-Absolute
-== 
-
-Ingame controller sens.
-== 
-
-UI controller sens.
-== 
-
-Controller jitter tolerance
-== 
-
-No controller found. Plug in a controller.
-== 
-
-Axis
-== 
-
-Status
-== 
-
-Aim bind
-== 
-
-Mouse
-== 
-
-Ingame mouse sens.
-== 
-
-UI mouse sens.
-== 
-
-Reset controls
-== 
-
-Are you sure that you want to reset the controls to their defaults?
-== 
-
 Windowed
 == 
 
@@ -2212,7 +2184,7 @@ Show friend icon in name plates
 Show client IDs in name plates
 == 
 
-Show client IDs on a seperate line
+Show client IDs on a separate line
 == 
 
 Client IDs size
@@ -2360,6 +2332,9 @@ Only save improvements
 Adjust the opacity of entities belonging to other teams, such as tees and name plates
 == 
 
+Show background quads
+== 
+
 Quads are used for background decoration
 == 
 
@@ -2414,6 +2389,65 @@ Loading assets
 Open the directory to add custom assets
 == 
 
+Chat command
+== 
+
+Scoreboard cursor
+== 
+
+Reset controls
+== 
+
+Are you sure that you want to reset the controls to their defaults?
+== 
+
+Mouse
+== 
+
+Controller
+== 
+
+Ingame mouse sens.
+== 
+
+UI mouse sens.
+== 
+
+Enable controller
+== 
+
+Ingame controller mode
+== 
+
+[Ingame controller mode]
+Relative
+== 
+
+[Ingame controller mode]
+Absolute
+== 
+
+Ingame controller sens.
+== 
+
+UI controller sens.
+== 
+
+Controller jitter tolerance
+== 
+
+No controller found. Plug in a controller.
+== 
+
+Axis
+== 
+
+Status
+== 
+
+Aim bind
+== 
+
 Discord
 == 
 
@@ -2444,6 +2478,21 @@ Super
 == 
 
 Team %d (%d/%d)
+== 
+
+Add friend
+== 
+
+Unmute
+== 
+
+Mute
+== 
+
+Unmute emoticons
+== 
+
+Mute emoticons
 == 
 
 [skins]

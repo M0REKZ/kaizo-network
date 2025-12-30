@@ -883,9 +883,6 @@ Show others
 Unfinished map
 == Oavklarad bana
 
-Show quads
-== Visa quads
-
 Show names in chat in team colors
 == Visa namn in chatten med lagets färger
 
@@ -1314,7 +1311,7 @@ Close the demo player
 == Stäng demo spelaren
 
 Toggle keyboard shortcuts
-== Växla kortkommandon 
+== Växla kortkommandon
 
 Export demo cut
 == Exportera demo snitt
@@ -1368,7 +1365,7 @@ Open the directory that contains the configuration and user files
 == Öppna mappen som innehåller konfigurationen och användarfiler
 
 Open the directory to add custom themes
-== Öppna mappen för att lägga till egna teman 
+== Öppna mappen för att lägga till egna teman
 
 Loading skin files
 == Laddar skin filer
@@ -1781,7 +1778,7 @@ Show hook strength icon indicator
 == Visa hook styrka med en ikon
 
 Show hook strength number indicator
-== Visa hook styrka med ett nummer 
+== Visa hook styrka med ett nummer
 
 Show own player's hook collision line
 == Visa din egen hook kollisions linje
@@ -2142,7 +2139,7 @@ Name plates offset
 Show friend icon in name plates
 == Visa kompis ikon i namnskyltar
 
-Show client IDs on a seperate line
+Show client IDs on a separate line
 == Visa klient IDs på en seperat rad
 
 Client IDs size
@@ -2168,7 +2165,7 @@ All
 == Alla
 
 Preview dummy's name plate
-== Förhandsvisning av namnskylt för dummy 
+== Förhandsvisning av namnskylt för dummy
 
 AntiPing: prediction margin
 == AntiPing: prediction marginal
@@ -2487,3 +2484,55 @@ Dragger Inner Color
 
 Download
 == Ladda ner
+
+Team save in progress. You'll be able to load with '/load %s'
+== 
+
+Team save in progress. You'll be able to load with '/load %s' if save is successful or with '/load %s' if it fails
+== 
+
+Team successfully saved by %s. The database connection failed, using generated save code instead to avoid collisions. Use '/load %s' to continue
+== 
+
+Team successfully saved by %s. The database connection failed, using generated save code instead to avoid collisions. Use '/load %s' on %s to continue
+== 
+
+Save failed!
+== 
+
+[Important alert message]
+Press Esc or Tab to dismiss…
+== 
+
+Server alert
+== 
+
+Moderator alert
+== 
+
+You will be disconnected from the server.
+== 
+
+Are you sure that you want to disconnect and play this demo?
+== 
+
+Show background quads
+== 
+
+Scoreboard cursor
+== 
+
+Add friend
+== 
+
+Unmute
+== 
+
+Mute
+== 
+
+Unmute emoticons
+== 
+
+Mute emoticons
+== 

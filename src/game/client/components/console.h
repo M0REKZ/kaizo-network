@@ -82,6 +82,11 @@ class CGameConsole : public CComponent
 		const char *m_pCommandHelp;
 		const char *m_pCommandParams;
 
+		bool m_CompletionDirty;
+		bool m_QueueResetAnimation;
+		std::vector<const char *> m_vpCommandSuggestions;
+		std::vector<const char *> m_vpArgumentSuggestions;
+
 		bool m_Searching = false;
 		struct SSearchMatch
 		{
@@ -116,13 +121,13 @@ class CGameConsole : public CComponent
 
 		const char *GetString() const { return m_Input.GetString(); }
 		/**
-		 * Gets the command at the current cursor including surrounding spaces.
+		 * Gets the command at the current cursor including trailing spaces.
 		 * Commands are split by semicolons.
 		 *
 		 * So if the current console input is for example "hello; world ;foo"
 		 *                                                        ^
 		 *                   and the cursor is here  -------------/
-		 * The result would be " world "
+		 * The result would be "world "
 		 *
 		 * @param pInput the console input line
 		 * @param aCmd the command the cursor is at
@@ -134,6 +139,7 @@ class CGameConsole : public CComponent
 		void UpdateEntryTextAttributes(CBacklogEntry *pEntry) const;
 
 		bool IsInputHidden() const;
+		void UpdateCompletionSuggestions();
 
 	private:
 		void SetSearching(bool Searching);
@@ -204,5 +210,7 @@ public:
 
 	void Toggle(int Type);
 	bool IsActive() const { return m_ConsoleState != CONSOLE_CLOSED; }
+
+	void ForceUpdateRemoteCompletionSuggestions();
 };
 #endif

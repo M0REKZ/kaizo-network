@@ -439,8 +439,6 @@ Yes
 You must restart the game for all settings to take effect.
 == Морате поново покренути игру да би сва подешавања била примењена
 
-##### needs translation #####
-
 Demo
 == Снимак
 
@@ -866,9 +864,6 @@ Show text entities
 
 Show others (own team only)
 == Прикажи остале (само свој тим)
-
-Show quads
-== Прикажи quads
 
 AntiPing
 == AntiPing
@@ -1297,7 +1292,7 @@ Highlight Color
 == Истакнута Боја
 
 When you cross the start line, show a ghost tee replicating the movements of your best time
-== Када кренеш да се тркаш, прикажи твог најбржег духа 
+== Када кренеш да се тркаш, прикажи твог најбржег духа
 
 Opacity
 == Провидност
@@ -1441,6 +1436,21 @@ Quitting. Please wait…
 Restarting. Please wait…
 == 
 
+Team save in progress. You'll be able to load with '/load %s'
+== 
+
+Team save in progress. You'll be able to load with '/load %s' if save is successful or with '/load %s' if it fails
+== 
+
+Team successfully saved by %s. The database connection failed, using generated save code instead to avoid collisions. Use '/load %s' to continue
+== 
+
+Team successfully saved by %s. The database connection failed, using generated save code instead to avoid collisions. Use '/load %s' on %s to continue
+== 
+
+Save failed!
+== 
+
 Auto-sync player camera
 == 
 
@@ -1512,6 +1522,19 @@ Following %s
 AUTO
 == 
 
+[Important alert message]
+Press Esc or Tab to dismiss…
+== 
+
+Server alert
+== 
+
+Moderator alert
+== 
+
+Press a key…
+== 
+
 Server could not be started. Make sure to grant the notification permission in the app settings so the server can run in the background.
 == 
 
@@ -1528,9 +1551,6 @@ Some map sounds could not be loaded. Check the local console for details.
 == 
 
 Loading menu themes
-== 
-
-Press a key…
 == 
 
 Main menu
@@ -1573,6 +1593,9 @@ File '%s' already exists, do you want to overwrite it?
 == 
 
 (paused)
+== 
+
+You will be disconnected from the server.
 == 
 
 Videos directory
@@ -1768,6 +1791,9 @@ map not included
 == 
 
 Open the directory that contains the demo files
+== 
+
+Are you sure that you want to disconnect and play this demo?
 == 
 
 Are you sure that you want to delete the folder '%s'?
@@ -2207,18 +2233,6 @@ No skins match your filter criteria
 Open the directory to add custom skins
 == 
 
-No controller found. Plug in a controller.
-== 
-
-Axis
-== 
-
-Reset controls
-== 
-
-Are you sure that you want to reset the controls to their defaults?
-== 
-
 Show FPS
 == 
 
@@ -2295,7 +2309,7 @@ Show friend icon in name plates
 Show client IDs in name plates
 == 
 
-Show client IDs on a seperate line
+Show client IDs on a separate line
 == 
 
 Client IDs size
@@ -2407,6 +2421,9 @@ Enable ghost
 Only save improvements
 == 
 
+Show background quads
+== 
+
 AntiPing: prediction margin
 == 
 
@@ -2437,6 +2454,21 @@ Unable to delete skin
 Open the directory to add custom assets
 == 
 
+Scoreboard cursor
+== 
+
+Reset controls
+== 
+
+Are you sure that you want to reset the controls to their defaults?
+== 
+
+No controller found. Plug in a controller.
+== 
+
+Axis
+== 
+
 Download
 == 
 
@@ -2449,6 +2481,21 @@ Download
 == 
 
 Team %d (%d/%d)
+== 
+
+Add friend
+== 
+
+Unmute
+== 
+
+Mute
+== 
+
+Unmute emoticons
+== 
+
+Mute emoticons
 == 
 
 [skins]

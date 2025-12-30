@@ -8,8 +8,10 @@
 #ifndef BASE_SYSTEM_H
 #define BASE_SYSTEM_H
 
+#include "dbg.h"
 #include "detect.h"
 #include "fs.h"
+#include "mem.h"
 #include "str.h"
 #include "types.h"
 
@@ -44,159 +46,6 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 #endif
-
-/**
- * Utilities for debugging.
- *
- * @defgroup Debug Debugging
- */
-
-/**
- * Breaks into the debugger based on a test.
- *
- * @ingroup Debug
- *
- * @param test Result of the test.
- * @param fmt A printf styled format message that should be printed if the test fails.
- *
- * @remark Also works in release mode.
- *
- * @see dbg_break
- */
-#define dbg_assert(test, fmt, ...) \
-	do \
-	{ \
-		if(!(test)) \
-		{ \
-			dbg_assert_imp(__FILE__, __LINE__, fmt, ##__VA_ARGS__); \
-		} \
-	} while(false)
-
-/**
- * Use dbg_assert instead!
- *
- * @ingroup Debug
- */
-[[gnu::format(printf, 3, 4)]]
-[[noreturn]] void
-dbg_assert_imp(const char *filename, int line, const char *fmt, ...);
-
-/**
- * Checks whether the program is currently shutting down due to a failed
- * assert.
- *
- * @ingroup Debug
- *
- * @return indication whether the program is currently shutting down due to a
- * failed assert.
- */
-bool dbg_assert_has_failed();
-
-/**
- * Breaks into the debugger.
- *
- * @ingroup Debug
- *
- * @remark Also works in release mode.
- *
- * @see dbg_assert
- */
-[[noreturn]] void dbg_break();
-
-typedef std::function<void(const char *message)> DBG_ASSERT_HANDLER;
-void dbg_assert_set_handler(DBG_ASSERT_HANDLER handler);
-
-/**
- * Prints a debug message.
- *
- * @ingroup Debug
- *
- * @param sys A string that describes what system the message belongs to.
- * @param fmt A printf styled format string.
- *
- * @remark Also works in release mode.
- *
- * @see dbg_assert
- */
-[[gnu::format(printf, 2, 3)]] void dbg_msg(const char *sys, const char *fmt, ...);
-
-/**
- * Memory management utilities.
- *
- * @defgroup Memory Memory
- */
-
-/**
- * Copies a a memory block.
- *
- * @ingroup Memory
- *
- * @param dest Destination.
- * @param source Source to copy.
- * @param size Size of the block to copy.
- *
- * @remark This functions DOES NOT handle cases where the source and destination is overlapping.
- *
- * @see mem_move
- */
-void mem_copy(void *dest, const void *source, size_t size);
-
-/**
- * Copies a a memory block.
- *
- * @ingroup Memory
- *
- * @param dest Destination.
- * @param source Source to copy.
- * @param size Size of the block to copy.
- *
- * @remark This functions handles the cases where the source and destination is overlapping.
- *
- * @see mem_copy
- */
-void mem_move(void *dest, const void *source, size_t size);
-
-/**
- * Sets a complete memory block to 0.
- *
- * @ingroup Memory
- *
- * @param block Pointer to the block to zero out.
- * @param size Size of the block.
- */
-template<typename T>
-inline void mem_zero(T *block, size_t size)
-{
-	static_assert((std::is_trivially_constructible<T>::value && std::is_trivially_destructible<T>::value) || std::is_fundamental<T>::value);
-	memset(block, 0, size);
-}
-
-/**
- * Compares two blocks of memory
- *
- * @ingroup Memory
- *
- * @param a First block of data.
- * @param b Second block of data.
- * @param size Size of the data to compare.
- *
- * @return `< 0` if block a is less than block b.
- * @return `0` if block a is equal to block b.
- * @return `> 0` if block a is greater than block b.
- */
-int mem_comp(const void *a, const void *b, size_t size);
-
-/**
- * Checks whether a block of memory contains null bytes.
- *
- * @ingroup Memory
- *
- * @param block Pointer to the block to check for nulls.
- * @param size Size of the block.
- *
- * @return `true` if the block has a null byte, `false` otherwise.
- */
-bool mem_has_null(const void *block, size_t size);
 
 /**
  * File I/O related operations.
@@ -1202,17 +1051,6 @@ void net_unix_set_addr(UNIXSOCKETADDR *addr, const char *path);
  */
 void net_unix_close(UNIXSOCKET sock);
 
-#elif defined(CONF_FAMILY_WINDOWS)
-
-/**
- * Formats a Windows error code as a human-readable string.
- *
- * @param error The Windows error code.
- *
- * @return A new std::string representing the error code.
- */
-std::string windows_format_system_message(unsigned long error);
-
 #endif
 
 /**
@@ -1268,7 +1106,7 @@ int str_format_opt(char *buffer, int buffer_size, const char *format, Args... ar
 }
 
 template<>
-inline int str_format_opt(char *buffer, int buffer_size, const char *format, int val)
+inline int str_format_opt(char *buffer, int buffer_size, const char *format, int val) // NOLINT(readability-inconsistent-declaration-parameter-name)
 {
 	if(strcmp(format, "%d") == 0)
 	{
@@ -1679,154 +1517,6 @@ int str_utf8_comp_confusable(const char *str1, const char *str2);
 int str_utf8_tolower_codepoint(int code);
 
 /**
- * Compares two UTF-8 strings case insensitively.
- *
- * @ingroup Strings
- *
- * @param a String to compare.
- * @param b String to compare.
- *
- * @return `< 0` if string a is less than string b.
- * @return `0` if string a is equal to string b.
- * @return `> 0` if string a is greater than string b.
- */
-int str_utf8_comp_nocase(const char *a, const char *b);
-
-/**
- * Compares up to `num` bytes of two UTF-8 strings case insensitively.
- *
- * @ingroup Strings
- *
- * @param a String to compare.
- * @param b String to compare.
- * @param num Maximum bytes to compare.
- *
- * @return `< 0` if string a is less than string b.
- * @return `0` if string a is equal to string b.
- * @return `> 0` if string a is greater than string b.
- */
-int str_utf8_comp_nocase_num(const char *a, const char *b, int num);
-
-/**
- * Finds a UTF-8 string inside another UTF-8 string case insensitively.
- *
- * @ingroup Strings
- *
- * @param haystack String to search in.
- * @param needle String to search for.
- * @param end A pointer that will be set to a pointer into haystack directly behind the
- *            last character where the needle was found. Will be set to `nullptr `if needle
- *            could not be found. Optional parameter.
- *
- * @return A pointer into haystack where the needle was found.
- * @return Returns `nullptr` if needle could not be found.
- *
- * @remark The strings are treated as null-terminated strings.
- */
-const char *str_utf8_find_nocase(const char *haystack, const char *needle, const char **end = nullptr);
-
-/**
- * Skips leading characters that render as spaces.
- *
- * @ingroup Strings
- *
- * @param str Input string.
- *
- * @return Pointer to the first non-whitespace character found within the string.
- * @remark The strings are treated as null-terminated strings.
- */
-const char *str_utf8_skip_whitespaces(const char *str);
-
-/**
- * Moves a cursor forwards in an UTF-8 string.
- *
- * @ingroup Strings
- *
- * @param str UTF-8 string.
- * @param cursor Position in the string.
- *
- * @return New cursor position.
- *
- * @remark Won't move the cursor beyond the null-termination marker.
- * @remark The strings are treated as null-terminated.
- */
-int str_utf8_forward(const char *str, int cursor);
-
-/**
- * Checks if a strings contains just valid UTF-8 characters.
- *
- * @ingroup Strings
- *
- * @param str Pointer to a possible UTF-8 string.
- *
- * @return `0` if invalid characters were found, `1` if only valid characters were found.
- *
- * @remark The string is treated as null-terminated UTF-8 string.
- */
-int str_utf8_check(const char *str);
-
-/**
- * Copies a number of UTF-8 characters from one string to another.
- *
- * @ingroup Strings
- *
- * @param dst Pointer to a buffer that shall receive the string.
- * @param src String to be copied.
- * @param dst_size Size of the buffer dst.
- * @param num Maximum number of UTF-8 characters to be copied.
- *
- * @remark The strings are treated as null-terminated strings.
- * @remark Garantees that dst string will contain null-termination.
- */
-void str_utf8_copy_num(char *dst, const char *src, int dst_size, int num);
-
-/**
- * Determines the byte size and UTF-8 character count of a UTF-8 string.
- *
- * @ingroup Strings
- *
- * @param str Pointer to the string.
- * @param max_size Maximum number of bytes to count.
- * @param max_count Maximum number of UTF-8 characters to count.
- * @param size Pointer to store size (number of non. Zero bytes) of the string.
- * @param count Pointer to store count of UTF-8 characters of the string.
- *
- * @remark The string is treated as null-terminated UTF-8 string.
- * @remark It's the user's responsibility to make sure the bounds are aligned.
- */
-void str_utf8_stats(const char *str, size_t max_size, size_t max_count, size_t *size, size_t *count);
-
-/**
- * Converts a byte offset of a UTF-8 string to the UTF-8 character offset.
- *
- * @ingroup Strings
- *
- * @param str Pointer to the string.
- * @param byte_offset Offset in bytes.
- *
- * @return Offset in UTF-8 characters. Clamped to the maximum length of the string in UTF-8 characters.
- *
- * @remark The string is treated as a null-terminated UTF-8 string.
- * @remark It's the user's responsibility to make sure the bounds are aligned.
- */
-size_t str_utf8_offset_bytes_to_chars(const char *str, size_t byte_offset);
-
-/**
- * Converts a UTF-8 character offset of a UTF-8 string to the byte offset.
- *
- * @ingroup Strings
- *
- * @param str Pointer to the string.
- * @param char_offset Offset in UTF-8 characters.
- *
- * @return Offset in bytes. Clamped to the maximum length of the string in bytes.
- *
- * @remark The string is treated as a null-terminated UTF-8 string.
- * @remark It's the user's responsibility to make sure the bounds are aligned.
- */
-size_t str_utf8_offset_chars_to_bytes(const char *str, size_t char_offset);
-
-/**
  * Packs 4 big endian bytes into an unsigned.
  *
  * @param bytes Pointer to an array of bytes that will be packed.
@@ -1911,20 +1601,6 @@ enum class EShellExecuteWindowState
 	 */
 	BACKGROUND,
 };
-
-#if defined(CONF_FAMILY_WINDOWS)
-/**
- * Converts an array of arguments into a wide string with proper escaping for Windows command-line usage.
- *
- * @ingroup Shell
- *
- * @param arguments Array of arguments.
- * @param num_arguments The number of arguments.
- *
- * @return Wide string of arguments with escaped quotes.
- */
-std::wstring windows_args_to_wide(const char **arguments, size_t num_arguments);
-#endif
 
 /**
  * Executes a given file.
@@ -2130,141 +1806,7 @@ public:
 	{
 		cmdline_free(m_Argc, m_ppArgv);
 	}
+	CCmdlineFix(const CCmdlineFix &) = delete;
 };
-
-#if defined(CONF_FAMILY_WINDOWS)
-/**
- * Converts a UTF-8 encoded string to a wide character string
- * for use with the Windows API.
- *
- * @ingroup Shell
- *
- * @param str The UTF-8 encoded string to convert.
- *
- * @return The argument as a wide character string.
- *
- * @remark The strings are treated as null-terminated strings.
- * @remark Fails with assertion error if passed UTF-8 is invalid.
- */
-std::wstring windows_utf8_to_wide(const char *str);
-
-/**
- * Converts a wide character string obtained from the Windows API
- * to a UTF-8 encoded string.
- *
- * @ingroup Shell
- *
- * @param wide_str The wide character string to convert.
- *
- * @return The argument as a UTF-8 encoded string, wrapped in an optional.
- * The optional is empty, if the wide string contains invalid codepoints.
- *
- * @remark The strings are treated as null-terminated strings.
- */
-std::optional<std::string> windows_wide_to_utf8(const wchar_t *wide_str);
-
-/**
- * This is a RAII wrapper to initialize/uninitialize the Windows COM library,
- * which may be necessary for using the @link open_file @endlink and
- * @link open_link @endlink functions.
- * Must be used on every thread. It's automatically used on threads created
- * with @link thread_init @endlink. Pass `true` to the constructor on threads
- * that own a window (i.e. pump a message queue).
- *
- * @ingroup Shell
- */
-class CWindowsComLifecycle
-{
-public:
-	CWindowsComLifecycle(bool HasWindow);
-	~CWindowsComLifecycle();
-};
-
-/**
- * Registers a protocol handler.
- *
- * @ingroup Shell
- *
- * @param protocol_name The name of the protocol.
- * @param executable The absolute path of the executable that will be associated with the protocol.
- * @param updated Pointer to a variable that will be set to `true`, iff the shell needs to be updated.
- *
- * @return `true` on success, `false` on failure.
- *
- * @remark The caller must later call @link shell_update @endlink, iff the shell needs to be updated.
- */
-bool shell_register_protocol(const char *protocol_name, const char *executable, bool *updated);
-
-/**
- * Registers a file extension.
- *
- * @ingroup Shell
- *
- * @param extension The file extension, including the leading dot.
- * @param description A readable description for the file extension.
- * @param executable_name A unique name that will used to describe the application.
- * @param executable The absolute path of the executable that will be associated with the file extension.
- * @param updated Pointer to a variable that will be set to `true`, iff the shell needs to be updated.
- *
- * @return `true` on success, `false` on failure.
- *
- * @remark The caller must later call @link shell_update @endlink, iff the shell needs to be updated.
- */
-bool shell_register_extension(const char *extension, const char *description, const char *executable_name, const char *executable, bool *updated);
-
-/**
- * Registers an application.
- *
- * @ingroup Shell
- *
- * @param name Readable name of the application.
- * @param executable The absolute path of the executable being registered.
- * @param updated Pointer to a variable that will be set to `true`, iff the shell needs to be updated.
- *
- * @return `true` on success, `false` on failure.
- *
- * @remark The caller must later call @link shell_update @endlink, iff the shell needs to be updated.
- */
-bool shell_register_application(const char *name, const char *executable, bool *updated);
-
-/**
- * Unregisters a protocol or file extension handler.
- *
- * @ingroup Shell
- *
- * @param shell_class The shell class to delete.
- * For protocols this is the name of the protocol.
- * For file extensions this is the program ID associated with the file extension.
- * @param updated Pointer to a variable that will be set to `true`, iff the shell needs to be updated.
- *
- * @return `true` on success, `false` on failure.
- *
- * @remark The caller must later call @link shell_update @endlink, iff the shell needs to be updated.
- */
-bool shell_unregister_class(const char *shell_class, bool *updated);
-
-/**
- * Unregisters an application.
- *
- * @ingroup Shell
- *
- * @param executable The absolute path of the executable being unregistered.
- * @param updated Pointer to a variable that will be set to `true`, iff the shell needs to be updated.
- *
- * @return `true` on success, `false` on failure.
- *
- * @remark The caller must later call @link shell_update @endlink, iff the shell needs to be updated.
- */
-bool shell_unregister_application(const char *executable, bool *updated);
-
-/**
- * Notifies the system that a protocol or file extension has been changed and the shell needs to be updated.
- *
- * @ingroup Shell
- *
- * @remark This is a potentially expensive operation, so it should only be called when necessary.
- */
-void shell_update();
-#endif
 
 #endif

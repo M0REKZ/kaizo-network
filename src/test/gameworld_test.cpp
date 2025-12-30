@@ -127,7 +127,7 @@ public:
 		GameServer()->OnInit(nullptr);
 		pServer->ReadAnnouncementsFile();
 		pServer->InitMaplist();
-	};
+	}
 
 	~CTestGameWorld() override
 	{
@@ -136,7 +136,7 @@ public:
 		m_pGameServer->OnShutdown(nullptr);
 		m_pServer->m_pMap->Unload();
 		m_pServer->DbPool()->OnShutdown();
-	};
+	}
 };
 
 TEST_F(CTestGameWorld, ClosestCharacter)
@@ -271,7 +271,7 @@ TEST_F(CTestGameWorld, CharacterEmote)
 	int ClientId = 0;
 	bool Afk = true;
 	int LastWhisperTo = -1;
-	GameServer()->CreatePlayer(ClientId, TEAM_RED, Afk, LastWhisperTo);
+	GameServer()->CreatePlayer(ClientId, TEAM_GAME, Afk, LastWhisperTo);
 	CPlayer *pPlayer = GameServer()->m_apPlayers[ClientId];
 	pPlayer->ForceSpawn(vec2(0, 0));
 	CCharacter *pChr = pPlayer->GetCharacter();

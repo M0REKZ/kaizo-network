@@ -466,9 +466,6 @@ Max demos
 AntiPing
 == AntiPing
 
-Show quads
-== Mostrar quadrados
-
 Map sound volume
 == Volume do som de mapas
 
@@ -863,7 +860,7 @@ Converse
 == Conversar
 
 Successfully saved the replay!
-== A reprodução foi salva com sucesso
+== A reprodução foi salva com sucesso!
 
 Default length
 == Duração padrão
@@ -905,7 +902,7 @@ Please enter your nickname below.
 == Por favor, insira seu apelido abaixo.
 
 Video name:
-== Nome do vídeo
+== Nome do vídeo:
 
 Connect Dummy
 == Conectar dummy
@@ -2106,7 +2103,7 @@ Renders your frame rate in the top right
 
 [Translation credits: Add your own name here when you update translations]
 English translation by the DDNet Team
-== Brazilian Portuguese translation by Isadora (slinack), yemDX, Ryomou Hentai Girl, HeroiAmarelo, Rafael Fontenelle, pv and DrafaKiller
+== Tradução para português brasileiro por Isadora (slinack), yemDX, Ryomou Hentai Girl, HeroiAmarelo, Rafael Fontenelle, pv e DrafaKiller
 
 Show spectator cursor
 == Mostrar cursor do observador
@@ -2142,7 +2139,7 @@ Name plates offset
 Show friend icon in name plates
 == Mostrar ícone de amigo em placas de nome
 
-Show client IDs on a seperate line
+Show client IDs on a separate line
 == Mostrar IDs de clientes em uma linha separada
 
 Client IDs size
@@ -2212,7 +2209,7 @@ Error checking player name
 == Erro ao verificar nome de jogador
 
 Could not check for existing player with your name. Check your internet connection.
-== Não foi possível verificar se há um jogador com o seu nome. Verifique sua conexão de internet. 
+== Não foi possível verificar se há um jogador com o seu nome. Verifique sua conexão de internet.
 
 Press Ctrl+Shift+G to disable debug graphs.
 == Pressione Ctrl+Shift+G para desabilitar grafos de depuração.
@@ -2487,3 +2484,55 @@ Censor profanity
 
 Download
 == Download
+
+Team save in progress. You'll be able to load with '/load %s'
+== Salvamento de time em andamento. Você poderá carregar o jogo com '/load %s'
+
+Team save in progress. You'll be able to load with '/load %s' if save is successful or with '/load %s' if it fails
+== Salvamento da time em andamento. Você poderá carregar o jogo com '/load %s' se o salvamento for bem-sucedido ou com '/load %s' se falhar
+
+Team successfully saved by %s. The database connection failed, using generated save code instead to avoid collisions. Use '/load %s' to continue
+== O time foi salvo com sucesso por %s. A conexão com o banco de dados falhou; usando o código de salvamento gerado para evitar conflitos. Use '/load %s' para continuar
+
+Team successfully saved by %s. The database connection failed, using generated save code instead to avoid collisions. Use '/load %s' on %s to continue
+== O time foi salvo com sucesso por %s. A conexão com o banco de dados falhou; usando o código de salvamento gerado para evitar conflitos. Use '/load %s' em %s para continuar
+
+Save failed!
+== Salvamento falhou!
+
+[Important alert message]
+Press Esc or Tab to dismiss…
+== Pressione Esc ou Tab para dispensar…
+
+Server alert
+== Alerta do servidor
+
+Moderator alert
+== Alerta da moderação
+
+You will be disconnected from the server.
+== Você será desconectado do servidor.
+
+Are you sure that you want to disconnect and play this demo?
+== Tem certeza de que deseja se desconectar e reproduzir esta demo?
+
+Show background quads
+== Mostrar quads de fundo
+
+Scoreboard cursor
+== Cursor no placar
+
+Add friend
+== Adicionar amigo
+
+Unmute
+== Ativar conversa
+
+Mute
+== Silenciar
+
+Unmute emoticons
+== Ativar emoticons
+
+Mute emoticons
+== Silenciar emoticons

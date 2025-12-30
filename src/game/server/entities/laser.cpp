@@ -70,12 +70,7 @@ bool CLaser::HitCharacter(vec2 From, vec2 To)
 	m_Energy = -1;
 	if(m_Type == WEAPON_SHOTGUN)
 	{
-		float Strength;
-		if(!m_TuneZone)
-			Strength = Tuning()->m_ShotgunStrength;
-		else
-			Strength = TuningList()[m_TuneZone].m_ShotgunStrength;
-
+		float Strength = TuningList()[m_TuneZone].m_ShotgunStrength;
 		const vec2 &HitPos = pHit->Core()->m_Pos;
 		if(!g_Config.m_SvOldLaser)
 		{
@@ -289,13 +284,9 @@ void CLaser::DoBounce()
 			{
 				m_Energy = -1;
 			}
-			else if(!m_TuneZone)
-			{
-				m_Energy -= Distance + Tuning()->m_LaserBounceCost;
-			}
 			else
 			{
-				m_Energy -= distance(m_From, m_Pos) + GameServer()->TuningList()[m_TuneZone].m_LaserBounceCost;
+				m_Energy -= Distance + GameServer()->TuningList()[m_TuneZone].m_LaserBounceCost;
 			}
 			m_ZeroEnergyBounceInLastTick = Distance == 0.0f;
 
@@ -311,9 +302,7 @@ void CLaser::DoBounce()
 				m_WasTele = false;
 			}
 
-			int BounceNum = Tuning()->m_LaserBounceNum;
-			if(m_TuneZone)
-				BounceNum = TuningList()[m_TuneZone].m_LaserBounceNum;
+			int BounceNum = TuningList()[m_TuneZone].m_LaserBounceNum;
 
 			if(m_Bounces > BounceNum)
 				m_Energy = -1;
@@ -373,9 +362,9 @@ void CLaser::DoBounce()
 			{
 				// Delay specifies which weapon the tile should work for.
 				// Delay = 0 means all.
-				int delay = GameServer()->Collision()->GetSwitchDelay(MapIndex);
+				const int Delay = GameServer()->Collision()->GetSwitchDelay(MapIndex);
 
-				if((delay != 3 && delay != 0) && m_Type == WEAPON_LASER)
+				if((Delay != 3 && Delay != 0) && m_Type == WEAPON_LASER)
 				{
 					IsSwitchTeleGun = IsBlueSwitchTeleGun = false;
 				}
@@ -389,8 +378,6 @@ void CLaser::DoBounce()
 				m_Type == WEAPON_LASER && (TileFIndex != TILE_ALLOW_TELE_GUN && TileFIndex != TILE_ALLOW_BLUE_TELE_GUN && !IsSwitchTeleGun && !IsBlueSwitchTeleGun);
 		}
 	}
-
-	//m_Owner = -1;
 }
 
 void CLaser::Reset()
@@ -409,12 +396,7 @@ void CLaser::Tick()
 		}
 	}
 
-	float Delay;
-	if(m_TuneZone)
-		Delay = TuningList()[m_TuneZone].m_LaserBounceDelay;
-	else
-		Delay = Tuning()->m_LaserBounceDelay;
-
+	float Delay = TuningList()[m_TuneZone].m_LaserBounceDelay;
 	if((Server()->Tick() - m_EvalTick) > (Server()->TickSpeed() * Delay / 1000.0f))
 		DoBounce();
 }
@@ -447,7 +429,7 @@ void CLaser::Snap(int SnappingClient)
 		return;
 
 	int SnappingClientVersion = GameServer()->GetClientVersion(SnappingClient);
-	int LaserType = m_Type == WEAPON_LASER ? LASERTYPE_RIFLE : m_Type == WEAPON_SHOTGUN ? LASERTYPE_SHOTGUN : -1;
+	int LaserType = m_Type == WEAPON_LASER ? LASERTYPE_RIFLE : (m_Type == WEAPON_SHOTGUN ? LASERTYPE_SHOTGUN : -1);
 
 	GameServer()->SnapLaserObject(CSnapContext(SnappingClientVersion, Server()->IsSixup(SnappingClient), SnappingClient), GetId(),
 		m_Pos, m_From, m_EvalTick, m_Owner, LaserType, 0, m_Number);
@@ -455,5 +437,5 @@ void CLaser::Snap(int SnappingClient)
 
 void CLaser::SwapClients(int Client1, int Client2)
 {
-	m_Owner = m_Owner == Client1 ? Client2 : m_Owner == Client2 ? Client1 : m_Owner;
+	m_Owner = m_Owner == Client1 ? Client2 : (m_Owner == Client2 ? Client1 : m_Owner);
 }

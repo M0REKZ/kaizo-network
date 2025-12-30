@@ -623,7 +623,7 @@ Exclude
 == Välista
 
 %d of %d servers
-== %d serverit %d -st 
+== %d serverit %d -st
 
 %d of %d server
 == %d server %d -st
@@ -1205,7 +1205,7 @@ A demo with this name already exists
 == Demo sellise nimega on juba olemas
 
 A folder with this name already exists
-== Kaust sellise nimega on juba olemas 
+== Kaust sellise nimega on juba olemas
 
 Unable to rename the folder
 == Ei saa kausta ümber nimetada
@@ -1687,9 +1687,6 @@ Show text entities
 Adjust the opacity of entities belonging to other teams, such as tees and name plates
 == Seadista teiste tiimide üksuste läbipaistvust, nagu teed ja nimesildid
 
-Show quads
-== Näita nelikuid
-
 Quads are used for background decoration
 == Nelikuid kasutatakse tagatausta kaunistamiseks
 
@@ -1851,6 +1848,21 @@ No demo with this filename exists
 Some fonts could not be loaded. Check the local console for details.
 == 
 
+Team save in progress. You'll be able to load with '/load %s'
+== 
+
+Team save in progress. You'll be able to load with '/load %s' if save is successful or with '/load %s' if it fails
+== 
+
+Team successfully saved by %s. The database connection failed, using generated save code instead to avoid collisions. Use '/load %s' to continue
+== 
+
+Team successfully saved by %s. The database connection failed, using generated save code instead to avoid collisions. Use '/load %s' on %s to continue
+== 
+
+Save failed!
+== 
+
 Auto-sync player camera
 == 
 
@@ -1885,6 +1897,16 @@ Following %d: %s
 AUTO
 == 
 
+[Important alert message]
+Press Esc or Tab to dismiss…
+== 
+
+Server alert
+== 
+
+Moderator alert
+== 
+
 Server could not be started. Make sure to grant the notification permission in the app settings so the server can run in the background.
 == 
 
@@ -1901,6 +1923,9 @@ Are you sure you want to save your skin? If a skin with this name already exists
 == 
 
 This name cannot be used for files and folders
+== 
+
+You will be disconnected from the server.
 == 
 
 Error checking player name
@@ -1942,6 +1967,9 @@ Toggle auto camera
 == 
 
 Map size
+== 
+
+Are you sure that you want to disconnect and play this demo?
 == 
 
 Dummy is not allowed on this server
@@ -2373,7 +2401,7 @@ Show friend icon in name plates
 Show client IDs in name plates
 == 
 
-Show client IDs on a seperate line
+Show client IDs on a separate line
 == 
 
 Client IDs size
@@ -2431,6 +2459,9 @@ Dragger Outline Color
 Dragger Inner Color
 == 
 
+Show background quads
+== 
+
 AntiPing: prediction margin
 == 
 
@@ -2449,7 +2480,25 @@ Delete skin
 Unable to delete skin
 == 
 
+Scoreboard cursor
+== 
+
 Download
+== 
+
+Add friend
+== 
+
+Unmute
+== 
+
+Mute
+== 
+
+Unmute emoticons
+== 
+
+Mute emoticons
 == 
 
 [skins]

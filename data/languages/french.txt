@@ -436,8 +436,6 @@ Yes
 You must restart the game for all settings to take effect.
 == Les changements prendront effet au prochain redémarrage.
 
-##### needs translation #####
-
 New name:
 == Nouveau nom :
 
@@ -848,9 +846,6 @@ Automatically create statboard csv
 
 Video name:
 == Nom de la vidéo
-
-Show quads
-== Afficher les quads
 
 Best
 == Meilleur
@@ -1418,7 +1413,7 @@ File '%s' already exists, do you want to overwrite it?
 == Le fichier '%s' existe déjà, voulez-vous l'écraser ?
 
 Are you sure that you want to remove the player '%s' from your friends list?
-== Êtes-vous sûr de vouloir retirer le joueur '%s' de votre liste d'amis ? 
+== Êtes-vous sûr de vouloir retirer le joueur '%s' de votre liste d'amis ?
 
 Are you sure that you want to remove the clan '%s' from your friends list?
 == Êtes-vous sûr de vouloir retirer le clan '%s' de votre liste d'amis ?
@@ -1487,7 +1482,7 @@ Door Laser Inner Color
 == Couleur porte laser (intérieur)
 
 Freeze Laser Outline Color
-== Couleur laser gelant (contour) 
+== Couleur laser gelant (contour)
 
 Freeze Laser Inner Color
 == Couleur laser gelant (intérieur)
@@ -2024,6 +2019,21 @@ No demo with this filename exists
 "%s" is not compatible with pnglite and cannot be loaded by old DDNet versions:
 == 
 
+Team save in progress. You'll be able to load with '/load %s'
+== 
+
+Team save in progress. You'll be able to load with '/load %s' if save is successful or with '/load %s' if it fails
+== 
+
+Team successfully saved by %s. The database connection failed, using generated save code instead to avoid collisions. Use '/load %s' to continue
+== 
+
+Team successfully saved by %s. The database connection failed, using generated save code instead to avoid collisions. Use '/load %s' on %s to continue
+== 
+
+Save failed!
+== 
+
 Auto-sync player camera
 == 
 
@@ -2058,6 +2068,16 @@ Following %d: %s
 AUTO
 == 
 
+[Important alert message]
+Press Esc or Tab to dismiss…
+== 
+
+Server alert
+== 
+
+Moderator alert
+== 
+
 Server could not be started. Make sure to grant the notification permission in the app settings so the server can run in the background.
 == 
 
@@ -2068,6 +2088,9 @@ Loading map
 == 
 
 This name cannot be used for files and folders
+== 
+
+You will be disconnected from the server.
 == 
 
 Error checking player name
@@ -2091,6 +2114,9 @@ Toggle auto camera
 == 
 
 Map size
+== 
+
+Are you sure that you want to disconnect and play this demo?
 == 
 
 Save all changes before turning off the editor?
@@ -2435,7 +2461,7 @@ Show friend icon in name plates
 Show client IDs in name plates
 == 
 
-Show client IDs on a seperate line
+Show client IDs on a separate line
 == 
 
 Client IDs size
@@ -2484,8 +2510,29 @@ Dragger Outline Color
 Dragger Inner Color
 == 
 
+Show background quads
+== 
+
 AntiPing: prediction margin
 == 
 
+Scoreboard cursor
+== 
+
 Download
+== 
+
+Add friend
+== 
+
+Unmute
+== 
+
+Mute
+== 
+
+Unmute emoticons
+== 
+
+Mute emoticons
 == 

@@ -1,4 +1,4 @@
-﻿%ds left
+%ds left
 == %ds van hátra
 
 %i minute left
@@ -481,9 +481,6 @@ Name plates size
 AntiPing
 == Antiping
 
-Show quads
-== Képek mutatása
-
 Map sound volume
 == Pálya hangereje
 
@@ -911,7 +908,7 @@ Debug mode enabled. Press Ctrl+Shift+D to disable debug mode.
 == Debug mód bekapcsolva. Nyomd meg a Ctrl+Shift+D billentyűparancsot, hogy kikapcsold.
 
 Use k key to kill (restart), q to pause and watch other players. See settings for other key binds.
-==  Használd a K gombot az újraéledéshez, Q betű a megfigyeléshez. Nézd meg a beállításokat a többi bind-ért.
+== Használd a K gombot az újraéledéshez, Q betű a megfigyeléshez. Nézd meg a beállításokat a többi bind-ért.
 
 Existing Player
 == Létező játékos
@@ -1562,6 +1559,21 @@ Quitting. Please wait…
 Restarting. Please wait…
 == 
 
+Team save in progress. You'll be able to load with '/load %s'
+== 
+
+Team save in progress. You'll be able to load with '/load %s' if save is successful or with '/load %s' if it fails
+== 
+
+Team successfully saved by %s. The database connection failed, using generated save code instead to avoid collisions. Use '/load %s' to continue
+== 
+
+Team successfully saved by %s. The database connection failed, using generated save code instead to avoid collisions. Use '/load %s' on %s to continue
+== 
+
+Save failed!
+== 
+
 Auto-sync player camera
 == 
 
@@ -1633,6 +1645,19 @@ Following %s
 AUTO
 == 
 
+[Important alert message]
+Press Esc or Tab to dismiss…
+== 
+
+Server alert
+== 
+
+Moderator alert
+== 
+
+Press a key…
+== 
+
 Server could not be started. Make sure to grant the notification permission in the app settings so the server can run in the background.
 == 
 
@@ -1649,9 +1674,6 @@ Some map sounds could not be loaded. Check the local console for details.
 == 
 
 Loading menu themes
-== 
-
-Press a key…
 == 
 
 Main menu
@@ -1691,6 +1713,9 @@ Unable to rename the folder
 == 
 
 (paused)
+== 
+
+You will be disconnected from the server.
 == 
 
 Videos directory
@@ -1838,6 +1863,9 @@ Map size
 
 [Demo details]
 map not included
+== 
+
+Are you sure that you want to disconnect and play this demo?
 == 
 
 Are you sure that you want to delete the folder '%s'?
@@ -2250,9 +2278,6 @@ Skin could not be found.
 No skins match your filter criteria
 == 
 
-Axis
-== 
-
 Show FPS
 == 
 
@@ -2329,7 +2354,7 @@ Show friend icon in name plates
 Show client IDs in name plates
 == 
 
-Show client IDs on a seperate line
+Show client IDs on a separate line
 == 
 
 Client IDs size
@@ -2411,6 +2436,9 @@ Enable ghost
 Only save improvements
 == 
 
+Show background quads
+== 
+
 AntiPing: prediction margin
 == 
 
@@ -2435,6 +2463,12 @@ Delete skin
 Unable to delete skin
 == 
 
+Scoreboard cursor
+== 
+
+Axis
+== 
+
 Download
 == 
 
@@ -2447,6 +2481,21 @@ Download
 == 
 
 Team %d (%d/%d)
+== 
+
+Add friend
+== 
+
+Unmute
+== 
+
+Mute
+== 
+
+Unmute emoticons
+== 
+
+Mute emoticons
 == 
 
 [skins]

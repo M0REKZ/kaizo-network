@@ -436,8 +436,6 @@ Yes
 You must restart the game for all settings to take effect.
 == Morate ponovo pokrenuti igru da bi sve postavke bile primijenjene.
 
-##### needs translation #####
-
 New name:
 == Novo ime:
 
@@ -822,9 +820,6 @@ Show text entities
 Show others (own team only)
 == Prikaži ostale (samo vlastiti tim)
 
-Show quads
-== Prikaži quads
-
 AntiPing: predict other players
 == AntiPing: preduhitri ostale igrače
 
@@ -1009,6 +1004,21 @@ Restarting. Please wait…
 Loading skin files
 == 
 
+Team save in progress. You'll be able to load with '/load %s'
+== 
+
+Team save in progress. You'll be able to load with '/load %s' if save is successful or with '/load %s' if it fails
+== 
+
+Team successfully saved by %s. The database connection failed, using generated save code instead to avoid collisions. Use '/load %s' to continue
+== 
+
+Team successfully saved by %s. The database connection failed, using generated save code instead to avoid collisions. Use '/load %s' on %s to continue
+== 
+
+Save failed!
+== 
+
 Auto-sync player camera
 == 
 
@@ -1092,7 +1102,20 @@ Following %s
 AUTO
 == 
 
+[Important alert message]
+Press Esc or Tab to dismiss…
+== 
+
+Server alert
+== 
+
+Moderator alert
+== 
+
 Team %d
+== 
+
+Press a key…
 == 
 
 Server could not be started. Make sure to grant the notification permission in the app settings so the server can run in the background.
@@ -1117,9 +1140,6 @@ Some map sounds could not be loaded. Check the local console for details.
 == 
 
 Loading menu themes
-== 
-
-Press a key…
 == 
 
 Settings
@@ -1180,6 +1200,9 @@ File '%s' already exists, do you want to overwrite it?
 == 
 
 Speed
+== 
+
+You will be disconnected from the server.
 == 
 
 Videos directory
@@ -1459,6 +1482,9 @@ Demos directory
 == 
 
 Open the directory that contains the demo files
+== 
+
+Are you sure that you want to disconnect and play this demo?
 == 
 
 Are you sure that you want to delete the folder '%s'?
@@ -1940,62 +1966,6 @@ Skins directory
 Open the directory to add custom skins
 == 
 
-Chat command
-== 
-
-Enable controller
-== 
-
-Controller
-== 
-
-Ingame controller mode
-== 
-
-[Ingame controller mode]
-Relative
-== 
-
-[Ingame controller mode]
-Absolute
-== 
-
-Ingame controller sens.
-== 
-
-UI controller sens.
-== 
-
-Controller jitter tolerance
-== 
-
-No controller found. Plug in a controller.
-== 
-
-Axis
-== 
-
-Status
-== 
-
-Aim bind
-== 
-
-Mouse
-== 
-
-Ingame mouse sens.
-== 
-
-UI mouse sens.
-== 
-
-Reset controls
-== 
-
-Are you sure that you want to reset the controls to their defaults?
-== 
-
 Windowed
 == 
 
@@ -2159,7 +2129,7 @@ Show friend icon in name plates
 Show client IDs in name plates
 == 
 
-Show client IDs on a seperate line
+Show client IDs on a separate line
 == 
 
 Client IDs size
@@ -2313,6 +2283,9 @@ Overlay entities
 Adjust the opacity of entities belonging to other teams, such as tees and name plates
 == 
 
+Show background quads
+== 
+
 Quads are used for background decoration
 == 
 
@@ -2379,6 +2352,65 @@ Assets directory
 Open the directory to add custom assets
 == 
 
+Chat command
+== 
+
+Scoreboard cursor
+== 
+
+Reset controls
+== 
+
+Are you sure that you want to reset the controls to their defaults?
+== 
+
+Mouse
+== 
+
+Controller
+== 
+
+Ingame mouse sens.
+== 
+
+UI mouse sens.
+== 
+
+Enable controller
+== 
+
+Ingame controller mode
+== 
+
+[Ingame controller mode]
+Relative
+== 
+
+[Ingame controller mode]
+Absolute
+== 
+
+Ingame controller sens.
+== 
+
+UI controller sens.
+== 
+
+Controller jitter tolerance
+== 
+
+No controller found. Plug in a controller.
+== 
+
+Axis
+== 
+
+Status
+== 
+
+Aim bind
+== 
+
 Discord
 == 
 
@@ -2437,6 +2469,21 @@ Auto
 == 
 
 Replay
+== 
+
+Add friend
+== 
+
+Unmute
+== 
+
+Mute
+== 
+
+Unmute emoticons
+== 
+
+Mute emoticons
 == 
 
 [skins]
