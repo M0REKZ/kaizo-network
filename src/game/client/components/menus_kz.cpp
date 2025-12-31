@@ -316,6 +316,12 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 			{
 				g_Config.m_KaizoHideInMenuStatus ^= 1;
 			}
+
+			Right.HSplitTop(20.0f, &Button, &Right);
+			if(DoButton_CheckBox(&g_Config.m_KaizoFastRespawn, Localize("Spam click to respawn"), g_Config.m_KaizoFastRespawn, &Button))
+			{
+				g_Config.m_KaizoFastRespawn ^= 1;
+			}
 			
 			break;
 		}
