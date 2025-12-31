@@ -993,6 +993,8 @@ private:
 	bool IsCustomClientId(int Country);
 
 	int m_SendingCustomClientTicks = -1;
+
+	bool IsSkinPartDefault(int Dummy, int Part);
 };
 
 ColorRGBA CalculateNameColor(ColorHSLA TextColorHSL);

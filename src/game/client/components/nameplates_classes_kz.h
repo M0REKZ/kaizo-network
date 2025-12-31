@@ -61,6 +61,30 @@ public:
 			m_Sprite = SPRITE_KZ_KAIZOICON;
 			m_Visible = true;
 		}
+		else if(This.m_aClients[Data.m_ClientId].m_CustomClient == CUSTOM_CLIENT_ID_CHILLERBOTUX)
+		{
+			m_Texture = g_pData->m_aImages[IMAGE_KZ_CHILLERBOTUXICON].m_Id;
+			m_Sprite = SPRITE_KZ_CHILLERBOTUXICON;
+			m_Visible = true;
+		}
+		else if(This.m_aClients[Data.m_ClientId].m_CustomClient == CUSTOM_CLIENT_ID_GAMER_07)
+		{
+			m_Texture = g_pData->m_aImages[IMAGE_KZ_GAMERICON].m_Id;
+			m_Sprite = SPRITE_KZ_GAMERICON;
+			m_Visible = true;
+		}
+		else if(This.m_aClients[Data.m_ClientId].m_CustomClient == CUSTOM_CLIENT_ID_ZILLYWOODS_07)
+		{
+			m_Texture = g_pData->m_aImages[IMAGE_KZ_ZILLYWOODSICON].m_Id;
+			m_Sprite = SPRITE_KZ_ZILLYWOODSICON;
+			m_Visible = true;
+		}
+		else if(This.m_aClients[Data.m_ClientId].m_CustomClient == CUSTOM_CLIENT_ID_FCLIENT_07)
+		{
+			m_Texture = g_pData->m_aImages[IMAGE_KZ_FCLIENTICON].m_Id;
+			m_Sprite = SPRITE_KZ_FCLIENTICON;
+			m_Visible = true;
+		}
 		else
 		{
 			m_Visible = false;

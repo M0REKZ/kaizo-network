@@ -1459,7 +1459,10 @@ set(EXPECTED_DATA
   gui_icons.png
   gui_logo.png
   hud.png
+  kz/chillerbotux.png
   kz/crown.png
+  kz/fclient.png
+  kz/gamer.png
   kz/gui_logo.png
   kz/kaizoicon.png
   kz/Turret_1.png
@@ -1470,6 +1473,7 @@ set(EXPECTED_DATA
   kz/portal.png
   kz/portal_orange.png
   kz/shield.png
+  kz/zillywoods.png
   languages/arabic.txt
   languages/azerbaijani.txt
   languages/belarusian.txt

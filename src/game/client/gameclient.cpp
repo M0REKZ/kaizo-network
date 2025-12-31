@@ -3059,10 +3059,11 @@ void CGameClient::SendStartInfo7(bool Dummy)
 	protocol7::CNetMsg_Cl_StartInfo Msg;
 	Msg.m_pName = Dummy ? Client()->DummyName() : Client()->PlayerName();
 	Msg.m_pClan = Dummy ? Config()->m_ClDummyClan : Config()->m_PlayerClan;
-	Msg.m_Country = ReplaceCountryFlagWithCustomClientId(Dummy ? Config()->m_ClDummyCountry : Config()->m_PlayerCountry); //+KZ modified
+	Msg.m_Country = Dummy ? Config()->m_ClDummyCountry : Config()->m_PlayerCountry;
 	for(int p = 0; p < protocol7::NUM_SKINPARTS; p++)
 	{
-		Msg.m_apSkinPartNames[p] = CSkins7::ms_apSkinVariables[(int)Dummy][p];
+		//+KZ modified
+		Msg.m_apSkinPartNames[p] = IsSkinPartDefault(Dummy, p) ? "kaizo!" : CSkins7::ms_apSkinVariables[(int)Dummy][p];
 		Msg.m_aUseCustomColors[p] = *CSkins7::ms_apUCCVariables[(int)Dummy][p];
 		Msg.m_aSkinPartColors[p] = *CSkins7::ms_apColorVariables[(int)Dummy][p];
 	}
@@ -3078,7 +3079,8 @@ void CGameClient::SendSkinChange7(bool Dummy)
 	protocol7::CNetMsg_Cl_SkinChange Msg;
 	for(int p = 0; p < protocol7::NUM_SKINPARTS; p++)
 	{
-		Msg.m_apSkinPartNames[p] = CSkins7::ms_apSkinVariables[(int)Dummy][p];
+		//+KZ modified
+		Msg.m_apSkinPartNames[p] = IsSkinPartDefault(Dummy, p) ? "kaizo!" : CSkins7::ms_apSkinVariables[(int)Dummy][p];
 		Msg.m_aUseCustomColors[p] = *CSkins7::ms_apUCCVariables[(int)Dummy][p];
 		Msg.m_aSkinPartColors[p] = *CSkins7::ms_apColorVariables[(int)Dummy][p];
 	}

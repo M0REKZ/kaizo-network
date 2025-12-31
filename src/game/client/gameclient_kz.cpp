@@ -287,6 +287,52 @@ void CGameClient::KaizoPostUpdate()
             m_SendingCustomClientTicks--;
         break;
     }
+
+    // check for 0.7 custom clients
+    if(Client()->IsSixup())
+    {
+        bool Found = false;
+        for(int CheckingId = 0; CheckingId < MAX_CLIENTS; CheckingId++)
+        {
+            Found = false;
+            for(int Client = 0; Client < 4; Client++)
+            {
+                const char* pClientString = "";
+                int CustomClientId = 0;
+                switch (Client)
+                {
+                case 0:
+                    pClientString = "gamer!";
+                    CustomClientId = CUSTOM_CLIENT_ID_GAMER_07;
+                    break;
+                case 1:
+                    pClientString = "zilly!";
+                    CustomClientId = CUSTOM_CLIENT_ID_ZILLYWOODS_07;
+                    break;
+                case 2:
+                    pClientString = "fclient!";
+                    CustomClientId = CUSTOM_CLIENT_ID_FCLIENT_07;
+                    break;
+                case 3:
+                    pClientString = "kaizo!";
+                    CustomClientId = CUSTOM_CLIENT_ID_KAIZO_NETWORK;
+                    break;
+                }
+
+                for(int p = 0; p < protocol7::NUM_SKINPARTS; p++)
+                {
+                    if(str_startswith(m_aClients[CheckingId].m_aSixup[g_Config.m_ClDummy].m_aaSkinPartNames[p], pClientString)) ///seems that they put that info in the skin itself
+                    {
+                        m_aClients[CheckingId].m_CustomClient = CustomClientId;
+                        Found = true;
+                        break;
+                    }
+                }
+                if(Found)
+                    break;
+            }
+        }
+    }
 }
 
 int CGameClient::ReplaceCountryFlagWithCustomClientId(int Country)
@@ -309,4 +355,12 @@ int CGameClient::ReplaceCountryFlagWithCustomClientId(int Country)
 bool CGameClient::IsCustomClientId(int Country)
 {
 	return Country > m_CountryFlags.Num();
+}
+
+bool CGameClient::IsSkinPartDefault(int Dummy, int Part)
+{
+	const char *pDefault = "standard";
+	if (Part == protocol7::SKINPART_MARKING || Part == protocol7::SKINPART_DECORATION)
+		pDefault = "";
+	return !str_comp(CSkins7::ms_apSkinVariables[Dummy][Part], pDefault);
 }
