@@ -850,6 +850,7 @@ MACRO_CONFIG_INT(KaizoHideInMenuStatus, kaizo_hide_in_menu_status, 0, 0, 1, CFGF
 MACRO_CONFIG_INT(KaizoFastMapDownload, kaizo_fast_map_download, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Fast map download (Experimental)")
 MACRO_CONFIG_INT(KaizoFastMapDownloadWindow, kaizo_fast_map_download_window, 100, 0, 500, CFGFLAG_CLIENT | CFGFLAG_SAVE, "How much map data is requested each time data is received")
 MACRO_CONFIG_INT(KaizoFastRespawn, kaizo_fast_respawn, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Spam click to respawn faster after death")
+MACRO_CONFIG_INT(KaizoEmotionalTees, kaizo_emotional_tees, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Make tees have emotions in non-DDNet servers")
 //From DuckClient by Pointer
 MACRO_CONFIG_INT(KaizoChatInputBackground, kaizo_chat_input_background, 1, 0, 1, CFGFLAG_SAVE | CFGFLAG_CLIENT, "Whether to add a background for the input when chatting")
 //This one is from T-Client:

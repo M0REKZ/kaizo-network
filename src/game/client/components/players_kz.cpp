@@ -83,3 +83,52 @@ void CPlayers::RenderKaizoWeapon(const CNetObj_Character *pPrevChar, const CNetO
         break;
     }
 }
+
+void CPlayers::SetPlayerEmoteKZ(CNetObj_Character &Player, int ClientId)
+{
+    if(g_Config.m_KaizoEmotionalTees)
+    {
+        if(GameClient()->m_aClients[ClientId].m_EmoticonStartTick != -1)
+        {
+            float SinceStart = (Client()->GameTick(g_Config.m_ClDummy) - GameClient()->m_aClients[ClientId].m_EmoticonStartTick) + (Client()->IntraGameTickSincePrev(g_Config.m_ClDummy) - GameClient()->m_aClients[ClientId].m_EmoticonStartFraction);
+            float FromEnd = (2 * Client()->GameTickSpeed()) - SinceStart;
+
+            if(0 <= SinceStart && FromEnd > 0)
+            {
+                switch (GameClient()->m_aClients[ClientId].m_Emoticon)
+                {
+                case EMOTICON_DEVILTEE:
+                case EMOTICON_SPLATTEE:
+                case EMOTICON_ZOMG:
+                    Player.m_Emote = EMOTE_ANGRY;
+                    break;
+                
+                case EMOTICON_DOTDOT:
+                case EMOTICON_DROP:
+                case EMOTICON_ZZZ:
+                    Player.m_Emote = EMOTE_BLINK;
+                    break;
+                
+                case EMOTICON_EXCLAMATION:
+                case EMOTICON_GHOST:
+                case EMOTICON_QUESTION:
+                case EMOTICON_WTF:
+                    Player.m_Emote = EMOTE_SURPRISE;
+                    break;
+
+                case EMOTICON_EYES:
+                case EMOTICON_HEARTS:
+                case EMOTICON_MUSIC:
+                    Player.m_Emote = EMOTE_HAPPY;
+                    break;
+
+                case EMOTICON_SUSHI:
+                case EMOTICON_OOP:
+                case EMOTICON_SORRY:
+                    Player.m_Emote = EMOTE_PAIN;
+                    break;
+                }
+            }
+        }
+    }
+}

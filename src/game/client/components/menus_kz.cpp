@@ -245,6 +245,12 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 				Ui()->DoLabel(&Label, Localize("NOTE: high values may break map download"), 10.0f, TEXTALIGN_ML);
 			}
 
+			Left.HSplitTop(20.0f, &Button, &Left);
+			if(DoButton_CheckBox(&g_Config.m_KaizoEmotionalTees, Localize("Emotional Tees in non-DDNet servers (Client-side)"), g_Config.m_KaizoEmotionalTees, &Button))
+			{
+				g_Config.m_KaizoEmotionalTees ^= 1;
+			}
+
 			// PvP Settings
 			Right.HSplitTop(20.0f, &Label, &SettingsBox);
 			Ui()->DoLabel(&Label, Localize("PvP Settings"), 20.0f, TEXTALIGN_ML);

@@ -808,6 +808,9 @@ void CPlayers::RenderPlayer(
 		}
 	}
 
+	//+KZ
+	SetPlayerEmoteKZ(Player, ClientId);
+
 	//+KZ sleeping menu tees
 	if(g_Config.m_KaizoSleepingInMenuPlayers && (GameClient()->m_Snap.m_aCharacters[ClientId].m_Cur.m_PlayerFlags & PLAYERFLAG_IN_MENU))
 		Player.m_Emote = EMOTE_BLINK;
