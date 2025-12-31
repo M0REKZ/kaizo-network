@@ -226,6 +226,21 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 				g_Config.m_KaizoChatInputBackground ^= 1;
 			}
 
+			Left.HSplitTop(2.0f, nullptr, &Left);
+
+			Left.HSplitTop(20.0f, &Button, &Left);
+			if(DoButton_CheckBox(&g_Config.m_KaizoFastMapDownload, Localize("Fast map download (Experimental)"), g_Config.m_KaizoFastMapDownload, &Button))
+			{
+				g_Config.m_KaizoFastMapDownload ^= 1;
+			}
+
+			if(g_Config.m_KaizoFastMapDownload)
+			{
+				Left.HSplitTop(2.0f, nullptr, &Left);
+				Left.HSplitTop(20.0f, &Button, &Left);
+				Ui()->DoScrollbarOption(&g_Config.m_KaizoFastMapDownloadWindow, &g_Config.m_KaizoFastMapDownloadWindow, &Button, Localize("Map data to request"), 0, 500, &CUi::ms_LogarithmicScrollbarScale, 0u, " KiB/s");
+			}
+
 			// PvP Settings
 			Right.HSplitTop(20.0f, &Label, &SettingsBox);
 			Ui()->DoLabel(&Label, Localize("PvP Settings"), 20.0f, TEXTALIGN_ML);

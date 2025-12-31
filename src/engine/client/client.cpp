@@ -1730,7 +1730,7 @@ void CClient::ProcessServerPacket(CNetChunk *pPacket, int Conn, bool Dummy)
 			}
 
 			const unsigned char *pData = Unpacker.GetRaw(Size);
-			if(Unpacker.Error() || Size <= 0 || MapCRC != m_MapdownloadCrc || Chunk != m_MapdownloadChunk)
+			if(Unpacker.Error() || Size <= 0 || MapCRC != m_MapdownloadCrc || (g_Config.m_KaizoFastMapDownload ? false : Chunk != m_MapdownloadChunk))
 			{
 				return;
 			}
@@ -1755,6 +1755,26 @@ void CClient::ProcessServerPacket(CNetChunk *pPacket, int Conn, bool Dummy)
 			{
 				// request new chunk
 				m_MapdownloadChunk++;
+
+				//+KZ
+				if(g_Config.m_KaizoFastMapDownload)
+				{
+					for(int i = m_MapdownloadChunk; (i < g_Config.m_KaizoFastMapDownloadWindow); i++)
+					{
+						if(IsSixup() && (m_MapdownloadChunk % m_TranslationContext.m_MapDownloadChunksPerRequest == 0))
+						{
+							CMsgPacker MsgP(protocol7::NETMSG_REQUEST_MAP_DATA, true, true);
+							SendMsg(CONN_MAIN, &MsgP, MSGFLAG_VITAL | MSGFLAG_FLUSH);
+						}
+						else
+						{
+							CMsgPacker MsgP(NETMSG_REQUEST_MAP_DATA, true);
+							MsgP.AddInt(m_MapdownloadChunk);
+							SendMsg(CONN_MAIN, &MsgP, MSGFLAG_VITAL | MSGFLAG_FLUSH);
+						}
+						m_MapdownloadChunk++;
+					}
+				}
 
 				if(IsSixup() && (m_MapdownloadChunk % m_TranslationContext.m_MapDownloadChunksPerRequest == 0))
 				{
