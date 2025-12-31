@@ -239,6 +239,10 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 				Left.HSplitTop(2.0f, nullptr, &Left);
 				Left.HSplitTop(20.0f, &Button, &Left);
 				Ui()->DoScrollbarOption(&g_Config.m_KaizoFastMapDownloadWindow, &g_Config.m_KaizoFastMapDownloadWindow, &Button, Localize("Map data to request"), 0, 500, &CUi::ms_LogarithmicScrollbarScale, 0u, " KiB/s");
+
+				Left.HSplitTop(2.0f, nullptr, &Left);
+				Left.HSplitTop(10.0f, &Label, &Left);
+				Ui()->DoLabel(&Label, Localize("NOTE: high values may break map download"), 10.0f, TEXTALIGN_ML);
 			}
 
 			// PvP Settings
