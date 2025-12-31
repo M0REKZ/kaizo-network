@@ -1174,6 +1174,19 @@ void CChat::OnRender()
 	float ScaledFontSize = FontSize() * (8.0f / 6.0f);
 	if(m_Mode != MODE_NONE)
 	{
+		// +KZ from DuckClient: Draw background for message
+		if(!g_Config.m_ClChatOld && g_Config.m_KaizoChatInputBackground)
+		{
+			Graphics()->TextureClear();
+			int yy = y - 1.0f;
+			int ContainerIndex = Graphics()->CreateRectQuadContainer(x/2, yy/2, Width - 189.0f, 2.5f*ScaledFontSize, MessageRounding(), IGraphics::CORNER_ALL);
+			if(0 != -1)
+			{
+				Graphics()->SetColor(color_cast<ColorRGBA>(ColorHSLA(g_Config.m_ClChatBackgroundColor, true)));
+				Graphics()->RenderQuadContainerEx(ContainerIndex, 0, -1, x/2, yy/2);
+			}
+		}
+
 		// render chat input
 		CTextCursor InputCursor;
 		InputCursor.SetPosition(vec2(x, y));

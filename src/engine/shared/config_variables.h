@@ -845,5 +845,7 @@ MACRO_CONFIG_INT(KaizoHudRealPosition, kaizo_hud_real_position, 0, 0, 1, CFGFLAG
 MACRO_CONFIG_INT(KaizoHudRealVelocity, kaizo_hud_real_velocity, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "If HUD player velocity is enabled, show the real velocity instead of the calculated one")
 MACRO_CONFIG_INT(KaizoStartMenu, kaizo_start_menu, 1, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Use Kaizo Network start menu")
 MACRO_CONFIG_INT(KaizoPredictGoresGrenadeTele, kaizo_predict_grenade_gores_tele, 1, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Predict Gores grenade teleport")
+//From DuckClient by Pointer
+MACRO_CONFIG_INT(KaizoChatInputBackground, kaizo_chat_input_background, 1, 0, 1, CFGFLAG_SAVE | CFGFLAG_CLIENT, "Whether to add a background for the input when chatting")
 //This one is from T-Client:
 MACRO_CONFIG_STR(KaizoCustomCommunitiesUrl, kaizo_custom_communities_url, 256, "https://raw.githubusercontent.com/SollyBunny/ddnet-custom-communities/refs/heads/main/custom-communities-ddnet-info.json", CFGFLAG_CLIENT | CFGFLAG_SAVE, "URL to fetch custom communities from (must be https), empty to disable")
