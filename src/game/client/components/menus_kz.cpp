@@ -18,7 +18,7 @@ enum
 
 static int s_CurCustomTab = KAIZO_SETTINGS_TAB_KAIZO;
 
-class CKeyInfo
+/*class CKeyInfo
 {
 public:
 	const char *m_pName;
@@ -35,7 +35,7 @@ static CKeyInfo gs_aKeys[NUM_KAIZO_KEYBINDS] = {
 	{Localizable("Orange Portal"), "say /orangeportal", 0, 0},
 	{Localizable("Blue Portal"), "say /blueportal", 0, 0},
 	{Localizable("Drop Flag"), "say /drop flag", 0, 0},
-};
+};*/
 
 void CMenus::RenderSettingsKaizo(CUIRect MainView)
 {
@@ -133,22 +133,6 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 			Left.HSplitTop(2.0f, nullptr, &Left);
 
 			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox(&g_Config.m_KaizoPredictDDNetTeleport, Localize("Predict DDNet teleports if there is only 1 exit"), g_Config.m_KaizoPredictDDNetTeleport, &Button))
-			{
-				g_Config.m_KaizoPredictDDNetTeleport ^= 1;
-			}
-
-			Left.HSplitTop(2.0f, nullptr, &Left);
-
-			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox(&g_Config.m_KaizoPredictDeathTiles, Localize("Predict Death tiles"), g_Config.m_KaizoPredictDeathTiles, &Button))
-			{
-				g_Config.m_KaizoPredictDeathTiles ^= 1;
-			}
-
-			Left.HSplitTop(2.0f, nullptr, &Left);
-
-			Left.HSplitTop(20.0f, &Button, &Left);
 			if(DoButton_CheckBox(&g_Config.m_KaizoPingCircles, Localize("Show ping circles above players"), g_Config.m_KaizoPingCircles, &Button))
 			{
 				g_Config.m_KaizoPingCircles ^= 1;
@@ -189,14 +173,6 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 			Left.HSplitTop(2.0f, nullptr, &Left);
 
 			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox(&g_Config.m_KaizoPredictTeleToDeath, Localize("Predict death effect if teleport leads to Death"), g_Config.m_KaizoPredictTeleToDeath, &Button))
-			{
-				g_Config.m_KaizoPredictTeleToDeath ^= 1;
-			}
-
-			Left.HSplitTop(2.0f, nullptr, &Left);
-
-			Left.HSplitTop(20.0f, &Button, &Left);
 			if(DoButton_CheckBox(&g_Config.m_KaizoHudRealPosition, Localize("If HUD player position is enabled, show real position"), g_Config.m_KaizoHudRealPosition, &Button))
 			{
 				g_Config.m_KaizoHudRealPosition ^= 1;
@@ -208,14 +184,6 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 			if(DoButton_CheckBox(&g_Config.m_KaizoHudRealVelocity, Localize("If HUD player velocity is enabled, show real velocity"), g_Config.m_KaizoHudRealVelocity, &Button))
 			{
 				g_Config.m_KaizoHudRealVelocity ^= 1;
-			}
-
-			Left.HSplitTop(2.0f, nullptr, &Left);
-
-			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox(&g_Config.m_KaizoPredictGoresGrenadeTele, Localize("Predict Gores grenade teleport"), g_Config.m_KaizoPredictGoresGrenadeTele, &Button))
-			{
-				g_Config.m_KaizoPredictGoresGrenadeTele ^= 1;
 			}
 
 			Left.HSplitTop(2.0f, nullptr, &Left);
@@ -245,31 +213,87 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 				Ui()->DoLabel(&Label, Localize("NOTE: high values may break map download"), 10.0f, TEXTALIGN_ML);
 			}
 
+			Left.HSplitTop(2.0f, nullptr, &Left);
+
 			Left.HSplitTop(20.0f, &Button, &Left);
 			if(DoButton_CheckBox(&g_Config.m_KaizoEmotionalTees, Localize("Emotional Tees in non-DDNet servers (Client-side)"), g_Config.m_KaizoEmotionalTees, &Button))
 			{
 				g_Config.m_KaizoEmotionalTees ^= 1;
 			}
 
-			// PvP Settings
-			Right.HSplitTop(20.0f, &Label, &SettingsBox);
-			Ui()->DoLabel(&Label, Localize("PvP Settings"), 20.0f, TEXTALIGN_ML);
-			Right.HSplitTop(25.0f, &Label, &Right);
+			Left.HSplitTop(2.0f, nullptr, &Left);
 
-			Right.HSplitTop(2.0f, nullptr, &Right);
-
-			Right.HSplitTop(20.0f, &Button, &Right);
+			Left.HSplitTop(20.0f, &Button, &Left);
 			if(DoButton_CheckBox(&g_Config.m_KaizoInstaShieldShield, Localize("InstaShield Shield"), g_Config.m_KaizoInstaShieldShield, &Button))
 			{
 				g_Config.m_KaizoInstaShieldShield ^= 1;
 			}
 
-			Right.HSplitTop(2.0f, nullptr, &Right);
+			Left.HSplitTop(2.0f, nullptr, &Left);
 
-			Right.HSplitTop(20.0f, &Button, &Right);
+			Left.HSplitTop(20.0f, &Button, &Left);
 			if(DoButton_CheckBox(&g_Config.m_KaizoKillingSpreeSparkles, Localize("Killing spree sparkles"), g_Config.m_KaizoKillingSpreeSparkles, &Button))
 			{
 				g_Config.m_KaizoKillingSpreeSparkles ^= 1;
+			}
+
+			Left.HSplitTop(2.0f, nullptr, &Left);
+
+			Left.HSplitTop(20.0f, &Button, &Left);
+			if(DoButton_CheckBox(&g_Config.m_KaizoReplyTabbedOut, Localize("Reply when tabbed out"), g_Config.m_KaizoReplyTabbedOut, &Button))
+			{
+				g_Config.m_KaizoReplyTabbedOut ^= 1;
+			}
+
+			if(g_Config.m_KaizoReplyTabbedOut)
+			{
+				static CLineInput s_TabbedOutInput;
+				s_TabbedOutInput.SetBuffer(g_Config.m_KaizoReplyTabbedOutMsg, sizeof(g_Config.m_KaizoReplyTabbedOutMsg));
+
+				Left.HSplitTop(2.0f, nullptr, &Left);
+				Left.HSplitTop(10.0f, &Label, &Left);
+				Ui()->DoLabel(&Label, Localize("Message to send:"), 10.0f, TEXTALIGN_ML);
+
+				Left.HSplitTop(2.0f, nullptr, &Left);
+				Left.HSplitTop(20.0f, &Button, &Left);
+				Ui()->DoEditBox(&s_TabbedOutInput, &Button, 14.0f);
+			}
+
+			// Prediction
+			Right.HSplitTop(20.0f, &Label, &SettingsBox);
+			Ui()->DoLabel(&Label, Localize("Prediction"), 20.0f, TEXTALIGN_ML);
+			Right.HSplitTop(25.0f, &Label, &Right);
+
+			Right.HSplitTop(2.0f, nullptr, &Right);
+
+			Right.HSplitTop(20.0f, &Button, &Right);
+			if(DoButton_CheckBox(&g_Config.m_KaizoPredictGoresGrenadeTele, Localize("Predict Gores grenade teleport"), g_Config.m_KaizoPredictGoresGrenadeTele, &Button))
+			{
+				g_Config.m_KaizoPredictGoresGrenadeTele ^= 1;
+			}
+
+			Right.HSplitTop(2.0f, nullptr, &Right);
+
+			Right.HSplitTop(20.0f, &Button, &Right);
+			if(DoButton_CheckBox(&g_Config.m_KaizoPredictTeleToDeath, Localize("Predict death effect if teleport leads to Death"), g_Config.m_KaizoPredictTeleToDeath, &Button))
+			{
+				g_Config.m_KaizoPredictTeleToDeath ^= 1;
+			}
+
+			Right.HSplitTop(2.0f, nullptr, &Right);
+
+			Right.HSplitTop(20.0f, &Button, &Right);
+			if(DoButton_CheckBox(&g_Config.m_KaizoPredictDDNetTeleport, Localize("Predict DDNet teleports if there is only 1 exit"), g_Config.m_KaizoPredictDDNetTeleport, &Button))
+			{
+				g_Config.m_KaizoPredictDDNetTeleport ^= 1;
+			}
+
+			Right.HSplitTop(2.0f, nullptr, &Right);
+
+			Right.HSplitTop(20.0f, &Button, &Right);
+			if(DoButton_CheckBox(&g_Config.m_KaizoPredictDeathTiles, Localize("Predict Death tiles"), g_Config.m_KaizoPredictDeathTiles, &Button))
+			{
+				g_Config.m_KaizoPredictDeathTiles ^= 1;
 			}
 
 			Right.HSplitTop(2.0f, nullptr, &Right);

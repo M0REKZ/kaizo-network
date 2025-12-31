@@ -84,6 +84,24 @@ void CGameClient::HandleKaizoMessage(int MsgId, CUnpacker *pUnpacker, int Conn, 
                 }
             }
         }
+        else if(pMsg->m_ClientId < MAX_CLIENTS)
+        {
+            if(g_Config.m_KaizoReplyTabbedOut)
+            {
+                IEngineGraphics *pGraphics = ((IEngineGraphics *)Kernel()->RequestInterface<IEngineGraphics>());
+		        if(pGraphics && !pGraphics->WindowActive() && Graphics())
+                {
+                    if(m_aClients[pMsg->m_ClientId].m_Active && (str_find(pMsg->m_pMessage, g_Config.m_PlayerName) || str_find(pMsg->m_pMessage, g_Config.m_ClDummyName)))
+                    {
+                        char aBuf[256];
+                        aBuf[0] = '\0';
+
+                        str_format(aBuf, sizeof(aBuf), "/w %s %s", m_aClients[pMsg->m_ClientId].m_aName, g_Config.m_KaizoReplyTabbedOutMsg);
+                        m_Chat.SendChat(0, aBuf);
+                    }
+                }
+            }
+        }
     }
 }
 
