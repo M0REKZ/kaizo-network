@@ -55,3 +55,32 @@ bool CControls::CheckNewInput()
 	}
 	return false;
 }
+
+void CControls::HandleKaizoInput(CNetObj_PlayerInput *pMainInput, CNetObj_PlayerInput *pSecondInput)
+{
+	CNetObj_PlayerInput *pDummyInput = &(GameClient()->m_DummyInput);
+
+	//this is so we always receive ping from other players
+	//exclude F-DDrace since some features requires pressing/releasing scoreboard key
+	if(g_Config.m_KaizoPingCircles && !GameClient()->m_GameInfo.m_EntitiesFDDrace)
+	{
+		pMainInput->m_PlayerFlags |= PLAYERFLAG_SCOREBOARD;
+	}
+
+	if(g_Config.m_KaizoHideChatBubble)
+	{
+		pMainInput->m_PlayerFlags &= ~(PLAYERFLAG_CHATTING);
+		pDummyInput->m_PlayerFlags &= ~(PLAYERFLAG_CHATTING);
+	}
+
+	if(g_Config.m_KaizoHideInMenuStatus)
+	{
+		//PLAYERFLAG_IN_MENU & PLAYERFLAG_PLAYING are about in-menu state
+		pMainInput->m_PlayerFlags &= ~(PLAYERFLAG_IN_MENU);
+		pMainInput->m_PlayerFlags &= ~(PLAYERFLAG_PLAYING);
+		pDummyInput->m_PlayerFlags &= ~(PLAYERFLAG_IN_MENU);
+		pDummyInput->m_PlayerFlags &= ~(PLAYERFLAG_PLAYING);
+	}
+
+	*pSecondInput = *pDummyInput;
+}

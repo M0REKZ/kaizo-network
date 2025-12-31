@@ -1728,6 +1728,8 @@ void CGameClient::OnNewSnapshot()
 
 				if(pInfo->m_ClientId < MAX_CLIENTS && pInfo->m_ClientId == Item.m_Id)
 				{
+					m_aClients[pInfo->m_ClientId].m_ReceivedPing = pInfo->m_Latency;
+					
 					m_aClients[pInfo->m_ClientId].m_Team = pInfo->m_Team;
 					m_aClients[pInfo->m_ClientId].m_Active = true;
 					m_Snap.m_apPlayerInfos[pInfo->m_ClientId] = pInfo;

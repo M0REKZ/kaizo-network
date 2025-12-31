@@ -830,7 +830,7 @@ MACRO_CONFIG_INT(KaizoShowCrowns, kaizo_show_crowns, 1, 0, 1, CFGFLAG_CLIENT | C
 MACRO_CONFIG_INT(KaizoPredictDDNetTeleport, kaizo_predict_ddnet_teleport, 1, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Predict DDNet teleports if there is only 1 exit")
 MACRO_CONFIG_INT(KaizoInstaShieldShield, kaizo_instashield_shield, 1, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Enable InstaShield Shield")
 MACRO_CONFIG_INT(KaizoPredictDeathTiles, kaizo_predict_death_tiles, 1, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Predict death effect in death tiles")
-MACRO_CONFIG_INT(KaizoPingCircles, kaizo_ping_circles, 1, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Show ping circles above players in Kaizo servers")
+MACRO_CONFIG_INT(KaizoPingCircles, kaizo_ping_circles, 1, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Show ping circles above players")
 MACRO_CONFIG_INT(KaizoSleepingInMenuPlayers, kaizo_sleeping_in_menu_players, 1, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Players navigating menu appear as sleeping")
 MACRO_CONFIG_INT(KaizoKillingSpreeSparkles, kaizo_killing_spree_sparkles, 1, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Killing spree sparkles")
 MACRO_CONFIG_INT(KaizoPredictPointerTWPlus, kaizo_predict_pointer_twplus, 1, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Try to detect and predict Pointer's TW+")
@@ -845,6 +845,8 @@ MACRO_CONFIG_INT(KaizoHudRealPosition, kaizo_hud_real_position, 0, 0, 1, CFGFLAG
 MACRO_CONFIG_INT(KaizoHudRealVelocity, kaizo_hud_real_velocity, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "If HUD player velocity is enabled, show the real velocity instead of the calculated one")
 MACRO_CONFIG_INT(KaizoStartMenu, kaizo_start_menu, 1, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Use Kaizo Network start menu")
 MACRO_CONFIG_INT(KaizoPredictGoresGrenadeTele, kaizo_predict_grenade_gores_tele, 1, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Predict Gores grenade teleport")
+MACRO_CONFIG_INT(KaizoHideChatBubble, kaizo_hide_chat_bubble, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Dont send chat bubble")
+MACRO_CONFIG_INT(KaizoHideInMenuStatus, kaizo_hide_in_menu_status, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Dont send in-menu status")
 //From DuckClient by Pointer
 MACRO_CONFIG_INT(KaizoChatInputBackground, kaizo_chat_input_background, 1, 0, 1, CFGFLAG_SAVE | CFGFLAG_CLIENT, "Whether to add a background for the input when chatting")
 //This one is from T-Client:

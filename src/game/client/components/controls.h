@@ -64,5 +64,6 @@ public:
 	//+KZ from Fast Input commit
 	bool CheckNewInput();
 	CNetObj_PlayerInput m_FastInput;
+	void HandleKaizoInput(CNetObj_PlayerInput *pMainInput, CNetObj_PlayerInput *pSecondInput);
 };
 #endif

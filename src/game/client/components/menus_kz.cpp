@@ -149,7 +149,7 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 			Left.HSplitTop(2.0f, nullptr, &Left);
 
 			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox(&g_Config.m_KaizoPingCircles, Localize("Show ping circles above players on Kaizo servers"), g_Config.m_KaizoPingCircles, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoPingCircles, Localize("Show ping circles above players"), g_Config.m_KaizoPingCircles, &Button))
 			{
 				g_Config.m_KaizoPingCircles ^= 1;
 			}
@@ -284,6 +284,18 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 			if(DoButton_CheckBox(&g_Config.m_KaizoShowRechargeBar, Localize("Show weapon recharge bar"), g_Config.m_KaizoShowRechargeBar, &Button))
 			{
 				g_Config.m_KaizoShowRechargeBar ^= 1;
+			}
+
+			Right.HSplitTop(20.0f, &Button, &Right);
+			if(DoButton_CheckBox(&g_Config.m_KaizoHideChatBubble, Localize("Dont send chat bubble"), g_Config.m_KaizoHideChatBubble, &Button))
+			{
+				g_Config.m_KaizoHideChatBubble ^= 1;
+			}
+
+			Right.HSplitTop(20.0f, &Button, &Right);
+			if(DoButton_CheckBox(&g_Config.m_KaizoHideInMenuStatus, Localize("Dont send in-menu status"), g_Config.m_KaizoHideInMenuStatus, &Button))
+			{
+				g_Config.m_KaizoHideInMenuStatus ^= 1;
 			}
 			
 			break;
