@@ -91,7 +91,9 @@ void CGameClient::HandleKaizoMessage(int MsgId, CUnpacker *pUnpacker, int Conn, 
                 IEngineGraphics *pGraphics = ((IEngineGraphics *)Kernel()->RequestInterface<IEngineGraphics>());
 		        if(pGraphics && !pGraphics->WindowActive() && Graphics())
                 {
-                    if(m_aClients[pMsg->m_ClientId].m_Active && (str_find(pMsg->m_pMessage, g_Config.m_PlayerName) || str_find(pMsg->m_pMessage, g_Config.m_ClDummyName)))
+                    const char *pPname = m_aClients[m_aLocalIds[0]].m_aName;
+                    const char *pDname = m_aClients[m_aLocalIds[1]].m_aName;
+                    if(m_aClients[pMsg->m_ClientId].m_Active && ((pPname[0] ? str_find(pMsg->m_pMessage, pPname) : nullptr) || (pDname[0] ? str_find(pMsg->m_pMessage, pDname) : nullptr)))
                     {
                         char aBuf[256];
                         aBuf[0] = '\0';
