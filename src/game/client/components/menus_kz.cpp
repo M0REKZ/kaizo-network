@@ -165,7 +165,7 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 			Left.HSplitTop(2.0f, nullptr, &Left);
 
 			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox(&g_Config.m_KaizoShowClientType, Localize("Try to identify custom clients of other players and show a icon above them"), g_Config.m_KaizoShowClientType, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoShowClientType, Localize("Try to identify custom clients of other players"), g_Config.m_KaizoShowClientType, &Button))
 			{
 				g_Config.m_KaizoShowClientType ^= 1;
 			}

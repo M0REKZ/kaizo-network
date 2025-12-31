@@ -8,6 +8,7 @@
 #include <engine/shared/config.h>
 #include <engine/textrender.h>
 
+#include <generated/client_data.h>
 #include <generated/client_data7.h>
 #include <generated/protocol.h>
 
@@ -751,6 +752,51 @@ void CScoreboard::RenderScoreboard(CUIRect Scoreboard, int Team, int CountStart,
 			// country flag
 			GameClient()->m_CountryFlags.Render(ClientData.m_Country, ColorRGBA(1.0f, 1.0f, 1.0f, 0.5f),
 				CountryOffset, Row.y + (Spacing + TeeSizeMod * 5.0f) / 2.0f, CountryLength, Row.h - Spacing - TeeSizeMod * 5.0f);
+
+			//+KZ
+			if(g_Config.m_KaizoShowClientType)
+			{
+				int Type = GameClient()->m_aClients[pInfo->m_ClientId].m_CustomClient;
+
+				int Sprite = -1;
+				int Image = -1;
+
+				switch (Type)
+				{
+				case CUSTOM_CLIENT_ID_CHILLERBOTUX:
+					Image = IMAGE_KZ_CHILLERBOTUXICON;
+					Sprite = SPRITE_KZ_CHILLERBOTUXICON;
+					break;
+				case CUSTOM_CLIENT_ID_KAIZO_NETWORK:
+					Image = IMAGE_KZ_KAIZOICON;
+					Sprite = SPRITE_KZ_KAIZOICON;
+					break;
+				case CUSTOM_CLIENT_ID_GAMER_07:
+					Image = IMAGE_KZ_GAMERICON;
+					Sprite = SPRITE_KZ_GAMERICON;
+					break;
+				case CUSTOM_CLIENT_ID_FCLIENT_07:
+					Image = IMAGE_KZ_FCLIENTICON;
+					Sprite = SPRITE_KZ_FCLIENTICON;
+					break;
+				case CUSTOM_CLIENT_ID_ZILLYWOODS_07:
+					Image = IMAGE_KZ_ZILLYWOODSICON;
+					Sprite = SPRITE_KZ_ZILLYWOODSICON;
+					break;
+				}
+
+				if(Sprite != -1 && Image != -1)
+				{
+					CTeeRenderInfo TeeInfo = GameClient()->m_aClients[pInfo->m_ClientId].m_RenderInfo;
+					TeeInfo.m_Size *= TeeSizeMod;
+					Graphics()->TextureSet(g_pData->m_aImages[Image].m_Id);
+					Graphics()->QuadsBegin();
+					Graphics()->SelectSprite(Sprite);
+					IGraphics::CQuadItem QuadItem(TeeOffset + TeeInfo.m_Size - 11.0f, Row.y + (Spacing + TeeSizeMod * 5.0f) + 7.f, 12, 12);
+					Graphics()->QuadsDrawTL(&QuadItem, 1);
+					Graphics()->QuadsEnd();
+				}
+			}
 
 			// ping
 			if(g_Config.m_ClEnablePingColor)
