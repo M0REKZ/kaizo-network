@@ -1763,9 +1763,10 @@ void CClient::ProcessServerPacket(CNetChunk *pPacket, int Conn, bool Dummy)
 					// some 0.7 servers can crash, keep a low value: https://github.com/teeworlds/teeworlds/issues/3304
 					if(IsSixup() && Limit > 10)
 						Limit = 10;
-					for(int i = m_MapdownloadChunk; (i < Limit); i++)
+					int i = m_MapdownloadChunk;
+					for(; (i < Limit); i++)
 					{
-						if(IsSixup() && (m_MapdownloadChunk % m_TranslationContext.m_MapDownloadChunksPerRequest == 0))
+						if(IsSixup() && (i % m_TranslationContext.m_MapDownloadChunksPerRequest == 0))
 						{
 							CMsgPacker MsgP(protocol7::NETMSG_REQUEST_MAP_DATA, true, true);
 							SendMsg(CONN_MAIN, &MsgP, MSGFLAG_VITAL | MSGFLAG_FLUSH);
@@ -1773,11 +1774,11 @@ void CClient::ProcessServerPacket(CNetChunk *pPacket, int Conn, bool Dummy)
 						else
 						{
 							CMsgPacker MsgP(NETMSG_REQUEST_MAP_DATA, true);
-							MsgP.AddInt(m_MapdownloadChunk);
+							MsgP.AddInt(i);
 							SendMsg(CONN_MAIN, &MsgP, MSGFLAG_VITAL | MSGFLAG_FLUSH);
 						}
-						m_MapdownloadChunk++;
 					}
+					m_MapdownloadChunk = i;
 				}
 
 				if(IsSixup() && (m_MapdownloadChunk % m_TranslationContext.m_MapDownloadChunksPerRequest == 0))
