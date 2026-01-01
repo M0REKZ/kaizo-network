@@ -1757,12 +1757,10 @@ void CClient::ProcessServerPacket(CNetChunk *pPacket, int Conn, bool Dummy)
 				m_MapdownloadChunk++;
 
 				//+KZ
-				if(g_Config.m_KaizoFastMapDownload)
+				// 0.7 servers can crash: https://github.com/teeworlds/teeworlds/issues/3304
+				if(!IsSixup() && g_Config.m_KaizoFastMapDownload)
 				{
 					int Limit = g_Config.m_KaizoFastMapDownloadWindow;
-					// some 0.7 servers can crash, keep a low value: https://github.com/teeworlds/teeworlds/issues/3304
-					if(IsSixup() && Limit > 10)
-						Limit = 10;
 					int i = m_MapdownloadChunk;
 					for(; (i < Limit); i++)
 					{
