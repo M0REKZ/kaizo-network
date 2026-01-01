@@ -2,7 +2,7 @@ Licenses for the files inside this folder:
 
 portal.png, portal_orange.png, attractor.png by Pointer (license: CC BY-SA 3.0)
 
-duckicon.png by Pointer
+duckicon.png by Pointer (license: CC BY 4.0)
 
 shield.png by Dune (license: CC BY-SA 3.0)
 
