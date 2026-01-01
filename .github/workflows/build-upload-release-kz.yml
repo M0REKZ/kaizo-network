@@ -142,12 +142,13 @@ jobs:
         export TW_KEY_PW="$(openssl rand -base64 32)"
         keytool -genkey -v -keystore "$TW_KEY_NAME" -keyalg RSA -keysize 2048 -validity 10000 -alias "$TW_KEY_ALIAS" -storepass "$TW_KEY_PW" -dname "CN=DDNet CI, OU=DDNet, O=DDNet"
         mkdir build-android
-        scripts/android/cmake_android.sh all DDNet org.ddnet.client Release build-android
+        scripts/android/cmake_android.sh arm64 DDNet org.ddnet.client Release build-android
         mkdir artifacts
         mv build-android/DDNet.apk artifacts
 
-    - name: Upload Artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: ddnet-android
-        path: artifacts
+    - name: Create a release in GitHub and upload attachment
+      if: '!cancelled()'
+      run: |
+        gh release upload latest release/artifacts/${{ matrix.package-file }} --clobber
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
