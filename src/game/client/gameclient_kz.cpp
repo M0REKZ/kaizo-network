@@ -294,13 +294,22 @@ void CGameClient::KaizoPostUpdate()
     {
     case 25:
         SendInfo(false);
-        SendDummyInfo(false);
-        m_SendingCustomClientTicks = 24;
+        if(m_aClients[m_aLocalIds[0]].m_Country >= MINIMUM_CUSTOM_CLIENT_ID)
+            m_SendingCustomClientTicks = 24;
         break;
-    case 0:
-        SendInfo(false);
+    case 24:
         SendDummyInfo(false);
-        m_SendingCustomClientTicks = -1;
+        if(Client()->DummyConnected() ? m_aClients[m_aLocalIds[1]].m_Country >= MINIMUM_CUSTOM_CLIENT_ID : true)
+            m_SendingCustomClientTicks = 23;
+        break;
+    case 1:
+        SendInfo(false);
+        if(m_aClients[m_aLocalIds[0]].m_Country < MINIMUM_CUSTOM_CLIENT_ID)
+            m_SendingCustomClientTicks = 0;
+    case 0:
+        SendDummyInfo(false);
+        if(Client()->DummyConnected() ? m_aClients[m_aLocalIds[1]].m_Country < MINIMUM_CUSTOM_CLIENT_ID : true)
+            m_SendingCustomClientTicks = -1;
         break;
     default:
         if(m_SendingCustomClientTicks > 0)
@@ -314,6 +323,9 @@ void CGameClient::KaizoPostUpdate()
         bool Found = false;
         for(int CheckingId = 0; CheckingId < MAX_CLIENTS; CheckingId++)
         {
+            if(m_aClients[CheckingId].m_CustomClient)
+                continue;
+
             Found = false;
             for(int Client = 0; Client < 4; Client++)
             {

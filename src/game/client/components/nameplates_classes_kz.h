@@ -85,6 +85,12 @@ public:
 			m_Sprite = SPRITE_KZ_FCLIENTICON;
 			m_Visible = true;
 		}
+		else if(This.m_aClients[Data.m_ClientId].m_CustomClient == CUSTOM_CLIENT_ID_PDUCKCLIENT)
+		{
+			m_Texture = g_pData->m_aImages[IMAGE_KZ_DUCKICON].m_Id;
+			m_Sprite = SPRITE_KZ_DUCKICON;
+			m_Visible = true;
+		}
 		else
 		{
 			m_Visible = false;

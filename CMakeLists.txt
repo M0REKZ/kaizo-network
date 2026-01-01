@@ -1461,6 +1461,7 @@ set(EXPECTED_DATA
   hud.png
   kz/chillerbotux.png
   kz/crown.png
+  kz/duckicon.png
   kz/fclient.png
   kz/gamer.png
   kz/gui_logo.png

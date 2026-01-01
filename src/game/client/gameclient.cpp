@@ -1701,7 +1701,7 @@ void CGameClient::OnNewSnapshot()
 					}
 					IntsToStr(pInfo->m_aClan, std::size(pInfo->m_aClan), pClient->m_aClan, std::size(pClient->m_aClan));
 
-					if(IsCustomClientId(pInfo->m_Country)) //+KZ modified
+					if(!pClient->m_CustomClient && IsCustomClientId(pInfo->m_Country)) //+KZ modified
 					{
 						pClient->m_CustomClient = pInfo->m_Country;
 					}
