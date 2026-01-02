@@ -11,4 +11,10 @@ All other files are made by +KZ, they are under Copyright (c) Benjamín Gajardo:
 chillerbotux.png, crown.png, kaizoicon.png, mine.png, Turret_1.png,
     Turret_2.png by +KZ (license: CC BY-SA 4.0)
 
+gamer.png remake by +KZ, originally by Dune (license: CC BY-SA 3.0)
+
+fclient.png remake by +KZ, originally by fokkonaut (license: CC BY-SA 3.0)
+
+zillywoods.png remake by +KZ, originally by Chillerdragon (license: CC BY-SA 3.0)
+
 gui_logo.png originally by DDNet Team, modified by +KZ (license: CC BY-SA 3.0)
