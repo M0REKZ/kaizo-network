@@ -6,6 +6,9 @@ duckicon.png by Pointer (license: CC BY 4.0)
 
 shield.png by Dune (license: CC BY-SA 3.0)
 
-All other files are made by +KZ, they are under Copyright (c) Benjamín Gajardo
+All other files are made by +KZ, they are under Copyright (c) Benjamín Gajardo:
 
-kaizoicon.png by +KZ, released under CC BY-SA 4.0
+chillerbotux.png, crown.png, kaizoicon.png, mine.png, Turret_1.png,
+    Turret_2.png by +KZ (license: CC BY-SA 4.0)
+
+gui_logo.png originally by DDNet Team, modified by +KZ (license: CC BY-SA 3.0)
