@@ -2464,14 +2464,14 @@ void CGameClient::ApplyPreInputs(int Tick, bool Direct, CGameWorld &GameWorld)
 	if(!g_Config.m_ClAntiPingPreInput)
 		return;
 
-	for(int i = 0; i < MAX_CLIENTS; i++)
+	for(int ClientId = 0; ClientId < MAX_CLIENTS; ClientId++)
 	{
-		if(CCharacter *pChar = GameWorld.GetCharacterById(i))
+		if(CCharacter *pChar = GameWorld.GetCharacterById(ClientId))
 		{
-			if(i == m_aLocalIds[0] || (Client()->DummyConnected() && i == m_aLocalIds[1]))
+			if(ClientId == m_aLocalIds[0] || (Client()->DummyConnected() && ClientId == m_aLocalIds[1]))
 				continue;
 
-			const CNetMsg_Sv_PreInput PreInput = m_aClients[i].m_aPreInputs[Tick % 200];
+			const CNetMsg_Sv_PreInput PreInput = m_aClients[ClientId].m_aPreInputs[Tick % 200];
 			if(PreInput.m_IntendedTick != Tick)
 				continue;
 

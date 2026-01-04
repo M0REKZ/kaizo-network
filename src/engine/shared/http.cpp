@@ -18,11 +18,6 @@
 
 #include <curl/curl.h>
 
-// There is a stray constant on Windows/MSVC...
-#ifdef ERROR
-#undef ERROR
-#endif
-
 static int CurlDebug(CURL *pHandle, curl_infotype Type, char *pData, size_t DataSize, void *pUser)
 {
 	char TypeChar;
@@ -233,7 +228,7 @@ bool CHttpRequest::ConfigureHandle(void *pHandle)
 	}
 
 #ifdef CONF_PLATFORM_ANDROID
-	curl_easy_setopt(pH, CURLOPT_CAINFO, "data/cacert.pem");
+	curl_easy_setopt(pH, CURLOPT_CAPATH, "/system/etc/security/cacerts");
 #endif
 
 	switch(m_Type)
