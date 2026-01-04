@@ -82,7 +82,7 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 	switch (s_CurCustomTab)
 	{
 	case KAIZO_SETTINGS_TAB_KAIZO:
-		ScrollHeight = 0.f;
+		ScrollHeight = 512.f;
 		break;
 	default:
 		ScrollHeight = 0.f;
@@ -258,6 +258,16 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 				Left.HSplitTop(20.0f, &Button, &Left);
 				Ui()->DoEditBox(&s_TabbedOutInput, &Button, 14.0f);
 			}
+
+			Left.HSplitTop(2.0f, nullptr, &Left);
+
+			Left.HSplitTop(20.0f, &Button, &Left);
+			Ui()->DoScrollbarOption(&g_Config.m_KaizoScoreboardStyle, &g_Config.m_KaizoScoreboardStyle, &Button, Localize("Scoreboard style"), 0, 3, &CUi::ms_LogarithmicScrollbarScale, 0u, "");
+
+			Left.HSplitTop(2.0f, nullptr, &Left);
+
+			Left.HSplitTop(20.0f, &Button, &Left);
+			Ui()->DoScrollbarOption(&g_Config.m_KaizoScoreboardShorten, &g_Config.m_KaizoScoreboardShorten, &Button, Localize("Shorten scoreboard"), 0, 2, &CUi::ms_LogarithmicScrollbarScale, 0u, "");
 
 			// Prediction
 			Right.HSplitTop(20.0f, &Label, &SettingsBox);
