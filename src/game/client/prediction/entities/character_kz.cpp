@@ -19,7 +19,7 @@ void CCharacter::KaizoPredictNormalTiles(int Index)
 
         if(!g_Config.m_SvOldTeleportHook && !g_Config.m_SvOldTeleportWeapons)
         {
-            if(g_Config.ms_KaizoPredictTeleToDeath && z)
+            if(g_Config.m_KaizoPredictTeleToDeath && z)
             {
                 //check if all tele-outs lead to death tiles
                 bool AllLeadToDeath = true;
@@ -59,7 +59,7 @@ void CCharacter::KaizoPredictNormalTiles(int Index)
             }
         }
         int evilz = Collision()->IsEvilTeleport(MapIndex);
-        if(g_Config.ms_KaizoPredictTeleToDeath && evilz)
+        if(g_Config.m_KaizoPredictTeleToDeath && evilz)
         {
             // check if all tele-outs lead to death tiles
             bool AllLeadToDeath = true;

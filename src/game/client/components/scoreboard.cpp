@@ -911,7 +911,7 @@ void CScoreboard::OnRender()
 	const float ScoreboardWidth = !Teams && NumPlayers <= 16 ? ScoreboardSmallWidth : 750.0f;
 	const float TitleHeight = 30.0f;
 
-	CUIRect Scoreboard = {(Screen.w  - ScoreboardWidth) / 2.0f, 75.0f, ScoreboardWidth, (g_Config.m_KaizoScoreboardShorten >= 2 && NumPlayers <= 8 ? 50.0f + 76.0f*NumPlayers : 355.0f) + TitleHeight};
+	CUIRect Scoreboard = {(Screen.w  - ScoreboardWidth) / 2.0f, 75.0f, ScoreboardWidth, (g_Config.m_KaizoScoreboardShorten >= 2 && NumPlayers <= 8 ? 50.0f + 38.0f*NumPlayers : 355.0f) + TitleHeight};
 	CScoreboardRenderState RenderState{};
 
 	if(Teams)
