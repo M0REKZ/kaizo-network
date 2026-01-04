@@ -855,5 +855,7 @@ MACRO_CONFIG_INT(KaizoReplyTabbedOut, kaizo_reply_tabbed_out, 0, 0, 1, CFGFLAG_C
 MACRO_CONFIG_STR(KaizoReplyTabbedOutMsg, kaizo_reply_tabbed_out_msg, 200, "I am tabbed out (AFK)", CFGFLAG_CLIENT | CFGFLAG_SAVE, "Message to sent when tabbed out")
 //From DuckClient by Pointer
 MACRO_CONFIG_INT(KaizoChatInputBackground, kaizo_chat_input_background, 1, 0, 1, CFGFLAG_SAVE | CFGFLAG_CLIENT, "Whether to add a background for the input when chatting")
+MACRO_CONFIG_INT(KaizoScoreboardStyle, kaizo_scoreboard_style, 0, 0, 10, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Style of the scoreboard")
+MACRO_CONFIG_INT(KaizoScoreboardShorten, kaizo_scoreboard_shorten, 0, 0, 2, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Shorten the scoreboard if there are not so many players")
 //This one is from T-Client:
 MACRO_CONFIG_STR(KaizoCustomCommunitiesUrl, kaizo_custom_communities_url, 256, "https://raw.githubusercontent.com/SollyBunny/ddnet-custom-communities/refs/heads/main/custom-communities-ddnet-info.json", CFGFLAG_CLIENT | CFGFLAG_SAVE, "URL to fetch custom communities from (must be https), empty to disable")
