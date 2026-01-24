@@ -24,7 +24,7 @@ GameInfoFlags = [
 ]
 GameInfoFlags2 = [
 	"ALLOW_X_SKINS", "GAMETYPE_CITY", "GAMETYPE_FDDRACE", "ENTITIES_FDDRACE", "HUD_HEALTH_ARMOR", "HUD_AMMO",
-	"HUD_DDRACE", "NO_WEAK_HOOK", "NO_SKIN_CHANGE_FOR_FROZEN", "DDRACE_TEAM"
+	"HUD_DDRACE", "NO_WEAK_HOOK", "NO_SKIN_CHANGE_FOR_FROZEN", "DDRACE_TEAM", "PREDICT_EVENTS"
 ]
 ExPlayerFlags = ["AFK", "PAUSED", "SPEC"]
 LegacyProjectileFlags = [f"CLIENTID_BIT{i}" for i in range(8)] + [
@@ -77,7 +77,7 @@ enum
 
 enum
 {
-	GAMEINFO_CURVERSION=10,
+	GAMEINFO_CURVERSION=11,
 };
 '''
 
@@ -388,6 +388,12 @@ Objects = [
 		NetIntAny("m_SwitchNumber"),
 		NetIntAny("m_Layer"),
 		NetIntAny("m_EntityClass"),
+	]),
+
+ 	# the current best time in the server
+	NetObjectEx("MapBestTime", "map-best-time@netobj.ddnet.org", [
+			NetIntRange("m_MapBestTimeSeconds", 'FinishTime::NOT_FINISHED_MILLIS', 'max_int'),
+			NetIntRange("m_MapBestTimeMillis", 0, 999),
 	]),
 
 	NetEventEx("MapSoundWorld:Common", "map-sound-world@netevent.ddnet.org", [

@@ -73,6 +73,7 @@ class CConsole : public IConsole
 	static void Con_Exec(IResult *pResult, void *pUserData);
 	static void ConCommandAccess(IResult *pResult, void *pUser);
 	static void ConCommandStatus(IConsole::IResult *pResult, void *pUser);
+	void PrintCommandList(EAccessLevel MinAccessLevel, int ExcludeFlagMask);
 
 	void ExecuteLineStroked(int Stroke, const char *pStr, int ClientId = IConsole::CLIENT_ID_UNSPECIFIED, bool InterpretSemicolons = true) override;
 
@@ -141,7 +142,7 @@ class CConsole : public IConsole
 		PARSEARGS_INVALID_FLOAT,
 	};
 
-	int ParseArgs(CResult *pResult, const char *pFormat, bool IsColor = false);
+	int ParseArgs(CResult *pResult, const char *pFormat);
 
 	/*
 	this function will set pFormat to the next parameter (i,s,r,v,?) it contains and
