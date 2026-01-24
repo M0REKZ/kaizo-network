@@ -396,7 +396,7 @@ REGISTER_QUICK_ACTION(
 	AddKZGameLayer,
 	"Add KZ Game layer",
 	[&]() { AddKZGameLayer(); },
-	[&]() -> bool { return !GetSelectedGroup()->m_GameGroup || m_Map.m_pKZGameLayer; },
+	[&]() -> bool { return !Map()->SelectedGroup()->m_GameGroup || Map()->m_pKZGameLayer; },
 	ALWAYS_FALSE,
 	DEFAULT_BTN,
 	"Create KZ Game layer.")
@@ -405,7 +405,7 @@ REGISTER_QUICK_ACTION(
 	AddKZFrontLayer,
 	"Add KZ Front layer",
 	[&]() { AddKZFrontLayer(); },
-	[&]() -> bool { return !GetSelectedGroup()->m_GameGroup || m_Map.m_pKZFrontLayer; },
+	[&]() -> bool { return !Map()->SelectedGroup()->m_GameGroup || Map()->m_pKZFrontLayer; },
 	ALWAYS_FALSE,
 	DEFAULT_BTN,
 	"Create KZ Front layer.")

@@ -626,7 +626,7 @@ CUi::EPopupMenuFunctionResult CEditor::PopupGroup(void *pContext, CUIRect View, 
 		}
 	}
 
-	if(pEditor->GetSelectedGroup()->m_GameGroup && !pEditor->m_Map.m_pKZGameLayer)
+	if(pEditor->Map()->SelectedGroup()->m_GameGroup && !pEditor->Map()->m_pKZGameLayer)
 	{
 		// new KZ Game layer
 		View.HSplitBottom(5.0f, &View, nullptr);
@@ -639,7 +639,7 @@ CUi::EPopupMenuFunctionResult CEditor::PopupGroup(void *pContext, CUIRect View, 
 		}
 	}
 	
-	if(pEditor->GetSelectedGroup()->m_GameGroup && !pEditor->m_Map.m_pKZFrontLayer)
+	if(pEditor->Map()->SelectedGroup()->m_GameGroup && !pEditor->Map()->m_pKZFrontLayer)
 	{
 		// new KZ Front layer
 		View.HSplitBottom(5.0f, &View, nullptr);
