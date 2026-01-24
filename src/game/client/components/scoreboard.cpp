@@ -246,7 +246,7 @@ void CScoreboard::RenderGoals(CUIRect Goals)
 
 	if(pGameInfoObj->m_RoundNum && pGameInfoObj->m_RoundCurrent)
 	{
-		str_format(aBuf, sizeof(aBuf), Localize("Round %d/%d"), pGameInfoObj->m_RoundCurrent, pGameInfoObj->m_RoundNum);
+		str_format(aBuf, sizeof(aBuf), Client()->IsSixup() ? Localize("Match %d/%d") : Localize("Round %d/%d"), pGameInfoObj->m_RoundCurrent, pGameInfoObj->m_RoundNum);
 		Ui()->DoLabel(&Goals, aBuf, FontSize, TEXTALIGN_MR);
 	}
 }
