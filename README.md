@@ -22,6 +22,7 @@ This repo also uses code from the following mods that are NOT made by +KZ:
 * [Teeworlds Gamer](https://github.com/Dune-jr/teeworlds/tree/gamer)
 * [ICTFX](https://github.com/teeworlds-instagib-elo/iCTFX)
 * [FoxNet](https://github.com/FoxNet-DDNet/FoxNet)
+* [Pointer's Duck Client](https://pointer31.github.io/duckclient)
 * ...and other mods and rejected DDNet Pull requests.
 
 Other credits:
