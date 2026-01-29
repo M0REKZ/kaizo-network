@@ -1931,6 +1931,7 @@ set(EXPECTED_DATA
   skins7/body/raccoon.png
   skins7/body/spiky.png
   skins7/body/standard.png
+  skins7/body/tufts.png
   skins7/body/x_ninja.png
   skins7/bot.png
   skins7/brownbear.json
@@ -1951,7 +1952,9 @@ set(EXPECTED_DATA
   skins7/eyes/standard.png
   skins7/eyes/standardreal.png
   skins7/eyes/x_ninja.png
+  skins7/feet/runners.png
   skins7/feet/standard.png
+  skins7/feet/stompers.png
   skins7/force.json
   skins7/fox.json
   skins7/greensward.json
