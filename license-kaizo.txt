@@ -1,0 +1,62 @@
+=================START OF THE PLUSKAIZO LICENSE=================
+
+PLUSKAIZO LICENSE (c) Copyright Benjamín Gajardo All rights reserved
+
+PLUSKAIZO LICENSE (VERSION 1.3.1):
+
+This software is provided "as-is" without any kind of warranty, authors of
+this software are not responsible of any damage caused by using this software.
+
+Permission is granted to anyone to use and modify this software for any
+purpose EXCEPTING COMMERCIAL PURPOSES, subject to the following restrictions:
+
+1.  The origin of this software must not be misrepresented; you must NOT
+    claim that you wrote the original software.
+    -   If you modify this software, an acknowledgment in the altered
+        version is required.
+    -   If you use this software in a product, an acknowledgment in the
+        product is required
+2.  Altered versions must be plainly marked as such, and must not be
+    misrepresented as being the original software.
+3.  ⁠Source code of altered versions that is not in a source code made
+    by one of the original authors must be made available to EVERYONE
+    for FREE by publishing it to the internet on a public website that
+    can be accessed by other people across the world, allowing them to
+    download it to their device.
+    -   That source code must NOT be obfuscated, protected with a password
+        or inaccessible in any way.
+4.  Source code of altered versions must be shared under one of the next licenses:
+    -   PLUSKAIZO LICENSE at VERSION 1.3.1 or a newer compatible version.
+    -   The license currently used in the original software source code
+        made by the original authors.
+    -   Other license approved by the original authors.
+5.  Using this software for commercial purposes is not allowed, only the original
+    authors are allowed to use this software for commercial purposes, HOWEVER:
+    -   You are allowed to make videos about this software, share the videos
+        on the internet and get money from the video service used for that.
+    -   You are allowed to get money through donations, but not by selling this
+        software as a product.
+6.  If you use source code of the original software as reference for your
+    project source code, that project source code is considered as altered
+    source code of the original software and must follow the terms of this
+    license.
+
+This license must NOT be removed or altered from any binary or source distribution.
+
+If you want to do something that these restrictions does not allow, feel free to contact
+one of the original authors for a different license or exceptions.
+
+=================END OF THE PLUSKAIZO LICENSE=================
+
+Kaizo Network Copyright (C) 2025 Benjamín Gajardo (also known as "+KZ")
+Kaizo Client (c) Copyright Benjamín Gajardo
+
+Kaizo Network and Kaizo Client are extensions to the DDNet code, adding new features.
+However, Kaizo Network code and Kaizo Client code is shared under PLUSKAIZO LICENSE (VERSION 1.3.1).
+
+Original software shared under the PLUSKAIZO LICENSE (VERSION 1.3.1):
+    "Kaizo Network" and "Kaizo Client"
+Original authors:
+    Benjamín Gajardo (also known as "+KZ")
+Contact:
+    +KZ E-Mail: pluskaizo@gmail.com

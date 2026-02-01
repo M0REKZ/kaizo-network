@@ -7,7 +7,7 @@ This is the source code for Kaizo Client by +KZ, based on Kaizo Network Client, 
 
 For the discontinued Kaizo Network server check [discontinued-server branch](https://github.com/M0REKZ/kaizo-network/tree/discontinued-server)
 
-Make sure to follow the terms of the new license if you use Kaizo Client specific code.
+Make sure to follow the terms of the new license (found at license-kaizo.txt) if you use Kaizo Client specific code.
 
 I tried to separate Kaizo Client code from DDNet code but that is not possible in some cases.
 
