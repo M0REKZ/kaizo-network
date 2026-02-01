@@ -264,24 +264,24 @@ void CGameClient::KaizoPostUpdate()
 {
     bool MustSendCustomClient = false;
 
-    for(auto &Client : m_aClients)
+    for(auto &EachClient : m_aClients)
     {
-        if(Client.m_Active)
+        if(EachClient.m_Active)
         {
-            if(Client.m_ClientId == m_Snap.m_LocalClientId || Client.m_ClientId == m_aLocalIds[!g_Config.m_ClDummy])
+            if(EachClient.m_ClientId == m_Snap.m_LocalClientId || (Client()->DummyConnected() && EachClient.m_ClientId == m_aLocalIds[!g_Config.m_ClDummy]))
             {
-                Client.m_CustomClient = CUSTOM_CLIENT_ID_KAIZO_NETWORK; //force Kaizo Network client for us
+                EachClient.m_CustomClient = CUSTOM_CLIENT_ID_KAIZO_NETWORK; //force Kaizo Network client for us
             }
 
-            if(!Client.m_SentCustomClient)
+            if(!EachClient.m_SentCustomClient)
             {
                 MustSendCustomClient = true;
-                Client.m_SentCustomClient = true;
+                EachClient.m_SentCustomClient = true;
             }
         }
         else
         {
-            Client.m_SentCustomClient = false;
+            EachClient.m_SentCustomClient = false;
         }
     }
 

@@ -77,8 +77,23 @@ void CControls::HandleKaizoInput(CNetObj_PlayerInput *pMainInput, CNetObj_Player
 	{
 		//PLAYERFLAG_IN_MENU & PLAYERFLAG_PLAYING are about in-menu state
 		pMainInput->m_PlayerFlags &= ~(PLAYERFLAG_IN_MENU);
-		pMainInput->m_PlayerFlags &= ~(PLAYERFLAG_PLAYING);
+		pMainInput->m_PlayerFlags |= PLAYERFLAG_PLAYING;
 		pDummyInput->m_PlayerFlags &= ~(PLAYERFLAG_IN_MENU);
+		pDummyInput->m_PlayerFlags |= PLAYERFLAG_PLAYING;
+	}
+
+	if(g_Config.m_KaizoForceChatBubble)
+	{
+		pMainInput->m_PlayerFlags |= PLAYERFLAG_CHATTING;
+		pDummyInput->m_PlayerFlags |= PLAYERFLAG_CHATTING;
+	}
+
+	if(g_Config.m_KaizoForceInMenuStatus)
+	{
+		//PLAYERFLAG_IN_MENU & PLAYERFLAG_PLAYING are about in-menu state
+		pMainInput->m_PlayerFlags |= PLAYERFLAG_IN_MENU;
+		pMainInput->m_PlayerFlags &= ~(PLAYERFLAG_PLAYING);
+		pDummyInput->m_PlayerFlags |= PLAYERFLAG_IN_MENU;
 		pDummyInput->m_PlayerFlags &= ~(PLAYERFLAG_PLAYING);
 	}
 

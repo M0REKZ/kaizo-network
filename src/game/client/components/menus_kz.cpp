@@ -358,6 +358,18 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 			}
 
 			Right.HSplitTop(20.0f, &Button, &Right);
+			if(DoButton_CheckBox(&g_Config.m_KaizoForceChatBubble, Localize("Always send chat bubble"), g_Config.m_KaizoForceChatBubble, &Button))
+			{
+				g_Config.m_KaizoForceChatBubble ^= 1;
+			}
+
+			Right.HSplitTop(20.0f, &Button, &Right);
+			if(DoButton_CheckBox(&g_Config.m_KaizoForceInMenuStatus, Localize("Always send in-menu status"), g_Config.m_KaizoForceInMenuStatus, &Button))
+			{
+				g_Config.m_KaizoForceInMenuStatus ^= 1;
+			}
+
+			Right.HSplitTop(20.0f, &Button, &Right);
 			if(DoButton_CheckBox(&g_Config.m_KaizoFastRespawn, Localize("Spam click to respawn"), g_Config.m_KaizoFastRespawn, &Button))
 			{
 				g_Config.m_KaizoFastRespawn ^= 1;
