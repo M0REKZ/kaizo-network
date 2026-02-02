@@ -2,7 +2,7 @@
 
 PLUSKAIZO LICENSE (c) Copyright Benjamín Gajardo All rights reserved
 
-PLUSKAIZO LICENSE (VERSION 1.3.1):
+PLUSKAIZO LICENSE (VERSION 1.4):
 
 This software is provided "as-is" without any kind of warranty, authors of
 this software are not responsible of any damage caused by using this software.
@@ -26,7 +26,7 @@ purpose EXCEPTING COMMERCIAL PURPOSES, subject to the following restrictions:
     -   That source code must NOT be obfuscated, protected with a password
         or inaccessible in any way.
 4.  Source code of altered versions must be shared under one of the next licenses:
-    -   PLUSKAIZO LICENSE at VERSION 1.3.1 or a newer compatible version.
+    -   PLUSKAIZO LICENSE at VERSION 1.4 or a newer compatible version.
     -   The license currently used in the original software source code
         made by the original authors.
     -   Other license approved by the original authors.
@@ -40,6 +40,9 @@ purpose EXCEPTING COMMERCIAL PURPOSES, subject to the following restrictions:
     project source code, that project source code is considered as altered
     source code of the original software and must follow the terms of this
     license.
+7.  Source code that extends source code of the original software is considered
+    as altered source code of the original software and must follow the terms
+    of this license.
 
 This license must NOT be removed or altered from any binary or source distribution.
 
@@ -52,9 +55,9 @@ Kaizo Network Copyright (C) 2025 Benjamín Gajardo (also known as "+KZ")
 Kaizo Client (c) Copyright Benjamín Gajardo
 
 Kaizo Network and Kaizo Client are extensions to the DDNet code, adding new features.
-However, Kaizo Network code and Kaizo Client code is shared under PLUSKAIZO LICENSE (VERSION 1.3.1).
+However, Kaizo Network code and Kaizo Client code is shared under PLUSKAIZO LICENSE (VERSION 1.4).
 
-Original software shared under the PLUSKAIZO LICENSE (VERSION 1.3.1):
+Original software shared under the PLUSKAIZO LICENSE (VERSION 1.4):
     "Kaizo Network" and "Kaizo Client"
 Original authors:
     Benjamín Gajardo (also known as "+KZ")
