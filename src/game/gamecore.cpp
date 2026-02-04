@@ -581,8 +581,12 @@ void CCharacterCore::Move()
 
 	// +KZ clamp velocity to kaizo max, to prevent high CPU usage
 	// since some Kaizo tiles use the same collision system of solid tiles
-	m_Vel.x = std::clamp(m_Vel.x, (float)-g_Config.m_SvKaizoMaxVel, (float)g_Config.m_SvKaizoMaxVel);
-	m_Vel.y = std::clamp(m_Vel.y, (float)-g_Config.m_SvKaizoMaxVel, (float)g_Config.m_SvKaizoMaxVel);
+	// Kaizo Client: this is only needed on Kaizo Network Servers
+	if(m_pCollision->m_IsKaizoServer)
+	{
+		m_Vel.x = std::clamp(m_Vel.x, (float)-g_Config.m_SvKaizoMaxVel, (float)g_Config.m_SvKaizoMaxVel);
+		m_Vel.y = std::clamp(m_Vel.y, (float)-g_Config.m_SvKaizoMaxVel, (float)g_Config.m_SvKaizoMaxVel);
+	}
 
 	vec2 NewPos = m_Pos;
 
@@ -590,12 +594,13 @@ void CCharacterCore::Move()
 	bool Grounded = false;
 	m_QuadGrounded = false;
 
-	m_pCollision->PushBoxOutsideQuads(&NewPos, &m_Vel, PhysicalSizeVec2(), this, &m_QuadGrounded); //+KZ
+	if(g_Config.m_SvGoresQuadsEnable)
+		m_pCollision->PushBoxOutsideQuads(&NewPos, &m_Vel, PhysicalSizeVec2(), this, &m_QuadGrounded); //+KZ
 
 	m_pCollision->MoveBox(&NewPos, &m_Vel, PhysicalSizeVec2(),
 		vec2(m_Tuning.m_GroundElasticityX,
 			m_Tuning.m_GroundElasticityY),
-		&Grounded, &m_CharCoreParams);
+		&Grounded, (m_pCollision->m_IsKaizoServer ? &m_CharCoreParams : nullptr));
 
 	Grounded |= m_QuadGrounded; //+KZ
 	

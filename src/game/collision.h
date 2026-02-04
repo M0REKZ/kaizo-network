@@ -41,6 +41,8 @@ public:
 	CCollision();
 	~CCollision();
 
+	bool m_IsKaizoServer = false;
+
 	// KZ
 
 	int CheckPointForCore(float x, float y, SKZColCharCoreParams *pCharCoreParams) const;

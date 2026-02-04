@@ -11,6 +11,7 @@ void CGameClient::OnKaizoConnected()
 {
     m_Collision.m_pWorldCore = &m_GameWorld.m_Core;
     m_Collision.m_pTeamsCore = m_GameWorld.Teams();
+    m_Collision.m_IsKaizoServer = false;
 
     m_GameWorld.m_WorldConfig.m_IsPointerTWPlus = false; //initial value for this
     m_GameWorld.m_WorldConfig.m_IsPureVanilla = false;
@@ -56,6 +57,8 @@ void CGameClient::HandleKaizoMessage(int MsgId, CUnpacker *pUnpacker, int Conn, 
 		{
 			m_aClients[CrownId].m_CrownTick = m_GameWorld.GameTick();
 		}
+
+        m_Collision.m_IsKaizoServer = true;
 	}
 
     //for killing spree mode
@@ -114,6 +117,7 @@ void CGameClient::HandleKaizoSnapItem(const IClient::CSnapItem *pItem)
 
     if(pItem->m_Type == NETOBJTYPE_KAIZONETWORKCHARACTER)
     {
+        m_Collision.m_IsKaizoServer = true;
         const CNetObj_KaizoNetworkCharacter *pKaizoChar = (const CNetObj_KaizoNetworkCharacter *)pItem->m_pData;
         if(!pKaizoChar)
             return;
@@ -133,6 +137,7 @@ void CGameClient::HandleKaizoSnapItem(const IClient::CSnapItem *pItem)
     }
     else if(pItem->m_Type == NETOBJTYPE_KAIZONETWORKPLAYERPING)
     {
+        m_Collision.m_IsKaizoServer = true;
         const CNetObj_KaizoNetworkPlayerPing *pKaizoPlayerPing = (const CNetObj_KaizoNetworkPlayerPing *)pItem->m_pData;
         if(!pKaizoPlayerPing)
             return;
