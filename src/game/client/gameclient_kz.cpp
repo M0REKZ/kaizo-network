@@ -17,7 +17,7 @@ void CGameClient::OnKaizoConnected()
     m_GameWorld.m_WorldConfig.m_IsPureVanilla = false;
     m_WaitingForPointerTWPlusInfo = false;   
     m_aClients[0].m_SentCustomClient = false; //to send custom client on connect
-    m_SendingCustomClientTicks = 25; // too
+    m_SendingCustomClientTicks = 150; // too
 
     m_GameWorld.OnConnected();
 }
@@ -292,34 +292,39 @@ void CGameClient::KaizoPostUpdate()
 
     if(MustSendCustomClient)
     {
-        m_SendingCustomClientTicks = 25;
+        m_SendingCustomClientTicks = 150;
     }
 
-    switch (m_SendingCustomClientTicks)
+    if(Client()->State() == IClient::STATE_ONLINE && g_Config.m_KaizoSendClientType)
     {
-    case 25:
-        SendInfo(false);
-        if(m_aClients[m_aLocalIds[0]].m_Country >= MINIMUM_CUSTOM_CLIENT_ID)
-            m_SendingCustomClientTicks = 24;
-        break;
-    case 24:
-        SendDummyInfo(false);
-        if(Client()->DummyConnected() ? m_aClients[m_aLocalIds[1]].m_Country >= MINIMUM_CUSTOM_CLIENT_ID : true)
-            m_SendingCustomClientTicks = 23;
-        break;
-    case 1:
-        SendInfo(false);
-        if(m_aClients[m_aLocalIds[0]].m_Country < MINIMUM_CUSTOM_CLIENT_ID)
-            m_SendingCustomClientTicks = 0;
-    case 0:
-        SendDummyInfo(false);
-        if(Client()->DummyConnected() ? m_aClients[m_aLocalIds[1]].m_Country < MINIMUM_CUSTOM_CLIENT_ID : true)
-            m_SendingCustomClientTicks = -1;
-        break;
-    default:
-        if(m_SendingCustomClientTicks > 0)
-            m_SendingCustomClientTicks--;
-        break;
+        switch (m_SendingCustomClientTicks)
+        {
+        case 25:
+            SendInfo(false);
+            if(m_aClients[m_aLocalIds[0]].m_Country >= MINIMUM_CUSTOM_CLIENT_ID)
+                m_SendingCustomClientTicks = 24;
+            break;
+        case 24:
+            if(Client()->DummyConnected())
+                SendDummyInfo(false);
+            if(Client()->DummyConnected() ? m_aClients[m_aLocalIds[1]].m_Country >= MINIMUM_CUSTOM_CLIENT_ID : true)
+                m_SendingCustomClientTicks = 23;
+            break;
+        case 1:
+            SendInfo(false);
+            if(m_aClients[m_aLocalIds[0]].m_Country < MINIMUM_CUSTOM_CLIENT_ID)
+                m_SendingCustomClientTicks = 0;
+        case 0:
+            if(Client()->DummyConnected())
+                SendDummyInfo(false);
+            if(Client()->DummyConnected() ? m_aClients[m_aLocalIds[1]].m_Country < MINIMUM_CUSTOM_CLIENT_ID : true)
+                m_SendingCustomClientTicks = -1;
+            break;
+        default:
+            if(m_SendingCustomClientTicks > 0)
+                m_SendingCustomClientTicks--;
+            break;
+        }
     }
 
     // check for 0.7 custom clients
