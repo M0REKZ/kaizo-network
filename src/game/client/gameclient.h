@@ -554,6 +554,12 @@ public:
 		int m_CustomClient = 0;
 
 		void KaizoReset();
+
+		//TClient
+		vec2 m_ImprovedPredPos = vec2(0, 0);
+		vec2 m_PrevImprovedPredPos = vec2(0, 0);
+		bool m_ValidAntipingSmooth = false;
+		float m_Uncertainty = 0.0f;
 	};
 
 	CClientData m_aClients[MAX_CLIENTS];
@@ -998,6 +1004,9 @@ private:
 	bool IsCustomClientId(int Country);
 
 	bool IsSkinPartDefault(int Dummy, int Part);
+
+	//TClient
+	CGameWorld m_PredSmoothingWorld;
 };
 
 ColorRGBA CalculateNameColor(ColorHSLA TextColorHSL);

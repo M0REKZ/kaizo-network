@@ -172,6 +172,8 @@ private:
 
 public:
 	void OnConnected();
+
+	void CopyWorldClean(CGameWorld *pFrom); //TClient
 };
 
 class CCharOrder

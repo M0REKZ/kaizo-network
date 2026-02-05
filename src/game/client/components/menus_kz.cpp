@@ -277,6 +277,22 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 			Right.HSplitTop(2.0f, nullptr, &Right);
 
 			Right.HSplitTop(20.0f, &Button, &Right);
+			if(DoButton_CheckBox(&g_Config.m_KaizoAntiPingImproved, Localize("Better Antiping algorithm"), g_Config.m_KaizoAntiPingImproved, &Button))
+			{
+				g_Config.m_KaizoAntiPingImproved ^= 1;
+			}
+
+			Right.HSplitTop(2.0f, nullptr, &Right);
+
+			Right.HSplitTop(20.0f, &Button, &Right);
+			if(DoButton_CheckBox(&g_Config.m_KaizoAntiPingNegativeBuffer, Localize("Negative stability buffer (for Gores)"), g_Config.m_KaizoAntiPingNegativeBuffer, &Button))
+			{
+				g_Config.m_KaizoAntiPingNegativeBuffer ^= 1;
+			}
+
+			Right.HSplitTop(2.0f, nullptr, &Right);
+
+			Right.HSplitTop(20.0f, &Button, &Right);
 			if(DoButton_CheckBox(&g_Config.m_KaizoPredictGoresGrenadeTele, Localize("Predict Gores grenade teleport"), g_Config.m_KaizoPredictGoresGrenadeTele, &Button))
 			{
 				g_Config.m_KaizoPredictGoresGrenadeTele ^= 1;

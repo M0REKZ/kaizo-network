@@ -192,6 +192,8 @@ private:
 	bool m_DontMixPredictedPos = false;
 	bool m_IsInDeathTile = false;
 	bool m_InPointerTele = false;
+
+	CNetObj_PlayerInput * LatestInput() { return &m_LatestInput; }
 };
 
 #endif
