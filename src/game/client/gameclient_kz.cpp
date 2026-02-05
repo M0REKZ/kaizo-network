@@ -16,8 +16,6 @@ void CGameClient::OnKaizoConnected()
     m_GameWorld.m_WorldConfig.m_IsPointerTWPlus = false; //initial value for this
     m_GameWorld.m_WorldConfig.m_IsPureVanilla = false;
     m_WaitingForPointerTWPlusInfo = false;   
-    m_aClients[0].m_SentCustomClient = false; //to send custom client on connect
-    m_SendingCustomClientTicks = 150; // too
 
     m_GameWorld.OnConnected();
 }
@@ -148,6 +146,38 @@ void CGameClient::HandleKaizoSnapItem(const IClient::CSnapItem *pItem)
 
         m_aClients[ClientId].m_ReceivedPing = pKaizoPlayerPing->m_Ping;
     }
+    else if(pItem->m_Type == NETOBJTYPE_CLIENTINFO)
+    {
+        const CNetObj_ClientInfo *pInfo = (const CNetObj_ClientInfo *)pItem->m_pData;
+		int ClientId = pItem->m_Id;
+		if(ClientId < MAX_CLIENTS && ClientId >= 0)
+		{
+			CClientData *pClient = &m_aClients[ClientId];
+
+            //identify kaizo
+
+            union
+            {
+                int c = 0;
+                unsigned char b[4];
+            } a;
+
+            a.c = pInfo->m_ColorBody;
+
+            if(a.b[3] == CCID_COLOR_BODY_KAIZO_CLIENT)
+            {
+                pClient->m_CustomClient = CUSTOM_CLIENT_ID_KAIZO_NETWORK;
+            }
+            else if(a.b[3] == CCID_COLOR_BODY_CHILLERBOTUX)
+            {
+                pClient->m_CustomClient = CUSTOM_CLIENT_ID_CHILLERBOTUX;
+            }
+            else if(a.b[3] == CCID_COLOR_BODY_PDUCKCLIENT)
+            {
+                pClient->m_CustomClient = CUSTOM_CLIENT_ID_PDUCKCLIENT;
+            }
+        }
+    }
 }
 
 void CGameClient::PostSnapshotKaizo()
@@ -183,7 +213,6 @@ void CGameClient::CClientData::KaizoReset()
     m_ReceivedDDNetPlayerInfoInLastSnapshot = false;
 
     m_CustomClient = 0;
-    m_SentCustomClient = false;
 }
 
 bool CGameClient::CheckNewInput() 
@@ -267,66 +296,6 @@ void CGameClient::KaizoReset()
 
 void CGameClient::KaizoPostUpdate()
 {
-    bool MustSendCustomClient = false;
-
-    for(auto &EachClient : m_aClients)
-    {
-        if(EachClient.m_Active)
-        {
-            if(EachClient.m_ClientId == m_Snap.m_LocalClientId || (Client()->DummyConnected() && EachClient.m_ClientId == m_aLocalIds[!g_Config.m_ClDummy]))
-            {
-                EachClient.m_CustomClient = CUSTOM_CLIENT_ID_KAIZO_NETWORK; //force Kaizo Network client for us
-            }
-
-            if(!EachClient.m_SentCustomClient)
-            {
-                MustSendCustomClient = true;
-                EachClient.m_SentCustomClient = true;
-            }
-        }
-        else
-        {
-            EachClient.m_SentCustomClient = false;
-        }
-    }
-
-    if(MustSendCustomClient)
-    {
-        m_SendingCustomClientTicks = 150;
-    }
-
-    if(Client()->State() == IClient::STATE_ONLINE && g_Config.m_KaizoSendClientType)
-    {
-        switch (m_SendingCustomClientTicks)
-        {
-        case 25:
-            SendInfo(false);
-            if(m_aClients[m_aLocalIds[0]].m_Country >= MINIMUM_CUSTOM_CLIENT_ID)
-                m_SendingCustomClientTicks = 24;
-            break;
-        case 24:
-            if(Client()->DummyConnected())
-                SendDummyInfo(false);
-            if(Client()->DummyConnected() ? m_aClients[m_aLocalIds[1]].m_Country >= MINIMUM_CUSTOM_CLIENT_ID : true)
-                m_SendingCustomClientTicks = 23;
-            break;
-        case 1:
-            SendInfo(false);
-            if(m_aClients[m_aLocalIds[0]].m_Country < MINIMUM_CUSTOM_CLIENT_ID)
-                m_SendingCustomClientTicks = 0;
-        case 0:
-            if(Client()->DummyConnected())
-                SendDummyInfo(false);
-            if(Client()->DummyConnected() ? m_aClients[m_aLocalIds[1]].m_Country < MINIMUM_CUSTOM_CLIENT_ID : true)
-                m_SendingCustomClientTicks = -1;
-            break;
-        default:
-            if(m_SendingCustomClientTicks > 0)
-                m_SendingCustomClientTicks--;
-            break;
-        }
-    }
-
     // check for 0.7 custom clients
     if(Client()->IsSixup())
     {
@@ -377,21 +346,28 @@ void CGameClient::KaizoPostUpdate()
     }
 }
 
-int CGameClient::ReplaceCountryFlagWithCustomClientId(int Country)
+int CGameClient::InsertCustomClientIdIntoSkinColor(int Color)
 {
     if(!g_Config.m_KaizoSendClientType)
-        return Country;
-    
-    if(m_SendingCustomClientTicks <= 1) //dont send custom flag
-        return Country;
-
-    //if some random day amount of flags conflicts with invalid flag, just send normal country
-    if(m_CountryFlags.Num() >= CUSTOM_CLIENT_ID_KAIZO_NETWORK) 
     {
-        return Country;
+        return Color;
     }
 
-	return CUSTOM_CLIENT_ID_KAIZO_NETWORK;
+    union
+    {
+        int c = 0;
+        unsigned char b[4];
+    } a;
+
+    a.c = Color;
+
+    //printf("color %d %d %d %d\n", a.b[0], a.b[1], a.b[2], a.b[3]);
+    
+    //alpha is unused
+    a.b[3] = (unsigned char)CCID_COLOR_BODY_KAIZO_CLIENT;
+    Color = a.c;
+
+	return Color;
 }
 
 bool CGameClient::IsCustomClientId(int Country)

@@ -552,7 +552,6 @@ public:
 		bool m_KillingSpreeMode;
 
 		int m_CustomClient = 0;
-		bool m_SentCustomClient = false;
 
 		void KaizoReset();
 	};
@@ -995,10 +994,8 @@ private:
 	bool m_DidDeathEffect = false;
 	bool m_WaitingForPointerTWPlusInfo = false;
 
-	int ReplaceCountryFlagWithCustomClientId(int Country);
+	int InsertCustomClientIdIntoSkinColor(int Color);
 	bool IsCustomClientId(int Country);
-
-	int m_SendingCustomClientTicks = -1;
 
 	bool IsSkinPartDefault(int Dummy, int Part);
 };

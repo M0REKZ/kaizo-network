@@ -2069,10 +2069,9 @@ void CGameClient::OnNewSnapshot()
 				m_MapBestTimeSeconds = pMapBestTimeData->m_MapBestTimeSeconds;
 				m_MapBestTimeMillis = pMapBestTimeData->m_MapBestTimeMillis;
 			}
-			else //+KZ: May be a Kaizo Network item
-			{
-				HandleKaizoSnapItem(&Item);
-			}
+
+			//+KZ: May be a Kaizo Network item
+			HandleKaizoSnapItem(&Item);
 		}
 	}
 
@@ -3207,10 +3206,10 @@ void CGameClient::SendInfo(bool Start)
 		CNetMsg_Cl_StartInfo Msg;
 		Msg.m_pName = Client()->PlayerName();
 		Msg.m_pClan = g_Config.m_PlayerClan;
-		Msg.m_Country = ReplaceCountryFlagWithCustomClientId(g_Config.m_PlayerCountry); //+KZ modified
+		Msg.m_Country = g_Config.m_PlayerCountry;
 		Msg.m_pSkin = g_Config.m_ClPlayerSkin;
 		Msg.m_UseCustomColor = g_Config.m_ClPlayerUseCustomColor;
-		Msg.m_ColorBody = g_Config.m_ClPlayerColorBody;
+		Msg.m_ColorBody = InsertCustomClientIdIntoSkinColor(g_Config.m_ClPlayerColorBody);
 		Msg.m_ColorFeet = g_Config.m_ClPlayerColorFeet;
 		CMsgPacker Packer(&Msg);
 		Msg.Pack(&Packer);
@@ -3222,10 +3221,10 @@ void CGameClient::SendInfo(bool Start)
 		CNetMsg_Cl_ChangeInfo Msg;
 		Msg.m_pName = Client()->PlayerName();
 		Msg.m_pClan = g_Config.m_PlayerClan;
-		Msg.m_Country = ReplaceCountryFlagWithCustomClientId(g_Config.m_PlayerCountry); //+KZ modified
+		Msg.m_Country = g_Config.m_PlayerCountry;
 		Msg.m_pSkin = g_Config.m_ClPlayerSkin;
 		Msg.m_UseCustomColor = g_Config.m_ClPlayerUseCustomColor;
-		Msg.m_ColorBody = g_Config.m_ClPlayerColorBody;
+		Msg.m_ColorBody = InsertCustomClientIdIntoSkinColor(g_Config.m_ClPlayerColorBody);
 		Msg.m_ColorFeet = g_Config.m_ClPlayerColorFeet;
 		CMsgPacker Packer(&Msg);
 		Msg.Pack(&Packer);
@@ -3249,10 +3248,10 @@ void CGameClient::SendDummyInfo(bool Start)
 		CNetMsg_Cl_StartInfo Msg;
 		Msg.m_pName = Client()->DummyName();
 		Msg.m_pClan = g_Config.m_ClDummyClan;
-		Msg.m_Country = ReplaceCountryFlagWithCustomClientId(g_Config.m_ClDummyCountry); //+KZ modified
+		Msg.m_Country = g_Config.m_ClDummyCountry;
 		Msg.m_pSkin = g_Config.m_ClDummySkin;
 		Msg.m_UseCustomColor = g_Config.m_ClDummyUseCustomColor;
-		Msg.m_ColorBody = g_Config.m_ClDummyColorBody;
+		Msg.m_ColorBody = InsertCustomClientIdIntoSkinColor(g_Config.m_ClDummyColorBody);
 		Msg.m_ColorFeet = g_Config.m_ClDummyColorFeet;
 		CMsgPacker Packer(&Msg);
 		Msg.Pack(&Packer);
@@ -3264,10 +3263,10 @@ void CGameClient::SendDummyInfo(bool Start)
 		CNetMsg_Cl_ChangeInfo Msg;
 		Msg.m_pName = Client()->DummyName();
 		Msg.m_pClan = g_Config.m_ClDummyClan;
-		Msg.m_Country = ReplaceCountryFlagWithCustomClientId(g_Config.m_ClDummyCountry); //+KZ modified
+		Msg.m_Country = g_Config.m_ClDummyCountry;
 		Msg.m_pSkin = g_Config.m_ClDummySkin;
 		Msg.m_UseCustomColor = g_Config.m_ClDummyUseCustomColor;
-		Msg.m_ColorBody = g_Config.m_ClDummyColorBody;
+		Msg.m_ColorBody = InsertCustomClientIdIntoSkinColor(g_Config.m_ClDummyColorBody);
 		Msg.m_ColorFeet = g_Config.m_ClDummyColorFeet;
 		CMsgPacker Packer(&Msg);
 		Msg.Pack(&Packer);
