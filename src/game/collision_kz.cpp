@@ -405,9 +405,12 @@ CKZTile *CCollision::GetKZGameTile(int x, int y) const
 
 CKZTile *CCollision::GetKZGameTile(float x, float y) const
 {
+	if(!m_pKZGame)
+		return nullptr;
+
     int Nx = std::clamp(round_to_int(x) / 32, 0, m_KZGameWidth - 1);
     int Ny = std::clamp(round_to_int(y) / 32, 0, m_KZGameHeight - 1);
-    return m_pKZGame ? &m_pKZGame[Ny * m_KZGameWidth + Nx] : nullptr;
+    return &m_pKZGame[Ny * m_KZGameWidth + Nx];
 }
 
 CKZTile *CCollision::GetKZFrontTile(int Index) const
@@ -422,9 +425,12 @@ CKZTile *CCollision::GetKZFrontTile(int x, int y) const
 
 CKZTile *CCollision::GetKZFrontTile(float x, float y) const
 {
+	if(!m_pKZFront)
+		return nullptr;
+
     int Nx = std::clamp(round_to_int(x) / 32, 0, m_KZFrontWidth - 1);
     int Ny = std::clamp(round_to_int(y) / 32, 0, m_KZFrontHeight - 1);
-    return m_pKZFront ? &m_pKZFront[Ny * m_KZFrontWidth + Nx] : nullptr;
+    return &m_pKZFront[Ny * m_KZFrontWidth + Nx];
 }
 
 unsigned char CCollision::GetKZGameTileIndex(float x, float y) const

@@ -65,8 +65,12 @@ bool CCharacterCore::HandleKZTileOnMoveBox(vec2 *pMoveBoxPos, vec2 *pMoveBoxVel,
 	if(!m_pWorld || !m_pCollision || !m_pTeams)
 		return false;
 
-	CKZTile *pKZTile = m_pCollision->GetKZGameTile(*pMoveBoxPos);
-	CKZTile *pKZTileFront = m_pCollision->GetKZFrontTile(*pMoveBoxPos);
+	CKZTile *pKZTile = nullptr;
+	if(m_pCollision->KZGameFound())
+		m_pCollision->GetKZGameTile(*pMoveBoxPos);
+	CKZTile *pKZTileFront = nullptr;
+	if(m_pCollision->KZFrontFound())
+		m_pCollision->GetKZFrontTile(*pMoveBoxPos);
 
 	if(!pKZTile && !pKZTileFront)
 		return false;
