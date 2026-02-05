@@ -2613,13 +2613,16 @@ void CGameClient::OnPredict()
 		pDummyChar = m_PredictedWorld.GetCharacterById(m_aLocalIds[!g_Config.m_ClDummy]);
 
 	// predict //+KZ modified for fast input commit
-	int PredictionTick = Client()->GetPredictionTick();
-	int FinalTick = Client()->PredGameTick(g_Config.m_ClDummy) + g_Config.m_KaizoFastInput;
-	int FinalTickOthers = g_Config.m_KaizoFastInputOthers ? FinalTick : Client()->PredGameTick(g_Config.m_ClDummy);
-	for(int Tick = Client()->GameTick(g_Config.m_ClDummy) + 1; Tick <= FinalTick; Tick++)
+	int FinalTickRegular = Client()->PredGameTick(g_Config.m_ClDummy); // The vanilla final tick disregarding fast input
+	int FinalTickSelf = FinalTickRegular + g_Config.m_KaizoFastInput; // the final tick for just our local tee
+	int FinalTickOthers = FinalTickSelf; // the final tick for all other tees
+	if(g_Config.m_KaizoFastInput && !g_Config.m_KaizoFastInputOthers)
+		FinalTickOthers = FinalTickSelf - g_Config.m_KaizoFastInput;
+
+	for(int Tick = Client()->GameTick(g_Config.m_ClDummy) + 1; Tick <= FinalTickSelf; Tick++)
 	{
 		// fetch the previous characters
-		if(Tick == FinalTick) //+KZ modified for fast input commit
+		if(Tick == FinalTickSelf) //+KZ modified for fast input commit
 		{
 			for(int i = 0; i < MAX_CLIENTS; i++)
 				if(CCharacter *pChar = m_PredictedWorld.GetCharacterById(i))
@@ -2651,7 +2654,7 @@ void CGameClient::OnPredict()
 		bool DummyFirst = pInputData && pDummyInputData && pDummyChar->GetCid() < pLocalChar->GetCid();
 
 		//+KZ fast input commit
-		if(g_Config.m_KaizoFastInput && Tick == FinalTick)
+		if(g_Config.m_KaizoFastInput && Tick == FinalTickSelf)
 			pInputData = &m_Controls.m_FastInput;
 
 		if(DummyFirst)
@@ -2679,10 +2682,11 @@ void CGameClient::OnPredict()
 
 		m_PredictedWorld.Tick();
 
-		HandlePredictedEvents(Tick);
+		if(Tick <= FinalTickRegular)
+			HandlePredictedEvents(Tick);
 
 		// fetch the current characters
-		if(Tick == FinalTick) //+KZ modified for fast input commit
+		if(Tick == FinalTickSelf) //+KZ modified for fast input commit
 		{
 			m_PrevPredictedWorld.CopyWorld(&m_PredictedWorld);
 
@@ -2714,7 +2718,7 @@ void CGameClient::OnPredict()
 			}
 
 		// check if we want to trigger effects
-		if(Tick > m_aLastNewPredictedTick[Dummy] && (Tick != FinalTick || !g_Config.m_KaizoFastInput)) //+KZ modified for fast input commit
+		if(Tick > m_aLastNewPredictedTick[Dummy] && (Tick <= FinalTickRegular)) //+KZ modified for fast input commit + TClient
 		{
 			m_aLastNewPredictedTick[Dummy] = Tick;
 			m_NewPredictedTick = true;
@@ -2769,7 +2773,7 @@ void CGameClient::OnPredict()
 		{
 			if(!m_Snap.m_aCharacters[i].m_Active || i == m_Snap.m_LocalClientId || !m_aLastActive[i])
 				continue;
-			vec2 NewPos = (m_PredictedTick == FinalTick /* +KZ modified for fast input commit */) ? m_aClients[i].m_Predicted.m_Pos : m_aClients[i].m_PrevPredicted.m_Pos;
+			vec2 NewPos = (m_PredictedTick == FinalTickSelf /* +KZ modified for fast input commit */) ? m_aClients[i].m_Predicted.m_Pos : m_aClients[i].m_PrevPredicted.m_Pos;
 			vec2 PredErr = (m_aLastPos[i] - NewPos) / (float)minimum(Client()->GetPredictionTime(), 200);
 			if(in_range(length(PredErr), 0.05f, 5.f))
 			{
@@ -3033,8 +3037,11 @@ void CGameClient::OnPredict()
 	{
 		if(m_Snap.m_aCharacters[i].m_Active)
 		{
-			m_aLastPos[i] = m_aClients[i].m_Predicted.m_Pos;
-			m_aLastActive[i] = true;
+			if(m_NewPredictedTick) //TClient
+			{
+				m_aLastPos[i] = m_aClients[i].m_Predicted.m_Pos;
+				m_aLastActive[i] = true;
+			}
 		}
 		else
 			m_aLastActive[i] = false;
@@ -3061,7 +3068,7 @@ void CGameClient::OnPredict()
 		}
 	}
 
-	m_PredictedTick = FinalTick; //+KZ modified for fast input commit
+	m_PredictedTick = FinalTickSelf; //+KZ modified for fast input commit
 
 	if(m_NewPredictedTick)
 		m_Ghost.OnNewPredictedSnapshot();
