@@ -317,11 +317,11 @@ public:
 	vec2 m_MouseAxisInitialPos = vec2(0.0f, 0.0f);
 	enum class EAxisLock
 	{
-		Start,
-		None,
-		Horizontal,
-		Vertical
-	} m_MouseAxisLockState = EAxisLock::Start;
+		START,
+		NONE,
+		HORIZONTAL,
+		VERTICAL,
+	} m_MouseAxisLockState = EAxisLock::START;
 
 	/**
 	 * Global time when the autosave was last updated in the @link HandleAutosave @endlink function.
@@ -346,7 +346,6 @@ public:
 	bool Save(const char *pFilename) override;
 	bool Load(const char *pFilename, int StorageType) override;
 	bool HandleMapDrop(const char *pFilename, int StorageType) override;
-	bool Append(const char *pFilename, int StorageType, bool IgnoreHistory = false);
 	void LoadCurrentMap();
 	void Render();
 
@@ -652,9 +651,9 @@ public:
 
 	enum class EAxis
 	{
-		AXIS_NONE = 0,
-		AXIS_X,
-		AXIS_Y
+		NONE = 0,
+		X,
+		Y,
 	};
 	struct SAxisAlignedBoundingBox
 	{
@@ -734,10 +733,10 @@ public:
 
 	enum class EDragSide // Which side is the drag bar on
 	{
-		SIDE_BOTTOM,
-		SIDE_LEFT,
-		SIDE_TOP,
-		SIDE_RIGHT
+		BOTTOM,
+		LEFT,
+		TOP,
+		RIGHT,
 	};
 	void DoEditorDragBar(CUIRect View, CUIRect *pDragBar, EDragSide Side, float *pValue, float MinValue = 100.0f, float MaxValue = 400.0f);
 

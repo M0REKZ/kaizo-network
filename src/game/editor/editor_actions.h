@@ -390,7 +390,7 @@ public:
 		ADD,
 		EDIT,
 		MOVE_UP,
-		MOVE_DOWN
+		MOVE_DOWN,
 	};
 
 	CEditorCommandAction(CEditorMap *pMap, EType Type, int *pSelectedCommandIndex, int CommandIndex, const char *pPreviousCommand = nullptr, const char *pCurrentCommand = nullptr);
@@ -441,7 +441,7 @@ public:
 	enum class EEditType
 	{
 		SYNC,
-		ORDER
+		ORDER,
 	};
 
 	CEditorActionEnvelopeEdit(CEditorMap *pMap, int EnvelopeIndex, EEditType EditType, int Previous, int Current);
@@ -536,7 +536,7 @@ public:
 	{
 		TANGENT_IN,
 		TANGENT_OUT,
-		POINT
+		POINT,
 	};
 
 	CEditorActionEditEnvelopePointValue(CEditorMap *pMap, int EnvelopeIndex, int PointIndex, int Channel, EType Type, CFixedTime OldTime, int OldValue, CFixedTime NewTime, int NewValue);

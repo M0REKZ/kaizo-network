@@ -1,5 +1,7 @@
 #include "editor_actions.h"
 
+#include <base/log.h>
+
 #include <game/editor/editor.h>
 #include <game/editor/mapitems.h>
 #include <game/editor/mapitems/image.h>
@@ -456,7 +458,7 @@ CEditorActionEditQuadProp::CEditorActionEditQuadProp(CEditorMap *pMap, int Group
 		"color env",
 		"color env offset"};
 	static_assert(std::size(s_apNames) == (size_t)EQuadProp::NUM_PROPS);
-	dbg_assert(Prop != EQuadProp::PROP_COLOR, "Color prop implemented by CEditorActionEditQuadPointProp");
+	dbg_assert(Prop != EQuadProp::COLOR, "Color prop implemented by CEditorActionEditQuadPointProp");
 	str_format(m_aDisplayText, sizeof(m_aDisplayText), "Edit quad %s property in layer %d of group %d", s_apNames[(int)m_Prop], m_LayerIndex, m_GroupIndex);
 }
 
@@ -474,13 +476,13 @@ void CEditorActionEditQuadProp::Apply(int Value)
 {
 	std::shared_ptr<CLayerQuads> pLayerQuads = std::static_pointer_cast<CLayerQuads>(m_pLayer);
 	CQuad &Quad = pLayerQuads->m_vQuads[m_QuadIndex];
-	if(m_Prop == EQuadProp::PROP_POS_ENV)
+	if(m_Prop == EQuadProp::POS_ENV)
 		Quad.m_PosEnv = Value;
-	else if(m_Prop == EQuadProp::PROP_POS_ENV_OFFSET)
+	else if(m_Prop == EQuadProp::POS_ENV_OFFSET)
 		Quad.m_PosEnvOffset = Value;
-	else if(m_Prop == EQuadProp::PROP_COLOR_ENV)
+	else if(m_Prop == EQuadProp::COLOR_ENV)
 		Quad.m_ColorEnv = Value;
-	else if(m_Prop == EQuadProp::PROP_COLOR_ENV_OFFSET)
+	else if(m_Prop == EQuadProp::COLOR_ENV_OFFSET)
 		Quad.m_ColorEnvOffset = Value;
 }
 
@@ -512,7 +514,7 @@ void CEditorActionEditQuadPointProp::Apply(int Value)
 	std::shared_ptr<CLayerQuads> pLayerQuads = std::static_pointer_cast<CLayerQuads>(m_pLayer);
 	CQuad &Quad = pLayerQuads->m_vQuads[m_QuadIndex];
 
-	if(m_Prop == EQuadPointProp::PROP_COLOR)
+	if(m_Prop == EQuadPointProp::COLOR)
 	{
 		const ColorRGBA ColorPick = ColorRGBA::UnpackAlphaLast<ColorRGBA>(Value);
 
@@ -525,11 +527,11 @@ void CEditorActionEditQuadPointProp::Apply(int Value)
 		Editor()->m_ColorPickerPopupContext.m_HslaColor = color_cast<ColorHSLA>(ColorPick);
 		Editor()->m_ColorPickerPopupContext.m_HsvaColor = color_cast<ColorHSVA>(Editor()->m_ColorPickerPopupContext.m_HslaColor);
 	}
-	else if(m_Prop == EQuadPointProp::PROP_TEX_U)
+	else if(m_Prop == EQuadPointProp::TEX_U)
 	{
 		Quad.m_aTexcoords[m_PointIndex].x = Value;
 	}
-	else if(m_Prop == EQuadPointProp::PROP_TEX_V)
+	else if(m_Prop == EQuadPointProp::TEX_V)
 	{
 		Quad.m_aTexcoords[m_PointIndex].y = Value;
 	}
@@ -831,7 +833,7 @@ void CEditorActionEditGroupProp::Undo()
 {
 	auto pGroup = Map()->m_vpGroups[m_GroupIndex];
 
-	if(m_Prop == EGroupProp::PROP_ORDER)
+	if(m_Prop == EGroupProp::ORDER)
 	{
 		Map()->m_SelectedGroup = Map()->MoveGroup(m_Current, m_Previous);
 	}
@@ -843,7 +845,7 @@ void CEditorActionEditGroupProp::Redo()
 {
 	auto pGroup = Map()->m_vpGroups[m_GroupIndex];
 
-	if(m_Prop == EGroupProp::PROP_ORDER)
+	if(m_Prop == EGroupProp::ORDER)
 	{
 		Map()->m_SelectedGroup = Map()->MoveGroup(m_Previous, m_Current);
 	}
@@ -855,23 +857,23 @@ void CEditorActionEditGroupProp::Apply(int Value)
 {
 	auto pGroup = Map()->m_vpGroups[m_GroupIndex];
 
-	if(m_Prop == EGroupProp::PROP_POS_X)
+	if(m_Prop == EGroupProp::POS_X)
 		pGroup->m_OffsetX = Value;
-	if(m_Prop == EGroupProp::PROP_POS_Y)
+	if(m_Prop == EGroupProp::POS_Y)
 		pGroup->m_OffsetY = Value;
-	if(m_Prop == EGroupProp::PROP_PARA_X)
+	if(m_Prop == EGroupProp::PARA_X)
 		pGroup->m_ParallaxX = Value;
-	if(m_Prop == EGroupProp::PROP_PARA_Y)
+	if(m_Prop == EGroupProp::PARA_Y)
 		pGroup->m_ParallaxY = Value;
-	if(m_Prop == EGroupProp::PROP_USE_CLIPPING)
+	if(m_Prop == EGroupProp::USE_CLIPPING)
 		pGroup->m_UseClipping = Value;
-	if(m_Prop == EGroupProp::PROP_CLIP_X)
+	if(m_Prop == EGroupProp::CLIP_X)
 		pGroup->m_ClipX = Value;
-	if(m_Prop == EGroupProp::PROP_CLIP_Y)
+	if(m_Prop == EGroupProp::CLIP_Y)
 		pGroup->m_ClipY = Value;
-	if(m_Prop == EGroupProp::PROP_CLIP_W)
+	if(m_Prop == EGroupProp::CLIP_W)
 		pGroup->m_ClipW = Value;
-	if(m_Prop == EGroupProp::PROP_CLIP_H)
+	if(m_Prop == EGroupProp::CLIP_H)
 		pGroup->m_ClipH = Value;
 
 	Map()->OnModify();
@@ -899,7 +901,7 @@ void CEditorActionEditLayerProp::Undo()
 {
 	auto pCurrentGroup = Map()->m_vpGroups[m_GroupIndex];
 
-	if(m_Prop == ELayerProp::PROP_ORDER)
+	if(m_Prop == ELayerProp::ORDER)
 	{
 		Map()->SelectLayer(pCurrentGroup->MoveLayer(m_Current, m_Previous));
 	}
@@ -911,7 +913,7 @@ void CEditorActionEditLayerProp::Redo()
 {
 	auto pCurrentGroup = Map()->m_vpGroups[m_GroupIndex];
 
-	if(m_Prop == ELayerProp::PROP_ORDER)
+	if(m_Prop == ELayerProp::ORDER)
 	{
 		Map()->SelectLayer(pCurrentGroup->MoveLayer(m_Previous, m_Current));
 	}
@@ -921,7 +923,7 @@ void CEditorActionEditLayerProp::Redo()
 
 void CEditorActionEditLayerProp::Apply(int Value)
 {
-	if(m_Prop == ELayerProp::PROP_GROUP)
+	if(m_Prop == ELayerProp::GROUP)
 	{
 		auto pCurrentGroup = Map()->m_vpGroups[Value == m_Previous ? m_Current : m_Previous];
 		auto pPreviousGroup = Map()->m_vpGroups[Value];
@@ -933,7 +935,7 @@ void CEditorActionEditLayerProp::Apply(int Value)
 		Map()->m_SelectedGroup = Value;
 		Map()->SelectLayer(m_LayerIndex);
 	}
-	else if(m_Prop == ELayerProp::PROP_HQ)
+	else if(m_Prop == ELayerProp::HQ)
 	{
 		m_pLayer->m_Flags = Value;
 	}
@@ -972,11 +974,11 @@ void CEditorActionEditLayerTilesProp::Undo()
 	std::shared_ptr<CLayerTiles> pLayerTiles = std::static_pointer_cast<CLayerTiles>(m_pLayer);
 	std::shared_ptr<CLayerTiles> pSavedLayerTiles = nullptr;
 
-	if(m_Prop == ETilesProp::PROP_WIDTH || m_Prop == ETilesProp::PROP_HEIGHT)
+	if(m_Prop == ETilesProp::WIDTH || m_Prop == ETilesProp::HEIGHT)
 	{
-		if(m_Prop == ETilesProp::PROP_HEIGHT)
+		if(m_Prop == ETilesProp::HEIGHT)
 			pLayerTiles->Resize(pLayerTiles->m_Width, m_Previous);
-		else if(m_Prop == ETilesProp::PROP_WIDTH)
+		else if(m_Prop == ETilesProp::WIDTH)
 			pLayerTiles->Resize(m_Previous, pLayerTiles->m_Height);
 
 		RestoreLayer(LAYERTYPE_TILES, pLayerTiles);
@@ -1000,15 +1002,15 @@ void CEditorActionEditLayerTilesProp::Undo()
 				RestoreLayer(KZ_LAYERTYPE_FRONT, Map()->m_pKZFrontLayer);
 		}
 	}
-	else if(m_Prop == ETilesProp::PROP_SHIFT)
+	else if(m_Prop == ETilesProp::SHIFT)
 	{
 		RestoreLayer(LAYERTYPE_TILES, pLayerTiles);
 	}
-	else if(m_Prop == ETilesProp::PROP_SHIFT_BY)
+	else if(m_Prop == ETilesProp::SHIFT_BY)
 	{
 		Map()->m_ShiftBy = m_Previous;
 	}
-	else if(m_Prop == ETilesProp::PROP_IMAGE)
+	else if(m_Prop == ETilesProp::IMAGE)
 	{
 		if(m_Previous == -1 || Map()->m_vpImages.empty())
 		{
@@ -1020,7 +1022,7 @@ void CEditorActionEditLayerTilesProp::Undo()
 			pLayerTiles->m_AutoMapperConfig = -1;
 		}
 	}
-	else if(m_Prop == ETilesProp::PROP_COLOR)
+	else if(m_Prop == ETilesProp::COLOR)
 	{
 		const ColorRGBA ColorPick = ColorRGBA::UnpackAlphaLast<ColorRGBA>(m_Previous);
 
@@ -1033,23 +1035,23 @@ void CEditorActionEditLayerTilesProp::Undo()
 		Editor()->m_ColorPickerPopupContext.m_HslaColor = color_cast<ColorHSLA>(ColorPick);
 		Editor()->m_ColorPickerPopupContext.m_HsvaColor = color_cast<ColorHSVA>(Editor()->m_ColorPickerPopupContext.m_HslaColor);
 	}
-	else if(m_Prop == ETilesProp::PROP_COLOR_ENV)
+	else if(m_Prop == ETilesProp::COLOR_ENV)
 	{
 		pLayerTiles->m_ColorEnv = m_Previous;
 	}
-	else if(m_Prop == ETilesProp::PROP_COLOR_ENV_OFFSET)
+	else if(m_Prop == ETilesProp::COLOR_ENV_OFFSET)
 	{
 		pLayerTiles->m_ColorEnvOffset = m_Previous;
 	}
-	else if(m_Prop == ETilesProp::PROP_AUTOMAPPER)
+	else if(m_Prop == ETilesProp::AUTOMAPPER)
 	{
 		pLayerTiles->m_AutoMapperConfig = m_Previous;
 	}
-	else if(m_Prop == ETilesProp::PROP_LIVE_GAMETILES)
+	else if(m_Prop == ETilesProp::LIVE_GAMETILES)
 	{
 		pLayerTiles->m_LiveGameTiles = m_Previous;
 	}
-	else if(m_Prop == ETilesProp::PROP_SEED)
+	else if(m_Prop == ETilesProp::SEED)
 	{
 		pLayerTiles->m_Seed = m_Previous;
 	}
@@ -1061,11 +1063,11 @@ void CEditorActionEditLayerTilesProp::Redo()
 {
 	std::shared_ptr<CLayerTiles> pLayerTiles = std::static_pointer_cast<CLayerTiles>(m_pLayer);
 
-	if(m_Prop == ETilesProp::PROP_WIDTH || m_Prop == ETilesProp::PROP_HEIGHT)
+	if(m_Prop == ETilesProp::WIDTH || m_Prop == ETilesProp::HEIGHT)
 	{
-		if(m_Prop == ETilesProp::PROP_HEIGHT)
+		if(m_Prop == ETilesProp::HEIGHT)
 			pLayerTiles->Resize(pLayerTiles->m_Width, m_Current);
-		else if(m_Prop == ETilesProp::PROP_WIDTH)
+		else if(m_Prop == ETilesProp::WIDTH)
 			pLayerTiles->Resize(m_Current, pLayerTiles->m_Height);
 
 		if(pLayerTiles->m_HasGame || pLayerTiles->m_HasFront || pLayerTiles->m_HasSwitch || pLayerTiles->m_HasSpeedup || pLayerTiles->m_HasTune || pLayerTiles->m_HasKZGame || pLayerTiles->m_HasKZFront)
@@ -1088,15 +1090,15 @@ void CEditorActionEditLayerTilesProp::Redo()
 				Map()->m_pKZFrontLayer->Resize(pLayerTiles->m_Width, pLayerTiles->m_Height);
 		}
 	}
-	else if(m_Prop == ETilesProp::PROP_SHIFT)
+	else if(m_Prop == ETilesProp::SHIFT)
 	{
 		pLayerTiles->Shift((EShiftDirection)m_Current);
 	}
-	else if(m_Prop == ETilesProp::PROP_SHIFT_BY)
+	else if(m_Prop == ETilesProp::SHIFT_BY)
 	{
 		Map()->m_ShiftBy = m_Current;
 	}
-	else if(m_Prop == ETilesProp::PROP_IMAGE)
+	else if(m_Prop == ETilesProp::IMAGE)
 	{
 		if(m_Current == -1 || Map()->m_vpImages.empty())
 		{
@@ -1108,7 +1110,7 @@ void CEditorActionEditLayerTilesProp::Redo()
 			pLayerTiles->m_AutoMapperConfig = -1;
 		}
 	}
-	else if(m_Prop == ETilesProp::PROP_COLOR)
+	else if(m_Prop == ETilesProp::COLOR)
 	{
 		const ColorRGBA ColorPick = ColorRGBA::UnpackAlphaLast<ColorRGBA>(m_Current);
 
@@ -1121,23 +1123,23 @@ void CEditorActionEditLayerTilesProp::Redo()
 		Editor()->m_ColorPickerPopupContext.m_HslaColor = color_cast<ColorHSLA>(ColorPick);
 		Editor()->m_ColorPickerPopupContext.m_HsvaColor = color_cast<ColorHSVA>(Editor()->m_ColorPickerPopupContext.m_HslaColor);
 	}
-	else if(m_Prop == ETilesProp::PROP_COLOR_ENV)
+	else if(m_Prop == ETilesProp::COLOR_ENV)
 	{
 		pLayerTiles->m_ColorEnv = m_Current;
 	}
-	else if(m_Prop == ETilesProp::PROP_COLOR_ENV_OFFSET)
+	else if(m_Prop == ETilesProp::COLOR_ENV_OFFSET)
 	{
 		pLayerTiles->m_ColorEnvOffset = m_Current;
 	}
-	else if(m_Prop == ETilesProp::PROP_AUTOMAPPER)
+	else if(m_Prop == ETilesProp::AUTOMAPPER)
 	{
 		pLayerTiles->m_AutoMapperConfig = m_Current;
 	}
-	else if(m_Prop == ETilesProp::PROP_LIVE_GAMETILES)
+	else if(m_Prop == ETilesProp::LIVE_GAMETILES)
 	{
 		pLayerTiles->m_LiveGameTiles = m_Current;
 	}
-	else if(m_Prop == ETilesProp::PROP_SEED)
+	else if(m_Prop == ETilesProp::SEED)
 	{
 		pLayerTiles->m_Seed = m_Current;
 	}
@@ -1213,7 +1215,7 @@ void CEditorActionEditLayerQuadsProp::Redo()
 void CEditorActionEditLayerQuadsProp::Apply(int Value)
 {
 	std::shared_ptr<CLayerQuads> pLayerQuads = std::static_pointer_cast<CLayerQuads>(m_pLayer);
-	if(m_Prop == ELayerQuadsProp::PROP_IMAGE)
+	if(m_Prop == ELayerQuadsProp::IMAGE)
 	{
 		if(Value >= 0 && !Map()->m_vpImages.empty())
 			pLayerQuads->m_Image = Value % Map()->m_vpImages.size();
@@ -1347,8 +1349,12 @@ void CEditorActionAppendMap::Undo()
 
 void CEditorActionAppendMap::Redo()
 {
+	const auto &&ErrorHandler = [this](const char *pErrorMessage) {
+		Editor()->ShowFileDialogError("%s", pErrorMessage);
+		log_error("editor/append", "%s", pErrorMessage);
+	};
 	// Redo is just re-appending the same map
-	Editor()->Append(m_aMapName, IStorage::TYPE_ALL, true);
+	Map()->Append(m_aMapName, IStorage::TYPE_ALL, true, ErrorHandler);
 }
 
 // ---------------------------
@@ -1848,7 +1854,7 @@ void CEditorActionEditLayerSoundsProp::Redo()
 void CEditorActionEditLayerSoundsProp::Apply(int Value)
 {
 	std::shared_ptr<CLayerSounds> pLayerSounds = std::static_pointer_cast<CLayerSounds>(m_pLayer);
-	if(m_Prop == ELayerSoundsProp::PROP_SOUND)
+	if(m_Prop == ELayerSoundsProp::SOUND)
 	{
 		if(Value >= 0 && !Map()->m_vpSounds.empty())
 			pLayerSounds->m_Sound = Value % Map()->m_vpSounds.size();
@@ -1980,43 +1986,43 @@ void CEditorActionEditSoundSourceProp::Apply(int Value)
 	std::shared_ptr<CLayerSounds> pLayerSounds = std::static_pointer_cast<CLayerSounds>(m_pLayer);
 	CSoundSource *pSource = &pLayerSounds->m_vSources[m_SourceIndex];
 
-	if(m_Prop == ESoundProp::PROP_POS_X)
+	if(m_Prop == ESoundProp::POS_X)
 	{
 		pSource->m_Position.x = Value;
 	}
-	else if(m_Prop == ESoundProp::PROP_POS_Y)
+	else if(m_Prop == ESoundProp::POS_Y)
 	{
 		pSource->m_Position.y = Value;
 	}
-	else if(m_Prop == ESoundProp::PROP_LOOP)
+	else if(m_Prop == ESoundProp::LOOP)
 	{
 		pSource->m_Loop = Value;
 	}
-	else if(m_Prop == ESoundProp::PROP_PAN)
+	else if(m_Prop == ESoundProp::PAN)
 	{
 		pSource->m_Pan = Value;
 	}
-	else if(m_Prop == ESoundProp::PROP_TIME_DELAY)
+	else if(m_Prop == ESoundProp::TIME_DELAY)
 	{
 		pSource->m_TimeDelay = Value;
 	}
-	else if(m_Prop == ESoundProp::PROP_FALLOFF)
+	else if(m_Prop == ESoundProp::FALLOFF)
 	{
 		pSource->m_Falloff = Value;
 	}
-	else if(m_Prop == ESoundProp::PROP_POS_ENV)
+	else if(m_Prop == ESoundProp::POS_ENV)
 	{
 		pSource->m_PosEnv = Value;
 	}
-	else if(m_Prop == ESoundProp::PROP_POS_ENV_OFFSET)
+	else if(m_Prop == ESoundProp::POS_ENV_OFFSET)
 	{
 		pSource->m_PosEnvOffset = Value;
 	}
-	else if(m_Prop == ESoundProp::PROP_SOUND_ENV)
+	else if(m_Prop == ESoundProp::SOUND_ENV)
 	{
 		pSource->m_SoundEnv = Value;
 	}
-	else if(m_Prop == ESoundProp::PROP_SOUND_ENV_OFFSET)
+	else if(m_Prop == ESoundProp::SOUND_ENV_OFFSET)
 	{
 		pSource->m_SoundEnvOffset = Value;
 	}
@@ -2049,11 +2055,11 @@ void CEditorActionEditRectSoundSourceShapeProp::Apply(int Value)
 	std::shared_ptr<CLayerSounds> pLayerSounds = std::static_pointer_cast<CLayerSounds>(m_pLayer);
 	CSoundSource *pSource = &pLayerSounds->m_vSources[m_SourceIndex];
 
-	if(m_Prop == ERectangleShapeProp::PROP_RECTANGLE_WIDTH)
+	if(m_Prop == ERectangleShapeProp::RECTANGLE_WIDTH)
 	{
 		pSource->m_Shape.m_Rectangle.m_Width = Value;
 	}
-	else if(m_Prop == ERectangleShapeProp::PROP_RECTANGLE_HEIGHT)
+	else if(m_Prop == ERectangleShapeProp::RECTANGLE_HEIGHT)
 	{
 		pSource->m_Shape.m_Rectangle.m_Height = Value;
 	}
@@ -2085,7 +2091,7 @@ void CEditorActionEditCircleSoundSourceShapeProp::Apply(int Value)
 	std::shared_ptr<CLayerSounds> pLayerSounds = std::static_pointer_cast<CLayerSounds>(m_pLayer);
 	CSoundSource *pSource = &pLayerSounds->m_vSources[m_SourceIndex];
 
-	if(m_Prop == ECircleShapeProp::PROP_CIRCLE_RADIUS)
+	if(m_Prop == ECircleShapeProp::CIRCLE_RADIUS)
 	{
 		pSource->m_Shape.m_Circle.m_Radius = Value;
 	}
