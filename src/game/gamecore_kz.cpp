@@ -67,10 +67,10 @@ bool CCharacterCore::HandleKZTileOnMoveBox(vec2 *pMoveBoxPos, vec2 *pMoveBoxVel,
 
 	CKZTile *pKZTile = nullptr;
 	if(m_pCollision->KZGameFound())
-		m_pCollision->GetKZGameTile(*pMoveBoxPos);
+		pKZTile = m_pCollision->GetKZGameTile(*pMoveBoxPos);
 	CKZTile *pKZTileFront = nullptr;
 	if(m_pCollision->KZFrontFound())
-		m_pCollision->GetKZFrontTile(*pMoveBoxPos);
+		pKZTileFront = m_pCollision->GetKZFrontTile(*pMoveBoxPos);
 
 	if(!pKZTile && !pKZTileFront)
 		return false;
