@@ -548,6 +548,7 @@ public:
 
 	//+KZ
 	void SendKaizoNetworkVersion(int Conn);
+	void SendFastInputsInfo(int Conn);
 };
 
 #endif

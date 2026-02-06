@@ -51,6 +51,10 @@ UUID(NETMSG_MAPLIST_GROUP_END, "sv-maplist-end@ddnet.org")
 //Kaizo Network
 UUID(NETMSG_KZ_KAIZO_NETWORK_VERSION, "kaizoversion@m0rekz.github.io")
 
+//FoxNet
+UUID(NETMSG_FOXNET_INFO, "sv-foxnet-info@foxnet-ddnet.github.io")
+UUID(NETMSG_FOXNET_FASTINPUTS, "cl-foxnet-fastinputs@foxnet-ddnet.github.io")
+
 //Other Clients
 UUID(NETMSG_CLIENTVER_INFCLASS, "clientver@infclass") // InfClass
 UUID(NETMSG_IAMTATER, "iamtater@sjrc6.github.io") // T-Client

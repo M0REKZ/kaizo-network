@@ -2317,6 +2317,15 @@ void CClient::ProcessServerPacket(CNetChunk *pPacket, int Conn, bool Dummy)
 		{
 			m_ExpectedMaplistEntries = -1;
 		}
+		//FoxNet
+		else if(Conn == CONN_MAIN && (pPacket->m_Flags & NET_CHUNKFLAG_VITAL) != 0 && Msg == NETMSG_FOXNET_INFO)
+		{
+			const int Version = Unpacker.GetInt();
+			if(Unpacker.Error() || Version < 0)
+				return;
+			//m_FoxNetVersion = Version; +KZ commented for now
+			SendFastInputsInfo(CONN_MAIN);
+		}
 	}
 	// the client handles only vital messages https://github.com/ddnet/ddnet/issues/11178
 	else if((pPacket->m_Flags & NET_CHUNKFLAG_VITAL) != 0 || Msg == NETMSGTYPE_SV_PREINPUT)
