@@ -21,6 +21,8 @@
 #include <game/client/ui_listbox.h>
 #include <game/localization.h>
 
+#include <generated/client_data.h>
+
 using namespace FontIcons;
 
 static constexpr ColorRGBA HIGHLIGHTED_TEXT_COLOR = ColorRGBA(0.4f, 0.4f, 1.0f, 1.0f);
@@ -1365,6 +1367,53 @@ void CMenus::RenderServerbrowserInfoScoreboard(CUIRect View, const CServerInfo *
 			CRenderTools::GetRenderTeeOffsetToRenderedTee(pIdleState, &TeeInfo, OffsetToMid);
 			const vec2 TeeRenderPos = vec2(Skin.x + TeeInfo.m_Size / 2.0f, Skin.y + Skin.h / 2.0f + OffsetToMid.y);
 			RenderTools()->RenderTee(pIdleState, &TeeInfo, CurrentClient.m_Afk ? EMOTE_BLINK : EMOTE_NORMAL, vec2(1.0f, 0.0f), TeeRenderPos);
+
+			//+KZ
+
+			if(g_Config.m_KaizoShowClientType)
+			{
+				union
+				{
+					int c = 0;
+					unsigned char b[4];
+				} a;
+
+				a.c = CurrentClient.m_CustomSkinColorBody;
+
+				int BodyType = a.b[3];
+
+				int Sprite = -1;
+				int Image = -1;
+
+				switch (BodyType)
+				{
+				case CCID_COLOR_BODY_CHILLERBOTUX:
+					Image = IMAGE_KZ_CHILLERBOTUXICON;
+					Sprite = SPRITE_KZ_CHILLERBOTUXICON;
+					break;
+				case CCID_COLOR_BODY_KAIZO_CLIENT:
+					Image = IMAGE_KZ_KAIZOICON;
+					Sprite = SPRITE_KZ_KAIZOICON;
+					break;
+				case CCID_COLOR_BODY_PDUCKCLIENT:
+					Image = IMAGE_KZ_DUCKICON;
+					Sprite = SPRITE_KZ_DUCKICON;
+					break;
+				}
+
+				if(Sprite != -1 && Image != -1)
+				{
+					Graphics()->TextureSet(g_pData->m_aImages[Image].m_Id);
+					Graphics()->QuadsBegin();
+					Graphics()->SelectSprite(Sprite);
+					IGraphics::CQuadItem QuadItem(TeeRenderPos.x - 11.0f, TeeRenderPos.y, 12, 12);
+					Graphics()->QuadsDrawTL(&QuadItem, 1);
+					Graphics()->QuadsEnd();
+				}
+			}
+
+			//+KZ End
+
 			Ui()->DoButtonLogic(&CurrentClient.m_aSkin, 0, &Skin, BUTTONFLAG_NONE);
 			GameClient()->m_Tooltips.DoToolTip(&CurrentClient.m_aSkin, &Skin, CurrentClient.m_aSkin);
 		}
@@ -1382,6 +1431,91 @@ void CMenus::RenderServerbrowserInfoScoreboard(CUIRect View, const CServerInfo *
 			CRenderTools::GetRenderTeeOffsetToRenderedTee(pIdleState, &TeeInfo, OffsetToMid);
 			const vec2 TeeRenderPos = vec2(Skin.x + TeeInfo.m_Size / 2.0f, Skin.y + Skin.h / 2.0f + OffsetToMid.y);
 			RenderTools()->RenderTee(pIdleState, &TeeInfo, CurrentClient.m_Afk ? EMOTE_BLINK : EMOTE_NORMAL, vec2(1.0f, 0.0f), TeeRenderPos);
+
+			//+KZ
+			if(g_Config.m_KaizoShowClientType)
+			{
+				bool Found = false;
+				int OutId = 0;
+				for(int Client = 0; Client < 4; Client++)
+				{
+					const char *pClientString = "";
+					int CustomClientId = 0;
+					switch(Client)
+					{
+					case 0:
+						pClientString = "gamer!";
+						CustomClientId = CUSTOM_CLIENT_ID_GAMER_07;
+						break;
+					case 1:
+						pClientString = "zilly!";
+						CustomClientId = CUSTOM_CLIENT_ID_ZILLYWOODS_07;
+						break;
+					case 2:
+						pClientString = "fclient!";
+						CustomClientId = CUSTOM_CLIENT_ID_FCLIENT_07;
+						break;
+					case 3:
+						pClientString = "kaizo!";
+						CustomClientId = CUSTOM_CLIENT_ID_KAIZO_NETWORK;
+						break;
+					}
+
+					for(int p = 0; p < protocol7::NUM_SKINPARTS; p++)
+					{
+						if(str_startswith(CurrentClient.m_aaSkin7[p], pClientString)) ///seems that they put that info in the skin itself
+						{
+							OutId = CustomClientId;
+							Found = true;
+							break;
+						}
+					}
+					if(Found)
+						break;
+				}
+
+				if(OutId)
+				{
+					int Sprite = -1;
+					int Image = -1;
+
+					switch (OutId)
+					{
+					case CUSTOM_CLIENT_ID_CHILLERBOTUX:
+						Image = IMAGE_KZ_CHILLERBOTUXICON;
+						Sprite = SPRITE_KZ_CHILLERBOTUXICON;
+						break;
+					case CUSTOM_CLIENT_ID_KAIZO_NETWORK:
+						Image = IMAGE_KZ_KAIZOICON;
+						Sprite = SPRITE_KZ_KAIZOICON;
+						break;
+					case CUSTOM_CLIENT_ID_GAMER_07:
+						Image = IMAGE_KZ_GAMERICON;
+						Sprite = SPRITE_KZ_GAMERICON;
+						break;
+					case CUSTOM_CLIENT_ID_ZILLYWOODS_07:
+						Image = IMAGE_KZ_ZILLYWOODSICON;
+						Sprite = SPRITE_KZ_ZILLYWOODSICON;
+						break;
+					case CUSTOM_CLIENT_ID_FCLIENT_07:
+						Image = IMAGE_KZ_FCLIENTICON;
+						Sprite = SPRITE_KZ_FCLIENTICON;
+						break;
+					}
+
+					if(Sprite != -1 && Image != -1)
+					{
+						//TeeInfo.m_Size *= TeeSizeMod;
+						Graphics()->TextureSet(g_pData->m_aImages[Image].m_Id);
+						Graphics()->QuadsBegin();
+						Graphics()->SelectSprite(Sprite);
+						IGraphics::CQuadItem QuadItem(TeeRenderPos.x - 11.0f, TeeRenderPos.y, 12, 12);
+						Graphics()->QuadsDrawTL(&QuadItem, 1);
+						Graphics()->QuadsEnd();
+					}
+				}
+			}
+			//+KZ end
 		}
 
 		// name
