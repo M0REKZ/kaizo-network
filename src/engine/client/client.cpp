@@ -210,6 +210,7 @@ void CClient::SendInfo(int Conn)
 {
 	SendKaizoNetworkVersion(Conn); // +KZ
 	SendKaizoClientIAm(Conn); // +KZ
+	SendFastInputsInfo(Conn); // +KZ From FoxNet/Entity Client
 	CMsgPacker MsgVer(NETMSG_CLIENTVER, true);
 	MsgVer.AddRaw(&m_ConnectionId, sizeof(m_ConnectionId));
 	MsgVer.AddInt(GameClient()->DDNetVersion());
@@ -2325,7 +2326,7 @@ void CClient::ProcessServerPacket(CNetChunk *pPacket, int Conn, bool Dummy)
 			if(Unpacker.Error() || Version < 0)
 				return;
 			//m_FoxNetVersion = Version; +KZ commented for now
-			SendFastInputsInfo(CONN_MAIN);
+			//SendFastInputsInfo(CONN_MAIN); +KZ moved to be always sent to every server
 		}
 	}
 	// the client handles only vital messages https://github.com/ddnet/ddnet/issues/11178
