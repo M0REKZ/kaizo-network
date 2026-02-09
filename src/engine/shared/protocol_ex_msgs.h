@@ -48,8 +48,9 @@ UUID(NETMSG_MAPLIST_GROUP_END, "sv-maplist-end@ddnet.org")
 
 //+KZ
 
-//Kaizo Network
-UUID(NETMSG_KZ_KAIZO_NETWORK_VERSION, "kaizoversion@m0rekz.github.io")
+//Kaizo Network / Kaizo Client
+UUID(NETMSG_KZ_KAIZO_NETWORK_VERSION, "kaizoversion@m0rekz.github.io") // old message, tells supported Kaizo protocol version
+UUID(NETMSG_IAM_KAIZO_CLIENT, "i-am-kaizo-client-pluskz@m0rekz.github.io") // the real IAM message
 
 //FoxNet
 UUID(NETMSG_FOXNET_INFO, "sv-foxnet-info@foxnet-ddnet.github.io")

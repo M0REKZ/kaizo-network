@@ -208,7 +208,8 @@ int CClient::SendMsgActive(CMsgPacker *pMsg, int Flags)
 
 void CClient::SendInfo(int Conn)
 {
-	SendKaizoNetworkVersion(Conn);
+	SendKaizoNetworkVersion(Conn); // +KZ
+	SendKaizoClientIAm(Conn); // +KZ
 	CMsgPacker MsgVer(NETMSG_CLIENTVER, true);
 	MsgVer.AddRaw(&m_ConnectionId, sizeof(m_ConnectionId));
 	MsgVer.AddInt(GameClient()->DDNetVersion());
