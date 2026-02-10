@@ -103,6 +103,7 @@ void CControls::HandleKaizoInput(CNetObj_PlayerInput *pMainInput, CNetObj_Player
 
 		if(!Shoot &&
 			!GameClient()->m_Snap.m_aCharacters[GameClient()->m_aLocalIds[g_Config.m_ClDummy]].m_Active &&
+			GameClient()->m_Snap.m_apPlayerInfos[GameClient()->m_aLocalIds[g_Config.m_ClDummy]] &&
 			GameClient()->m_Snap.m_apPlayerInfos[GameClient()->m_aLocalIds[g_Config.m_ClDummy]]->m_Team != TEAM_SPECTATORS &&
 			!GameClient()->m_aClients[GameClient()->m_aLocalIds[g_Config.m_ClDummy]].m_Paused &&
 			!GameClient()->m_aClients[GameClient()->m_aLocalIds[g_Config.m_ClDummy]].m_Spec
@@ -111,7 +112,8 @@ void CControls::HandleKaizoInput(CNetObj_PlayerInput *pMainInput, CNetObj_Player
 
 		if(Shoot && (
 			GameClient()->m_Snap.m_aCharacters[GameClient()->m_aLocalIds[g_Config.m_ClDummy]].m_Active ||
-			GameClient()->m_Snap.m_apPlayerInfos[GameClient()->m_aLocalIds[g_Config.m_ClDummy]]->m_Team == TEAM_SPECTATORS ||
+			(GameClient()->m_Snap.m_apPlayerInfos[GameClient()->m_aLocalIds[g_Config.m_ClDummy]] &&
+			GameClient()->m_Snap.m_apPlayerInfos[GameClient()->m_aLocalIds[g_Config.m_ClDummy]]->m_Team == TEAM_SPECTATORS) ||
 			GameClient()->m_aClients[GameClient()->m_aLocalIds[g_Config.m_ClDummy]].m_Paused ||
 			GameClient()->m_aClients[GameClient()->m_aLocalIds[g_Config.m_ClDummy]].m_Spec
 		))
