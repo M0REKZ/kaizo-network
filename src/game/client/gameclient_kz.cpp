@@ -184,6 +184,11 @@ void CGameClient::PostSnapshotKaizo()
 {
     for(auto &Client : m_aClients)
     {
+        if(!Client.m_ReceivedDDNetPlayerInfoInLastSnapshot)
+        {
+            Client.m_CustomClient = 0; //reset custom client if not received
+        }
+
         if(g_Config.m_KaizoSleepingInMenuPlayers && !Client.m_ReceivedDDNetPlayerInfoInLastSnapshot && !(m_Snap.m_aCharacters[Client.m_ClientId].m_Cur.m_PlayerFlags & PLAYERFLAG_IN_MENU)) //reset afk if not receiving ddnet player
         {
             Client.m_Afk = false;
