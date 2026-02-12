@@ -10,6 +10,7 @@
 
 #include <game/editor/mapitems/image.h>
 #include <game/editor/mapitems/sound.h>
+#include <engine/font_icons.h>
 
 SEditResult<int64_t> CEditor::UiDoValueSelectorInt64(void *pId, CUIRect *pRect, const char *pLabel, int64_t Current, int64_t Min, int64_t Max, int Step, float Scale, const char *pToolTip, bool IsDegree, bool IsHex, int Corners, const ColorRGBA *pColor, bool ShowValue)
 {
@@ -181,13 +182,13 @@ SEditResult<int64_t> CEditor::DoPropertiesWithStateLongLong(CUIRect *pToolBox, C
 				Change = i;
 				State = NewValueRes.m_State;
 			}
-			if(DoButton_FontIcon((char *)&pIds[i] + 1, FontIcons::FONT_ICON_MINUS, 0, &Dec, BUTTONFLAG_LEFT, "Decrease value.", IGraphics::CORNER_L, 7.0f))
+			if(DoButton_FontIcon((char *)&pIds[i] + 1, FontIcon::MINUS, 0, &Dec, BUTTONFLAG_LEFT, "Decrease value.", IGraphics::CORNER_L, 7.0f))
 			{
 				*pNewVal = std::clamp(pProps[i].m_Value - 1, pProps[i].m_Min, pProps[i].m_Max);
 				Change = i;
 				State = EEditState::ONE_GO;
 			}
-			if(DoButton_FontIcon(((char *)&pIds[i]) + 2, FontIcons::FONT_ICON_PLUS, 0, &Inc, BUTTONFLAG_LEFT, "Increase value.", IGraphics::CORNER_R, 7.0f))
+			if(DoButton_FontIcon(((char *)&pIds[i]) + 2, FontIcon::PLUS, 0, &Inc, BUTTONFLAG_LEFT, "Increase value.", IGraphics::CORNER_R, 7.0f))
 			{
 				*pNewVal = std::clamp(pProps[i].m_Value + 1, pProps[i].m_Min, pProps[i].m_Max);
 				Change = i;
@@ -222,14 +223,14 @@ SEditResult<int64_t> CEditor::DoPropertiesWithStateLongLong(CUIRect *pToolBox, C
 
 			auto NewValueRes = UiDoValueSelectorInt64(&pIds[i], &Shifter, "", (int64_t)Value, pProps[i].m_Min, pProps[i].m_Max, Shift ? 1 : 45, Shift ? 1.0f : 10.0f, "Use left mouse button to drag and change the value. Hold shift to be more precise. Right click to edit as text.", false, false, 0);
 			int NewValue = NewValueRes.m_Value;
-			if(DoButton_FontIcon(&pIds[i] + 1, FontIcons::FONT_ICON_MINUS, 0, &Dec, BUTTONFLAG_LEFT, "Decrease value.", IGraphics::CORNER_L, 7.0f))
+			if(DoButton_FontIcon(&pIds[i] + 1, FontIcon::MINUS, 0, &Dec, BUTTONFLAG_LEFT, "Decrease value.", IGraphics::CORNER_L, 7.0f))
 			{
 				NewValue = (std::ceil((pProps[i].m_Value / (float)Step)) - 1) * Step;
 				if(NewValue < 0)
 					NewValue += 360;
 				State = EEditState::ONE_GO;
 			}
-			if(DoButton_FontIcon(&pIds[i] + 2, FontIcons::FONT_ICON_PLUS, 0, &Inc, BUTTONFLAG_LEFT, "Increase value.", IGraphics::CORNER_R, 7.0f))
+			if(DoButton_FontIcon(&pIds[i] + 2, FontIcon::PLUS, 0, &Inc, BUTTONFLAG_LEFT, "Increase value.", IGraphics::CORNER_R, 7.0f))
 			{
 				NewValue = (pProps[i].m_Value + Step) / Step * Step;
 				State = EEditState::ONE_GO;
@@ -286,25 +287,25 @@ SEditResult<int64_t> CEditor::DoPropertiesWithStateLongLong(CUIRect *pToolBox, C
 			Shifter.VSplitRight(10.0f, &Shifter, &Down);
 			Shifter.Draw(ColorRGBA(1, 1, 1, 0.5f), IGraphics::CORNER_NONE, 0.0f);
 			Ui()->DoLabel(&Shifter, "Y", 10.0f, TEXTALIGN_MC);
-			if(DoButton_FontIcon(&pIds[i], FontIcons::FONT_ICON_MINUS, 0, &Left, BUTTONFLAG_LEFT, "Shift left.", IGraphics::CORNER_L, 7.0f))
+			if(DoButton_FontIcon(&pIds[i], FontIcon::MINUS, 0, &Left, BUTTONFLAG_LEFT, "Shift left.", IGraphics::CORNER_L, 7.0f))
 			{
 				*pNewVal = (int)EShiftDirection::LEFT;
 				Change = i;
 				State = EEditState::ONE_GO;
 			}
-			if(DoButton_FontIcon(((char *)&pIds[i]) + 3, FontIcons::FONT_ICON_PLUS, 0, &Right, BUTTONFLAG_LEFT, "Shift right.", IGraphics::CORNER_R, 7.0f))
+			if(DoButton_FontIcon(((char *)&pIds[i]) + 3, FontIcon::PLUS, 0, &Right, BUTTONFLAG_LEFT, "Shift right.", IGraphics::CORNER_R, 7.0f))
 			{
 				*pNewVal = (int)EShiftDirection::RIGHT;
 				Change = i;
 				State = EEditState::ONE_GO;
 			}
-			if(DoButton_FontIcon(((char *)&pIds[i]) + 1, FontIcons::FONT_ICON_MINUS, 0, &Up, BUTTONFLAG_LEFT, "Shift up.", IGraphics::CORNER_L, 7.0f))
+			if(DoButton_FontIcon(((char *)&pIds[i]) + 1, FontIcon::MINUS, 0, &Up, BUTTONFLAG_LEFT, "Shift up.", IGraphics::CORNER_L, 7.0f))
 			{
 				*pNewVal = (int)EShiftDirection::UP;
 				Change = i;
 				State = EEditState::ONE_GO;
 			}
-			if(DoButton_FontIcon(((char *)&pIds[i]) + 2, FontIcons::FONT_ICON_PLUS, 0, &Down, BUTTONFLAG_LEFT, "Shift down.", IGraphics::CORNER_R, 7.0f))
+			if(DoButton_FontIcon(((char *)&pIds[i]) + 2, FontIcon::PLUS, 0, &Down, BUTTONFLAG_LEFT, "Shift down.", IGraphics::CORNER_R, 7.0f))
 			{
 				*pNewVal = (int)EShiftDirection::DOWN;
 				Change = i;
@@ -400,13 +401,13 @@ SEditResult<int64_t> CEditor::DoPropertiesWithStateLongLong(CUIRect *pToolBox, C
 				State = NewValueRes.m_State;
 			}
 
-			if(DoButton_FontIcon((char *)&pIds[i] + 1, FontIcons::FONT_ICON_MINUS, 0, &Dec, BUTTONFLAG_LEFT, "Select previous envelope.", IGraphics::CORNER_L, 7.0f))
+			if(DoButton_FontIcon((char *)&pIds[i] + 1, FontIcon::MINUS, 0, &Dec, BUTTONFLAG_LEFT, "Select previous envelope.", IGraphics::CORNER_L, 7.0f))
 			{
 				*pNewVal = pProps[i].m_Value - 1;
 				Change = i;
 				State = EEditState::ONE_GO;
 			}
-			if(DoButton_FontIcon(((char *)&pIds[i]) + 2, FontIcons::FONT_ICON_PLUS, 0, &Inc, BUTTONFLAG_LEFT, "Select next envelope.", IGraphics::CORNER_R, 7.0f))
+			if(DoButton_FontIcon(((char *)&pIds[i]) + 2, FontIcon::PLUS, 0, &Inc, BUTTONFLAG_LEFT, "Select next envelope.", IGraphics::CORNER_R, 7.0f))
 			{
 				*pNewVal = pProps[i].m_Value + 1;
 				Change = i;
