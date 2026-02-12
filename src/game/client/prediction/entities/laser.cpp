@@ -183,6 +183,13 @@ void CLaser::DoBounce()
 
 			int BounceNum = GetTuning(m_TuneZone)->m_LaserBounceNum;
 
+			//From Pointer's TW+
+			if(GameWorld()->m_WorldConfig.m_HasLaserJump && distance(m_From, m_Pos) < 96 && m_Bounces <= 1)
+			{
+				GameWorld()->CreateExplosion(To, m_Owner, 4, 0, pOwnerChar ? pOwnerChar->Team() : -1, CClientMask().set());
+				m_Energy = -1;
+			}
+
 			if(m_Bounces > BounceNum)
 				m_Energy = -1;
 

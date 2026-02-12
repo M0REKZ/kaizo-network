@@ -15,6 +15,9 @@ void CGameClient::OnKaizoConnected()
 
     m_GameWorld.m_WorldConfig.m_IsPointerTWPlus = false; //initial value for this
     m_GameWorld.m_WorldConfig.m_IsPureVanilla = false;
+    m_GameWorld.m_WorldConfig.m_HasLaserJump = false;
+    m_GameWorld.m_WorldConfig.m_HasAutoPistol = false;
+    m_GameWorld.m_WorldConfig.m_HasPointerTiles = false;
     m_WaitingForPointerTWPlusInfo = false;   
 
     m_GameWorld.OnConnected();
@@ -177,6 +180,14 @@ void CGameClient::HandleKaizoSnapItem(const IClient::CSnapItem *pItem)
                 pClient->m_CustomClient = CUSTOM_CLIENT_ID_PDUCKCLIENT;
             }
         }
+    }
+    else if(pItem->m_Type == NETOBJTYPE_GAMEINFOTWPLUS)
+    {
+        const CNetObj_GameInfoTWPlus *pInfo = (const CNetObj_GameInfoTWPlus *)pItem->m_pData;
+
+        m_GameWorld.m_WorldConfig.m_HasPointerTiles = pInfo->m_Flags & GAMETWPLUSFLAG_PREDICT_PTWPLUS_TILES;
+        m_GameWorld.m_WorldConfig.m_HasLaserJump = pInfo->m_Flags & GAMETWPLUSFLAG_LASERJUMPS;
+        m_GameWorld.m_WorldConfig.m_HasAutoPistol = pInfo->m_Flags & GAMETWPLUSFLAG_GUN_FULLAUTO;
     }
 }
 

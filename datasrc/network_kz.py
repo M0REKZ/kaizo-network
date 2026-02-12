@@ -3,9 +3,11 @@
 import datatypes
 
 KaizoCharacterFlags = ["BLUEPORTAL", "LASERRECOVERJUMP"]
+GameInfoFlagsTWPlus = datatypes.Flags("GAMETWPLUSFLAG", ["PREDICT_PTWPLUS_TILES", "LASERJUMPS", "GUN_FULLAUTO"])
 
 Flags += [
 	datatypes.Flags("KAIZOCHARACTERFLAG", KaizoCharacterFlags),
+ 	GameInfoFlagsTWPlus
 ]
 
 Objects += [
@@ -39,6 +41,12 @@ Objects += [
     NetObjectEx("KaizoNetworkPlayerPing", "kaizoplayerping@m0rekz.github.io", [
 		NetIntAny("m_Ping", default=0),
 	], validate_size=False),
+    
+    # Pointer's TW+ 0.7
+    
+    NetObjectEx("GameInfoTWPlus", "gameinfo-twplus@pointerstwplus", [
+        NetIntAny("m_Flags", default=0),
+    ], validate_size=False),
 ]
 
 Messages += [

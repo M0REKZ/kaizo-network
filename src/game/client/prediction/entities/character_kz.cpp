@@ -275,6 +275,34 @@ void CCharacter::KaizoPredictNormalTiles(int Index)
             m_InPointerTele = false;
         }
     }
+    else if(GameWorld()->m_WorldConfig.m_HasPointerTiles) // TW+ 0.7 version
+    {
+        // teleports
+        int TeleId = -1;
+        if (Collision()->GetTileIndex(Collision()->GetMapIndex(vec2(m_Pos.x, m_Pos.y))) >= POINTER07_TILE_TELE_START &&
+            Collision()->GetTileIndex(Collision()->GetMapIndex(vec2(m_Pos.x, m_Pos.y))) < POINTER07_TILE_TELE_START + POINTER07_NUM_TILE_TELE)
+            TeleId = Collision()->GetTileIndex(Collision()->GetMapIndex(vec2(m_Pos.x, m_Pos.y))) - POINTER07_TILE_TELE_START;
+            
+        if (TeleId >= 0)
+        {
+            if (!m_InPointerTele) {
+                m_InPointerTele = true;
+                int TeleIdEnd = TeleId % 2 == 0 ? TeleId+1  : TeleId-1;
+                int x = GameWorld()->m_PointerTelePositions[TeleId].m_X;
+                int y = GameWorld()->m_PointerTelePositions[TeleId].m_Y;
+                int tx = GameWorld()->m_PointerTelePositions[TeleIdEnd].m_X;
+                int ty = GameWorld()->m_PointerTelePositions[TeleIdEnd].m_Y;
+                vec2 start = {(float)x, (float)y};
+                vec2 end = {(float)tx, (float)ty};
+                m_Pos = m_Pos - start * 32 + end * 32;
+                m_Core.m_Pos = m_Pos;
+            }
+        }
+        else
+        {
+            m_InPointerTele = false;
+        }
+    }
 }
 
 bool CCharacter::KaizoPredictFireWeapon()

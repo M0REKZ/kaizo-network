@@ -198,6 +198,10 @@ void CCharacterCore::Reset()
 
 void CCharacterCore::Tick(bool UseInput, bool DoDeferredTick)
 {
+	//+KZ: client does a copy of character on prediction, so core must update the pointer to itself
+	m_CharCoreParams.pCore = this;
+	m_GenericParams.pCore = this;
+
 	m_MoveRestrictions = m_pCollision->GetMoveRestrictions(UseInput ? IsSwitchActiveCb : nullptr, this, m_Pos);
 	m_TriggeredEvents = 0;
 
@@ -575,6 +579,10 @@ void CCharacterCore::TickDeferred()
 
 void CCharacterCore::Move()
 {
+	//+KZ: client does a copy of character on prediction, so core must update the pointer to itself
+	m_CharCoreParams.pCore = this;
+	m_GenericParams.pCore = this;
+
 	float RampValue = VelocityRamp(length(m_Vel) * 50, m_Tuning.m_VelrampStart, m_Tuning.m_VelrampRange, m_Tuning.m_VelrampCurvature);
 
 	m_Vel.x = m_Vel.x * RampValue;

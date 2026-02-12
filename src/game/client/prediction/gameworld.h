@@ -86,8 +86,11 @@ public:
 		bool m_PredictEvents;
 
 		//+KZ
-		bool m_IsPointerTWPlus;
+		bool m_IsPointerTWPlus; //0.6 TW+
 		bool m_IsPureVanilla;
+		bool m_HasLaserJump;
+		bool m_HasAutoPistol;
+		bool m_HasPointerTiles; //0.7 TW+
 	} m_WorldConfig;
 
 	bool m_IsValidCopy;
@@ -168,7 +171,7 @@ private:
 		bool m_Exists = false;
 	};
 	
-	SPointerTelePos m_PointerTelePositions[4]; // positions of teleports
+	SPointerTelePos m_PointerTelePositions[POINTER07_NUM_TILE_TELE]; // positions of teleports
 
 public:
 	void OnConnected();

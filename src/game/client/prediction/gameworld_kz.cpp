@@ -132,4 +132,7 @@ void CGameWorld::CopyWorldClean(CGameWorld *pFrom) //TClient
 			}
 		}
 	}
+
+	//+KZ
+	OnCopyWorld(pFrom);
 }
