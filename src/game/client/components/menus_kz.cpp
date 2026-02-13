@@ -108,20 +108,6 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 			Ui()->DoLabel(&Label, Localize("Kaizo Settings"), 20.0f, TEXTALIGN_ML);
 			Left.HSplitTop(25.0f, &Label, &Left);
 
-			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox(&g_Config.m_KaizoFastInput, Localize("Fast input"), g_Config.m_KaizoFastInput, &Button))
-			{
-				g_Config.m_KaizoFastInput ^= 1;
-			}
-
-			Left.HSplitTop(2.0f, nullptr, &Left);
-
-			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox(&g_Config.m_KaizoFastInputOthers, Localize("Fast input others"), g_Config.m_KaizoFastInputOthers, &Button))
-			{
-				g_Config.m_KaizoFastInputOthers ^= 1;
-			}
-
 			Left.HSplitTop(2.0f, nullptr, &Left);
 
 			Left.HSplitTop(20.0f, &Button, &Left);
@@ -273,6 +259,22 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 			Right.HSplitTop(20.0f, &Label, &SettingsBox);
 			Ui()->DoLabel(&Label, Localize("Prediction"), 20.0f, TEXTALIGN_ML);
 			Right.HSplitTop(25.0f, &Label, &Right);
+
+			Right.HSplitTop(2.0f, &Label, &Right);
+
+			Right.HSplitTop(20.0f, &Button, &Right);
+			if(DoButton_CheckBox(&g_Config.m_KaizoFastInput, Localize("Fast input"), g_Config.m_KaizoFastInput, &Button))
+			{
+				g_Config.m_KaizoFastInput ^= 1;
+			}
+
+			Right.HSplitTop(2.0f, nullptr, &Right);
+
+			Right.HSplitTop(20.0f, &Button, &Right);
+			if(DoButton_CheckBox(&g_Config.m_KaizoFastInputOthers, Localize("Fast input others"), g_Config.m_KaizoFastInputOthers, &Button))
+			{
+				g_Config.m_KaizoFastInputOthers ^= 1;
+			}
 
 			Right.HSplitTop(2.0f, nullptr, &Right);
 
