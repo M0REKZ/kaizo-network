@@ -1008,6 +1008,7 @@ private:
 
 	//TClient
 	CGameWorld m_PredSmoothingWorld;
+	vec2 GetFastInputPos(int ClientId);
 };
 
 ColorRGBA CalculateNameColor(ColorHSLA TextColorHSL);

@@ -2617,11 +2617,13 @@ void CGameClient::OnPredict()
 		pDummyChar = m_PredictedWorld.GetCharacterById(m_aLocalIds[!g_Config.m_ClDummy]);
 
 	// predict //+KZ modified for fast input commit
+	int FastInputTicks = ((g_Config.m_KaizoFastInputAmount - 1) / 20 + 1) * g_Config.m_KaizoFastInput;
 	int FinalTickRegular = Client()->PredGameTick(g_Config.m_ClDummy); // The vanilla final tick disregarding fast input
-	int FinalTickSelf = FinalTickRegular + g_Config.m_KaizoFastInput; // the final tick for just our local tee
+	
+	int FinalTickSelf = FinalTickRegular + FastInputTicks; // the final tick for just our local tee
 	int FinalTickOthers = FinalTickSelf; // the final tick for all other tees
 	if(g_Config.m_KaizoFastInput && !g_Config.m_KaizoFastInputOthers)
-		FinalTickOthers = FinalTickSelf - g_Config.m_KaizoFastInput;
+		FinalTickOthers = FinalTickSelf - FastInputTicks;
 
 	for(int Tick = Client()->GameTick(g_Config.m_ClDummy) + 1; Tick <= FinalTickSelf; Tick++)
 	{
@@ -2658,8 +2660,12 @@ void CGameClient::OnPredict()
 		bool DummyFirst = pInputData && pDummyInputData && pDummyChar->GetCid() < pLocalChar->GetCid();
 
 		//+KZ fast input commit
-		if(g_Config.m_KaizoFastInput && Tick == FinalTickSelf)
+		if(g_Config.m_KaizoFastInput && Tick > FinalTickRegular)
+		{
 			pInputData = &m_Controls.m_FastInput;
+			if(g_Config.m_ClDummyCopyMoves && PredictDummy())
+				pDummyInputData = &m_Controls.m_FastInput;
+		}
 
 		if(DummyFirst)
 			pDummyChar->OnDirectInput(pDummyInputData);
@@ -4021,6 +4027,10 @@ void CGameClient::UpdateRenderedCharacters()
 				vec2(m_aClients[i].m_RenderCur.m_X, m_aClients[i].m_RenderCur.m_Y),
 				m_aClients[i].m_IsPredicted ? Client()->PredIntraGameTick(g_Config.m_ClDummy) : Client()->IntraGameTick(g_Config.m_ClDummy));
 
+			// +KZ From TClient
+			if(g_Config.m_KaizoFastInput && (i == m_Snap.m_LocalClientId || (PredictDummy() && i == m_aLocalIds[!g_Config.m_ClDummy])))
+				Pos = GetFastInputPos(i);
+
 			if(i == m_Snap.m_LocalClientId || (PredictDummy() && i == m_aLocalIds[!g_Config.m_ClDummy]))
 			{
 				m_aClients[i].m_IsPredictedLocal = true;
@@ -4043,6 +4053,10 @@ void CGameClient::UpdateRenderedCharacters()
 				//TClient
 				if(g_Config.m_KaizoAntiPingImproved && m_aClients[i].m_ValidAntipingSmooth)
 					Pos = mix(m_aClients[i].m_PrevImprovedPredPos, m_aClients[i].m_ImprovedPredPos, Client()->PredIntraGameTick(g_Config.m_ClDummy));
+			
+				//TClient
+				if(g_Config.m_KaizoFastInput && g_Config.m_KaizoFastInputOthers && !g_Config.m_KaizoAntiPingImproved)
+					Pos = GetFastInputPos(i);
 			}
 		}
 		m_aClients[i].m_RenderPos = Pos;

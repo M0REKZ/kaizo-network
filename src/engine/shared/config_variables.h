@@ -821,8 +821,6 @@ MACRO_CONFIG_INT(SvGoresGrenadeTele, sv_kog_grenade_tele, 0, 0, 1, CFGFLAG_SERVE
 
 //Client configs
 
-MACRO_CONFIG_INT(KaizoFastInput, kaizo_fast_input, 1, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Enable fast input")
-MACRO_CONFIG_INT(KaizoFastInputOthers, kaizo_fast_input_others, 1, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Enable fast input for other players")
 MACRO_CONFIG_INT(KaizoShowCrowns, kaizo_show_crowns, 1, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Show crowns on top of the players in Kaizo servers")
 MACRO_CONFIG_INT(KaizoPredictDDNetTeleport, kaizo_predict_ddnet_teleport, 1, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Predict DDNet teleports if there is only 1 exit")
 MACRO_CONFIG_INT(KaizoInstaShieldShield, kaizo_instashield_shield, 1, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Enable InstaShield Shield")
@@ -857,6 +855,9 @@ MACRO_CONFIG_INT(KaizoChatInputBackground, kaizo_chat_input_background, 1, 0, 1,
 MACRO_CONFIG_INT(KaizoScoreboardStyle, kaizo_scoreboard_style, 0, 0, 10, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Style of the scoreboard")
 MACRO_CONFIG_INT(KaizoScoreboardShorten, kaizo_scoreboard_shorten, 0, 0, 2, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Shorten the scoreboard if there are not so many players")
 //These are from T-Client:
+MACRO_CONFIG_INT(KaizoFastInput, kaizo_fast_input, 1, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Enable fast input")
+MACRO_CONFIG_INT(KaizoFastInputOthers, kaizo_fast_input_others, 1, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Enable fast input for other players")
+MACRO_CONFIG_INT(KaizoFastInputAmount, kaizo_fast_input_amount, 20, 1, 50, CFGFLAG_CLIENT | CFGFLAG_SAVE, "How many milliseconds fast input will apply")
 MACRO_CONFIG_STR(KaizoCustomCommunitiesUrl, kaizo_custom_communities_url, 256, "https://raw.githubusercontent.com/SollyBunny/ddnet-custom-communities/refs/heads/main/custom-communities-ddnet-info.json", CFGFLAG_CLIENT | CFGFLAG_SAVE, "URL to fetch custom communities from (must be https), empty to disable")
 MACRO_CONFIG_INT(KaizoAntiPingImproved, kaizo_antiping_improved, 1, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Different antiping smoothing algorithm, overrides cl_antiping_smooth")
 MACRO_CONFIG_INT(KaizoAntiPingNegativeBuffer, kaizo_antiping_negative_buffer, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Helps in Gores. Allows internal certainty value to be negative which causes more conservative prediction")

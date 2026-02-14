@@ -984,6 +984,10 @@ void CPlayers::OnRender()
 				aRenderInfo[i].m_TeeRenderFlags |= TEE_EFFECT_SPARKLE;
 
 			Frozen = GameClient()->m_aClients[i].m_Predicted.m_FreezeEnd != 0;
+
+			// TClient
+			if(g_Config.m_KaizoFastInputAmount > 20 && g_Config.m_KaizoFastInput)
+				Frozen = GameClient()->m_aClients[i].m_PrevPredicted.m_FreezeEnd != 0;
 		}
 		else
 		{

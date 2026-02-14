@@ -276,6 +276,17 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 				g_Config.m_KaizoFastInputOthers ^= 1;
 			}
 
+			if(g_Config.m_KaizoFastInput || g_Config.m_KaizoFastInputOthers)
+			{
+				Right.HSplitTop(2.0f, nullptr, &Right);
+				Right.HSplitTop(20.0f, &Button, &Right);
+				Ui()->DoScrollbarOption(&g_Config.m_KaizoFastInputAmount, &g_Config.m_KaizoFastInputAmount, &Button, Localize("Fast input amount"), 1, 50, &CUi::ms_LogarithmicScrollbarScale, 0u, " ms");
+
+				Right.HSplitTop(2.0f, nullptr, &Right);
+				Right.HSplitTop(10.0f, &Label, &Right);
+				Ui()->DoLabel(&Label, Localize("20 or 30 ms is recommended"), 10.0f, TEXTALIGN_ML);
+			}
+
 			Right.HSplitTop(2.0f, nullptr, &Right);
 
 			Right.HSplitTop(20.0f, &Button, &Right);
