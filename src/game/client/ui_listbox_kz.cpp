@@ -8,7 +8,7 @@ CListboxItem CListBox::DoNextItemHeader(const void *pId, bool Selected, float Co
 {
     //Get color Like DuckClient
     ColorRGBA color = color_cast<ColorRGBA>(ColorHSLA(g_Config.m_UiColor, false));
-	color.a = 0.1;
+	color.a = 0.33;
 
 	if(m_AutoSpacing > 0.0f && m_ListBoxItemIndex > 0)
 		DoSpacing(m_AutoSpacing);
@@ -44,7 +44,7 @@ CListboxItem CListBox::DoNextItemHeader(const void *pId, bool Selected, float Co
 
 		Item.m_Rect.Draw(ColorRGBA(color.r, color.g, color.b, m_Active ? 0.5f : color.a), IGraphics::CORNER_ALL, CornerRadius);
 	}
-    if(!m_ScrollRegion.Animating())
+    else
 	{
 		Item.m_Rect.Draw(color, IGraphics::CORNER_ALL, CornerRadius);
 	}
