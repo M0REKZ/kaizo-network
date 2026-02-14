@@ -103,25 +103,25 @@ void CVoting::CallvoteOption(int OptionId, const char *pReason, bool ForceVote)
 				//+KZ fix to vote 0.7 headers
 				if(pOption->m_IsSubheader)
 				{
-					char pDesc[64] = {'\0'};
+					char aDesc[64] = {'\0'};
 					int index = 0;
 
 					//restore # chars
 					int Depth = pOption->m_Depth;
-					for(;Depth > 0 && index < sizeof(pDesc); Depth--)
+					for(;Depth > 0 && index < sizeof(aDesc); Depth--)
 					{
-						pDesc[index] = '#';
+						aDesc[index] = '#';
 						index++;
 					}
 
-					if(index < sizeof(pDesc))
+					if(index < sizeof(aDesc))
 					{
-						str_copy(&pDesc[index], pOption->m_aDescription, sizeof(pDesc) - index);
+						str_copy(&aDesc[index], pOption->m_aDescription, sizeof(aDesc) - index);
 					}
 
-					pDesc[sizeof(pDesc) - 1] = '\0'; //just in case.......
+					aDesc[sizeof(aDesc) - 1] = '\0'; //just in case.......
 
-					Callvote("option", pDesc, pReason);
+					Callvote("option", aDesc, pReason);
 				}
 				else
 				{
