@@ -119,6 +119,8 @@ void CVoting::CallvoteOption(int OptionId, const char *pReason, bool ForceVote)
 						str_copy(&pDesc[index], pOption->m_aDescription, sizeof(pDesc) - index);
 					}
 
+					pDesc[sizeof(pDesc) - 1] = '\0'; //just in case.......
+
 					Callvote("option", pDesc, pReason);
 				}
 				else
