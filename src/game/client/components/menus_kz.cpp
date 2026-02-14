@@ -255,6 +255,21 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 			Left.HSplitTop(20.0f, &Button, &Left);
 			Ui()->DoScrollbarOption(&g_Config.m_KaizoScoreboardShorten, &g_Config.m_KaizoScoreboardShorten, &Button, Localize("Shorten scoreboard"), 0, 2, &CUi::ms_LogarithmicScrollbarScale, 0u, "");
 
+			Left.HSplitTop(2.0f, nullptr, &Left);
+
+			Left.HSplitTop(20.0f, &Button, &Left);
+			if(DoButton_CheckBox(&g_Config.m_KaizoRevertHookLine, Localize("Old Hook line"), g_Config.m_KaizoRevertHookLine, &Button))
+			{
+				if(g_Config.m_KaizoRevertHookLine)
+				{
+					g_Config.m_KaizoRevertHookLine = 0;
+				}
+				else
+				{
+					g_Config.m_KaizoRevertHookLine = 1;
+				}
+			}
+
 			// Prediction
 			Right.HSplitTop(20.0f, &Label, &SettingsBox);
 			Ui()->DoLabel(&Label, Localize("Prediction"), 20.0f, TEXTALIGN_ML);

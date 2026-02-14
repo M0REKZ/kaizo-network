@@ -863,3 +863,4 @@ MACRO_CONFIG_INT(KaizoAntiPingImproved, kaizo_antiping_improved, 1, 0, 1, CFGFLA
 MACRO_CONFIG_INT(KaizoAntiPingNegativeBuffer, kaizo_antiping_negative_buffer, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Helps in Gores. Allows internal certainty value to be negative which causes more conservative prediction")
 MACRO_CONFIG_INT(KaizoAntiPingStableDirection, kaizo_antiping_stable_direction, 1, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Predicts optimistically along the tees stable axis to reduce delay in gaining overall stability")
 MACRO_CONFIG_INT(KaizoAntiPingUncertaintyScale, kaizo_antiping_uncertainty_scale, 150, 25, 400, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Determines uncertainty duration as a factor of ping, 100 = 1.0")
+MACRO_CONFIG_INT(KaizoRevertHookLine, kaizo_revert_hook_line, 0, 0, 2, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Use single hook line without tip | 1=Accurate to Tiles | 2=Accurate to Tees")
