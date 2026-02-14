@@ -66,6 +66,9 @@ public:
 	void SetScrollbarWidth(float Width) { m_ScrollbarWidth = Width; }
 	float ScrollbarMargin() const { return m_ScrollbarMargin; }
 	void SetScrollbarMargin(float Margin) { m_ScrollbarMargin = Margin; }
+
+	//+KZ
+	CListboxItem DoNextItemHeader(const void *pId, bool Selected = false, float CornerRadius = 5.0f);
 };
 
 #endif

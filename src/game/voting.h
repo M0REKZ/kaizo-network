@@ -17,6 +17,10 @@ struct CVoteOptionClient
 	CVoteOptionClient *m_pNext;
 	CVoteOptionClient *m_pPrev;
 	char m_aDescription[VOTE_DESC_LENGTH];
+
+	//+KZ
+	int m_Depth;
+	bool m_IsSubheader;
 };
 
 struct CVoteOptionServer

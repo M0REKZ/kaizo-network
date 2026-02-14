@@ -2552,6 +2552,7 @@ if(CLIENT)
     skin.h
     ui.cpp
     ui.h
+    ui_listbox_kz.cpp
     ui_listbox.cpp
     ui_listbox.h
     ui_rect.cpp

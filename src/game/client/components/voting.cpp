@@ -99,7 +99,33 @@ void CVoting::CallvoteOption(int OptionId, const char *pReason, bool ForceVote)
 				Client()->Rcon(aBuf);
 			}
 			else
-				Callvote("option", pOption->m_aDescription, pReason);
+			{
+				//+KZ fix to vote 0.7 headers
+				if(pOption->m_IsSubheader)
+				{
+					char pDesc[64] = {'\0'};
+					int index = 0;
+
+					//restore # chars
+					int Depth = pOption->m_Depth;
+					for(;Depth > 0 && index < sizeof(pDesc); Depth--)
+					{
+						pDesc[index] = '#';
+						index++;
+					}
+
+					if(index < sizeof(pDesc))
+					{
+						str_copy(&pDesc[index], pOption->m_aDescription, sizeof(pDesc) - index);
+					}
+
+					Callvote("option", pDesc, pReason);
+				}
+				else
+				{
+					Callvote("option", pOption->m_aDescription, pReason);
+				}
+			}
 			break;
 		}
 
@@ -182,6 +208,18 @@ void CVoting::AddOption(const char *pDescription)
 	m_pLast = pOption;
 	if(!m_pFirst)
 		m_pFirst = pOption;
+
+	// start of DuckClient 0.7 depth code
+	int Depth = 0;
+	for(;*pDescription == '#'; pDescription++, Depth++);
+
+	pOption->m_Depth = Depth ? Depth : pOption->m_pPrev ? pOption->m_pPrev->m_Depth : 0;
+
+	pOption->m_IsSubheader = Depth;
+
+	//if(!*pDescription)
+	//	pOption->m_Depth = 0;
+	// end of DuckClient 0.7 depth code
 
 	str_copy(pOption->m_aDescription, pDescription);
 	++m_NumVoteOptions;

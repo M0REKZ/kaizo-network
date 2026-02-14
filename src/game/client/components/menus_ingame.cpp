@@ -874,14 +874,18 @@ bool CMenus::RenderServerControlServer(CUIRect MainView, bool UpdateScroll)
 	i = 0;
 	for(const CVoteOptionClient *pOption = GameClient()->m_Voting.FirstOption(); pOption; pOption = pOption->m_pNext, i++)
 	{
-		if(!m_FilterInput.IsEmpty() && !str_utf8_find_nocase(pOption->m_aDescription, m_FilterInput.GetString()))
+		if(!m_FilterInput.IsEmpty() && !pOption->m_IsSubheader /*DuckClient*/&& !str_utf8_find_nocase(pOption->m_aDescription, m_FilterInput.GetString()))
 			continue;
 		aIndices[NumVoteOptions] = i;
 		NumVoteOptions++;
 
-		const CListboxItem Item = s_ListBox.DoNextItem(pOption);
+		CListboxItem Item = pOption->m_IsSubheader ? s_ListBox.DoNextItemHeader(pOption) : s_ListBox.DoNextItem(pOption); //+KZ modified, from DuckClient
 		if(!Item.m_Visible)
 			continue;
+
+		// some 0.7 vote depth code. +KZ modified, from DuckClient
+		for(int i = pOption->m_IsSubheader ? 1 : 0; i < pOption->m_Depth; i++)
+			Item.m_Rect.VSplitLeft(10.0f, 0, &Item.m_Rect);
 
 		CUIRect Label;
 		Item.m_Rect.VMargin(2.0f, &Label);
