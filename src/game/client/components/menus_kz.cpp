@@ -96,7 +96,8 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 		s_ScrollRegion.End();
 		return;
 	}
-	
+
+	SettingsBox.VSplitRight(20.f, &SettingsBox, nullptr);
 
 	switch(s_CurCustomTab)
 	{
