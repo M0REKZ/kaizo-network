@@ -2663,7 +2663,7 @@ void CGameClient::OnPredict()
 		if(g_Config.m_KaizoFastInput && Tick > FinalTickRegular)
 		{
 			pInputData = &m_Controls.m_FastInput;
-			if(g_Config.m_ClDummyCopyMoves && PredictDummy())
+			if(g_Config.m_ClDummyCopyMoves && pDummyChar)
 				pDummyInputData = &m_Controls.m_FastInput;
 		}
 
