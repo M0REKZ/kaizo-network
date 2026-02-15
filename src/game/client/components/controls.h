@@ -61,9 +61,9 @@ private:
 	static void ConKeyInputNextPrevWeapon(IConsole::IResult *pResult, void *pUserData);
 
 public:
-	//+KZ from Fast Input commit
+	//+KZ from Fast Input commit and TClient
 	bool CheckNewInput();
-	CNetObj_PlayerInput m_FastInput;
+	CNetObj_PlayerInput m_aFastInput[NUM_DUMMIES];
 	void HandleKaizoInput(CNetObj_PlayerInput *pMainInput, CNetObj_PlayerInput *pSecondInput);
 };
 #endif

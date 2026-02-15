@@ -2624,6 +2624,9 @@ void CGameClient::OnPredict()
 	int FinalTickOthers = FinalTickSelf; // the final tick for all other tees
 	if(g_Config.m_KaizoFastInput && !g_Config.m_KaizoFastInputOthers)
 		FinalTickOthers = FinalTickSelf - FastInputTicks;
+	
+	int LocalTee = g_Config.m_ClDummy ^ m_IsDummySwapping;
+	int DummyTee = LocalTee ^ 1;
 
 	for(int Tick = Client()->GameTick(g_Config.m_ClDummy) + 1; Tick <= FinalTickSelf; Tick++)
 	{
@@ -2662,9 +2665,16 @@ void CGameClient::OnPredict()
 		//+KZ fast input commit
 		if(g_Config.m_KaizoFastInput && Tick > FinalTickRegular)
 		{
-			pInputData = &m_Controls.m_FastInput;
-			if(g_Config.m_ClDummyCopyMoves && pDummyChar)
-				pDummyInputData = &m_Controls.m_FastInput;
+			pInputData = &m_Controls.m_aFastInput[LocalTee];
+			if(g_Config.m_ClDummyCopyMoves && PredictDummy() && pDummyChar)
+			{
+				CNetObj_PlayerInput DummyFastInput = m_Controls.m_aFastInput[LocalTee];
+				DummyFastInput.m_Fire = m_Controls.m_aFastInput[DummyTee].m_Fire;
+				DummyFastInput.m_WantedWeapon = m_Controls.m_aFastInput[DummyTee].m_WantedWeapon;
+				DummyFastInput.m_NextWeapon = m_Controls.m_aFastInput[DummyTee].m_NextWeapon;
+				DummyFastInput.m_PrevWeapon = m_Controls.m_aFastInput[DummyTee].m_PrevWeapon;
+				pDummyInputData = &DummyFastInput;
+			}
 		}
 
 		if(DummyFirst)
