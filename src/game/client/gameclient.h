@@ -560,6 +560,7 @@ public:
 		vec2 m_PrevImprovedPredPos = vec2(0, 0);
 		bool m_ValidAntipingSmooth = false;
 		float m_Uncertainty = 0.0f;
+		CCharacterCore m_RegularPredicted;
 	};
 
 	CClientData m_aClients[MAX_CLIENTS];

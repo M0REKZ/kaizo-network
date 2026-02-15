@@ -296,7 +296,7 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 			{
 				Right.HSplitTop(2.0f, nullptr, &Right);
 				Right.HSplitTop(20.0f, &Button, &Right);
-				Ui()->DoScrollbarOption(&g_Config.m_KaizoFastInputAmount, &g_Config.m_KaizoFastInputAmount, &Button, Localize("Fast input amount"), 1, 50, &CUi::ms_LogarithmicScrollbarScale, 0u, " ms");
+				Ui()->DoScrollbarOption(&g_Config.m_KaizoFastInputAmount, &g_Config.m_KaizoFastInputAmount, &Button, Localize("Fast input amount"), 1, 100, &CUi::ms_LogarithmicScrollbarScale, 0u, " ms");
 
 				Right.HSplitTop(2.0f, nullptr, &Right);
 				Right.HSplitTop(10.0f, &Label, &Right);
