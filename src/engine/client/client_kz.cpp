@@ -22,5 +22,6 @@ void CClient::SendFastInputsInfo(int Conn)
 {
 	CMsgPacker Msg(NETMSG_FOXNET_FASTINPUTS, true);
 	Msg.AddInt(g_Config.m_KaizoFastInput);
+	Msg.AddInt(g_Config.m_KaizoFastInputAmount);
 	SendMsg(Conn, &Msg, MSGFLAG_VITAL);
 }
