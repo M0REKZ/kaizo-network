@@ -210,12 +210,17 @@ void CGameClient::HandleKaizoSnapItem(const IClient::CSnapItem *pItem)
             Input.m_Direction = pCharObj->m_Direction;
             Input.m_Jump = pCharObj->m_Jumped & 1;
             Input.m_Fire = 0;
-            Input.m_Fire &= (pCharObj->m_AttackTick == Client()->GameTick(g_Config.m_ClDummy)) ? 1 : 0;
+            //Input.m_Fire = (pCharObj->m_AttackTick == Client()->GameTick(g_Config.m_ClDummy)) ? 1 : 0;
             Input.m_Hook = pCharObj->m_HookState != HOOK_IDLE;
             Input.m_PlayerFlags = pCharObj->m_PlayerFlags;
             Input.m_WantedWeapon = pCharObj->m_Weapon + 1;
             Input.m_TargetX = std::cos(pCharObj->m_Angle / 256.0f) * 256.0f;
 			Input.m_TargetY = std::sin(pCharObj->m_Angle / 256.0f) * 256.0f;
+            
+            if(CCharacter *pChar = m_GameWorld.GetCharacterById(pItem->m_Id))
+            {
+                Input.m_Fire = pChar->LatestInput()->m_Fire;
+            }
         }
     }
     else if(pItem->m_Type == NETOBJTYPE_DDNETCHARACTER)
