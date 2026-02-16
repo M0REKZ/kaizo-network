@@ -550,6 +550,8 @@ public:
 		int m_ReceivedPing = -1;
 		bool m_ReceivedDDNetPlayerInfoInLastSnapshot = false;
 		bool m_KillingSpreeMode;
+		CNetObj_PlayerInput m_GuessedInputKZ = {0};
+		bool m_ReceivedPreInputs = false;
 
 		int m_CustomClient = 0;
 

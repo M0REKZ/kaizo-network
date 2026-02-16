@@ -109,6 +109,11 @@ void CGameClient::HandleKaizoMessage(int MsgId, CUnpacker *pUnpacker, int Conn, 
             }
         }
     }
+    else if(MsgId == NETMSGTYPE_SV_PREINPUT)
+    {
+        CNetMsg_Sv_PreInput *pMsg = (CNetMsg_Sv_PreInput *)pRawMsg;
+        m_aClients[pMsg->m_Owner].m_ReceivedPreInputs = true;
+    }
 }
 
 void CGameClient::HandleKaizoSnapItem(const IClient::CSnapItem *pItem)
@@ -189,6 +194,41 @@ void CGameClient::HandleKaizoSnapItem(const IClient::CSnapItem *pItem)
         m_GameWorld.m_WorldConfig.m_HasLaserJump = pInfo->m_Flags & GAMETWPLUSFLAG_LASERJUMPS;
         m_GameWorld.m_WorldConfig.m_HasAutoPistol = pInfo->m_Flags & GAMETWPLUSFLAG_GUN_FULLAUTO;
     }
+    else if(pItem->m_Type == NETOBJTYPE_CHARACTER)
+    {
+        const CNetObj_Character *pCharObj = (const CNetObj_Character *)pItem->m_pData;
+
+        //update local client input
+
+        if(pItem->m_Id < MAX_CLIENTS && pItem->m_Id >= 0)
+        {
+            CNetObj_PlayerInput &Input = m_aClients[pItem->m_Id].m_GuessedInputKZ;
+
+            Input.m_Direction = pCharObj->m_Direction;
+            Input.m_Jump = pCharObj->m_Jumped & 1;
+            Input.m_Fire = 0;
+            Input.m_Fire &= (pCharObj->m_AttackTick == Client()->GameTick(g_Config.m_ClDummy)) ? 1 : 0;
+            Input.m_Hook = pCharObj->m_HookState != HOOK_IDLE;
+            Input.m_PlayerFlags = pCharObj->m_PlayerFlags;
+            Input.m_WantedWeapon = pCharObj->m_Weapon + 1;
+            Input.m_TargetX = std::cos(pCharObj->m_Angle / 256.0f) * 256.0f;
+			Input.m_TargetY = std::sin(pCharObj->m_Angle / 256.0f) * 256.0f;
+        }
+    }
+    else if(pItem->m_Type == NETOBJTYPE_DDNETCHARACTER)
+    {
+        const CNetObj_DDNetCharacter *pCharObj = (const CNetObj_DDNetCharacter *)pItem->m_pData;
+
+        //update local client input
+
+        if(pItem->m_Id < MAX_CLIENTS && pItem->m_Id >= 0)
+        {
+            CNetObj_PlayerInput &Input = m_aClients[pItem->m_Id].m_GuessedInputKZ;
+
+            Input.m_TargetX = pCharObj->m_TargetX;
+            Input.m_TargetY = pCharObj->m_TargetY;
+        }
+    }
 }
 
 void CGameClient::PostSnapshotKaizo()
@@ -227,6 +267,7 @@ void CGameClient::CClientData::KaizoReset()
     m_KaizoCustomWeapon = -1;
     m_ReceivedPing = -1;
     m_ReceivedDDNetPlayerInfoInLastSnapshot = false;
+    m_ReceivedPreInputs = false;
 
     m_CustomClient = 0;
 }

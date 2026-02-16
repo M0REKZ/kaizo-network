@@ -322,6 +322,14 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 			Right.HSplitTop(2.0f, nullptr, &Right);
 
 			Right.HSplitTop(20.0f, &Button, &Right);
+			if(DoButton_CheckBox(&g_Config.m_KaizoApplyGuessedInput, Localize("Use received info as player input for prediction"), g_Config.m_KaizoApplyGuessedInput, &Button))
+			{
+				g_Config.m_KaizoApplyGuessedInput ^= 1;
+			}
+
+			Right.HSplitTop(2.0f, nullptr, &Right);
+
+			Right.HSplitTop(20.0f, &Button, &Right);
 			if(DoButton_CheckBox(&g_Config.m_KaizoPredictGoresGrenadeTele, Localize("Predict Gores grenade teleport"), g_Config.m_KaizoPredictGoresGrenadeTele, &Button))
 			{
 				g_Config.m_KaizoPredictGoresGrenadeTele ^= 1;
