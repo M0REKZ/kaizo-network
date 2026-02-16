@@ -64,6 +64,9 @@ public:
 	void OnKaizoInit();
 	void RenderKaizoWeapon(const CNetObj_Character *pPrevChar, const CNetObj_Character *pPlayerChar, const CTeeRenderInfo *pRenderInfo, int ClientId, float Intra, CAnimState &AnimState);
 	void SetPlayerEmoteKZ(CNetObj_Character &Player, int ClientId);
+
+	void CreateBOMBTeeRenderInfo();
+	std::shared_ptr<CManagedTeeRenderInfo> m_pBOMBTeeRenderInfo;
 };
 
 #endif

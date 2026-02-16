@@ -73,6 +73,7 @@
 #include "components/kz/rechargebars.h" // +KZ
 
 #include <vector>
+#include "prediction/predcontroller_kz.h"
 
 class CGameInfo
 {
@@ -552,6 +553,8 @@ public:
 		bool m_KillingSpreeMode;
 		CNetObj_PlayerInput m_GuessedInputKZ = {0};
 		bool m_ReceivedPreInputs = false;
+		bool m_DidDeathEffect = false;
+		int m_IsBOMBTick = -1;
 
 		int m_CustomClient = 0;
 
@@ -1001,13 +1004,14 @@ private:
 	void KaizoReset();
 	void KaizoPostUpdate();
 
-	bool m_DidDeathEffect = false;
 	bool m_WaitingForPointerTWPlusInfo = false;
 
 	int InsertCustomClientIdIntoSkinColor(int Color);
 	bool IsCustomClientId(int Country);
 
 	bool IsSkinPartDefault(int Dummy, int Part);
+
+	CPredControllerKZ m_PredControllerKZ;
 
 	//TClient
 	CGameWorld m_PredSmoothingWorld;

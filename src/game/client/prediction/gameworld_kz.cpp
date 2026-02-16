@@ -21,6 +21,9 @@ void CGameWorld::OnCopyWorld(CGameWorld *pFrom)
 		m_PointerTelePositions[i].m_Y = pFrom->m_PointerTelePositions[i].m_Y;
 		m_PointerTelePositions[i].m_Exists = pFrom->m_PointerTelePositions[i].m_Exists;
 	}
+
+	//so i dont need to copypaste this along all gameclient.cpp
+	m_pPredController = pFrom->m_pPredController;
 }
 
 void CGameWorld::OnGameTile(int X, int Y, const CTile *pTile)

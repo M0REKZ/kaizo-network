@@ -25,16 +25,19 @@ void CGameClient::OnKaizoConnected()
 
 void CGameClient::DoKaizoPredictionEffects(CCharacter *pCharacter)
 {
-    if(g_Config.m_KaizoPredictDeathTiles && !(pCharacter->Team() == TEAM_SUPER || pCharacter->Core()->m_Invincible)) 
+    if(!(pCharacter->Team() == TEAM_SUPER || pCharacter->Core()->m_Invincible)) 
     {
-        if(pCharacter->m_IsInDeathTile && !m_DidDeathEffect)
+        if(!m_aClients[pCharacter->GetCid()].m_DidDeathEffect)
         {
-            m_Effects.PlayerDeath(pCharacter->m_Pos, pCharacter->GetCid(), 1.0f);
-            m_DidDeathEffect = true;
+            if((g_Config.m_KaizoPredictDeathTiles && pCharacter->m_IsInDeathTile) || pCharacter->m_IsDead)
+            {
+                m_Effects.PlayerDeath(pCharacter->m_Pos, pCharacter->GetCid(), 1.0f);
+                m_aClients[pCharacter->GetCid()].m_DidDeathEffect = true;
+            }
         }
-        else if(m_DidDeathEffect && !pCharacter->m_IsInDeathTile)
+        else if(m_aClients[pCharacter->GetCid()].m_DidDeathEffect && !pCharacter->m_IsInDeathTile && !pCharacter->m_IsDead)
         {
-            m_DidDeathEffect = false;
+            m_aClients[pCharacter->GetCid()].m_DidDeathEffect = false;
         }
     }
 }
@@ -268,6 +271,8 @@ void CGameClient::CClientData::KaizoReset()
     m_ReceivedPing = -1;
     m_ReceivedDDNetPlayerInfoInLastSnapshot = false;
     m_ReceivedPreInputs = false;
+    m_DidDeathEffect = false;
+    m_IsBOMBTick = -1;
 
     m_CustomClient = 0;
 }
@@ -343,12 +348,14 @@ void CGameClient::GetKaizoInfo(CServerInfo *pServerInfo)
     //Danger setting: allow zooming, but only do it if it is not 100000% prohibited
     if(IsZoomAllowed && m_GameInfo.m_GameInfoVersionKZ < 0 && g_Config.m_KaizoOldModsZooming)
         m_GameInfo.m_AllowZoom = true;
+
+    //save gametype name
+    m_PredControllerKZ.SetGameType(pServerInfo->m_aGameType);
 }
 
 void CGameClient::KaizoReset()
 {
     m_InstaShield = false;
-    m_DidDeathEffect = false;
 }
 
 void CGameClient::KaizoPostUpdate()

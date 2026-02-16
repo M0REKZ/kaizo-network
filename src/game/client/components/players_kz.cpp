@@ -132,3 +132,14 @@ void CPlayers::SetPlayerEmoteKZ(CNetObj_Character &Player, int ClientId)
         }
     }
 }
+
+//using code from ddnet:
+void CPlayers::CreateBOMBTeeRenderInfo()
+{
+    CTeeRenderInfo BOMBTeeRenderInfo;
+	BOMBTeeRenderInfo.m_Size = 64.0f;
+	CSkinDescriptor BOMBSkinDescriptor;
+	BOMBSkinDescriptor.m_Flags |= CSkinDescriptor::FLAG_SIX;
+	str_copy(BOMBSkinDescriptor.m_aSkinName, "bomb");
+	m_pBOMBTeeRenderInfo = GameClient()->CreateManagedTeeRenderInfo(BOMBTeeRenderInfo, BOMBSkinDescriptor);
+}

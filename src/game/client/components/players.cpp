@@ -25,6 +25,8 @@
 #include <game/gamecore.h>
 #include <game/mapitems.h>
 
+#include <game/client/prediction/entities/character.h>
+
 static float CalculateHandAngle(vec2 Dir, float AngleOffset)
 {
 	const float Angle = angle(Dir);
@@ -974,6 +976,22 @@ void CPlayers::OnRender()
 		aRenderInfo[i] = GameClient()->m_aClients[i].m_RenderInfo;
 		aRenderInfo[i].m_TeeRenderFlags = 0;
 
+		//+KZ
+		if(g_Config.m_KaizoPredictGameTypes)
+		{
+			if(g_Config.m_KaizoPredictOthersEffects ? true : (i == GameClient()->m_aLocalIds[0] || i == GameClient()->m_aLocalIds[1]))
+			{
+				if(GameClient()->m_PredictedWorld.GetCharacterById(i))
+				{
+					if(GameClient()->m_aClients[i].m_IsBOMBTick >= Client()->GameTick(g_Config.m_ClDummy))
+					{
+						aRenderInfo[i].m_aSixup[g_Config.m_ClDummy].Reset();
+						aRenderInfo[i].ApplySkin(m_pBOMBTeeRenderInfo->TeeRenderInfo());
+					}
+				}
+			}
+		}
+
 		// predict freeze skin only for local players
 		bool Frozen = false;
 		if(i == GameClient()->m_aLocalIds[0] || i == GameClient()->m_aLocalIds[1])
@@ -1184,4 +1202,7 @@ void CPlayers::OnInit()
 
 	CreateNinjaTeeRenderInfo();
 	CreateSpectatorTeeRenderInfo();
+
+	//+KZ
+	CreateBOMBTeeRenderInfo();
 }

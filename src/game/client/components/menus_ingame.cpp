@@ -884,7 +884,7 @@ bool CMenus::RenderServerControlServer(CUIRect MainView, bool UpdateScroll)
 			continue;
 
 		// some 0.7 vote depth code. +KZ modified, from DuckClient
-		for(int i = pOption->m_IsSubheader ? 1 : 0; i < pOption->m_Depth; i++)
+		for(int j = pOption->m_IsSubheader ? 1 : 0; j < pOption->m_Depth; j++)
 			Item.m_Rect.VSplitLeft(10.0f, 0, &Item.m_Rect);
 
 		CUIRect Label;

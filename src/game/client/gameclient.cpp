@@ -306,6 +306,8 @@ void CGameClient::ForceUpdateConsoleRemoteCompletionSuggestions()
 
 void CGameClient::OnInit()
 {
+	m_PredControllerKZ.Init(this);
+
 	const int64_t OnInitStart = time_get();
 
 	Client()->SetLoadingCallback([this](IClient::ELoadingCallbackDetail Detail) {
@@ -421,6 +423,7 @@ void CGameClient::OnInit()
 		m_Menus.RenderLoading(pLoadingDDNetCaption, pLoadingMessageAssets, 1);
 	}
 
+	m_GameWorld.m_pPredController = &m_PredControllerKZ; //+KZ
 	m_GameWorld.Init(Collision(), m_aTuningList, &m_MapBugs);
 	OnReset();
 
@@ -2762,6 +2765,10 @@ void CGameClient::OnPredict()
 
 		m_PredictedWorld.Tick();
 
+		//+KZ
+		if(g_Config.m_KaizoPredictGameTypes && m_PredControllerKZ.m_pController)
+			m_PredControllerKZ.m_pController->Tick(m_PredictedWorld);
+
 		// fetch the current characters
 		if(Tick == FinalTickSelf) //+KZ from tclient
 		{
@@ -2817,7 +2824,22 @@ void CGameClient::OnPredict()
 			}
 			//+KZ
 			if(g_Config.m_ClPredict && !m_SuppressEvents)
-				DoKaizoPredictionEffects(pLocalChar);
+			{
+				if(g_Config.m_KaizoPredictOthersEffects)
+				{
+					for(int i = 0; i < MAX_CLIENTS; i++)
+					{
+						if(CCharacter *pChar = m_PredictedWorld.GetCharacterById(i))
+						{
+							DoKaizoPredictionEffects(pChar);
+						}
+					}
+				}
+				else
+				{
+					DoKaizoPredictionEffects(pLocalChar);
+				}
+			}
 		}
 
 		// check if we want to trigger predicted airjump for dummy

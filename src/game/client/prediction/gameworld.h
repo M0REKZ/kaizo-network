@@ -9,6 +9,7 @@
 #include <list>
 #include <vector>
 
+class CPredControllerKZ; //+KZ
 class CCollision;
 class CCharacter;
 class CEntity;
@@ -172,6 +173,8 @@ private:
 	};
 	
 	SPointerTelePos m_PointerTelePositions[POINTER07_NUM_TILE_TELE]; // positions of teleports
+
+	CPredControllerKZ * m_pPredController = nullptr;
 
 public:
 	void OnConnected();

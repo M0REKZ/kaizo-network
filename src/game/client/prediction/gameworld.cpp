@@ -23,6 +23,8 @@
 #include <algorithm>
 #include <utility>
 
+#include "predcontroller_kz.h"
+
 //////////////////////////////////////////////////
 // game world
 //////////////////////////////////////////////////
@@ -36,6 +38,9 @@ CGameWorld::CGameWorld()
 	m_GameTick = 0;
 	m_pParent = nullptr;
 	m_pChild = nullptr;
+
+	//+KZ
+	m_pPredController = nullptr;
 }
 
 CGameWorld::~CGameWorld()

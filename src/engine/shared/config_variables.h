@@ -851,6 +851,8 @@ MACRO_CONFIG_STR(KaizoReplyTabbedOutMsg, kaizo_reply_tabbed_out_msg, 200, "I am 
 MACRO_CONFIG_INT(KaizoForceChatBubble, kaizo_force_chat_bubble, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Always send chat bubble (WARNING: can be considered as a cheat, use at your own risk!)")
 MACRO_CONFIG_INT(KaizoForceInMenuStatus, kaizo_force_in_menu_status, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Always send in-menu status (WARNING: can be considered as a cheat, use at your own risk!)")
 MACRO_CONFIG_INT(KaizoApplyGuessedInput, kaizo_apply_guessed_input, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Apply guessed input to predicted characters")
+MACRO_CONFIG_INT(KaizoPredictGameTypes, kaizo_predict_gametypes, 1, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Predict game type specific logic")
+MACRO_CONFIG_INT(KaizoPredictOthersEffects, kaizo_predict_others_effects, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Also predict effects for others (like death)")
 //From DuckClient by Pointer
 MACRO_CONFIG_INT(KaizoChatInputBackground, kaizo_chat_input_background, 1, 0, 1, CFGFLAG_SAVE | CFGFLAG_CLIENT, "Whether to add a background for the input when chatting")
 MACRO_CONFIG_INT(KaizoScoreboardStyle, kaizo_scoreboard_style, 0, 0, 10, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Style of the scoreboard")

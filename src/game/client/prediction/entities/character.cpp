@@ -12,6 +12,8 @@
 #include <game/collision.h>
 #include <game/mapitems.h>
 
+#include <game/client/prediction/predcontroller_kz.h> //+KZ
+
 // Character, "physical" player's part
 
 void CCharacter::SetWeapon(int Weapon)
@@ -666,6 +668,9 @@ void CCharacter::TickDeferred()
 
 bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 {
+	if(GameWorld()->m_pPredController->m_pController)
+		GameWorld()->m_pPredController->m_pController->OnCharacterTakeDamage(GameWorld(), this, Force, Dmg, From, Weapon);
+
 	vec2 Temp = m_Core.m_Vel + Force;
 	m_Core.m_Vel = ClampVel(m_MoveRestrictions, Temp);
 	return true;
