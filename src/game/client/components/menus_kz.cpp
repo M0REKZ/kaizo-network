@@ -82,7 +82,7 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 	switch (s_CurCustomTab)
 	{
 	case KAIZO_SETTINGS_TAB_KAIZO:
-		ScrollHeight = 512.f;
+		ScrollHeight = 560.f;
 		break;
 	default:
 		ScrollHeight = 0.f;
@@ -357,6 +357,22 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 			if(DoButton_CheckBox(&g_Config.m_KaizoPredictDeathTiles, Localize("Predict Death tiles"), g_Config.m_KaizoPredictDeathTiles, &Button))
 			{
 				g_Config.m_KaizoPredictDeathTiles ^= 1;
+			}
+
+			Right.HSplitTop(2.0f, nullptr, &Right);
+
+			Right.HSplitTop(20.0f, &Button, &Right);
+			if(DoButton_CheckBox(&g_Config.m_KaizoPredictOthersEffects, Localize("Predict other players effects"), g_Config.m_KaizoPredictOthersEffects, &Button))
+			{
+				g_Config.m_KaizoPredictOthersEffects ^= 1;
+			}
+
+			Right.HSplitTop(2.0f, nullptr, &Right);
+
+			Right.HSplitTop(20.0f, &Button, &Right);
+			if(DoButton_CheckBox(&g_Config.m_KaizoPredictGameTypes, Localize("Predict GameTypes"), g_Config.m_KaizoPredictGameTypes, &Button))
+			{
+				g_Config.m_KaizoPredictGameTypes ^= 1;
 			}
 
 			Right.HSplitTop(2.0f, nullptr, &Right);
