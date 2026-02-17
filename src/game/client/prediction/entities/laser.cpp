@@ -90,7 +90,7 @@ bool CLaser::HitCharacter(vec2 From, vec2 To)
 	}
 	else if(m_Type == WEAPON_LASER)
 	{
-		pHit->UnFreeze();
+		pHit->Unfreeze();
 	}
 
 	//+KZ Recover jump
