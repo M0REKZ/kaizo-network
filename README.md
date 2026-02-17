@@ -24,6 +24,7 @@ This repo also uses code from the following mods that are NOT made by +KZ:
 * [FoxNet](https://github.com/FoxNet-DDNet/FoxNet)
 * [Pointer's Duck Client](https://pointer31.github.io/duckclient)
 * [Entity Client](https://github.com/FoxNet-DDNet/Entity-Client-DDNet)
+* [Rushie Client](https://github.com/RushieClient/RushieClient-ddnet)
 * ...and other mods and rejected DDNet Pull requests.
 
 Other credits:
