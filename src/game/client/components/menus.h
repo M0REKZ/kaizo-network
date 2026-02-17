@@ -813,5 +813,7 @@ private:
 
 	//+KZ
 	void RenderSettingsKaizo(CUIRect MainView);
+	bool DoLine_KeyReader(CUIRect &View, CButtonContainer &ReaderButton, CButtonContainer &ClearButton, const char *pName, const char *pCommand); //From TClient
+	void RenderSettingsTClientBindWheel(CUIRect MainView); //From TClient... i mean... its even in the function name...
 };
 #endif

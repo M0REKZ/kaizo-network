@@ -30,6 +30,7 @@ public:
 
 	//+KZ
 	virtual bool SaveKaizo() = 0;
+	virtual void RegisterKaizoCallback(SAVECALLBACKFUNC pfnFunc, void *pUserData) = 0;
 };
 
 extern IConfigManager *CreateConfigManager();

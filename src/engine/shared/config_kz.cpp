@@ -35,6 +35,11 @@ bool CConfigManager::SaveKaizo()
         }
 	}
 
+	for(const auto &KaizoCallback : m_vKaizoCallbacks)
+	{
+		KaizoCallback.m_pfnFunc(this, KaizoCallback.m_pUserData);
+	}
+
 	for(const char *pCommand : m_vpUnknownCommands)
 	{
         if(pCommand && str_find(pCommand, "kaizo")) // only save kaizo commands
@@ -75,4 +80,9 @@ bool CConfigManager::SaveKaizo()
 
 	log_info("config", "kaizo saved to " KAIZO_CONFIG_FILE);
 	return true;
+}
+
+void CConfigManager::RegisterKaizoCallback(SAVECALLBACKFUNC pfnFunc, void *pUserData)
+{
+	m_vKaizoCallbacks.emplace_back(pfnFunc, pUserData);
 }

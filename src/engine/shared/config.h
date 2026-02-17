@@ -262,6 +262,7 @@ class CConfigManager : public IConfigManager
 		}
 	};
 	std::vector<SCallback> m_vCallbacks;
+	std::vector<SCallback> m_vKaizoCallbacks; //+KZ
 
 	std::vector<SConfigVariable *> m_vpAllVariables;
 	std::vector<SConfigVariable *> m_vpGameVariables;
@@ -293,6 +294,7 @@ public:
 
 	//+KZ
 	bool SaveKaizo() override;
+	void RegisterKaizoCallback(SAVECALLBACKFUNC pfnFunc, void *pUserData) override;
 };
 
 #endif

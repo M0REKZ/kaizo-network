@@ -266,6 +266,9 @@ void CBinds::SetDefaults()
 {
 	UnbindAll();
 
+	//+KZ
+	Bind(KEY_Q, "+bindwheel");//TClient
+
 	Bind(KEY_F1, "toggle_local_console");
 	Bind(KEY_F2, "toggle_remote_console");
 	Bind(KEY_TAB, "+scoreboard");

@@ -2447,6 +2447,8 @@ if(CLIENT)
     components/items_kz.cpp
     components/items.cpp
     components/items.h
+    components/kz/bindwheel.cpp
+    components/kz/bindwheel.h
     components/kz/custom_communities.cpp
     components/kz/custom_communities.h
     components/kz/rechargebars.cpp
@@ -2545,6 +2547,7 @@ if(CLIENT)
     projectile_data.h
     race.cpp
     race.h
+    render_kz.cpp
     render.cpp
     render.h
     sixup_translate_connless.cpp

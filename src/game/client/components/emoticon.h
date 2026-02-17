@@ -39,6 +39,8 @@ public:
 	void EyeEmote(int EyeEmote);
 
 	bool IsActive() const { return m_Active; }
+
+	friend class CBindWheel; //+KZ for TClient Bindwheel
 };
 
 #endif

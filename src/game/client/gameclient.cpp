@@ -148,6 +148,7 @@ void CGameClient::OnConsoleInit()
 					      &m_Hud,
 					      &m_Spectator,
 					      &m_Emoticon,
+						  &m_BindWheel, //+KZ from T-Client
 					      &m_InfoMessages,
 					      &m_Chat,
 					      &m_Broadcast,
@@ -171,6 +172,7 @@ void CGameClient::OnConsoleInit()
 						  &m_Scoreboard,
 						  &m_Motd, // for pressing esc to remove it
 						  &m_Spectator,
+						  &m_BindWheel, //+KZ from T-Client
 						  &m_Emoticon,
 						  &m_ImportantAlert,
 						  &m_Menus,

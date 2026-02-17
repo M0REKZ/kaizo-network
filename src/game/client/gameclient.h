@@ -74,6 +74,7 @@
 
 #include <vector>
 #include "prediction/predcontroller_kz.h"
+#include "components/kz/bindwheel.h"
 
 class CGameInfo
 {
@@ -998,6 +999,7 @@ private:
 	bool CheckNewInput() override; //+KZ from FastInput commit
 	CCustomCommunities m_CustomCommunities; //+KZ from T-Client
 	CRechargeBars m_RechargeBars; //+KZ
+	CBindWheel m_BindWheel; //+KZ From TClient
 
 	void GetKaizoInfo(CServerInfo *pServerInfo);
 	bool m_InstaShield = false;

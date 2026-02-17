@@ -26,7 +26,13 @@ void CEmoticon::ConKeyEmoticon(IConsole::IResult *pResult, void *pUserData)
 		return;
 
 	if(!pSelf->GameClient()->m_Snap.m_SpecInfo.m_Active && pSelf->Client()->State() != IClient::STATE_DEMOPLAYBACK)
-		pSelf->m_Active = pResult->GetInteger(0) != 0;
+	{
+		//+KZ modified from TClient
+		if(pSelf->GameClient()->m_BindWheel.IsActive())
+			pSelf->m_Active = false;
+		else
+			pSelf->m_Active = pResult->GetInteger(0) != 0;
+	}
 }
 
 void CEmoticon::ConEmote(IConsole::IResult *pResult, void *pUserData)
