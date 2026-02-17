@@ -6,7 +6,7 @@ duckicon.png by Pointer (license: CC BY 4.0)
 
 shield.png by Dune (license: CC BY-SA 3.0)
 
-rclient.png by Voix (license: CC BY-SA 3.0)
+rclient.png by Voix, edited by +KZ (license: CC BY-SA 3.0)
 
 All other files are made by +KZ, they are under Copyright (c) Benjamín Gajardo:
 
