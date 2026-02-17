@@ -2361,6 +2361,8 @@ if(CLIENT)
     client.h
     demoedit.cpp
     demoedit.h
+    discord_kz.cpp
+    discord_kz.h
     discord.cpp
     enums.h
     favorites.cpp

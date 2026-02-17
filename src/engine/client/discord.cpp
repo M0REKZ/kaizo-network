@@ -4,7 +4,7 @@
 #include <engine/discord.h>
 
 //+KZ
-#include <engine/shared/config.h>
+#include "discord_kz.h"
 
 #if defined(CONF_DISCORD)
 #include <discord_game_sdk.h>
@@ -67,7 +67,7 @@ public:
 
 		// which application to launch when joining activity
 		m_pActivityManager->register_command(m_pActivityManager, CONNECTLINK_DOUBLE_SLASH);
-		if(g_Config.m_KaizoDiscordLaunchSteam) //+KZ added this
+		if(g_KaizoDiscordConfigAccess.KaizoDiscordLaunchSteam()) //+KZ added this
 			m_pActivityManager->register_steam(m_pActivityManager, 412220); // steam id
 
 		ClearGameInfo();
@@ -77,7 +77,7 @@ public:
 
 	void Update() override
 	{
-		if(!g_Config.m_KaizoDiscordRpc) //+KZ added
+		if(!g_KaizoDiscordConfigAccess.KaizoDiscordRpcEnabled()) //+KZ added
 			return;
 
 		// update every 5 seconds, rate limit is 5 updates per 20 seconds
