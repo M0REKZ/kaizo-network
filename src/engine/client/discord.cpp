@@ -3,6 +3,9 @@
 #include <engine/client.h>
 #include <engine/discord.h>
 
+//+KZ
+#include <engine/shared/config.h>
+
 #if defined(CONF_DISCORD)
 #include <discord_game_sdk.h>
 
@@ -48,7 +51,7 @@ public:
 		DiscordCreateParams Params;
 		DiscordCreateParamsSetDefault(&Params);
 
-		Params.client_id = 752165779117441075; // DDNet
+		Params.client_id = 1473352771460927611; // Kaizo Client
 		Params.flags = EDiscordCreateFlags::DiscordCreateFlags_NoRequireDiscord;
 		Params.event_data = this;
 		Params.activity_events = &m_ActivityEvents;
@@ -64,7 +67,8 @@ public:
 
 		// which application to launch when joining activity
 		m_pActivityManager->register_command(m_pActivityManager, CONNECTLINK_DOUBLE_SLASH);
-		m_pActivityManager->register_steam(m_pActivityManager, 412220); // steam id
+		if(g_Config.m_KaizoDiscordLaunchSteam) //+KZ added this
+			m_pActivityManager->register_steam(m_pActivityManager, 412220); // steam id
 
 		ClearGameInfo();
 
@@ -73,6 +77,9 @@ public:
 
 	void Update() override
 	{
+		if(!g_Config.m_KaizoDiscordRpc) //+KZ added
+			return;
+
 		// update every 5 seconds, rate limit is 5 updates per 20 seconds
 		if(m_UpdateActivity && time_get() > m_LastActivityUpdate + time_freq() * 5)
 		{
@@ -89,8 +96,8 @@ public:
 	{
 		mem_zero(&m_Activity, sizeof(DiscordActivity));
 
-		str_copy(m_Activity.assets.large_image, "ddnet_logo", sizeof(m_Activity.assets.large_image));
-		str_copy(m_Activity.assets.large_text, "DDNet logo", sizeof(m_Activity.assets.large_text));
+		str_copy(m_Activity.assets.large_image, "kaizo_icon", sizeof(m_Activity.assets.large_image));
+		str_copy(m_Activity.assets.large_text, "Kaizo Client by +KZ", sizeof(m_Activity.assets.large_text));
 		m_Activity.timestamps.start = time_timestamp();
 		str_copy(m_Activity.details, "Offline", sizeof(m_Activity.details));
 		m_Activity.instance = false;
@@ -102,8 +109,8 @@ public:
 	{
 		mem_zero(&m_Activity, sizeof(DiscordActivity));
 
-		str_copy(m_Activity.assets.large_image, "ddnet_logo", sizeof(m_Activity.assets.large_image));
-		str_copy(m_Activity.assets.large_text, "DDNet logo", sizeof(m_Activity.assets.large_text));
+		str_copy(m_Activity.assets.large_image, "kaizo_icon", sizeof(m_Activity.assets.large_image));
+		str_copy(m_Activity.assets.large_text, "Kaizo Client by +KZ", sizeof(m_Activity.assets.large_text));
 		m_Activity.timestamps.start = time_timestamp();
 		str_copy(m_Activity.name, "Online", sizeof(m_Activity.name));
 		m_Activity.instance = true;

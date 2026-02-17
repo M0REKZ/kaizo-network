@@ -276,6 +276,26 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 				}
 			}
 
+			Left.HSplitTop(20.0f, &Label, &SettingsBox);
+			Ui()->DoLabel(&Label, Localize("Discord Settings"), 20.0f, TEXTALIGN_ML);
+			Left.HSplitTop(25.0f, &Label, &Left);
+
+			Left.HSplitTop(2.0f, nullptr, &Left);
+
+			Left.HSplitTop(20.0f, &Button, &Left);
+			if(DoButton_CheckBox(&g_Config.m_KaizoDiscordRpc, Localize("Enable Discord Rich Presence (Requires restart)"), g_Config.m_KaizoDiscordRpc, &Button))
+			{
+				g_Config.m_KaizoDiscordRpc ^= 1;
+			}
+
+			Left.HSplitTop(2.0f, nullptr, &Left);
+
+			Left.HSplitTop(20.0f, &Button, &Left);
+			if(DoButton_CheckBox(&g_Config.m_KaizoDiscordLaunchSteam, Localize("Open Steam when joining through Discord (requires restarting Discord and Client)"), g_Config.m_KaizoDiscordLaunchSteam, &Button))
+			{
+				g_Config.m_KaizoDiscordLaunchSteam ^= 1;
+			}
+
 			// Prediction
 			Right.HSplitTop(20.0f, &Label, &SettingsBox);
 			Ui()->DoLabel(&Label, Localize("Prediction"), 20.0f, TEXTALIGN_ML);
