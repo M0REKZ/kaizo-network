@@ -76,6 +76,7 @@
 #include <vector>
 #include "prediction/predcontroller_kz.h"
 #include "components/kz/bindwheel.h"
+#include "components/kz/rclient_indicator.h"
 
 class IMap;
 
@@ -1008,6 +1009,7 @@ private:
 	CCustomCommunities m_CustomCommunities; //+KZ from T-Client
 	CRechargeBars m_RechargeBars; //+KZ
 	CBindWheel m_BindWheel; //+KZ From TClient
+	CRClientIndicator m_RClientIndicator; //+KZ From RushieClient
 
 	void GetKaizoInfo(CServerInfo *pServerInfo);
 	bool m_InstaShield = false;

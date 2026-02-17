@@ -832,6 +832,13 @@ void CScoreboard::RenderScoreboard(CUIRect Scoreboard, int Team, int CountStart,
 					break;
 				}
 
+				//RushieClient is different
+				if(GameClient()->m_RClientIndicator.IsPlayerRClient(pInfo->m_ClientId))
+				{
+					Image = IMAGE_KZ_RUSHIEICON;
+					Sprite = SPRITE_KZ_RUSHIEICON;
+				}
+
 				if(Sprite != -1 && Image != -1)
 				{
 					CTeeRenderInfo TeeInfo = GameClient()->m_aClients[pInfo->m_ClientId].m_RenderInfo;

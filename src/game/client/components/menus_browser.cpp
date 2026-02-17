@@ -1399,6 +1399,8 @@ void CMenus::RenderServerbrowserInfoScoreboard(CUIRect View, const CServerInfo *
 					break;
 				}
 
+				//We cant know this info for RushieClient
+
 				if(Sprite != -1 && Image != -1)
 				{
 					Graphics()->TextureSet(g_pData->m_aImages[Image].m_Id);
@@ -1471,6 +1473,8 @@ void CMenus::RenderServerbrowserInfoScoreboard(CUIRect View, const CServerInfo *
 					if(Found)
 						break;
 				}
+
+				//We cant know this info for RushieClient
 
 				if(OutId)
 				{
