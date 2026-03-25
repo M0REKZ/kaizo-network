@@ -3,6 +3,9 @@
 * [+KZ Website](https://m0rekz.github.io/)
 * [Discord Server](https://discord.gg/nt8aStQxcR)
 
+> [!NOTE]
+> This client is not actively maintained
+
 This is the source code for Kaizo Client by +KZ, based on Kaizo Network Client, which is based on DDNet
 
 For the discontinued Kaizo Network server check [discontinued-server branch](https://github.com/M0REKZ/kaizo-network/tree/discontinued-server)
