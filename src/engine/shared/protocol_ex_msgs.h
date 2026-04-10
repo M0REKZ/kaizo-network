@@ -53,6 +53,8 @@ UUID(NETMSG_KZ_KAIZO_NETWORK_VERSION, "kaizoversion@m0rekz.github.io")
 
 //Other Clients
 UUID(NETMSG_CLIENTVER_INFCLASS, "clientver@infclass") // InfClass
+UUID(NETMSG_IAM_KAIZO_CLIENT, "i-am-kaizo-client-pluskz@m0rekz.github.io") // Kaizo Client
+UUID(NETMSG_IAM_DUCKCLIENT, "i-am-duckclient@pointer31.github.io") // DuckInfclass Client
 UUID(NETMSG_IAMTATER, "iamtater@sjrc6.github.io") // T-Client
 UUID(NETMSG_IAMQXD, "i-am-qxd@qxdFox.github.io") // E-Client
 UUID(NETMSG_IAMCHILLERBOT, "i-am-chillerbot@chillerbot.github.io") // Chillerbot-UX

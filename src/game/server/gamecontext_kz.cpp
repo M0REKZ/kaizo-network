@@ -623,6 +623,8 @@ void CGameContext::IdentifyClientName(int ClientId, char *pName, int StrSize)
 		int KaizoNetwork = Server()->GetKaizoNetworkVersion(ClientId);
 
 		int InfClass = Server()->GetClientInfclassVersion(ClientId);
+		bool Kaizo = Server()->IsKaizoClient(ClientId);
+		bool DuckInfclass = Server()->IsDuckInfclassClient(ClientId);
 		bool Tater = Server()->IsTaterClient(ClientId);
 		bool Qxd = Server()->IsQxdClient(ClientId);
 		bool Chillerbot = Server()->IsChillerbotClient(ClientId);
@@ -635,13 +637,14 @@ void CGameContext::IdentifyClientName(int ClientId, char *pName, int StrSize)
 		bool Rushie = Server()->IsRushieClient(ClientId);
 		bool SClient = Server()->IsSClientClient(ClientId);
 
-		if(KaizoNetwork)
+		
+		if(Kaizo)
 		{
-			str_copy(aName, "Kaizo Network Client (0.6)", StrSize);
+			str_copy(aName, "Kaizo Client (0.6)", StrSize);
 		}
-		else if(InfClass)
+		else if(DuckInfclass)
 		{
-			str_copy(aName, "InfClass Client (0.6)", StrSize);
+			str_copy(aName, "Duck/Infclass Client (0.6)", StrSize);
 		}
 		else if(Tater)
 		{
@@ -686,6 +689,14 @@ void CGameContext::IdentifyClientName(int ClientId, char *pName, int StrSize)
 		else if(SClient)
 		{
 			str_copy(aName, "S-Client (0.6)", StrSize);
+		}
+		else if(KaizoNetwork)
+		{
+			str_copy(aName, "Kaizo Network Client (0.6)", StrSize);
+		}
+		else if(InfClass)
+		{
+			str_copy(aName, "InfClass Client (0.6)", StrSize);
 		}
 		else
 		{
