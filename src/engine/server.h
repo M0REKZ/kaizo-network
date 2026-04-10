@@ -300,6 +300,8 @@ public:
 	virtual int GetKaizoNetworkVersion(int ClientId) { return 0; } //+KZ: identify kaizo network clients
 
 	virtual int GetClientInfclassVersion(int ClientId) { return 0; } //identify infclass clients
+	virtual bool IsKaizoClient(int ClientId) { return false; } //identify Kaizo clients
+	virtual bool IsDuckInfclassClient(int ClientId) { return false; } //identify Duck/Infclass clients
 	virtual bool IsTaterClient(int ClientId) { return false; } // identify tater clients
 	virtual bool IsQxdClient(int ClientId) { return false; } // identify qxd clients
 	virtual bool IsChillerbotClient(int ClientId) { return false; } // identify chillerbot clients

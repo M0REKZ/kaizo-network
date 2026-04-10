@@ -600,6 +600,8 @@ int CServer::Init()
 		Client.m_KaizoNetworkVersion = 0; // +KZ Kaizo Network client version
 		Client.m_InfClassVersion = 0;
 		Client.m_IsTaterClient = false; //+KZ
+		Client.m_IsKaizoClient = false;
+		Client.m_IsDuckInfclassClient = false;
 		Client.m_IsQxdClient = false;
 		Client.m_IsChillerbotClient = false;
 		Client.m_IsStAClient = false;
@@ -1155,6 +1157,8 @@ int CServer::NewClientNoAuthCallback(int ClientId, void *pUser)
 
 	pThis->m_aClients[ClientId].m_InfClassVersion = 0; //+KZ
 	pThis->m_aClients[ClientId].m_IsTaterClient = false; //+KZ
+	pThis->m_aClients[ClientId].m_IsKaizoClient = false;
+	pThis->m_aClients[ClientId].m_IsDuckInfclassClient = false;
 	pThis->m_aClients[ClientId].m_IsQxdClient = false;
 	pThis->m_aClients[ClientId].m_IsChillerbotClient = false;
 	pThis->m_aClients[ClientId].m_IsStAClient = false;
@@ -1204,6 +1208,8 @@ int CServer::NewClientCallback(int ClientId, void *pUser, bool Sixup)
 
 	pThis->m_aClients[ClientId].m_InfClassVersion = 0; //+KZ
 	pThis->m_aClients[ClientId].m_IsTaterClient = false; //+KZ
+	pThis->m_aClients[ClientId].m_IsKaizoClient = false;
+	pThis->m_aClients[ClientId].m_IsDuckInfclassClient = false;
 	pThis->m_aClients[ClientId].m_IsQxdClient = false;
 	pThis->m_aClients[ClientId].m_IsChillerbotClient = false;
 	pThis->m_aClients[ClientId].m_IsStAClient = false;
@@ -1779,6 +1785,14 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 				}
 				m_aClients[ClientId].m_InfClassVersion = InfClassVersion;
 			}
+		}
+		else if(Msg == NETMSG_IAM_KAIZO_CLIENT)
+		{
+			m_aClients[ClientId].m_IsKaizoClient = true;
+		}
+		else if(Msg == NETMSG_IAM_DUCKCLIENT)
+		{
+			m_aClients[ClientId].m_IsDuckInfclassClient = true;
 		}
 		else if(Msg == NETMSG_IAMTATER)
 		{
@@ -4641,6 +4655,8 @@ bool CServer::SetTimedOut(int ClientId, int OrigId)
 	//Other Clients
 	m_aClients[ClientId].m_InfClassVersion = m_aClients[OrigId].m_InfClassVersion;
 	m_aClients[ClientId].m_IsTaterClient = m_aClients[OrigId].m_IsTaterClient;
+	m_aClients[ClientId].m_IsKaizoClient = m_aClients[OrigId].m_IsKaizoClient;
+	m_aClients[ClientId].m_IsDuckInfclassClient = m_aClients[OrigId].m_IsDuckInfclassClient;
 	m_aClients[ClientId].m_IsQxdClient = m_aClients[OrigId].m_IsQxdClient;
 	m_aClients[ClientId].m_IsChillerbotClient = m_aClients[OrigId].m_IsChillerbotClient;
 	m_aClients[ClientId].m_IsStAClient = m_aClients[OrigId].m_IsStAClient;

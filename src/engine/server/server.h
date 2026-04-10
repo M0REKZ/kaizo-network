@@ -92,6 +92,8 @@ class CServer : public IServer
 
 	//Other Clients
 	virtual int GetClientInfclassVersion(int ClientId) override;
+	virtual bool IsKaizoClient(int ClientId) override { return m_aClients[ClientId].m_IsKaizoClient; }
+	virtual bool IsDuckInfclassClient(int ClientId) override { return m_aClients[ClientId].m_IsDuckInfclassClient; }
 	virtual bool IsTaterClient(int ClientId) override { return m_aClients[ClientId].m_IsTaterClient; }
 	virtual bool IsQxdClient(int ClientId) override { return m_aClients[ClientId].m_IsQxdClient; }
 	virtual bool IsChillerbotClient(int ClientId) override { return m_aClients[ClientId].m_IsChillerbotClient; }
@@ -195,6 +197,8 @@ public:
 		int m_KaizoNetworkVersion; // +KZ: Kaizo Network client version
 
 		int m_InfClassVersion; // to identify infclass clients
+		bool m_IsKaizoClient; // to identify Kaizo clients
+		bool m_IsDuckInfclassClient; // to identify Duck/Infclass clients
 		bool m_IsTaterClient; // to identify tater clients
 		bool m_IsQxdClient; // to identify qxd clients
 		bool m_IsChillerbotClient; // to identify chillerbot clients
