@@ -219,8 +219,12 @@ void CPlayers::RenderHookCollLine(
 	vec2 Position = GameClient()->m_aClients[ClientId].m_RenderPos;
 
 	static constexpr float HOOK_START_DISTANCE = CCharacterCore::PhysicalSize() * 1.5f;
-	float HookLength = (float)GameClient()->m_aClients[ClientId].m_Predicted.m_Tuning.m_HookLength;
-	float HookFireSpeed = (float)GameClient()->m_aClients[ClientId].m_Predicted.m_Tuning.m_HookFireSpeed;
+
+	// When the other player isn't predicted, we don't know their tunes.
+	// Use our own tunes instead. This is wrong, but a good heuristic.
+	const CCharacterCore &PlayerCore = GameClient()->m_aClients[ClientId].m_IsPredicted ? GameClient()->m_aClients[ClientId].m_Predicted : GameClient()->m_aClients[GameClient()->m_aLocalIds[g_Config.m_ClDummy]].m_Predicted;
+	float HookLength = PlayerCore.m_Tuning.m_HookLength;
+	float HookFireSpeed = PlayerCore.m_Tuning.m_HookFireSpeed;
 
 	// janky physics
 	if(HookLength < HOOK_START_DISTANCE || HookFireSpeed <= 0.0f)
@@ -396,6 +400,7 @@ void CPlayers::RenderHookCollLine(
 	Alpha *= (float)g_Config.m_ClHookCollAlpha / 100;
 	if(Alpha <= 0.0f)
 		return;
+	ColorRGBA HookCollTipColor = color_cast<ColorRGBA>(ColorHSLA(g_Config.m_ClHookCollTipColor, true));
 
 	Graphics()->TextureClear();
 	if(HookCollSize > 0)
@@ -426,13 +431,11 @@ void CPlayers::RenderHookCollLine(
 		Graphics()->QuadsBegin();
 		Graphics()->SetColor(HookCollColor.WithAlpha(Alpha));
 		Graphics()->QuadsDrawFreeform(vLineQuadSegments.data(), vLineQuadSegments.size());
-		if(HookTipLineSegment.has_value() && g_Config.m_KaizoRevertHookLine != 1 /*TClient*/)
+		if(HookTipLineSegment.has_value() && HookCollTipColor.a > 0.0f && !g_Config.m_KaizoRevertHookLine /*TClient*/)
 		{
 			vLineQuadSegments.clear();
 			ConvertLineSegments(HookTipLineSegment.value());
-			if (g_Config.m_KaizoRevertHookLine != 2) // TClient
-				HookCollColor = color_cast<ColorRGBA>(ColorHSLA(g_Config.m_ClHookCollColorTeeColl));
-			Graphics()->SetColor(HookCollColor.WithAlpha(Alpha));
+			Graphics()->SetColor(HookCollTipColor.WithMultipliedAlpha(Alpha));
 			Graphics()->QuadsDrawFreeform(vLineQuadSegments.data(), vLineQuadSegments.size());
 		}
 		Graphics()->QuadsEnd();
@@ -442,11 +445,9 @@ void CPlayers::RenderHookCollLine(
 		Graphics()->LinesBegin();
 		Graphics()->SetColor(HookCollColor.WithAlpha(Alpha));
 		Graphics()->LinesDraw(vLineSegments.data(), vLineSegments.size());
-		if(HookTipLineSegment.has_value() && g_Config.m_KaizoRevertHookLine != 1 /*TClient*/)
+		if(HookTipLineSegment.has_value() && HookCollTipColor.a > 0.0f && !g_Config.m_KaizoRevertHookLine /*TClient*/)
 		{
-			if (g_Config.m_KaizoRevertHookLine != 2) // TClient
-				HookCollColor = color_cast<ColorRGBA>(ColorHSLA(g_Config.m_ClHookCollColorTeeColl));
-			Graphics()->SetColor(HookCollColor.WithAlpha(Alpha));
+			Graphics()->SetColor(HookCollTipColor.WithMultipliedAlpha(Alpha));
 			Graphics()->LinesDraw(&HookTipLineSegment.value(), 1);
 		}
 		Graphics()->LinesEnd();
@@ -460,7 +461,7 @@ void CPlayers::RenderHook(
 	int ClientId,
 	float Intra)
 {
-	if(pPrevChar->m_HookState <= 0 || pPlayerChar->m_HookState <= 0)
+	if(pPlayerChar->m_HookState <= 0)
 		return;
 
 	CNetObj_Character Prev;
@@ -548,6 +549,7 @@ void CPlayers::RenderPlayer(
 
 	CTeeRenderInfo RenderInfo = *pRenderInfo;
 
+	const bool Paused = GameClient()->IsWorldPaused() || GameClient()->IsDemoPlaybackPaused();
 	bool Local = GameClient()->m_Snap.m_LocalClientId == ClientId;
 	bool OtherTeam = GameClient()->IsOtherTeam(ClientId);
 	float Alpha = (OtherTeam || ClientId < 0) ? g_Config.m_ClShowOthersAlpha / 100.0f : 1.0f;
@@ -564,7 +566,7 @@ void CPlayers::RenderPlayer(
 
 	static float s_LastGameTickTime = Client()->GameTickTime(g_Config.m_ClDummy);
 	static float s_LastPredIntraTick = Client()->PredIntraGameTick(g_Config.m_ClDummy);
-	if(GameClient()->m_Snap.m_pGameInfoObj && !(GameClient()->m_Snap.m_pGameInfoObj->m_GameStateFlags & GAMESTATEFLAG_PAUSED))
+	if(!Paused)
 	{
 		s_LastGameTickTime = Client()->GameTickTime(g_Config.m_ClDummy);
 		s_LastPredIntraTick = Client()->PredIntraGameTick(g_Config.m_ClDummy);
@@ -638,11 +640,14 @@ void CPlayers::RenderPlayer(
 			State.Add(&g_pData->m_aAnimations[ANIM_WALK], WalkTime, 1.0f);
 	}
 
+	const float HammerAnimationTimeScale = 5.0f;
+
 	//+KZ custom weapons: avoid weird weapon positions
 	if(!(GameClient()->IsKaizoCharUpdated(ClientId) && GameClient()->m_aClients[ClientId].m_KaizoCustomWeapon >= 0))
 	{
+		
 		if(Player.m_Weapon == WEAPON_HAMMER)
-			State.Add(&g_pData->m_aAnimations[ANIM_HAMMER_SWING], std::clamp(LastAttackTime * 5.0f, 0.0f, 1.0f), 1.0f);
+			State.Add(&g_pData->m_aAnimations[ANIM_HAMMER_SWING], std::clamp(LastAttackTime * HammerAnimationTimeScale, 0.0f, 1.0f), 1.0f);
 		if(Player.m_Weapon == WEAPON_NINJA)
 			State.Add(&g_pData->m_aAnimations[ANIM_NINJA_SWING], std::clamp(LastAttackTime * 2.0f, 0.0f, 1.0f), 1.0f);
 	}
@@ -682,7 +687,7 @@ void CPlayers::RenderPlayer(
 					WeaponPosition.y += 3.0f;
 
 				// if active and attack is under way, bash stuffs
-				if(!Inactive || LastAttackTime < GameClient()->m_aClients[ClientId].m_Predicted.m_Tuning.GetWeaponFireDelay(Player.m_Weapon))
+				if(!Inactive || LastAttackTime * HammerAnimationTimeScale < 1.0f)
 				{
 					if(g_Config.m_KaizoRotatingHammer) //+KZ from rotating hammer pull request
 					{
@@ -729,20 +734,13 @@ void CPlayers::RenderPlayer(
 				{
 					int IteX = rand() % g_pData->m_Weapons.m_aId[CurrentWeapon].m_NumSpriteMuzzles;
 					static int s_LastIteX = IteX;
-					if(Client()->State() == IClient::STATE_DEMOPLAYBACK)
+					if(Paused)
 					{
-						const IDemoPlayer::CInfo *pInfo = DemoPlayer()->BaseInfo();
-						if(pInfo->m_Paused)
-							IteX = s_LastIteX;
-						else
-							s_LastIteX = IteX;
+						IteX = s_LastIteX;
 					}
 					else
 					{
-						if(GameClient()->m_Snap.m_pGameInfoObj && GameClient()->m_Snap.m_pGameInfoObj->m_GameStateFlags & GAMESTATEFLAG_PAUSED)
-							IteX = s_LastIteX;
-						else
-							s_LastIteX = IteX;
+						s_LastIteX = IteX;
 					}
 					if(g_pData->m_Weapons.m_aId[CurrentWeapon].m_aSpriteMuzzles[IteX])
 					{
@@ -802,20 +800,13 @@ void CPlayers::RenderPlayer(
 
 					int IteX = rand() % g_pData->m_Weapons.m_aId[CurrentWeapon].m_NumSpriteMuzzles;
 					static int s_LastIteX = IteX;
-					if(Client()->State() == IClient::STATE_DEMOPLAYBACK)
+					if(Paused)
 					{
-						const IDemoPlayer::CInfo *pInfo = DemoPlayer()->BaseInfo();
-						if(pInfo->m_Paused)
-							IteX = s_LastIteX;
-						else
-							s_LastIteX = IteX;
+						IteX = s_LastIteX;
 					}
 					else
 					{
-						if(GameClient()->m_Snap.m_pGameInfoObj && GameClient()->m_Snap.m_pGameInfoObj->m_GameStateFlags & GAMESTATEFLAG_PAUSED)
-							IteX = s_LastIteX;
-						else
-							s_LastIteX = IteX;
+						s_LastIteX = IteX;
 					}
 					if(AlphaMuzzle > 0.0f && g_pData->m_Weapons.m_aId[CurrentWeapon].m_aSpriteMuzzles[IteX])
 					{
@@ -862,7 +853,7 @@ void CPlayers::RenderPlayer(
 		Player.m_Emote = EMOTE_BLINK;
 
 	// render the "shadow" tee
-	if(Local && ((g_Config.m_Debug && g_Config.m_ClUnpredictedShadow >= 0) || g_Config.m_ClUnpredictedShadow == 1))
+	if(g_Config.m_ClUnpredictedShadow == 3 || (Local && g_Config.m_ClUnpredictedShadow == 1) || (!Local && g_Config.m_ClUnpredictedShadow == 2))
 	{
 		vec2 ShadowPosition = Position;
 		if(ClientId >= 0)
@@ -871,7 +862,7 @@ void CPlayers::RenderPlayer(
 				vec2(GameClient()->m_Snap.m_aCharacters[ClientId].m_Cur.m_X, GameClient()->m_Snap.m_aCharacters[ClientId].m_Cur.m_Y),
 				Client()->IntraGameTick(g_Config.m_ClDummy));
 
-		RenderTools()->RenderTee(&State, &RenderInfo, Player.m_Emote, Direction, ShadowPosition, 0.5f); // render ghost
+		RenderTools()->RenderTee(&State, &RenderInfo, Player.m_Emote, Direction, ShadowPosition, g_Config.m_ClUnpredictedShadowAlpha / 100.f); // render ghost
 	}
 
 	RenderTools()->RenderTee(&State, &RenderInfo, Player.m_Emote, Direction, Position, Alpha);

@@ -1,6 +1,10 @@
 #include "render_layer.h"
 
+#include <base/dbg.h>
 #include <base/log.h>
+#include <base/mem.h>
+#include <base/str.h>
+#include <base/time.h>
 
 #include <engine/graphics.h>
 #include <engine/map.h>
@@ -148,16 +152,6 @@ class CTmpQuadTextured
 public:
 	CTmpQuadVertexTextured m_aVertices[4];
 };
-
-static void mem_copy_special(void *pDest, void *pSource, size_t Size, size_t Count, size_t Steps)
-{
-	size_t CurStep = 0;
-	for(size_t i = 0; i < Count; ++i)
-	{
-		mem_copy(((char *)pDest) + CurStep + i * Size, ((char *)pSource) + i * Size, Size);
-		CurStep += Steps;
-	}
-}
 
 bool CRenderLayerTile::CTileLayerVisuals::Init(unsigned int Width, unsigned int Height)
 {
@@ -354,14 +348,6 @@ void CRenderLayerTile::RenderTileLayer(const ColorRGBA &Color, const CRenderLaye
 	{
 		RenderTileBorder(Color, ScreenRectX0, ScreenRectY0, ScreenRectX1, ScreenRectY1, &Visuals);
 	}
-
-	if(Params.m_DebugRenderTileClips && m_LayerClip.has_value())
-	{
-		const CClipRegion &Clip = m_LayerClip.value();
-		char aDebugText[32];
-		str_format(aDebugText, sizeof(aDebugText), "Group %d LayerId %d", m_GroupId, m_LayerId);
-		RenderMap()->RenderDebugClip(Clip.m_X, Clip.m_Y, Clip.m_Width, Clip.m_Height, ColorRGBA(1.0f, 0.5f, 0.0f, 1.0f), Params.m_Zoom, aDebugText);
-	}
 }
 
 void CRenderLayerTile::RenderTileBorder(const ColorRGBA &Color, int BorderX0, int BorderY0, int BorderX1, int BorderY1, CTileLayerVisuals *pTileLayerVisuals)
@@ -549,6 +535,14 @@ void CRenderLayerTile::Render(const CRenderLayerParams &Params)
 	{
 		RenderTileLayerNoTileBuffer(Color, Params);
 	}
+
+	if(Params.m_DebugRenderTileClips && m_LayerClip.has_value())
+	{
+		const CClipRegion &Clip = m_LayerClip.value();
+		char aDebugText[32];
+		str_format(aDebugText, sizeof(aDebugText), "Group %d LayerId %d", m_GroupId, m_LayerId);
+		RenderMap()->RenderDebugClip(Clip.m_X, Clip.m_Y, Clip.m_Width, Clip.m_Height, ColorRGBA(1.0f, 0.5f, 0.0f, 1.0f), Params.m_Zoom, aDebugText);
+	}
 }
 
 bool CRenderLayerTile::DoRender(const CRenderLayerParams &Params)
@@ -569,7 +563,6 @@ bool CRenderLayerTile::DoRender(const CRenderLayerParams &Params)
 
 void CRenderLayerTile::RenderTileLayerWithTileBuffer(const ColorRGBA &Color, const CRenderLayerParams &Params)
 {
-	Graphics()->BlendNormal();
 	RenderTileLayer(Color, Params);
 }
 
@@ -798,51 +791,79 @@ void CRenderLayerTile::UploadTileData(std::optional<CTileLayerVisuals> &VisualsO
 	InsertTiles(vTmpBorderLeftTiles, vTmpBorderLeftTilesTexCoords);
 	InsertTiles(vTmpBorderRightTiles, vTmpBorderRightTilesTexCoords);
 
-	// setup params
-	float *pTmpTiles = vTmpTiles.empty() ? nullptr : (float *)vTmpTiles.data();
-	unsigned char *pTmpTileTexCoords = vTmpTileTexCoords.empty() ? nullptr : (unsigned char *)vTmpTileTexCoords.data();
-
 	Visuals.m_BufferContainerIndex = -1;
+
+	// upload data to gpu
 	size_t UploadDataSize = vTmpTileTexCoords.size() * sizeof(CGraphicTileTextureCoords) + vTmpTiles.size() * sizeof(CGraphicTile);
-	if(UploadDataSize > 0)
+	if(UploadDataSize == 0)
 	{
-		char *pUploadData = (char *)malloc(sizeof(char) * UploadDataSize);
-
-		mem_copy_special(pUploadData, pTmpTiles, sizeof(vec2), vTmpTiles.size() * 4, (DoTextureCoords ? sizeof(ubvec4) : 0));
-		if(DoTextureCoords)
-		{
-			mem_copy_special(pUploadData + sizeof(vec2), pTmpTileTexCoords, sizeof(ubvec4), vTmpTiles.size() * 4, sizeof(vec2));
-		}
-
-		// first create the buffer object
-		int BufferObjectIndex = Graphics()->CreateBufferObject(UploadDataSize, pUploadData, 0, true);
-
-		// then create the buffer container
-		SBufferContainerInfo ContainerInfo;
-		ContainerInfo.m_Stride = (DoTextureCoords ? (sizeof(float) * 2 + sizeof(ubvec4)) : 0);
-		ContainerInfo.m_VertBufferBindingIndex = BufferObjectIndex;
-		ContainerInfo.m_vAttributes.emplace_back();
-		SBufferContainerInfo::SAttribute *pAttr = &ContainerInfo.m_vAttributes.back();
-		pAttr->m_DataTypeCount = 2;
-		pAttr->m_Type = GRAPHICS_TYPE_FLOAT;
-		pAttr->m_Normalized = false;
-		pAttr->m_pOffset = nullptr;
-		pAttr->m_FuncType = 0;
-		if(DoTextureCoords)
-		{
-			ContainerInfo.m_vAttributes.emplace_back();
-			pAttr = &ContainerInfo.m_vAttributes.back();
-			pAttr->m_DataTypeCount = 4;
-			pAttr->m_Type = GRAPHICS_TYPE_UNSIGNED_BYTE;
-			pAttr->m_Normalized = false;
-			pAttr->m_pOffset = (void *)(sizeof(vec2));
-			pAttr->m_FuncType = 1;
-		}
-
-		Visuals.m_BufferContainerIndex = Graphics()->CreateBufferContainer(&ContainerInfo);
-		// and finally inform the backend how many indices are required
-		Graphics()->IndicesNumRequiredNotify(vTmpTiles.size() * 6);
+		RenderLoading();
+		return;
 	}
+
+	void *pUploadData = malloc(UploadDataSize);
+
+	if(DoTextureCoords)
+	{
+		class CVertex
+		{
+		public:
+			vec2 m_Pos;
+			ubvec4 m_Tex;
+		};
+
+		static_assert(sizeof(CVertex) == sizeof(vec2) + sizeof(ubvec4)); // no padding
+
+		CVertex *pDst = static_cast<CVertex *>(pUploadData);
+		dbg_assert(UploadDataSize == vTmpTiles.size() * sizeof(*pDst) * 4, "invalid upload size");
+
+		for(size_t TileIndex = 0; TileIndex < vTmpTiles.size(); ++TileIndex)
+		{
+			const auto &GraphicTile = vTmpTiles[TileIndex];
+			const auto &GraphicCoords = vTmpTileTexCoords[TileIndex];
+
+			*pDst++ = {GraphicTile.m_TopLeft, GraphicCoords.m_TexCoordTopLeft};
+			*pDst++ = {GraphicTile.m_TopRight, GraphicCoords.m_TexCoordTopRight};
+			*pDst++ = {GraphicTile.m_BottomRight, GraphicCoords.m_TexCoordBottomRight};
+			*pDst++ = {GraphicTile.m_BottomLeft, GraphicCoords.m_TexCoordBottomLeft};
+		}
+	}
+	else
+	{
+		// we don't have texture coords, so we can optimize
+		dbg_assert(UploadDataSize == vTmpTiles.size() * sizeof(CGraphicTile), "invalid upload size");
+		mem_copy(pUploadData, vTmpTiles.data(), vTmpTiles.size() * sizeof(CGraphicTile));
+	}
+
+	// first create the buffer object
+	int BufferObjectIndex = Graphics()->CreateBufferObject(UploadDataSize, pUploadData, 0, true);
+
+	// then create the buffer container
+	SBufferContainerInfo ContainerInfo;
+	ContainerInfo.m_Stride = (DoTextureCoords ? (sizeof(float) * 2 + sizeof(ubvec4)) : 0);
+	ContainerInfo.m_VertBufferBindingIndex = BufferObjectIndex;
+	ContainerInfo.m_vAttributes.emplace_back();
+	SBufferContainerInfo::SAttribute *pAttr = &ContainerInfo.m_vAttributes.back();
+	pAttr->m_DataTypeCount = 2;
+	pAttr->m_Type = GRAPHICS_TYPE_FLOAT;
+	pAttr->m_Normalized = false;
+	pAttr->m_pOffset = nullptr;
+	pAttr->m_FuncType = 0;
+	if(DoTextureCoords)
+	{
+		ContainerInfo.m_vAttributes.emplace_back();
+		pAttr = &ContainerInfo.m_vAttributes.back();
+		pAttr->m_DataTypeCount = 4;
+		pAttr->m_Type = GRAPHICS_TYPE_UNSIGNED_BYTE;
+		pAttr->m_Normalized = false;
+		pAttr->m_pOffset = (void *)(sizeof(vec2));
+		pAttr->m_FuncType = 1;
+	}
+
+	Visuals.m_BufferContainerIndex = Graphics()->CreateBufferContainer(&ContainerInfo);
+	// and finally inform the backend how many indices are required
+	Graphics()->IndicesNumRequiredNotify(vTmpTiles.size() * 6);
+
 	RenderLoading();
 }
 
@@ -1025,7 +1046,22 @@ void CRenderLayerQuads::Init()
 		m_TextureHandle.Invalidate();
 
 	if(!Graphics()->IsQuadBufferingEnabled())
+	{
+		// create clip region for unbuffered backends
+		CQuadCluster QuadCluster;
+		QuadCluster.m_Grouped = false;
+		QuadCluster.m_StartIndex = 0;
+		QuadCluster.m_NumQuads = m_pLayerQuads->m_NumQuads;
+
+		// unused, because cluster is not grouped
+		QuadCluster.m_PosEnv = -1;
+		QuadCluster.m_PosEnvOffset = 0;
+		QuadCluster.m_ColorEnv = -1;
+		QuadCluster.m_ColorEnvOffset = 0;
+
+		CalculateClipping(QuadCluster);
 		return;
+	}
 
 	std::vector<CTmpQuad> vTmpQuads;
 	std::vector<CTmpQuadTextured> vTmpQuadsTextured;
@@ -1343,7 +1379,6 @@ void CRenderLayerQuads::Render(const CRenderLayerParams &Params)
 		Alpha = Params.m_EntityOverlayVal/100.f;
 	if(!Graphics()->IsQuadBufferingEnabled() || !Params.m_TileAndQuadBuffering)
 	{
-		Graphics()->BlendNormal();
 		RenderMap()->ForceRenderQuads(m_pQuads, m_pLayerQuads->m_NumQuads, LAYERRENDERFLAG_TRANSPARENT, m_pEnvelopeManager->EnvelopeEval(), Alpha);
 	}
 	else
@@ -1422,7 +1457,6 @@ void CRenderLayerEntityGame::Init()
 
 void CRenderLayerEntityGame::RenderTileLayerWithTileBuffer(const ColorRGBA &Color, const CRenderLayerParams &Params)
 {
-	Graphics()->BlendNormal();
 	if(Params.m_RenderTileBorder)
 		RenderKillTileBorder(Color.Multiply(GetDeathBorderColor()));
 	RenderTileLayer(Color, Params);
@@ -1496,7 +1530,6 @@ void CRenderLayerEntityTele::Unload()
 
 void CRenderLayerEntityTele::RenderTileLayerWithTileBuffer(const ColorRGBA &Color, const CRenderLayerParams &Params)
 {
-	Graphics()->BlendNormal();
 	RenderTileLayer(Color, Params);
 	if(Params.m_RenderText)
 	{
@@ -1668,7 +1701,6 @@ void CRenderLayerEntitySwitch::GetTileData(unsigned char *pIndex, unsigned char 
 
 void CRenderLayerEntitySwitch::RenderTileLayerWithTileBuffer(const ColorRGBA &Color, const CRenderLayerParams &Params)
 {
-	Graphics()->BlendNormal();
 	RenderTileLayer(Color, Params);
 	if(Params.m_RenderText)
 	{

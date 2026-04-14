@@ -3,6 +3,9 @@
 
 #include "chat.h"
 
+#include <base/io.h>
+#include <base/time.h>
+
 #include <engine/editor.h>
 #include <engine/graphics.h>
 #include <engine/keys.h>
@@ -46,7 +49,6 @@ CChat::CChat()
 {
 	m_Mode = MODE_NONE;
 
-	m_Input.SetClipboardLineCallback([this](const char *pStr) { SendChatQueued(pStr); });
 	m_Input.SetCalculateOffsetCallback([this]() { return m_IsInputCensored; });
 	m_Input.SetDisplayTextCallback([this](char *pStr, size_t NumChars) {
 		m_IsInputCensored = false;
@@ -628,7 +630,7 @@ void CChat::StoreSave(const char *pText)
 	str_truncate(aSaveCode, sizeof(aSaveCode), pMid + 13, (pOn ? pOn : pEnd) - pMid - 13);
 
 	char aTimestamp[20];
-	str_timestamp_format(aTimestamp, sizeof(aTimestamp), FORMAT_SPACE);
+	str_timestamp_format(aTimestamp, sizeof(aTimestamp), TimestampFormat::SPACE);
 
 	const bool SavesFileExists = Storage()->FileExists(SAVES_FILE, IStorage::TYPE_SAVE);
 	IOHANDLE File = Storage()->OpenFile(SAVES_FILE, IOFLAG_APPEND, IStorage::TYPE_SAVE);

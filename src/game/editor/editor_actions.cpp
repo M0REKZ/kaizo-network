@@ -1359,11 +1359,11 @@ void CEditorActionAppendMap::Redo()
 
 // ---------------------------
 
-CEditorActionTileArt::CEditorActionTileArt(CEditorMap *pMap, int PreviousImageCount, const char *pTileArtFile, std::vector<int> &vImageIndexMap) :
+CEditorActionTileArt::CEditorActionTileArt(CEditorMap *pMap, int PreviousImageCount, const char *pFilename, std::vector<int> &vImageIndexMap) :
 	IEditorAction(pMap), m_PreviousImageCount(PreviousImageCount), m_vImageIndexMap(vImageIndexMap)
 {
-	str_copy(m_aTileArtFile, pTileArtFile);
-	str_copy(m_aDisplayText, "Tile art");
+	str_copy(m_aFilename, pFilename);
+	str_copy(m_aDisplayText, "Add tile art");
 }
 
 void CEditorActionTileArt::Undo()
@@ -1406,41 +1406,37 @@ void CEditorActionTileArt::Undo()
 
 void CEditorActionTileArt::Redo()
 {
-	if(!Graphics()->LoadPng(Editor()->m_TileartImageInfo, m_aTileArtFile, IStorage::TYPE_ALL))
+	CImageInfo Image;
+	if(!Graphics()->LoadPng(Image, m_aFilename, IStorage::TYPE_ALL))
 	{
-		Editor()->ShowFileDialogError("Failed to load image from file '%s'.", m_aTileArtFile);
+		Editor()->ShowFileDialogError("Failed to load image from file '%s'.", m_aFilename);
 		return;
 	}
-
-	IStorage::StripPathAndExtension(m_aTileArtFile, Editor()->m_aTileartFilename, sizeof(Editor()->m_aTileartFilename));
-	Editor()->AddTileart(true);
+	Map()->AddTileArt(std::move(Image), m_aFilename, true);
 }
 
 // ---------------------------
 
-CEditorActionQuadArt::CEditorActionQuadArt(CEditorMap *pMap, CQuadArtParameters Parameters) :
-	IEditorAction(pMap), m_Parameters(Parameters)
+CEditorActionQuadArt::CEditorActionQuadArt(CEditorMap *pMap, const std::shared_ptr<CLayerGroup> &pGroup) :
+	IEditorAction(pMap), m_pGroup(pGroup)
 {
-	str_copy(m_aDisplayText, "Create Quadart");
+	str_copy(m_aDisplayText, "Add quad art");
 }
 
 void CEditorActionQuadArt::Undo()
 {
-	// Delete added group
-	Map()->m_vpGroups.pop_back();
+	// Delete added group (keep pointer for redo)
+	auto &vGroups = Map()->m_vpGroups;
+	auto It = std::find(vGroups.begin(), vGroups.end(), m_pGroup);
+	if(It != vGroups.end())
+		vGroups.erase(It);
 }
 
 void CEditorActionQuadArt::Redo()
 {
-	Editor()->m_QuadArtParameters = m_Parameters;
-	str_copy(Editor()->m_QuadArtParameters.m_aFilename, m_Parameters.m_aFilename, sizeof(Editor()->m_QuadArtParameters.m_aFilename));
-
-	if(!Graphics()->LoadPng(Editor()->m_QuadArtImageInfo, Editor()->m_QuadArtParameters.m_aFilename, IStorage::TYPE_ALL))
-	{
-		Editor()->ShowFileDialogError("Failed to load image from file '%s'.", Editor()->m_QuadArtParameters.m_aFilename);
-		return;
-	}
-	Editor()->AddQuadArt(true);
+	auto &vGroups = Map()->m_vpGroups;
+	if(std::find(vGroups.begin(), vGroups.end(), m_pGroup) == vGroups.end())
+		vGroups.push_back(m_pGroup);
 }
 
 // ---------------------------------
@@ -1595,7 +1591,7 @@ void CEditorActionEnvelopeDelete::Redo()
 }
 
 CEditorActionEnvelopeEdit::CEditorActionEnvelopeEdit(CEditorMap *pMap, int EnvelopeIndex, EEditType EditType, int Previous, int Current) :
-	IEditorAction(pMap), m_EnvelopeIndex(EnvelopeIndex), m_EditType(EditType), m_Previous(Previous), m_Current(Current), m_pEnv(Map()->m_vpEnvelopes[EnvelopeIndex])
+	IEditorAction(pMap), m_EnvelopeIndex(EnvelopeIndex), m_EditType(EditType), m_Previous(Previous), m_Current(Current)
 {
 	static const char *s_apNames[] = {
 		"sync",
@@ -1614,7 +1610,7 @@ void CEditorActionEnvelopeEdit::Undo()
 	}
 	case EEditType::SYNC:
 	{
-		m_pEnv->m_Synchronized = m_Previous;
+		Map()->m_vpEnvelopes[m_EnvelopeIndex]->m_Synchronized = m_Previous;
 		break;
 	}
 	}
@@ -1633,7 +1629,7 @@ void CEditorActionEnvelopeEdit::Redo()
 	}
 	case EEditType::SYNC:
 	{
-		m_pEnv->m_Synchronized = m_Current;
+		Map()->m_vpEnvelopes[m_EnvelopeIndex]->m_Synchronized = m_Current;
 		break;
 	}
 	}
@@ -1642,7 +1638,7 @@ void CEditorActionEnvelopeEdit::Redo()
 }
 
 CEditorActionEnvelopeEditPointTime::CEditorActionEnvelopeEditPointTime(CEditorMap *pMap, int EnvelopeIndex, int PointIndex, CFixedTime Previous, CFixedTime Current) :
-	IEditorAction(pMap), m_EnvelopeIndex(EnvelopeIndex), m_PointIndex(PointIndex), m_Previous(Previous), m_Current(Current), m_pEnv(Map()->m_vpEnvelopes[EnvelopeIndex])
+	IEditorAction(pMap), m_EnvelopeIndex(EnvelopeIndex), m_PointIndex(PointIndex), m_Previous(Previous), m_Current(Current)
 {
 	str_format(m_aDisplayText, sizeof(m_aDisplayText), "Edit time of point %d of env %d", m_PointIndex, m_EnvelopeIndex);
 }
@@ -1659,12 +1655,12 @@ void CEditorActionEnvelopeEditPointTime::Redo()
 
 void CEditorActionEnvelopeEditPointTime::Apply(CFixedTime Value)
 {
-	m_pEnv->m_vPoints[m_PointIndex].m_Time = Value;
+	Map()->m_vpEnvelopes[m_EnvelopeIndex]->m_vPoints[m_PointIndex].m_Time = Value;
 	Map()->OnModify();
 }
 
 CEditorActionEnvelopeEditPoint::CEditorActionEnvelopeEditPoint(CEditorMap *pMap, int EnvelopeIndex, int PointIndex, int Channel, EEditType EditType, int Previous, int Current) :
-	IEditorAction(pMap), m_EnvelopeIndex(EnvelopeIndex), m_PointIndex(PointIndex), m_Channel(Channel), m_EditType(EditType), m_Previous(Previous), m_Current(Current), m_pEnv(Map()->m_vpEnvelopes[EnvelopeIndex])
+	IEditorAction(pMap), m_EnvelopeIndex(EnvelopeIndex), m_PointIndex(PointIndex), m_Channel(Channel), m_EditType(EditType), m_Previous(Previous), m_Current(Current)
 {
 	static const char *s_apNames[] = {
 		"value",
@@ -1684,20 +1680,22 @@ void CEditorActionEnvelopeEditPoint::Redo()
 
 void CEditorActionEnvelopeEditPoint::Apply(int Value)
 {
+	auto pEnvelope = Map()->m_vpEnvelopes[m_EnvelopeIndex];
+
 	if(m_EditType == EEditType::VALUE)
 	{
-		m_pEnv->m_vPoints[m_PointIndex].m_aValues[m_Channel] = Value;
+		pEnvelope->m_vPoints[m_PointIndex].m_aValues[m_Channel] = Value;
 
-		if(m_pEnv->GetChannels() == 4)
+		if(pEnvelope->GetChannels() == 4)
 		{
-			Editor()->m_ColorPickerPopupContext.m_RgbaColor = m_pEnv->m_vPoints[m_PointIndex].ColorValue();
+			Editor()->m_ColorPickerPopupContext.m_RgbaColor = pEnvelope->m_vPoints[m_PointIndex].ColorValue();
 			Editor()->m_ColorPickerPopupContext.m_HslaColor = color_cast<ColorHSLA>(Editor()->m_ColorPickerPopupContext.m_RgbaColor);
 			Editor()->m_ColorPickerPopupContext.m_HsvaColor = color_cast<ColorHSVA>(Editor()->m_ColorPickerPopupContext.m_HslaColor);
 		}
 	}
 	else if(m_EditType == EEditType::CURVE_TYPE)
 	{
-		m_pEnv->m_vPoints[m_PointIndex].m_Curvetype = Value;
+		pEnvelope->m_vPoints[m_PointIndex].m_Curvetype = Value;
 	}
 
 	Map()->OnModify();

@@ -8,6 +8,7 @@
 #include "voting.h"
 
 #include <base/color.h>
+#include <base/time.h>
 
 #include <engine/font_icons.h>
 #include <engine/graphics.h>
@@ -139,7 +140,7 @@ void CHud::RenderGameTimer()
 		else
 			Time = (Client()->GameTick(g_Config.m_ClDummy) - GameClient()->m_Snap.m_pGameInfoObj->m_RoundStartTick) / Client()->GameTickSpeed();
 
-		str_time((int64_t)Time * 100, TIME_DAYS, aBuf, sizeof(aBuf));
+		str_time((int64_t)Time * 100, ETimeFormat::DAYS, aBuf, sizeof(aBuf));
 		float FontSize = 10.0f;
 		static float s_TextWidthM = TextRender()->TextWidth(FontSize, "00:00", -1, -1.0f);
 		static float s_TextWidthH = TextRender()->TextWidth(FontSize, "00:00:00", -1, -1.0f);
@@ -343,7 +344,7 @@ void CHud::RenderScoreHud()
 				if(apPlayerInfo[t])
 				{
 					if(Client()->IsSixup() && GameClient()->m_Snap.m_pGameInfoObj->m_GameFlags & protocol7::GAMEFLAG_RACE)
-						str_time((int64_t)absolute(apPlayerInfo[t]->m_Score) / 10, TIME_MINS_CENTISECS, aScore[t], sizeof(aScore[t]));
+						str_time((int64_t)absolute(apPlayerInfo[t]->m_Score) / 10, ETimeFormat::MINS_CENTISECS, aScore[t], sizeof(aScore[t]));
 					else if(GameClient()->m_GameInfo.m_TimeScore)
 					{
 						CGameClient::CClientData &ClientData = GameClient()->m_aClients[apPlayerInfo[t]->m_ClientId];
@@ -352,11 +353,11 @@ void CHud::RenderScoreHud()
 							int64_t TimeSeconds = static_cast<int64_t>(absolute(ClientData.m_FinishTimeSeconds));
 							int64_t TimeMillis = TimeSeconds * 1000 + (absolute(ClientData.m_FinishTimeMillis) % 1000);
 
-							str_time(TimeMillis / 10, TIME_HOURS, aScore[t], sizeof(aScore[t]));
+							str_time(TimeMillis / 10, ETimeFormat::HOURS, aScore[t], sizeof(aScore[t]));
 						}
 						else if(apPlayerInfo[t]->m_Score != FinishTime::NOT_FINISHED_TIMESCORE)
 						{
-							str_time((int64_t)absolute(apPlayerInfo[t]->m_Score) * 100, TIME_HOURS, aScore[t], sizeof(aScore[t]));
+							str_time((int64_t)absolute(apPlayerInfo[t]->m_Score) * 100, ETimeFormat::HOURS, aScore[t], sizeof(aScore[t]));
 						}
 						else
 							aScore[t][0] = 0;
@@ -508,22 +509,30 @@ void CHud::RenderScoreHud()
 
 void CHud::RenderWarmupTimer()
 {
-	// render warmup timer
-	if(GameClient()->m_Snap.m_pGameInfoObj->m_WarmupTimer > 0 && !(GameClient()->m_Snap.m_pGameInfoObj->m_GameStateFlags & GAMESTATEFLAG_RACETIME))
+	if(GameClient()->m_Snap.m_pGameInfoObj->m_WarmupTimer <= 0 ||
+		(GameClient()->m_Snap.m_pGameInfoObj->m_GameStateFlags & GAMESTATEFLAG_RACETIME) != 0)
 	{
-		char aBuf[256];
-		float FontSize = 20.0f;
-		float w = TextRender()->TextWidth(FontSize, Localize("Warmup"), -1, -1.0f);
-		TextRender()->Text(150 * Graphics()->ScreenAspect() + -w / 2, 50, FontSize, Localize("Warmup"), -1.0f);
-
-		int Seconds = GameClient()->m_Snap.m_pGameInfoObj->m_WarmupTimer / Client()->GameTickSpeed();
-		if(Seconds < 5)
-			str_format(aBuf, sizeof(aBuf), "%d.%d", Seconds, (GameClient()->m_Snap.m_pGameInfoObj->m_WarmupTimer * 10 / Client()->GameTickSpeed()) % 10);
-		else
-			str_format(aBuf, sizeof(aBuf), "%d", Seconds);
-		w = TextRender()->TextWidth(FontSize, aBuf, -1, -1.0f);
-		TextRender()->Text(150 * Graphics()->ScreenAspect() + -w / 2, 75, FontSize, aBuf, -1.0f);
+		return;
 	}
+
+	const float FontSize = 20.0f;
+	const char *pTitle = Localize("Warmup");
+	TextRender()->Text(150.0f * Graphics()->ScreenAspect() - TextRender()->TextWidth(FontSize, pTitle) / 2.0f, 50.0f, FontSize, pTitle);
+
+	const int Seconds = GameClient()->m_Snap.m_pGameInfoObj->m_WarmupTimer / Client()->GameTickSpeed();
+	char aWarmupTime[16];
+	float TextWidth;
+	if(Seconds < 5)
+	{
+		str_format(aWarmupTime, sizeof(aWarmupTime), "%d.%d", Seconds, (GameClient()->m_Snap.m_pGameInfoObj->m_WarmupTimer * 10 / Client()->GameTickSpeed()) % 10);
+		TextWidth = TextRender()->TextWidth(FontSize, "0.0"); // Calculate width with fixed string to avoid slight changes when using aWarmupTime
+	}
+	else
+	{
+		str_format(aWarmupTime, sizeof(aWarmupTime), "%d", Seconds);
+		TextWidth = TextRender()->TextWidth(FontSize, aWarmupTime);
+	}
+	TextRender()->Text(150.0f * Graphics()->ScreenAspect() - TextWidth / 2.0f, 75.0f, FontSize, aWarmupTime);
 }
 
 void CHud::RenderTextInfo()
@@ -845,18 +854,7 @@ void CHud::RenderPlayerState(const int ClientId)
 		int AvailableJumpsToDisplay;
 		if(GameClient()->m_Snap.m_aCharacters[ClientId].m_HasExtendedDisplayInfo)
 		{
-			bool Grounded = false;
-			if(Collision()->CheckPoint(pPlayer->m_X + CCharacterCore::PhysicalSize() / 2,
-				   pPlayer->m_Y + CCharacterCore::PhysicalSize() / 2 + 5))
-			{
-				Grounded = true;
-			}
-			if(Collision()->CheckPoint(pPlayer->m_X - CCharacterCore::PhysicalSize() / 2,
-				   pPlayer->m_Y + CCharacterCore::PhysicalSize() / 2 + 5))
-			{
-				Grounded = true;
-			}
-
+			const bool Grounded = Collision()->IsOnGround(vec2(pPlayer->m_X, pPlayer->m_Y), CCharacterCore::PhysicalSize());
 			int UsedJumps = pCharacter->m_JumpedTotal;
 			if(pCharacter->m_Jumps > 1)
 			{
@@ -1818,7 +1816,7 @@ void CHud::RenderDDRaceEffects()
 		char aTime[32];
 		if(m_ShowFinishTime && m_FinishTimeLastReceivedTick + Client()->GameTickSpeed() * 6 > Client()->GameTick(g_Config.m_ClDummy))
 		{
-			str_time(m_DDRaceTime, TIME_HOURS_CENTISECS, aTime, sizeof(aTime));
+			str_time(m_DDRaceTime, ETimeFormat::HOURS_CENTISECS, aTime, sizeof(aTime));
 			str_format(aBuf, sizeof(aBuf), "Finish time: %s", aTime);
 
 			// calculate alpha (4 sec 1 than get lower the next 2 sec)
@@ -1838,13 +1836,13 @@ void CHud::RenderDDRaceEffects()
 			{
 				if(m_FinishTimeDiff < 0)
 				{
-					str_time_float(-m_FinishTimeDiff, TIME_HOURS_CENTISECS, aTime, sizeof(aTime));
+					str_time_float(-m_FinishTimeDiff, ETimeFormat::HOURS_CENTISECS, aTime, sizeof(aTime));
 					str_format(aBuf, sizeof(aBuf), "-%s", aTime);
 					TextRender()->TextColor(0.5f, 1.0f, 0.5f, Alpha); // green
 				}
 				else
 				{
-					str_time_float(m_FinishTimeDiff, TIME_HOURS_CENTISECS, aTime, sizeof(aTime));
+					str_time_float(m_FinishTimeDiff, ETimeFormat::HOURS_CENTISECS, aTime, sizeof(aTime));
 					str_format(aBuf, sizeof(aBuf), "+%s", aTime);
 					TextRender()->TextColor(1.0f, 0.5f, 0.5f, Alpha); // red
 				}
@@ -1865,12 +1863,12 @@ void CHud::RenderDDRaceEffects()
 		{
 			if(m_TimeCpDiff < 0)
 			{
-				str_time_float(-m_TimeCpDiff, TIME_HOURS_CENTISECS, aTime, sizeof(aTime));
+				str_time_float(-m_TimeCpDiff, ETimeFormat::HOURS_CENTISECS, aTime, sizeof(aTime));
 				str_format(aBuf, sizeof(aBuf), "-%s", aTime);
 			}
 			else
 			{
-				str_time_float(m_TimeCpDiff, TIME_HOURS_CENTISECS, aTime, sizeof(aTime));
+				str_time_float(m_TimeCpDiff, ETimeFormat::HOURS_CENTISECS, aTime, sizeof(aTime));
 				str_format(aBuf, sizeof(aBuf), "+%s", aTime);
 			}
 
@@ -1913,7 +1911,7 @@ void CHud::RenderRecord()
 		TextRender()->Text(5, 75, 6, Localize("Server best:"), -1.0f);
 		char aTime[32];
 		int64_t TimeCentiseconds = static_cast<int64_t>(GameClient()->m_MapBestTimeSeconds) * 100 + static_cast<int64_t>(GameClient()->m_MapBestTimeMillis) / 10;
-		str_time(TimeCentiseconds, TIME_HOURS_CENTISECS, aTime, sizeof(aTime));
+		str_time(TimeCentiseconds, ETimeFormat::HOURS_CENTISECS, aTime, sizeof(aTime));
 		str_format(aBuf, sizeof(aBuf), "%s%s", GameClient()->m_MapBestTimeSeconds > 3600 ? "" : "   ", aTime);
 		TextRender()->Text(53, 75, 6, aBuf, -1.0f);
 	}
@@ -1928,7 +1926,7 @@ void CHud::RenderRecord()
 			char aTime[32];
 			const int PlayerTimeMillis = GameClient()->m_aClients[GameClient()->m_aLocalIds[g_Config.m_ClDummy]].m_FinishTimeMillis;
 			int64_t TimeCentiseconds = static_cast<int64_t>(PlayerTimeSeconds) * 100 + static_cast<int64_t>(PlayerTimeMillis) / 10;
-			str_time(TimeCentiseconds, TIME_HOURS_CENTISECS, aTime, sizeof(aTime));
+			str_time(TimeCentiseconds, ETimeFormat::HOURS_CENTISECS, aTime, sizeof(aTime));
 			str_format(aBuf, sizeof(aBuf), "%s%s", PlayerTimeSeconds > 3600 ? "" : "   ", aTime);
 			TextRender()->Text(53, 82, 6, aBuf, -1.0f);
 		}
@@ -1941,7 +1939,7 @@ void CHud::RenderRecord()
 			char aBuf[64];
 			TextRender()->Text(5, 82, 6, Localize("Personal best:"), -1.0f);
 			char aTime[32];
-			str_time_float(PlayerRecord, TIME_HOURS_CENTISECS, aTime, sizeof(aTime));
+			str_time_float(PlayerRecord, ETimeFormat::HOURS_CENTISECS, aTime, sizeof(aTime));
 			str_format(aBuf, sizeof(aBuf), "%s%s", PlayerRecord > 3600 ? "" : "   ", aTime);
 			TextRender()->Text(53, 82, 6, aBuf, -1.0f);
 		}

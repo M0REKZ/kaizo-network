@@ -7,7 +7,10 @@
 #include "gamecontroller.h"
 #include "score.h"
 
-#include <base/system.h>
+#include <base/dbg.h>
+#include <base/mem.h>
+#include <base/str.h>
+#include <base/time.h>
 
 #include <engine/antibot.h>
 #include <engine/server.h>
@@ -91,11 +94,11 @@ void CPlayer::Reset()
 	if(g_Config.m_Events)
 	{
 		const ETimeSeason Season = time_season();
-		if(Season == SEASON_NEWYEAR)
+		if(Season == ETimeSeason::NEWYEAR)
 		{
 			m_DefEmote = EMOTE_HAPPY;
 		}
-		else if(Season == SEASON_HALLOWEEN)
+		else if(Season == ETimeSeason::HALLOWEEN)
 		{
 			m_DefEmote = EMOTE_ANGRY;
 			m_Halloween = true;
@@ -221,7 +224,7 @@ void CPlayer::Tick()
 		Server()->ResetNetErrorString(m_ClientId);
 	}
 
-	if(!GameServer()->m_World.m_Paused)
+	if(!GameServer()->m_pController->IsGamePaused())
 	{
 		int EarliestRespawnTick = m_PreviousDieTick + Server()->TickSpeed() * 3;
 		int RespawnTick = maximum(m_DieTick, EarliestRespawnTick) + 2;
@@ -302,7 +305,7 @@ void CPlayer::PostPostTick()
 	if(!Server()->ClientIngame(m_ClientId))
 		return;
 
-	if(!GameServer()->m_World.m_Paused && !m_pCharacter && m_Spawning && m_WeakHookSpawn)
+	if(!GameServer()->m_pController->IsGamePaused() && !m_pCharacter && m_Spawning && m_WeakHookSpawn)
 		TryRespawn();
 }
 
@@ -896,17 +899,11 @@ bool CPlayer::IsPlaying() const
 
 void CPlayer::SpectatePlayerName(const char *pName)
 {
-	if(!pName)
+	auto ClientId = GameServer()->FindClientIdByName(pName);
+	if(!ClientId.has_value())
 		return;
 
-	for(int i = 0; i < MAX_CLIENTS; ++i)
-	{
-		if(i != m_ClientId && Server()->ClientIngame(i) && !str_comp(pName, Server()->ClientName(i)))
-		{
-			SetSpectatorId(i);
-			return;
-		}
-	}
+	SetSpectatorId(ClientId.value());
 }
 
 void CPlayer::SetSpectatorId(int Id)
@@ -999,7 +996,7 @@ void CPlayer::ProcessScoreResult(CScorePlayerResult &Result)
 		case CScorePlayerResult::PLAYER_TIMECP:
 			GameServer()->Score()->PlayerData(m_ClientId)->SetBestTimeCp(Result.m_Data.m_Info.m_aTimeCp);
 			char aBuf[128], aTime[32];
-			str_time_float(Result.m_Data.m_Info.m_Time.value(), TIME_HOURS_CENTISECS, aTime, sizeof(aTime));
+			str_time_float(Result.m_Data.m_Info.m_Time.value(), ETimeFormat::HOURS_CENTISECS, aTime, sizeof(aTime));
 			str_format(aBuf, sizeof(aBuf), "Showing the checkpoint times for '%s' with a race time of %s", Result.m_Data.m_Info.m_aRequestedPlayer, aTime);
 			GameServer()->SendChatTarget(m_ClientId, aBuf);
 			break;

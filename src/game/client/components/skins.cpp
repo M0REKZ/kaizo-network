@@ -3,9 +3,11 @@
 
 #include "skins.h"
 
+#include <base/dbg.h>
 #include <base/log.h>
 #include <base/math.h>
-#include <base/system.h>
+#include <base/str.h>
+#include <base/time.h>
 
 #include <engine/engine.h>
 #include <engine/gfx/image_manipulation.h>
@@ -670,7 +672,7 @@ void CSkins::RefreshEventSkins()
 
 	if(g_Config.m_Events)
 	{
-		if(time_season() == SEASON_XMAS)
+		if(time_season() == ETimeSeason::XMAS)
 		{
 			str_copy(m_aEventSkinPrefix, "santa");
 		}

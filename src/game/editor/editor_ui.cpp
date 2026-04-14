@@ -183,14 +183,14 @@ bool CEditor::DoClearableEditBox(CLineInput *pLineInput, const CUIRect *pRect, f
 	return Ui()->DoClearableEditBox(pLineInput, pRect, FontSize, Corners, vColorSplits);
 }
 
-SEditResult<int> CEditor::UiDoValueSelector(void *pId, CUIRect *pRect, const char *pLabel, int Current, int Min, int Max, int Step, float Scale, const char *pToolTip, bool IsDegree, bool IsHex, int Corners, const ColorRGBA *pColor, bool ShowValue)
+SEditResult<int> CEditor::UiDoValueSelector(const void *pId, CUIRect *pRect, const char *pLabel, int Current, int Min, int Max, int Step, float Scale, const char *pToolTip, bool IsDegree, bool IsHex, int Corners, const ColorRGBA *pColor, bool ShowValue)
 {
 	// logic
 	static bool s_DidScroll = false;
 	static float s_ScrollValue = 0.0f;
 	static CLineInputNumber s_NumberInput;
 	static int s_ButtonUsed = -1;
-	static void *s_pLastTextId = nullptr;
+	static const void *s_pLastTextId = nullptr;
 
 	const bool Inside = Ui()->MouseInside(pRect);
 	const int Base = IsHex ? 16 : 10;
@@ -324,7 +324,6 @@ SEditResult<int> CEditor::UiDoValueSelector(void *pId, CUIRect *pRect, const cha
 void CEditor::RenderBackground(CUIRect View, IGraphics::CTextureHandle Texture, float Size, float Brightness) const
 {
 	Graphics()->TextureSet(Texture);
-	Graphics()->BlendNormal();
 	Graphics()->QuadsBegin();
 	Graphics()->SetColor(Brightness, Brightness, Brightness, 1.0f);
 	Graphics()->QuadsSetSubset(0, 0, View.w / Size, View.h / Size);

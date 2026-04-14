@@ -10,10 +10,11 @@
 #include "font_typer.h"
 #include "layer_selector.h"
 #include "map_view.h"
-#include "quadart.h"
+#include "quad_art.h"
 #include "smooth_value.h"
 
 #include <base/bezier.h>
+#include <base/fs.h>
 
 #include <engine/editor.h>
 #include <engine/graphics.h>
@@ -354,8 +355,7 @@ public:
 	void FreeDynamicPopupMenus();
 	void UpdateColorPipette();
 	void RenderMousePointer();
-	void RenderGameEntities(const std::shared_ptr<CLayerTiles> &pTiles);
-	void RenderSwitchEntities(const std::shared_ptr<CLayerTiles> &pTiles);
+	void RenderIngameEntities(const CLayerGroup &Group, const CLayerTiles &TilesLayer);
 
 	template<typename E>
 	SEditResult<E> DoPropertiesWithState(CUIRect *pToolbox, CProperty *pProps, int *pIds, int *pNewVal, const std::vector<ColorRGBA> &vColors = {});
@@ -389,10 +389,10 @@ public:
 		POPEVENT_IMAGE_MAX,
 		POPEVENT_SOUND_MAX,
 		POPEVENT_PLACE_BORDER_TILES,
-		POPEVENT_TILEART_BIG_IMAGE,
-		POPEVENT_TILEART_MANY_COLORS,
-		POPEVENT_TILEART_TOO_MANY_COLORS,
-		POPEVENT_QUADART_BIG_IMAGE,
+		POPEVENT_TILE_ART_BIG_IMAGE,
+		POPEVENT_TILE_ART_MANY_COLORS,
+		POPEVENT_TILE_ART_TOO_MANY_COLORS,
+		POPEVENT_QUAD_ART_BIG_IMAGE,
 		POPEVENT_REMOVE_USED_IMAGE,
 		POPEVENT_REMOVE_USED_SOUND,
 		POPEVENT_RESTART_SERVER,
@@ -523,15 +523,6 @@ public:
 	CMapSettingsBackend m_MapSettingsBackend;
 	CMapSettingsBackend::CContext m_MapSettingsCommandContext;
 
-	CImageInfo m_TileartImageInfo;
-	void AddTileart(bool IgnoreHistory = false);
-	char m_aTileartFilename[IO_MAX_PATH_LENGTH];
-	void TileartCheckColors();
-
-	CImageInfo m_QuadArtImageInfo;
-	CQuadArtParameters m_QuadArtParameters;
-	void AddQuadArt(bool IgnoreHistory = false);
-
 	// editor_ui.cpp
 	void UpdateTooltip(const void *pId, const CUIRect *pRect, const char *pToolTip);
 	ColorRGBA GetButtonColor(const void *pId, int Checked);
@@ -544,7 +535,7 @@ public:
 	int DoButton_DraggableEx(const void *pId, const char *pText, int Checked, const CUIRect *pRect, bool *pClicked, bool *pAbrupted, int Flags, const char *pToolTip = nullptr, int Corners = IGraphics::CORNER_ALL, float FontSize = 10.0f);
 	bool DoEditBox(CLineInput *pLineInput, const CUIRect *pRect, float FontSize, int Corners = IGraphics::CORNER_ALL, const char *pToolTip = nullptr, const std::vector<STextColorSplit> &vColorSplits = {});
 	bool DoClearableEditBox(CLineInput *pLineInput, const CUIRect *pRect, float FontSize, int Corners = IGraphics::CORNER_ALL, const char *pToolTip = nullptr, const std::vector<STextColorSplit> &vColorSplits = {});
-	SEditResult<int> UiDoValueSelector(void *pId, CUIRect *pRect, const char *pLabel, int Current, int Min, int Max, int Step, float Scale, const char *pToolTip, bool IsDegree = false, bool IsHex = false, int Corners = IGraphics::CORNER_ALL, const ColorRGBA *pColor = nullptr, bool ShowValue = true);
+	SEditResult<int> UiDoValueSelector(const void *pId, CUIRect *pRect, const char *pLabel, int Current, int Min, int Max, int Step, float Scale, const char *pToolTip, bool IsDegree = false, bool IsHex = false, int Corners = IGraphics::CORNER_ALL, const ColorRGBA *pColor = nullptr, bool ShowValue = true);
 	void RenderBackground(CUIRect View, IGraphics::CTextureHandle Texture, float Size, float Brightness) const;
 
 	// editor_server_settings.cpp
@@ -556,6 +547,15 @@ public:
 
 	//+KZ, for CKZTile values
 	SEditResult<int64_t> UiDoValueSelectorInt64(void *pId, CUIRect *pRect, const char *pLabel, int64_t Current, int64_t Min, int64_t Max, int Step, float Scale, const char *pToolTip, bool IsDegree = false, bool IsHex = false, int Corners = IGraphics::CORNER_ALL, const ColorRGBA *pColor = nullptr, bool ShowValue = true);
+	
+	// For tile art popups
+	CImageInfo m_TileArtImageInfo;
+	char m_aTileArtFilename[IO_MAX_PATH_LENGTH];
+	void TileArtCheckColors();
+
+	// For quad art popups
+	CImageInfo m_QuadArtImageInfo;
+	CQuadArtParameters m_QuadArtParameters;
 
 	static CUi::EPopupMenuFunctionResult PopupMenuFile(void *pContext, CUIRect View, bool Active);
 	static CUi::EPopupMenuFunctionResult PopupMenuTools(void *pContext, CUIRect View, bool Active);
@@ -616,7 +616,7 @@ public:
 	static bool CallbackAppendMap(const char *pFilename, int StorageType, void *pUser);
 	static bool CallbackSaveMap(const char *pFilename, int StorageType, void *pUser);
 	static bool CallbackSaveCopyMap(const char *pFilename, int StorageType, void *pUser);
-	static bool CallbackAddTileart(const char *pFilepath, int StorageType, void *pUser);
+	static bool CallbackAddTileArt(const char *pFilepath, int StorageType, void *pUser);
 	static bool CallbackAddQuadArt(const char *pFilepath, int StorageType, void *pUser);
 	static bool CallbackSaveImage(const char *pFilename, int StorageType, void *pUser);
 	static bool CallbackSaveSound(const char *pFilename, int StorageType, void *pUser);
@@ -714,7 +714,35 @@ public:
 
 	static bool IsVanillaImage(const char *pImage);
 
+	enum class ELayerOperation
+	{
+		NONE,
+		CLICK,
+		LAYER_DRAG,
+		GROUP_DRAG,
+	};
+	class CRenderLayersState
+	{
+	public:
+		CScrollRegion m_ScrollRegion;
+		ELayerOperation m_Operation;
+		ELayerOperation m_PreviousOperation;
+		const void *m_pDraggedButton;
+		float m_InitialMouseY;
+		float m_InitialCutHeight;
+		bool m_ScrollToSelectionNext;
+		int m_InitialGroupIndex;
+		std::vector<int> m_vInitialLayerIndices;
+		const char m_AddGroupButtonId = 0;
+		const char m_CollapseAllButtonId = 0;
+		const SPopupMenuId m_PopupGroupId = {};
+		SLayerPopupContext m_LayerPopupContext;
+
+		void Reset();
+	};
+	CRenderLayersState m_RenderLayersState;
 	void RenderLayers(CUIRect LayersBox);
+
 	void RenderImagesList(CUIRect Toolbox);
 	void RenderSelectedImage(CUIRect View) const;
 	void RenderSounds(CUIRect Toolbox);
@@ -743,6 +771,7 @@ public:
 	void UpdateHotEnvelopePoint(const CUIRect &View, const CEnvelope *pEnvelope, int ActiveChannels);
 
 	void RenderMenubar(CUIRect Menubar);
+	void ShowHelp();
 
 	void DoAudioPreview(CUIRect View, const void *pPlayPauseButtonId, const void *pStopButtonId, const void *pSeekBarId, int SampleId);
 

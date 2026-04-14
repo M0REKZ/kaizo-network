@@ -10,7 +10,7 @@
 #include <game/editor/mapitems/layer_tiles.h>
 #include <game/editor/mapitems/layer_tune.h>
 #include <game/editor/mapitems/layer_kz.h>
-#include <game/editor/quadart.h>
+#include <game/editor/quad_art.h>
 #include <game/mapitems.h>
 
 #include <memory>
@@ -19,6 +19,7 @@
 
 class CEditorMap;
 class IEditorEnvelopeReference;
+class CLayerGroup;
 
 class CEditorActionLayerBase : public IEditorAction
 {
@@ -354,14 +355,14 @@ private:
 class CEditorActionTileArt : public IEditorAction
 {
 public:
-	CEditorActionTileArt(CEditorMap *pMap, int PreviousImageCount, const char *pTileArtFile, std::vector<int> &vImageIndexMap);
+	CEditorActionTileArt(CEditorMap *pMap, int PreviousImageCount, const char *pFilename, std::vector<int> &vImageIndexMap);
 
 	void Undo() override;
 	void Redo() override;
 
 private:
 	int m_PreviousImageCount;
-	char m_aTileArtFile[IO_MAX_PATH_LENGTH];
+	char m_aFilename[IO_MAX_PATH_LENGTH];
 	std::vector<int> m_vImageIndexMap;
 };
 
@@ -370,13 +371,13 @@ private:
 class CEditorActionQuadArt : public IEditorAction
 {
 public:
-	CEditorActionQuadArt(CEditorMap *pMap, CQuadArtParameters Parameters);
+	CEditorActionQuadArt(CEditorMap *pMap, const std::shared_ptr<CLayerGroup> &pGroup);
 
 	void Undo() override;
 	void Redo() override;
 
 private:
-	CQuadArtParameters m_Parameters;
+	std::shared_ptr<CLayerGroup> m_pGroup;
 };
 
 // ----------------------
@@ -454,7 +455,6 @@ private:
 	EEditType m_EditType;
 	int m_Previous;
 	int m_Current;
-	std::shared_ptr<CEnvelope> m_pEnv;
 };
 
 class CEditorActionEnvelopeEditPointTime : public IEditorAction
@@ -470,7 +470,6 @@ private:
 	int m_PointIndex;
 	CFixedTime m_Previous;
 	CFixedTime m_Current;
-	std::shared_ptr<CEnvelope> m_pEnv;
 
 	void Apply(CFixedTime Value);
 };
@@ -496,7 +495,6 @@ private:
 	EEditType m_EditType;
 	int m_Previous;
 	int m_Current;
-	std::shared_ptr<CEnvelope> m_pEnv;
 
 	void Apply(int Value);
 };

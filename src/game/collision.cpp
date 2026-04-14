@@ -2,9 +2,11 @@
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
 #include <antibot/antibot_data.h>
 
+#include <base/dbg.h>
 #include <base/math.h>
-#include <base/system.h>
+#include <base/mem.h>
 #include <base/vmath.h>
+#include <base/str.h>
 
 #include <engine/map.h>
 #include <engine/shared/config.h>
@@ -673,6 +675,16 @@ bool CCollision::TestBox(vec2 Pos, vec2 Size, SKZColCharCoreParams *pCharCorePar
 		return true;
 	if(CheckPoint(Pos.x + Size.x, Pos.y + Size.y, pCharCoreParams))
 		return true;
+	return false;
+}
+
+bool CCollision::IsOnGround(vec2 Pos, float Size) const
+{
+	if(CheckPoint(Pos.x + Size / 2, Pos.y + Size / 2 + 5))
+		return true;
+	if(CheckPoint(Pos.x - Size / 2, Pos.y + Size / 2 + 5))
+		return true;
+
 	return false;
 }
 

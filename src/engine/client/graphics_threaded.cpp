@@ -1,10 +1,14 @@
 /* (c) Magnus Auvinen. See licence.txt in the root of the distribution for more information. */
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
 
+#include <base/dbg.h>
 #include <base/detect.h>
+#include <base/io.h>
 #include <base/log.h>
 #include <base/math.h>
-#include <base/system.h>
+#include <base/mem.h>
+#include <base/str.h>
+#include <base/time.h>
 
 #include <engine/engine.h>
 #include <engine/gfx/image_loader.h>
@@ -110,7 +114,7 @@ CGraphics_Threaded::CGraphics_Threaded()
 	m_State.m_ClipW = 0;
 	m_State.m_ClipH = 0;
 	m_State.m_Texture = -1;
-	m_State.m_BlendMode = EBlendMode::NONE;
+	m_State.m_BlendMode = EBlendMode::ALPHA;
 	m_State.m_WrapMode = EWrapMode::REPEAT;
 
 	m_CurrentCommandBuffer = 0;
@@ -2920,6 +2924,11 @@ const char *CGraphics_Threaded::GetVersionString()
 const char *CGraphics_Threaded::GetRendererString()
 {
 	return m_pBackend->GetRendererString();
+}
+
+const char *CGraphics_Threaded::GetFatalError() const
+{
+	return m_pBackend == nullptr ? "" : m_pBackend->GetFatalError();
 }
 
 TGLBackendReadPresentedImageData &CGraphics_Threaded::GetReadPresentedImageDataFuncUnsafe()

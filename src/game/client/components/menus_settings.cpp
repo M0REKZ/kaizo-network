@@ -4,9 +4,10 @@
 #include "menus.h"
 #include "skins.h"
 
+#include <base/fs.h>
 #include <base/log.h>
 #include <base/math.h>
-#include <base/system.h>
+#include <base/str.h>
 
 #include <engine/font_icons.h>
 #include <engine/graphics.h>
@@ -118,11 +119,11 @@ void CMenus::RenderSettingsGeneral(CUIRect MainView)
 		Left.HSplitTop(20.0f, &Button, &Left);
 		str_copy(aBuf, " ");
 		str_append(aBuf, Localize("Hz", "Hertz"));
-		Ui()->DoScrollbarOption(&g_Config.m_ClRefreshRate, &g_Config.m_ClRefreshRate, &Button, Localize("Refresh Rate"), 10, 1000, &CUi::ms_LinearScrollbarScale, CUi::SCROLLBAR_OPTION_INFINITE | CUi::SCROLLBAR_OPTION_NOCLAMPVALUE | CUi::SCROLLBAR_OPTION_DELAYUPDATE, aBuf);
+		Ui()->DoScrollbarOption(&g_Config.m_ClRefreshRate, &g_Config.m_ClRefreshRate, &Button, Localize("Update Rate"), 10, 1000, &CUi::ms_LinearScrollbarScale, CUi::SCROLLBAR_OPTION_INFINITE | CUi::SCROLLBAR_OPTION_NOCLAMPVALUE | CUi::SCROLLBAR_OPTION_DELAYUPDATE, aBuf);
 		Left.HSplitTop(5.0f, nullptr, &Left);
 		Left.HSplitTop(20.0f, &Button, &Left);
 		static int s_LowerRefreshRate;
-		if(DoButton_CheckBox(&s_LowerRefreshRate, Localize("Save power by lowering refresh rate (higher input latency)"), g_Config.m_ClRefreshRate <= 480 && g_Config.m_ClRefreshRate != 0, &Button))
+		if(DoButton_CheckBox(&s_LowerRefreshRate, Localize("Save power by lowering update rate (higher input latency)"), g_Config.m_ClRefreshRate <= 480 && g_Config.m_ClRefreshRate != 0, &Button))
 			g_Config.m_ClRefreshRate = g_Config.m_ClRefreshRate > 480 || g_Config.m_ClRefreshRate == 0 ? 480 : 0;
 
 		CUIRect SettingsButton;
@@ -1234,16 +1235,15 @@ void CMenus::RenderSettingsGraphics(CUIRect MainView)
 
 void CMenus::RenderSettingsSound(CUIRect MainView)
 {
-	static int s_SndEnable = g_Config.m_SndEnable;
-
 	CUIRect Button;
 	MainView.HSplitTop(20.0f, &Button, &MainView);
 	if(DoButton_CheckBox(&g_Config.m_SndEnable, Localize("Use sounds"), g_Config.m_SndEnable, &Button))
 	{
 		g_Config.m_SndEnable ^= 1;
 		UpdateMusicState();
-		m_NeedRestartSound = g_Config.m_SndEnable && !s_SndEnable;
 	}
+
+	m_NeedRestartSound = g_Config.m_SndEnable && !Sound()->IsSoundEnabled();
 
 	if(!g_Config.m_SndEnable)
 		return;
@@ -1337,11 +1337,9 @@ void CMenus::RenderLanguageSettings(CUIRect MainView)
 	CreditsScroll.Draw(ColorRGBA(0.0f, 0.0f, 0.0f, 0.25f), IGraphics::CORNER_ALL, 5.0f);
 
 	static CScrollRegion s_CreditsScrollRegion;
-	vec2 ScrollOffset(0.0f, 0.0f);
 	CScrollRegionParams ScrollParams;
 	ScrollParams.m_ScrollUnit = CreditsFontSize;
-	s_CreditsScrollRegion.Begin(&CreditsScroll, &ScrollOffset, &ScrollParams);
-	CreditsScroll.y += ScrollOffset.y;
+	s_CreditsScrollRegion.Begin(&CreditsScroll, &ScrollParams);
 
 	CTextCursor Cursor;
 	Cursor.m_FontSize = CreditsFontSize;
@@ -1740,8 +1738,8 @@ bool CMenus::RenderHslaScrollbars(CUIRect *pRect, unsigned int *pColor, bool Alp
 		CUIRect Button, Label;
 		pRect->HSplitTop(SizePerEntry, &Button, pRect);
 		pRect->HSplitTop(MarginPerEntry, nullptr, pRect);
-		Button.VSplitLeft(10.0f, nullptr, &Button);
-		Button.VSplitLeft(100.0f, &Label, &Button);
+		Button.VSplitLeft(140.0f, &Label, &Button);
+		Label.VMargin(10.0f, &Label);
 
 		Button.Draw(ColorRGBA(0.15f, 0.15f, 0.15f, 1.0f), IGraphics::CORNER_ALL, 1.0f);
 
@@ -1749,8 +1747,21 @@ bool CMenus::RenderHslaScrollbars(CUIRect *pRect, unsigned int *pColor, bool Alp
 		Button.Margin(2.0f, &Rail);
 
 		char aBuf[32];
-		str_format(aBuf, sizeof(aBuf), "%s: %03d", apLabels[i], round_to_int(Color[i] * 255.0f));
-		Ui()->DoLabel(&Label, aBuf, 14.0f, TEXTALIGN_ML);
+
+		// Hue
+		if(i == 0)
+			str_format(aBuf, sizeof(aBuf), "%s: %.1f° (%03d)", apLabels[i], Color[i] * 360.0f, round_to_int(Color[i] * 255.0f));
+		// Lht
+		else if(i == 2)
+		{
+			// handle internal light clamping, see `UnclampLighting`
+			float Lht = DarkestLight + Color[i] * (1.0f - DarkestLight);
+			str_format(aBuf, sizeof(aBuf), "%s: %.1f%% (%03d)", apLabels[i], Lht * 100.0f, round_to_int(Color[i] * 255.0f));
+		}
+		// Sat and Alpha
+		else
+			str_format(aBuf, sizeof(aBuf), "%s: %.1f%% (%03d)", apLabels[i], Color[i] * 100.0f, round_to_int(Color[i] * 255.0f));
+		Ui()->DoLabel(&Label, aBuf, 12.0f, TEXTALIGN_ML);
 
 		ColorRGBA HandleColor;
 		Graphics()->TextureClear();
@@ -2412,28 +2423,31 @@ void CMenus::RenderSettingsAppearance(CUIRect MainView)
 		LeftView.HSplitTop(LineSize * 2.0f, &Button, &LeftView);
 		Ui()->DoScrollbarOption(&g_Config.m_ClHookCollAlpha, &g_Config.m_ClHookCollAlpha, &Button, Localize("Hook collision line opacity"), 0, 100, &CUi::ms_LinearScrollbarScale, CUi::SCROLLBAR_OPTION_MULTILINE, "%");
 
-		static CButtonContainer s_HookCollNoCollResetId, s_HookCollHookableCollResetId, s_HookCollTeeCollResetId;
+		static CButtonContainer s_HookCollNoCollResetId, s_HookCollHookableCollResetId, s_HookCollTeeCollResetId, s_HookCollTipColorResetId;
 		static int s_HookCollToolTip;
 
-		Ui()->DoLabel_AutoLineSize(Localize("Colors of the hook collision line, in case of a possible collision with:"), 13.0f,
+		Ui()->DoLabel_AutoLineSize(Localize("Colors of the hook collision line:"), 13.0f,
 			TEXTALIGN_ML, &LeftView, HeadlineHeight);
 
 		Ui()->DoButtonLogic(&s_HookCollToolTip, 0, &LeftView, BUTTONFLAG_NONE); // Just for the tooltip, result ignored
 		GameClient()->m_Tooltips.DoToolTip(&s_HookCollToolTip, &LeftView, Localize("Your movements are not taken into account when calculating the line colors"));
-		DoLine_ColorPicker(&s_HookCollNoCollResetId, ColorPickerLineSize, ColorPickerLabelSize, ColorPickerLineSpacing, &LeftView, Localize("Nothing hookable"), &g_Config.m_ClHookCollColorNoColl, ColorRGBA(1.0f, 0.0f, 0.0f, 1.0f), false);
-		DoLine_ColorPicker(&s_HookCollHookableCollResetId, ColorPickerLineSize, ColorPickerLabelSize, ColorPickerLineSpacing, &LeftView, Localize("Something hookable"), &g_Config.m_ClHookCollColorHookableColl, ColorRGBA(130.0f / 255.0f, 232.0f / 255.0f, 160.0f / 255.0f, 1.0f), false);
-		DoLine_ColorPicker(&s_HookCollTeeCollResetId, ColorPickerLineSize, ColorPickerLabelSize, ColorPickerLineSpacing, &LeftView, Localize("A Tee"), &g_Config.m_ClHookCollColorTeeColl, ColorRGBA(1.0f, 1.0f, 0.0f, 1.0f), false);
+		DoLine_ColorPicker(&s_HookCollNoCollResetId, ColorPickerLineSize, ColorPickerLabelSize, ColorPickerLineSpacing, &LeftView, Localize("When nothing is hookable", "Hook collision line color"), &g_Config.m_ClHookCollColorNoColl, ColorRGBA(1.0f, 0.0f, 0.0f, 1.0f), false);
+		DoLine_ColorPicker(&s_HookCollHookableCollResetId, ColorPickerLineSize, ColorPickerLabelSize, ColorPickerLineSpacing, &LeftView, Localize("When something is hookable", "Hook collision line color"), &g_Config.m_ClHookCollColorHookableColl, ColorRGBA(130.0f / 255.0f, 232.0f / 255.0f, 160.0f / 255.0f, 1.0f), false);
+		DoLine_ColorPicker(&s_HookCollTeeCollResetId, ColorPickerLineSize, ColorPickerLabelSize, ColorPickerLineSpacing, &LeftView, Localize("When a Tee is hookable", "Hook collision line color"), &g_Config.m_ClHookCollColorTeeColl, ColorRGBA(1.0f, 1.0f, 0.0f, 1.0f), false);
+		DoLine_ColorPicker(&s_HookCollTipColorResetId, ColorPickerLineSize, ColorPickerLabelSize, ColorPickerLineSpacing, &LeftView, Localize("Hook collision line tip", "Hook collision line color"), &g_Config.m_ClHookCollTipColor, ColorRGBA(1.0f, 1.0f, 0.0f, 0.5f), false, nullptr, true);
 
 		// ***** Hook collisions preview ***** //
 		Ui()->DoLabel_AutoLineSize(Localize("Preview"), HeadlineFontSize,
 			TEXTALIGN_ML, &RightView, HeadlineHeight);
 		RightView.HSplitTop(2 * MarginSmall, nullptr, &RightView);
 
-		auto DoHookCollision = [this](const vec2 &Pos, const float &Length, const int &Size, const ColorRGBA &Color, const bool &Invert) {
+		auto DoHookCollision = [this](const vec2 &Pos, const float &Length, const int &Size, const ColorRGBA &Color, const ColorRGBA &TipColor, const bool &Invert) {
 			ColorRGBA ColorModified = Color;
+			ColorRGBA TipColorModified = TipColor;
 			if(Invert)
 				ColorModified = color_invert(ColorModified);
 			ColorModified = ColorModified.WithAlpha((float)g_Config.m_ClHookCollAlpha / 100);
+			TipColorModified = TipColor.WithMultipliedAlpha((float)g_Config.m_ClHookCollAlpha / 100);
 			Graphics()->TextureClear();
 			if(Size > 0)
 			{
@@ -2442,6 +2456,12 @@ void CMenus::RenderSettingsAppearance(CUIRect MainView)
 				float LineWidth = 0.5f + (float)(Size - 1) * 0.25f;
 				IGraphics::CQuadItem QuadItem(Pos.x, Pos.y - LineWidth, Length, LineWidth * 2.f);
 				Graphics()->QuadsDrawTL(&QuadItem, 1);
+				if(TipColor.a > 0.0f)
+				{
+					Graphics()->SetColor(TipColorModified);
+					IGraphics::CQuadItem TipQuadItem(Pos.x + Length, Pos.y - LineWidth, 15.f, LineWidth * 2.f);
+					Graphics()->QuadsDrawTL(&TipQuadItem, 1);
+				}
 				Graphics()->QuadsEnd();
 			}
 			else
@@ -2450,6 +2470,12 @@ void CMenus::RenderSettingsAppearance(CUIRect MainView)
 				Graphics()->SetColor(ColorModified);
 				IGraphics::CLineItem LineItem(Pos.x, Pos.y, Pos.x + Length, Pos.y);
 				Graphics()->LinesDraw(&LineItem, 1);
+				if(TipColor.a > 0.0f)
+				{
+					Graphics()->SetColor(TipColorModified);
+					IGraphics::CLineItem TipLineItem(Pos.x + Length, Pos.y, Pos.x + Length + 15.f, Pos.y);
+					Graphics()->LinesDraw(&TipLineItem, 1);
+				}
 				Graphics()->LinesEnd();
 			}
 		};
@@ -2481,7 +2507,7 @@ void CMenus::RenderSettingsAppearance(CUIRect MainView)
 		RightView.HSplitTop(50.0f, &PreviewNoColl, &RightView);
 		RightView.HSplitTop(4 * MarginSmall, nullptr, &RightView);
 		TeeRenderPos = vec2(PreviewNoColl.x + LeftMargin, PreviewNoColl.y + PreviewNoColl.h / 2.0f);
-		DoHookCollision(TeeRenderPos, PreviewNoColl.w - LineLength, g_Config.m_ClHookCollSize, color_cast<ColorRGBA>(ColorHSLA(g_Config.m_ClHookCollColorNoColl)), s_HookCollPressed);
+		DoHookCollision(TeeRenderPos, PreviewNoColl.w - LineLength, g_Config.m_ClHookCollSize, color_cast<ColorRGBA>(ColorHSLA(g_Config.m_ClHookCollColorNoColl)), ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f), s_HookCollPressed);
 		RenderTools()->RenderTee(CAnimState::GetIdle(), &OwnSkinInfo, 0, vec2(1.0f, 0.0f), TeeRenderPos);
 
 		CUIRect NoHookTileRect;
@@ -2492,7 +2518,6 @@ void CMenus::RenderSettingsAppearance(CUIRect MainView)
 		// Render unhookable tile
 		Graphics()->TextureClear();
 		Graphics()->TextureSet(GameClient()->m_MapImages.GetEntities(MAP_IMAGE_ENTITY_LAYER_TYPE_ALL_EXCEPT_SWITCH));
-		Graphics()->BlendNormal();
 		Graphics()->SetColor(1.0f, 1.0f, 1.0f, 1.0f);
 		RenderMap()->RenderTile(NoHookTileRect.x, NoHookTileRect.y, TILE_NOHOOK, TileScale, ColorRGBA(1.0f, 1.0f, 1.0f, 1.0f));
 
@@ -2500,7 +2525,7 @@ void CMenus::RenderSettingsAppearance(CUIRect MainView)
 		RightView.HSplitTop(50.0f, &PreviewColl, &RightView);
 		RightView.HSplitTop(4 * MarginSmall, nullptr, &RightView);
 		TeeRenderPos = vec2(PreviewColl.x + LeftMargin, PreviewColl.y + PreviewColl.h / 2.0f);
-		DoHookCollision(TeeRenderPos, PreviewColl.w - LineLength, g_Config.m_ClHookCollSize, color_cast<ColorRGBA>(ColorHSLA(g_Config.m_ClHookCollColorHookableColl)), s_HookCollPressed);
+		DoHookCollision(TeeRenderPos, PreviewColl.w - LineLength, g_Config.m_ClHookCollSize, color_cast<ColorRGBA>(ColorHSLA(g_Config.m_ClHookCollColorHookableColl)), ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f), s_HookCollPressed);
 		RenderTools()->RenderTee(CAnimState::GetIdle(), &OwnSkinInfo, 0, vec2(1.0f, 0.0f), TeeRenderPos);
 
 		CUIRect HookTileRect;
@@ -2511,7 +2536,6 @@ void CMenus::RenderSettingsAppearance(CUIRect MainView)
 		// Render hookable tile
 		Graphics()->TextureClear();
 		Graphics()->TextureSet(GameClient()->m_MapImages.GetEntities(MAP_IMAGE_ENTITY_LAYER_TYPE_ALL_EXCEPT_SWITCH));
-		Graphics()->BlendNormal();
 		Graphics()->SetColor(1.0f, 1.0f, 1.0f, 1.0f);
 		RenderMap()->RenderTile(HookTileRect.x, HookTileRect.y, TILE_SOLID, TileScale, ColorRGBA(1.0f, 1.0f, 1.0f, 1.0f));
 
@@ -2520,7 +2544,7 @@ void CMenus::RenderSettingsAppearance(CUIRect MainView)
 		RightView.HSplitTop(4 * MarginSmall, nullptr, &RightView);
 		TeeRenderPos = vec2(PreviewColl.x + LeftMargin, PreviewColl.y + PreviewColl.h / 2.0f);
 		DummyRenderPos = vec2(PreviewColl.x + PreviewColl.w - LineLength - 5.f + LeftMargin, PreviewColl.y + PreviewColl.h / 2.0f);
-		DoHookCollision(TeeRenderPos, PreviewColl.w - LineLength - 15.f, g_Config.m_ClHookCollSize, color_cast<ColorRGBA>(ColorHSLA(g_Config.m_ClHookCollColorTeeColl)), s_HookCollPressed);
+		DoHookCollision(TeeRenderPos, PreviewColl.w - LineLength - 15.f, g_Config.m_ClHookCollSize, color_cast<ColorRGBA>(ColorHSLA(g_Config.m_ClHookCollColorTeeColl)), ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f), s_HookCollPressed);
 		RenderTools()->RenderTee(CAnimState::GetIdle(), &DummySkinInfo, 0, vec2(1.0f, 0.0f), DummyRenderPos);
 		RenderTools()->RenderTee(CAnimState::GetIdle(), &OwnSkinInfo, 0, vec2(1.0f, 0.0f), TeeRenderPos);
 
@@ -2529,9 +2553,16 @@ void CMenus::RenderSettingsAppearance(CUIRect MainView)
 		RightView.HSplitTop(4 * MarginSmall, nullptr, &RightView);
 		TeeRenderPos = vec2(PreviewColl.x + LeftMargin, PreviewColl.y + PreviewColl.h / 2.0f);
 		DummyRenderPos = vec2(PreviewColl.x + PreviewColl.w - LineLength - 5.f + LeftMargin, PreviewColl.y + PreviewColl.h / 2.0f);
-		DoHookCollision(TeeRenderPos, PreviewColl.w - LineLength - 15.f, g_Config.m_ClHookCollSizeOther, color_cast<ColorRGBA>(ColorHSLA(g_Config.m_ClHookCollColorTeeColl)), false);
+		DoHookCollision(TeeRenderPos, PreviewColl.w - LineLength - 15.f, g_Config.m_ClHookCollSizeOther, color_cast<ColorRGBA>(ColorHSLA(g_Config.m_ClHookCollColorTeeColl)), ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f), false);
 		RenderTools()->RenderTee(CAnimState::GetIdle(), &OwnSkinInfo, 0, vec2(1.0f, 0.0f), DummyRenderPos);
 		RenderTools()->RenderTee(CAnimState::GetIdle(), &DummySkinInfo, 0, vec2(1.0f, 0.0f), TeeRenderPos);
+
+		// ***** Hook Line Tip Preview *****
+		RightView.HSplitTop(50.0f, &PreviewColl, &RightView);
+		RightView.HSplitTop(4 * MarginSmall, nullptr, &RightView);
+		TeeRenderPos = vec2(PreviewColl.x + LeftMargin, PreviewColl.y + PreviewColl.h / 2.0f);
+		DoHookCollision(TeeRenderPos, PreviewColl.w - LineLength - 15.f, g_Config.m_ClHookCollSize, color_cast<ColorRGBA>(ColorHSLA(g_Config.m_ClHookCollColorNoColl)), color_cast<ColorRGBA>(ColorHSLA(g_Config.m_ClHookCollTipColor, true)), s_HookCollPressed);
+		RenderTools()->RenderTee(CAnimState::GetIdle(), &OwnSkinInfo, 0, vec2(1.0f, 0.0f), TeeRenderPos);
 
 		// ***** Preview +hookcoll pressed toggle *****
 		RightView.HSplitTop(LineSize, &Button, &RightView);
@@ -2735,7 +2766,7 @@ void CMenus::RenderSettingsDDNet(CUIRect MainView)
 
 	// gameplay
 	CUIRect Gameplay;
-	MainView.HSplitTop(150.0f, &Gameplay, &MainView);
+	MainView.HSplitTop(170.0f, &Gameplay, &MainView);
 	Gameplay.HSplitTop(30.0f, &Label, &Gameplay);
 	Ui()->DoLabel(&Label, Localize("Gameplay"), 20.0f, TEXTALIGN_ML);
 	Gameplay.HSplitTop(5.0f, nullptr, &Gameplay);
@@ -2780,9 +2811,18 @@ void CMenus::RenderSettingsDDNet(CUIRect MainView)
 	}
 	GameClient()->m_Tooltips.DoToolTip(&g_Config.m_ClShowQuads, &Button, Localize("Quads are used for background decoration"));
 
-	Right.HSplitTop(20.0f, &Button, &Right);
+	Left.HSplitTop(20.0f, &Button, &Left);
 	if(Ui()->DoScrollbarOption(&g_Config.m_ClDefaultZoom, &g_Config.m_ClDefaultZoom, &Button, Localize("Default zoom"), 0, 20))
 		GameClient()->m_Camera.SetZoom(CCamera::ZoomStepsToValue(g_Config.m_ClDefaultZoom - 10), g_Config.m_ClSmoothZoomTime, true);
+
+	Right.HSplitTop(20.0f, &Button, &Right);
+	Ui()->DoScrollbarOption(&g_Config.m_ClPredictionMargin, &g_Config.m_ClPredictionMargin, &Button, Localize("Prediction margin"), 1, 300);
+
+	Right.HSplitTop(20.0f, &Button, &Right);
+	if(DoButton_CheckBox(&g_Config.m_ClPredictEvents, Localize("Predict events (experimental)"), g_Config.m_ClPredictEvents, &Button))
+	{
+		g_Config.m_ClPredictEvents ^= 1;
+	}
 
 	Right.HSplitTop(20.0f, &Button, &Right);
 	if(DoButton_CheckBox(&g_Config.m_ClAntiPing, Localize("AntiPing"), g_Config.m_ClAntiPing, &Button))
@@ -2810,8 +2850,6 @@ void CMenus::RenderSettingsDDNet(CUIRect MainView)
 		{
 			g_Config.m_ClAntiPingGrenade ^= 1;
 		}
-		Right.HSplitTop(20.0f, &Button, &Right);
-		Ui()->DoScrollbarOption(&g_Config.m_ClPredictionMargin, &g_Config.m_ClPredictionMargin, &Button, Localize("AntiPing: prediction margin"), 1, 300);
 	}
 
 	CUIRect Background, Miscellaneous;
