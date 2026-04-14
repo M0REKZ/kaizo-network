@@ -72,11 +72,9 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 	MainView.HSplitTop(20.0f, nullptr, &SettingsBoxContainer);
 	
 	static CScrollRegion s_ScrollRegion;
-	vec2 ScrollOffset(0, 0);
 	CScrollRegionParams ScrollParams;
 	ScrollParams.m_ScrollUnit = 120.0f;
-	s_ScrollRegion.Begin(&MainView, &ScrollParams);
-	SettingsBoxContainer.y += ScrollOffset.y;
+	s_ScrollRegion.Begin(&SettingsBoxContainer, &ScrollParams);
 
 	float ScrollHeight = 0.f;
 
