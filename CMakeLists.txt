@@ -1473,7 +1473,6 @@ set(EXPECTED_DATA
   kz/attractor.png
   kz/portal.png
   kz/portal_orange.png
-  kz/rclient.png
   kz/shield.png
   kz/zillywoods.png
   languages/arabic.txt
@@ -2458,8 +2457,6 @@ if(CLIENT)
     components/kz/bindwheel.h
     components/kz/custom_communities.cpp
     components/kz/custom_communities.h
-    components/kz/rclient_indicator.cpp
-    components/kz/rclient_indicator.h
     components/kz/rechargebars.cpp
     components/kz/rechargebars.h
     components/key_binder.cpp

@@ -91,12 +91,6 @@ public:
 			m_Sprite = SPRITE_KZ_DUCKICON;
 			m_Visible = true;
 		}
-		else if(This.m_RClientIndicator.IsPlayerRClient(Data.m_ClientId)) //it is done differently for RushieClient
-		{
-			m_Texture = g_pData->m_aImages[IMAGE_KZ_RUSHIEICON].m_Id;
-			m_Sprite = SPRITE_KZ_RUSHIEICON;
-			m_Visible = true;
-		}
 		else
 		{
 			m_Visible = false;
