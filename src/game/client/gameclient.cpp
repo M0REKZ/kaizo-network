@@ -575,7 +575,10 @@ int CGameClient::OnSnapInput(int *pData, bool Dummy, bool Force)
 			m_DummyInput.m_WantedWeapon = WEAPON_HAMMER + 1;
 		}
 
-		const vec2 Dir = m_LocalCharacterPos - m_aClients[m_aLocalIds[!g_Config.m_ClDummy]].m_Predicted.m_Pos;
+		// const vec2 Dir = m_LocalCharacterPos - m_aClients[m_aLocalIds[!g_Config.m_ClDummy]].m_Predicted.m_Pos;
+		// TClient
+		const vec2 Dir = m_LocalCharacterPos - m_aClients[m_aLocalIds[!g_Config.m_ClDummy]].m_RegularPredicted.m_Pos;
+
 		m_HammerInput.m_TargetX = (int)Dir.x;
 		m_HammerInput.m_TargetY = (int)Dir.y;
 
@@ -2699,6 +2702,12 @@ void CGameClient::OnPredict()
 			}
 		}
 
+		// TClient
+		// This has to be before direct input because physics happens in there
+		bool TempPredEventState = m_PredictedWorld.m_WorldConfig.m_PredictEvents;
+		if (Tick > FinalTickRegular)
+			m_PredictedWorld.m_WorldConfig.m_PredictEvents = false;
+
 		if(DummyFirst)
 			pDummyChar->OnDirectInput(pDummyInputData);
 		if(pInputData)
@@ -2769,6 +2778,9 @@ void CGameClient::OnPredict()
 			m_Collision.UpdateQuadCache();
 
 		m_PredictedWorld.Tick();
+
+		// TClient
+		m_PredictedWorld.m_WorldConfig.m_PredictEvents = TempPredEventState;
 
 		//+KZ
 		if(g_Config.m_KaizoPredictGameTypes && m_PredControllerKZ.m_pController)
