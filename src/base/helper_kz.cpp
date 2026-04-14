@@ -1,8 +1,10 @@
 // Copyright (C) Benjamín Gajardo (also known as +KZ)
 
-#include "system.h"
+#include "str.h"
 #include <cmath>
 #include "helper_kz.h"
+#include <cstdio>
+#include "dbg.h"
 
 const char * str_format_time_kz(double Time)
 {

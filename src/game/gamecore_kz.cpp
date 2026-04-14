@@ -6,7 +6,6 @@
 #include "mapitems.h"
 #include "teamscore.h"
 
-#include <base/system.h>
 #include <engine/shared/config.h>
 
 #include <limits>

@@ -3,7 +3,8 @@
 // SaveKaizo() has code from config.cpp
 
 #include <base/log.h>
-#include <base/system.h>
+#include <base/str.h>
+#include <base/io.h>
 #include "config.h"
 
 bool CConfigManager::SaveKaizo()

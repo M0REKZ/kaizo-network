@@ -6,7 +6,7 @@
 
 #include <engine/map.h>
 
-#include <base/system.h>
+#include <base/str.h>
 #include <game/gamecore.h>
 
 CLayers::CLayers()

@@ -4,6 +4,7 @@
 #include "map_renderer.h"
 #include <iterator>
 #include <game/gamecore.h>
+#include <base/str.h>
 
 std::unique_ptr<CRenderLayer> CMapRenderer::GetKZLayerInLoad(CMapItemLayerTilemap *pTileLayer, int GroupId, int LayerId)
 {
