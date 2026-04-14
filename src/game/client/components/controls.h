@@ -64,6 +64,8 @@ public:
 	//+KZ from Fast Input commit and TClient
 	bool CheckNewInput();
 	CNetObj_PlayerInput m_aFastInput[NUM_DUMMIES];
+	bool m_FastInputHookAction = false;
+	bool m_FastInputFireAction = false;
 	void HandleKaizoInput(CNetObj_PlayerInput *pMainInput, CNetObj_PlayerInput *pSecondInput);
 };
 #endif

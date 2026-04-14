@@ -8,7 +8,7 @@
 
 bool CControls::CheckNewInput()
 {
-	bool NewInput = false;
+	bool NewInput[2] = {};
 	for(int Dummy = 0; Dummy < NUM_DUMMIES; Dummy++)
 	{
 		CNetObj_PlayerInput TestInput = m_aInputData[Dummy];
@@ -19,33 +19,62 @@ bool CControls::CheckNewInput()
 				TestInput.m_Direction = -1;
 			if(!m_aInputDirectionLeft[Dummy] && m_aInputDirectionRight[Dummy])
 				TestInput.m_Direction = 1;
-
-			if(g_Config.m_ClSubTickAiming)
-			{
-				TestInput.m_TargetX = (int)m_aMousePos[Dummy].x;
-				TestInput.m_TargetY = (int)m_aMousePos[Dummy].y;
-			}
 		}
 
 		if(m_aFastInput[Dummy].m_Direction != TestInput.m_Direction)
-			NewInput = true;
+			NewInput[Dummy] = true;
 		if(m_aFastInput[Dummy].m_Hook != TestInput.m_Hook)
-			NewInput = true;
+			NewInput[Dummy] = true;
 		if(m_aFastInput[Dummy].m_Fire != TestInput.m_Fire)
-			NewInput = true;
+			NewInput[Dummy] = true;
 		if(m_aFastInput[Dummy].m_Jump != TestInput.m_Jump)
-			NewInput = true;
+			NewInput[Dummy] = true;
 		if(m_aFastInput[Dummy].m_NextWeapon != TestInput.m_NextWeapon)
-			NewInput = true;
+			NewInput[Dummy] = true;
 		if(m_aFastInput[Dummy].m_PrevWeapon != TestInput.m_PrevWeapon)
-			NewInput = true;
+			NewInput[Dummy] = true;
 		if(m_aFastInput[Dummy].m_WantedWeapon != TestInput.m_WantedWeapon)
-			NewInput = true;
+			NewInput[Dummy] = true;
+
+		bool SetMousePos = false;
+		// We need to be careful about how we manage the mouse position to avoid mispredicted hooks and fires
+		// on the first tick that they activate before we know what mouse position we actually sent to the server
+		if(Dummy == g_Config.m_ClDummy)
+		{
+			if(m_aFastInput[Dummy].m_Hook == 0 && TestInput.m_Hook == 1)
+			{
+				m_FastInputHookAction = true;
+				SetMousePos = true;
+			}
+			if(m_aFastInput[Dummy].m_Fire != TestInput.m_Fire && TestInput.m_Fire % 2 == 1)
+			{
+				m_FastInputFireAction = true;
+				SetMousePos = true;
+			}
+			if(!m_FastInputHookAction && !m_FastInputFireAction)
+			{
+				SetMousePos = true;
+			}
+		}
+
+		if(SetMousePos)
+		{
+			TestInput.m_TargetX = (int)m_aMousePos[Dummy].x;
+			TestInput.m_TargetY = (int)m_aMousePos[Dummy].y;
+		}
+		else
+		{
+			TestInput.m_TargetX = m_aFastInput[Dummy].m_TargetX;
+			TestInput.m_TargetY = m_aFastInput[Dummy].m_TargetY;
+		}
 
 		m_aFastInput[Dummy] = TestInput;
 	}
 
-	return NewInput;
+	if(NewInput[0] || NewInput[1])
+		return true;
+	else
+		return false;
 }
 
 void CControls::HandleKaizoInput(CNetObj_PlayerInput *pMainInput, CNetObj_PlayerInput *pSecondInput)
