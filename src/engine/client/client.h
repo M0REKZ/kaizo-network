@@ -548,7 +548,8 @@ public:
 	//+KZ
 	void SendKaizoNetworkVersion(int Conn);
 	void SendKaizoClientIAm(int Conn);
-	void SendFastInputsInfo(int Conn);
+	void SendFastInputsInfo(int Conn); //FoxNet
+	void SendSupportsCosmeticSnapInfo(int Conn); //FoxNet
 };
 
 #endif

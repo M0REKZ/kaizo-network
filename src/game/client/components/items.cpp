@@ -2,6 +2,8 @@
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
 #include "items.h"
 
+#include <base/log.h>
+
 #include <engine/demo.h>
 #include <engine/graphics.h>
 #include <engine/shared/config.h>
@@ -616,6 +618,26 @@ void CItems::OnRender()
 
 			RenderLaser(&Data);
 		}
+		//FoxNet
+		else if(Item.m_Type == NETOBJTYPE_COSMETICPICKUP)
+		{
+			const void *pPrev = Client()->SnapFindItem(IClient::SNAP_PREV, Item.m_Type, Item.m_Id);
+			if(pPrev)
+				RenderCosmeticPickup((const CNetObj_CosmeticPickup *)pPrev, (const CNetObj_CosmeticPickup *)pData);
+		}
+		else if(Item.m_Type == NETOBJTYPE_COSMETICLASER)
+		{
+			const void *pPrev = Client()->SnapFindItem(IClient::SNAP_PREV, Item.m_Type, Item.m_Id);
+			if(pPrev)
+				RenderCosmeticLaser((const CNetObj_CosmeticLaser *)pPrev, (const CNetObj_CosmeticLaser *)pData);
+		}
+		else if(Item.m_Type == NETOBJTYPE_COSMETICPROJECTILE)
+		{
+			const void *pPrev = Client()->SnapFindItem(IClient::SNAP_PREV, Item.m_Type, Item.m_Id);
+			if(pPrev)
+				RenderCosmeticProjectile((const CNetObj_CosmeticProjectile *)pPrev, (const CNetObj_CosmeticProjectile *)pData);
+		}
+		//FoxNet End
 	}
 
 	// render Kaizo Network Snap items

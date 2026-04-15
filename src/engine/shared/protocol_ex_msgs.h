@@ -55,6 +55,7 @@ UUID(NETMSG_IAM_KAIZO_CLIENT, "i-am-kaizo-client-pluskz@m0rekz.github.io") // th
 //FoxNet
 UUID(NETMSG_FOXNET_INFO, "sv-foxnet-info@foxnet-ddnet.github.io")
 UUID(NETMSG_FOXNET_FASTINPUTS, "cl-foxnet-fastinputs@foxnet-ddnet.github.io")
+UUID(NETMSG_FOXNET_COSMETIC_SNAPS, "cosmetic-snaps@foxnet-ddnet.github.io")
 
 //Other Clients
 UUID(NETMSG_CLIENTVER_INFCLASS, "clientver@infclass") // InfClass

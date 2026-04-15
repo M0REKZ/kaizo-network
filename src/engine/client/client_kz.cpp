@@ -25,3 +25,9 @@ void CClient::SendFastInputsInfo(int Conn)
 	Msg.AddInt(g_Config.m_KaizoFastInputAmount);
 	SendMsg(Conn, &Msg, MSGFLAG_VITAL);
 }
+
+void CClient::SendSupportsCosmeticSnapInfo(int Conn)
+{
+	CMsgPacker Msg(NETMSG_FOXNET_COSMETIC_SNAPS, true);
+	SendMsg(Conn, &Msg, MSGFLAG_VITAL);
+}
