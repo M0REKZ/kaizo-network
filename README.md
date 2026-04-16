@@ -1,7 +1,7 @@
 # KAIZO NETWORK HAS BEEN DISCONTINUED, FEEL FREE TO FORK THIS, BUT KEEP YOUR FORK SOURCE CODE PUBLIC AS THE LICENSE SAYS
 # PULL REQUESTS ARE WELCOME
 
-![](https://m0rekz.github.io/Kaizo-Network/img/g135.png)
+<img src="https://m0rekz.github.io/Kaizo-Network/img/g135.png" alt="logo" width="600"/>
 
 * [Website](https://m0rekz.github.io/Kaizo-Network/)
 * [Discord Server](https://discord.gg/nt8aStQxcR)
