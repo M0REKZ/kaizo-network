@@ -93,6 +93,9 @@ public:
 	bool OnInput(const IInput::CEvent &Event) override;
 
 	bool IsActive() const;
+
+	//+KZ
+	void RenderRespawnTimer(const CUIRect &Screen, CUIRect &Spectators, const float ScoreboardSmallWidth); //wrapper for some DuckInfClass code
 };
 
 #endif

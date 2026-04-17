@@ -286,9 +286,15 @@ void CScoreboard::RenderGoals(CUIRect Goals)
 	}
 }
 
+static int LinesUsed = 1;
+extern int * pLinesUsedSpectatorKZ;
 void CScoreboard::RenderSpectators(CUIRect Spectators)
 {
-	static int LinesUsed = 1;
+	//static int LinesUsed = 1; //Duck/InfClass client moved above
+
+	if(!pLinesUsedSpectatorKZ) //+KZ: yeah i made this very weird
+		pLinesUsedSpectatorKZ = &LinesUsed;
+
 	int MaxHeight = Spectators.h;
 	if (g_Config.m_KaizoScoreboardShorten >= 1)
 		Spectators.HSplitTop(LinesUsed*22.0f, &Spectators, nullptr);
@@ -1078,6 +1084,8 @@ void CScoreboard::OnRender()
 		RenderGoals(Goals);
 	}
 	RenderSpectators(Spectators);
+
+	RenderRespawnTimer(Screen, Spectators, ScoreboardSmallWidth); //+KZ for Duck/InfClass client respawn timer
 
 	RenderRecordingNotification((Screen.w / 7) * 4 + 10);
 

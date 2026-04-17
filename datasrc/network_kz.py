@@ -1,4 +1,6 @@
 # Copyright (C) Benjamín Gajardo (also known as +KZ)
+#
+# Includes messages, enums and values from other clients, above they have a comment from where they got taken
 
 import datatypes
 
@@ -65,6 +67,11 @@ Objects += [
         NetIntAny("m_Flags", default=0),
     ], validate_size=False),
     
+    # Duck/InfClass Client
+    
+    NetObjectEx("RespawnTimer", "respawn-timer@ddnet-community.github.io", [
+		NetIntAny("m_TicksLeft"),
+	]),
     
 	# <FoxNet
 	NetObjectEx("CosmeticPickup", "cosmetic-pickup@foxnet-ddnet.github.io", [

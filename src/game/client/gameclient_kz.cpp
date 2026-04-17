@@ -197,6 +197,10 @@ void CGameClient::HandleKaizoSnapItem(const IClient::CSnapItem *pItem)
         m_GameWorld.m_WorldConfig.m_HasLaserJump = pInfo->m_Flags & GAMETWPLUSFLAG_LASERJUMPS;
         m_GameWorld.m_WorldConfig.m_HasAutoPistol = pInfo->m_Flags & GAMETWPLUSFLAG_GUN_FULLAUTO;
     }
+    else if(pItem->m_Type == NETOBJTYPE_RESPAWNTIMER)
+	{
+		m_Snap.m_pRespawnTimer = (const CNetObj_RespawnTimer *)pItem->m_pData;
+	}
     else if(pItem->m_Type == NETOBJTYPE_CHARACTER)
     {
         const CNetObj_Character *pCharObj = (const CNetObj_Character *)pItem->m_pData;

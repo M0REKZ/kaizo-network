@@ -2517,6 +2517,7 @@ if(CLIENT)
     components/players.h
     components/race_demo.cpp
     components/race_demo.h
+    components/scoreboard_kz.cpp
     components/scoreboard.cpp
     components/scoreboard.h
     components/skins.cpp

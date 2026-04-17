@@ -403,6 +403,9 @@ public:
 			bool m_HasExtendedDisplayInfo;
 		};
 		CCharacterInfo m_aCharacters[MAX_CLIENTS];
+
+		//+KZ
+		const CNetObj_RespawnTimer *m_pRespawnTimer; // Pointer31
 	};
 
 	CSnapState m_Snap;
