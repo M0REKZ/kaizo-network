@@ -860,6 +860,7 @@ MACRO_CONFIG_INT(KaizoPredictGameTypes, kaizo_predict_gametypes, 1, 0, 1, CFGFLA
 MACRO_CONFIG_INT(KaizoPredictOthersEffects, kaizo_predict_others_effects, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Also predict effects for others (like death)")
 MACRO_CONFIG_INT(KaizoDiscordRpc, kaizo_discord_rpc, 1, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Enable Discord Rich Presence")
 MACRO_CONFIG_INT(KaizoDiscordLaunchSteam, kaizo_discord_launch_steam, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Tell Discord to launch DDNet from Steam when joining with a invite (requires restarting both Client and Discord)")
+MACRO_CONFIG_INT(KaizoSendLanguage, kaizo_send_language, 1, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Send client language (only works in compatible servers)")
 //From DuckClient by Pointer
 MACRO_CONFIG_INT(KaizoChatInputBackground, kaizo_chat_input_background, 1, 0, 1, CFGFLAG_SAVE | CFGFLAG_CLIENT, "Whether to add a background for the input when chatting")
 MACRO_CONFIG_INT(KaizoScoreboardStyle, kaizo_scoreboard_style, 0, 0, 10, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Style of the scoreboard")

@@ -73,6 +73,10 @@ Objects += [
 		NetIntAny("m_TicksLeft"),
 	]),
     
+    NetMessageEx("Cl_Language", "language@ddnet-community.github.io", [
+		NetStringStrict("m_pLanguage"),
+	]),
+    
 	# <FoxNet
 	NetObjectEx("CosmeticPickup", "cosmetic-pickup@foxnet-ddnet.github.io", [
 		NetIntAny("m_X"),

@@ -550,6 +550,7 @@ public:
 	void SendKaizoClientIAm(int Conn);
 	void SendFastInputsInfo(int Conn); //FoxNet
 	void SendSupportsCosmeticSnapInfo(int Conn); //FoxNet
+	void SendClientLanguage(int Conn);
 };
 
 #endif
