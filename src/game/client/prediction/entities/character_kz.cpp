@@ -175,132 +175,159 @@ void CCharacter::KaizoPredictNormalTiles(int Index)
         }
     }
     // From Pointer's TW+
-    if(g_Config.m_KaizoPredictPointerTWPlus && GameWorld()->m_WorldConfig.m_IsPointerTWPlus)
+    if(g_Config.m_KaizoPredictPointerTWPlus)
     {
-        int CornersTileIds[4];
+        if(GameWorld()->m_WorldConfig.m_IsPointerTWPlus)
+        {
+            int CornersTileIds[4];
 
-        CornersTileIds[0] = Collision()->GetTileIndex(Collision()->GetMapIndex(vec2(m_Pos.x + m_ProximityRadius / 3.f, m_Pos.y - m_ProximityRadius / 3.f)));
-        CornersTileIds[1] = Collision()->GetTileIndex(Collision()->GetMapIndex(vec2(m_Pos.x + m_ProximityRadius / 3.f, m_Pos.y + m_ProximityRadius / 3.f)));
-        CornersTileIds[2] = Collision()->GetTileIndex(Collision()->GetMapIndex(vec2(m_Pos.x - m_ProximityRadius / 3.f, m_Pos.y - m_ProximityRadius / 3.f)));
-        CornersTileIds[3] = Collision()->GetTileIndex(Collision()->GetMapIndex(vec2(m_Pos.x - m_ProximityRadius / 3.f, m_Pos.y + m_ProximityRadius / 3.f)));
+            CornersTileIds[0] = Collision()->GetTileIndex(Collision()->GetMapIndex(vec2(m_Pos.x + m_ProximityRadius / 3.f, m_Pos.y - m_ProximityRadius / 3.f)));
+            CornersTileIds[1] = Collision()->GetTileIndex(Collision()->GetMapIndex(vec2(m_Pos.x + m_ProximityRadius / 3.f, m_Pos.y + m_ProximityRadius / 3.f)));
+            CornersTileIds[2] = Collision()->GetTileIndex(Collision()->GetMapIndex(vec2(m_Pos.x - m_ProximityRadius / 3.f, m_Pos.y - m_ProximityRadius / 3.f)));
+            CornersTileIds[3] = Collision()->GetTileIndex(Collision()->GetMapIndex(vec2(m_Pos.x - m_ProximityRadius / 3.f, m_Pos.y + m_ProximityRadius / 3.f)));
 
-        // speedup
-        if((CornersTileIds[0] == POINTER_TILE_SPEEDUPFAST ||
-                CornersTileIds[1] == POINTER_TILE_SPEEDUPFAST ||
-                CornersTileIds[2] == POINTER_TILE_SPEEDUPFAST ||
-                CornersTileIds[3] == POINTER_TILE_SPEEDUPFAST))
-        {
-            m_Core.m_Vel += {0, -5};
-        }
-        
-        if(m_Core.m_TriggeredEvents & COREEVENT_GROUND_JUMP)
-        {
-            if (Collision()->GetTileIndex(Collision()->GetMapIndex(vec2(m_Pos.x - m_ProximityRadius / 3.f, m_Pos.y + 2*32))) == POINTER_TILE_SPEEDUPFAST ||
-                Collision()->GetTileIndex(Collision()->GetMapIndex(vec2(m_Pos.x + m_ProximityRadius / 3.f, m_Pos.y + 2*32))) == POINTER_TILE_SPEEDUPFAST)
-                m_Core.m_Vel = {m_Core.m_Vel.x, m_Core.m_Vel.y * 2};
-        }
-
-        // teleports
-        if (CornersTileIds[0] == POINTER_TILE_TELEONE ||
-            CornersTileIds[1] == POINTER_TILE_TELEONE ||
-            CornersTileIds[2] == POINTER_TILE_TELEONE ||
-            CornersTileIds[3] == POINTER_TILE_TELEONE)
-        {
-            if (!m_InPointerTele) {
-                m_InPointerTele = true;
-                int x = GameWorld()->m_PointerTelePositions[0].m_X;
-                int y = GameWorld()->m_PointerTelePositions[0].m_Y;
-                int tx = GameWorld()->m_PointerTelePositions[1].m_X;
-                int ty = GameWorld()->m_PointerTelePositions[1].m_Y;
-                vec2 start = {(float)x, (float)y};
-                vec2 end = {(float)tx, (float)ty};
-                m_Pos = m_Pos - start * 32 + end * 32;
-                m_Core.m_Pos = m_Pos;
+            // speedup
+            if((CornersTileIds[0] == POINTER_TILE_SPEEDUPFAST ||
+                    CornersTileIds[1] == POINTER_TILE_SPEEDUPFAST ||
+                    CornersTileIds[2] == POINTER_TILE_SPEEDUPFAST ||
+                    CornersTileIds[3] == POINTER_TILE_SPEEDUPFAST))
+            {
+                m_Core.m_Vel += {0, -5};
             }
-        }
-        else if (CornersTileIds[0] == POINTER_TILE_TELETWO ||
-                CornersTileIds[1] == POINTER_TILE_TELETWO ||
-                CornersTileIds[2] == POINTER_TILE_TELETWO ||
-                CornersTileIds[3] == POINTER_TILE_TELETWO)
-        {
-            if (!m_InPointerTele) {
-                m_InPointerTele = true;
-                int x = GameWorld()->m_PointerTelePositions[1].m_X;
-                int y = GameWorld()->m_PointerTelePositions[1].m_Y;
-                int tx = GameWorld()->m_PointerTelePositions[0].m_X;
-                int ty = GameWorld()->m_PointerTelePositions[0].m_Y;
-                vec2 start = {(float)x, (float)y};
-                vec2 end = {(float)tx, (float)ty};
-                m_Pos = m_Pos - start * 32 + end * 32;
-                m_Core.m_Pos = m_Pos;
-            }
-        }
-        else if (CornersTileIds[0] == POINTER_TILE_TELETHREE ||
-                CornersTileIds[1] == POINTER_TILE_TELETHREE ||
-                CornersTileIds[2] == POINTER_TILE_TELETHREE ||
-                CornersTileIds[3] == POINTER_TILE_TELETHREE)
-        {
-            if (!m_InPointerTele) {
-                m_InPointerTele = true;
-                int x = GameWorld()->m_PointerTelePositions[2].m_X;
-                int y = GameWorld()->m_PointerTelePositions[2].m_Y;
-                int tx = GameWorld()->m_PointerTelePositions[3].m_X;
-                int ty = GameWorld()->m_PointerTelePositions[3].m_Y;
-                vec2 start = {(float)x, (float)y};
-                vec2 end = {(float)tx, (float)ty};
-                m_Pos = m_Pos - start * 32 + end * 32;
-                m_Core.m_Pos = m_Pos;
-            }
-        }
-        else if (CornersTileIds[0] == POINTER_TILE_TELEFOUR ||
-                CornersTileIds[1] == POINTER_TILE_TELEFOUR ||
-                CornersTileIds[2] == POINTER_TILE_TELEFOUR ||
-                CornersTileIds[3] == POINTER_TILE_TELEFOUR)
-        {
-            if (!m_InPointerTele) {
-                m_InPointerTele = true;
-                int x = GameWorld()->m_PointerTelePositions[3].m_X;
-                int y = GameWorld()->m_PointerTelePositions[3].m_Y;
-                int tx = GameWorld()->m_PointerTelePositions[2].m_X;
-                int ty = GameWorld()->m_PointerTelePositions[2].m_Y;
-                vec2 start = {(float)x, (float)y};
-                vec2 end = {(float)tx, (float)ty};
-                m_Pos = m_Pos - start * 32 + end * 32;
-                m_Core.m_Pos = m_Pos;
-            }
-        }
-        else
-        {
-            // you are not not in a teleport
-            m_InPointerTele = false;
-        }
-    }
-    else if(GameWorld()->m_WorldConfig.m_HasPointerTiles) // TW+ 0.7 version
-    {
-        // teleports
-        int TeleId = -1;
-        if (Collision()->GetTileIndex(Collision()->GetMapIndex(vec2(m_Pos.x, m_Pos.y))) >= POINTER07_TILE_TELE_START &&
-            Collision()->GetTileIndex(Collision()->GetMapIndex(vec2(m_Pos.x, m_Pos.y))) < POINTER07_TILE_TELE_START + POINTER07_NUM_TILE_TELE)
-            TeleId = Collision()->GetTileIndex(Collision()->GetMapIndex(vec2(m_Pos.x, m_Pos.y))) - POINTER07_TILE_TELE_START;
             
-        if (TeleId >= 0)
-        {
-            if (!m_InPointerTele) {
-                m_InPointerTele = true;
-                int TeleIdEnd = TeleId % 2 == 0 ? TeleId+1  : TeleId-1;
-                int x = GameWorld()->m_PointerTelePositions[TeleId].m_X;
-                int y = GameWorld()->m_PointerTelePositions[TeleId].m_Y;
-                int tx = GameWorld()->m_PointerTelePositions[TeleIdEnd].m_X;
-                int ty = GameWorld()->m_PointerTelePositions[TeleIdEnd].m_Y;
-                vec2 start = {(float)x, (float)y};
-                vec2 end = {(float)tx, (float)ty};
-                m_Pos = m_Pos - start * 32 + end * 32;
-                m_Core.m_Pos = m_Pos;
+            if(m_Core.m_TriggeredEvents & COREEVENT_GROUND_JUMP)
+            {
+                if (Collision()->GetTileIndex(Collision()->GetMapIndex(vec2(m_Pos.x - m_ProximityRadius / 3.f, m_Pos.y + 2*32))) == POINTER_TILE_SPEEDUPFAST ||
+                    Collision()->GetTileIndex(Collision()->GetMapIndex(vec2(m_Pos.x + m_ProximityRadius / 3.f, m_Pos.y + 2*32))) == POINTER_TILE_SPEEDUPFAST)
+                    m_Core.m_Vel = {m_Core.m_Vel.x, m_Core.m_Vel.y * 2};
+            }
+
+            // teleports
+            if (CornersTileIds[0] == POINTER_TILE_TELEONE ||
+                CornersTileIds[1] == POINTER_TILE_TELEONE ||
+                CornersTileIds[2] == POINTER_TILE_TELEONE ||
+                CornersTileIds[3] == POINTER_TILE_TELEONE)
+            {
+                if (!m_InPointerTele) {
+                    m_InPointerTele = true;
+                    int x = GameWorld()->m_PointerTelePositions[0].m_X;
+                    int y = GameWorld()->m_PointerTelePositions[0].m_Y;
+                    int tx = GameWorld()->m_PointerTelePositions[1].m_X;
+                    int ty = GameWorld()->m_PointerTelePositions[1].m_Y;
+                    vec2 start = {(float)x, (float)y};
+                    vec2 end = {(float)tx, (float)ty};
+                    m_Pos = m_Pos - start * 32 + end * 32;
+                    m_Core.m_Pos = m_Pos;
+                }
+            }
+            else if (CornersTileIds[0] == POINTER_TILE_TELETWO ||
+                    CornersTileIds[1] == POINTER_TILE_TELETWO ||
+                    CornersTileIds[2] == POINTER_TILE_TELETWO ||
+                    CornersTileIds[3] == POINTER_TILE_TELETWO)
+            {
+                if (!m_InPointerTele) {
+                    m_InPointerTele = true;
+                    int x = GameWorld()->m_PointerTelePositions[1].m_X;
+                    int y = GameWorld()->m_PointerTelePositions[1].m_Y;
+                    int tx = GameWorld()->m_PointerTelePositions[0].m_X;
+                    int ty = GameWorld()->m_PointerTelePositions[0].m_Y;
+                    vec2 start = {(float)x, (float)y};
+                    vec2 end = {(float)tx, (float)ty};
+                    m_Pos = m_Pos - start * 32 + end * 32;
+                    m_Core.m_Pos = m_Pos;
+                }
+            }
+            else if (CornersTileIds[0] == POINTER_TILE_TELETHREE ||
+                    CornersTileIds[1] == POINTER_TILE_TELETHREE ||
+                    CornersTileIds[2] == POINTER_TILE_TELETHREE ||
+                    CornersTileIds[3] == POINTER_TILE_TELETHREE)
+            {
+                if (!m_InPointerTele) {
+                    m_InPointerTele = true;
+                    int x = GameWorld()->m_PointerTelePositions[2].m_X;
+                    int y = GameWorld()->m_PointerTelePositions[2].m_Y;
+                    int tx = GameWorld()->m_PointerTelePositions[3].m_X;
+                    int ty = GameWorld()->m_PointerTelePositions[3].m_Y;
+                    vec2 start = {(float)x, (float)y};
+                    vec2 end = {(float)tx, (float)ty};
+                    m_Pos = m_Pos - start * 32 + end * 32;
+                    m_Core.m_Pos = m_Pos;
+                }
+            }
+            else if (CornersTileIds[0] == POINTER_TILE_TELEFOUR ||
+                    CornersTileIds[1] == POINTER_TILE_TELEFOUR ||
+                    CornersTileIds[2] == POINTER_TILE_TELEFOUR ||
+                    CornersTileIds[3] == POINTER_TILE_TELEFOUR)
+            {
+                if (!m_InPointerTele) {
+                    m_InPointerTele = true;
+                    int x = GameWorld()->m_PointerTelePositions[3].m_X;
+                    int y = GameWorld()->m_PointerTelePositions[3].m_Y;
+                    int tx = GameWorld()->m_PointerTelePositions[2].m_X;
+                    int ty = GameWorld()->m_PointerTelePositions[2].m_Y;
+                    vec2 start = {(float)x, (float)y};
+                    vec2 end = {(float)tx, (float)ty};
+                    m_Pos = m_Pos - start * 32 + end * 32;
+                    m_Core.m_Pos = m_Pos;
+                }
+            }
+            else
+            {
+                // you are not not in a teleport
+                m_InPointerTele = false;
             }
         }
-        else
+        else if(GameWorld()->m_WorldConfig.m_HasPointerTiles) // TW+ 0.7 version
         {
-            m_InPointerTele = false;
+
+            int CornersTileIds[4];
+
+            CornersTileIds[0] = Collision()->GetTileIndex(Collision()->GetMapIndex(vec2(m_Pos.x + m_ProximityRadius / 3.f, m_Pos.y - m_ProximityRadius / 3.f)));
+            CornersTileIds[1] = Collision()->GetTileIndex(Collision()->GetMapIndex(vec2(m_Pos.x + m_ProximityRadius / 3.f, m_Pos.y + m_ProximityRadius / 3.f)));
+            CornersTileIds[2] = Collision()->GetTileIndex(Collision()->GetMapIndex(vec2(m_Pos.x - m_ProximityRadius / 3.f, m_Pos.y - m_ProximityRadius / 3.f)));
+            CornersTileIds[3] = Collision()->GetTileIndex(Collision()->GetMapIndex(vec2(m_Pos.x - m_ProximityRadius / 3.f, m_Pos.y + m_ProximityRadius / 3.f)));
+
+            // speedup
+            if((CornersTileIds[0] == POINTER_TILE_SPEEDUPFAST ||
+                    CornersTileIds[1] == POINTER_TILE_SPEEDUPFAST ||
+                    CornersTileIds[2] == POINTER_TILE_SPEEDUPFAST ||
+                    CornersTileIds[3] == POINTER_TILE_SPEEDUPFAST))
+            {
+                m_Core.m_Vel += {0, -5};
+            }
+            
+            if(m_Core.m_TriggeredEvents & COREEVENT_GROUND_JUMP)
+            {
+                if (Collision()->GetTileIndex(Collision()->GetMapIndex(vec2(m_Pos.x - m_ProximityRadius / 3.f, m_Pos.y + 2*32))) == POINTER_TILE_SPEEDUPFAST ||
+                    Collision()->GetTileIndex(Collision()->GetMapIndex(vec2(m_Pos.x + m_ProximityRadius / 3.f, m_Pos.y + 2*32))) == POINTER_TILE_SPEEDUPFAST)
+                    m_Core.m_Vel = {m_Core.m_Vel.x, m_Core.m_Vel.y * 2};
+            }
+
+            // teleports
+            int TeleId = -1;
+            if (Collision()->GetTileIndex(Collision()->GetMapIndex(vec2(m_Pos.x, m_Pos.y))) >= POINTER07_TILE_TELE_START &&
+                Collision()->GetTileIndex(Collision()->GetMapIndex(vec2(m_Pos.x, m_Pos.y))) < POINTER07_TILE_TELE_START + POINTER07_NUM_TILE_TELE)
+                TeleId = Collision()->GetTileIndex(Collision()->GetMapIndex(vec2(m_Pos.x, m_Pos.y))) - POINTER07_TILE_TELE_START;
+                
+            if (TeleId >= 0)
+            {
+                if (!m_InPointerTele) {
+                    m_InPointerTele = true;
+                    int TeleIdEnd = TeleId % 2 == 0 ? TeleId+1  : TeleId-1;
+                    int x = GameWorld()->m_PointerTelePositions[TeleId].m_X;
+                    int y = GameWorld()->m_PointerTelePositions[TeleId].m_Y;
+                    int tx = GameWorld()->m_PointerTelePositions[TeleIdEnd].m_X;
+                    int ty = GameWorld()->m_PointerTelePositions[TeleIdEnd].m_Y;
+                    vec2 start = {(float)x, (float)y};
+                    vec2 end = {(float)tx, (float)ty};
+                    m_Pos = m_Pos - start * 32 + end * 32;
+                    m_Core.m_Pos = m_Pos;
+                }
+            }
+            else
+            {
+                m_InPointerTele = false;
+            }
         }
     }
 }
