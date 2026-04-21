@@ -7654,13 +7654,13 @@ IEditor *CreateEditor() { return new CEditor; }
 IGraphics::CTextureHandle CEditor::GetKZGameTexture()
 {
 	if(!m_KZGameTexture.IsValid())
-		m_KZGameTexture = Graphics()->LoadTexture("editor/KZ_gamelayer.png", IStorage::TYPE_ALL, GetTextureUsageFlag());
+		m_KZGameTexture = Graphics()->LoadTexture("editor/KZ_gamelayer.png", IStorage::TYPE_ALL, Graphics()->TextureLoadFlags());
 	return m_KZGameTexture;
 }
 
 IGraphics::CTextureHandle CEditor::GetKZFrontTexture()
 {
 	if(!m_KZFrontTexture.IsValid())
-		m_KZFrontTexture = Graphics()->LoadTexture("editor/KZ_frontlayer.png", IStorage::TYPE_ALL, GetTextureUsageFlag());
+		m_KZFrontTexture = Graphics()->LoadTexture("editor/KZ_frontlayer.png", IStorage::TYPE_ALL, Graphics()->TextureLoadFlags());
 	return m_KZFrontTexture;
 }
