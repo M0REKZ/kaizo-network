@@ -27,7 +27,7 @@ This repo also uses code from the following mods that are NOT made by +KZ:
 
 Other credits:
 
-* Check [./data/kz/license.txt](./data/kz/license.txt) for credits and licenses for assets used in this client.
+* Check [./data/kz/license.txt](./data/kz/license.txt) for credits and licenses for assets used in this modification.
 
 Direct contributions to Kaizo Network:
 
