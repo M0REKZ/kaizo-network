@@ -27,5 +27,12 @@ This repo also uses code from the following mods that are NOT made by +KZ:
 
 Other credits:
 
-* Portal gun and Attractor beam textures by Pointer
-* InstaShield shield texture by Dune
+* InstaShield shield texture taken from Teeworlds Gamer by Dune
+
+Direct contributions to Kaizo Network:
+
+* Pointer contibutions:
+  * Portal gun and Attractor beam textures
+  * Add "Kaizo Client" and "Duck/Infclass" IAMs ([Pull Request 25](https://github.com/M0REKZ/kaizo-client/pull/25))
+* Ametic' contributions:
+  * [TeeCloud Patch](https://github.com/M0REKZ/kaizo-client/commit/6a7b930cf9ce8fe3cf02d0108d6b72d77287430e) made by +KZ and Ametic' for the now defunct "TeeCloud Network", backported manually by +KZ to Kaizo Network.
