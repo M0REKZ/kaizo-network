@@ -31,5 +31,9 @@ This repo also uses code from the following mods that are NOT made by +KZ:
 
 Other credits:
 
-* Portal gun and Attractor beam textures by Pointer
-* InstaShield shield texture by Dune
+* Check [./data/kz/license.txt](./data/kz/license.txt) for credits and licenses for assets used in this modification.
+
+Direct contributions to Kaizo Client:
+
+* [Pointer31](https://github.com/Pointer31) contributions:
+  * Portal gun and Attractor beam textures
