@@ -517,7 +517,8 @@ const CSkins7::CSkinPart *CSkins7::FindSkinPartOrNullptr(int Part, const char *p
 	}
 	if((FoundPart->m_Flags & SKINFLAG_SPECIAL) != 0 && !AllowSpecialPart)
 	{
-		return nullptr;
+		if(!g_Config.m_KaizoShowXSkinsInSettings) //+KZ
+			return nullptr;
 	}
 	return &*FoundPart;
 }

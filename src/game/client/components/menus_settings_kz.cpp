@@ -82,7 +82,7 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 	switch (s_CurCustomTab)
 	{
 	case KAIZO_SETTINGS_TAB_KAIZO:
-		ScrollHeight = 580.f;
+		ScrollHeight = 640.f;
 		break;
 	case KAIZO_SETTINGS_TAB_TCLIENT_BINDWHEEL:
 		ScrollHeight = SettingsBoxContainer.h;
@@ -282,6 +282,22 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 				g_Config.m_KaizoSendLanguage ^= 1;
 			}
 
+			Left.HSplitTop(2.0f, nullptr, &Left);
+
+			Left.HSplitTop(20.0f, &Button, &Left);
+			if(DoButton_CheckBox(&g_Config.m_KaizoPrefer07Protocol, Localize("Always prefer 0.7 connection"), g_Config.m_KaizoPrefer07Protocol, &Button))
+			{
+				g_Config.m_KaizoPrefer07Protocol ^= 1;
+			}
+
+			Left.HSplitTop(2.0f, nullptr, &Left);
+
+			Left.HSplitTop(20.0f, &Button, &Left);
+			if(DoButton_CheckBox(&g_Config.m_KaizoAlwaysAllowXSkins, Localize("Be able to see players using \"x_\" prefixed skins"), g_Config.m_KaizoAlwaysAllowXSkins, &Button))
+			{
+				g_Config.m_KaizoAlwaysAllowXSkins ^= 1;
+			}
+
 			Left.HSplitTop(40.0f, &Label, &SettingsBox);
 			Ui()->DoLabel(&Label, Localize("Discord Settings"), 20.0f, TEXTALIGN_ML);
 			Left.HSplitTop(40.0f, &Label, &Left);
@@ -479,6 +495,18 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 			if(DoButton_CheckBox(&g_Config.m_KaizoAlwaysAllowDummy, Localize("Always be able to connect dummy"), g_Config.m_KaizoAlwaysAllowDummy, &Button))
 			{
 				g_Config.m_KaizoAlwaysAllowDummy ^= 1;
+			}
+
+			Right.HSplitTop(20.0f, &Button, &Right);
+			if(DoButton_CheckBox(&g_Config.m_KaizoAlwaysAllowShowHookColl, Localize("Always be able to use \"Show Hook Collisions\""), g_Config.m_KaizoAlwaysAllowShowHookColl, &Button))
+			{
+				g_Config.m_KaizoAlwaysAllowShowHookColl ^= 1;
+			}
+
+			Right.HSplitTop(20.0f, &Button, &Right);
+			if(DoButton_CheckBox(&g_Config.m_KaizoShowXSkinsInSettings, Localize("Show \"x_\" prefixed skins in Skin settings"), g_Config.m_KaizoShowXSkinsInSettings, &Button))
+			{
+				g_Config.m_KaizoShowXSkinsInSettings ^= 1;
 			}
 			
 			break;

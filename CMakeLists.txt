@@ -2505,7 +2505,6 @@ if(CLIENT)
     components/mapsounds.h
     components/menu_background.cpp
     components/menu_background.h
-    components/menus_kz.cpp
     components/menus.cpp
     components/menus.h
     components/menus_browser.cpp
@@ -2513,6 +2512,7 @@ if(CLIENT)
     components/menus_ingame.cpp
     components/menus_ingame_touch_controls.cpp
     components/menus_ingame_touch_controls.h
+    components/menus_settings_kz.cpp
     components/menus_settings.cpp
     components/menus_settings7.cpp
     components/menus_settings_assets.cpp

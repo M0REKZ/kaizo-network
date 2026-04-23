@@ -756,7 +756,8 @@ CSkins::CSkinList &CSkins::SkinList()
 	{
 		if(pSkinContainer->IsSpecial())
 		{
-			continue;
+			if(!g_Config.m_KaizoShowXSkinsInSettings) //+KZ
+				continue;
 		}
 
 		const bool SelectedMain = str_comp(pSkinContainer->Name(), g_Config.m_ClPlayerSkin) == 0;

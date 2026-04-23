@@ -669,7 +669,7 @@ void CClient::Connect(const char *pAddress, const char *pPassword)
 		{
 			NextAddr.port = 8303;
 		}
-		if(Sixup)
+		if(Sixup || g_Config.m_KaizoPrefer07Protocol) //+KZ
 			NextAddr.type |= NETTYPE_TW7;
 		else
 			OnlySixup = false;

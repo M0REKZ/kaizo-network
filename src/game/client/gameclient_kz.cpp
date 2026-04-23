@@ -307,7 +307,7 @@ void CGameClient::GetKaizoInfo(CServerInfo *pServerInfo)
     //InstaShield
     m_InstaShield = pServerInfo->m_aGameType[0] == 'i' && pServerInfo->m_aGameType[str_length(pServerInfo->m_aGameType) - 1] == ')';
 
-    //Pointer's TW+
+    //Pointer's TW+ (0.6 version)
     if(g_Config.m_KaizoPredictPointerTWPlus && !m_WaitingForPointerTWPlusInfo)
     {
         //First verify flags that Pointer TW+ would and would not send
@@ -357,6 +357,9 @@ void CGameClient::GetKaizoInfo(CServerInfo *pServerInfo)
     //Danger setting: allow zooming, but only do it if it is not 100000% prohibited
     if(IsZoomAllowed && m_GameInfo.m_GameInfoVersionKZ < 0 && g_Config.m_KaizoOldModsZooming)
         m_GameInfo.m_AllowZoom = true;
+
+    m_GameInfo.m_AllowXSkins |= g_Config.m_KaizoAlwaysAllowXSkins;
+    m_GameInfo.m_AllowHookColl |= g_Config.m_KaizoAlwaysAllowShowHookColl;
 
     //save gametype name
     m_PredControllerKZ.SetGameType(pServerInfo->m_aGameType);

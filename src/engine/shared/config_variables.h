@@ -862,6 +862,10 @@ MACRO_CONFIG_INT(KaizoDiscordRpc, kaizo_discord_rpc, 1, 0, 1, CFGFLAG_CLIENT | C
 MACRO_CONFIG_INT(KaizoDiscordLaunchSteam, kaizo_discord_launch_steam, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Tell Discord to launch DDNet from Steam when joining with a invite (requires restarting both Client and Discord)")
 MACRO_CONFIG_INT(KaizoSendLanguage, kaizo_send_language, 1, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Send client language (only works in compatible servers)")
 MACRO_CONFIG_INT(KaizoAlwaysAllowDummy, kaizo_always_allow_dummy, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Always be able to try connecting dummy (WARNING: can be considered as a cheat, use at your own risk!)")
+MACRO_CONFIG_INT(KaizoAlwaysAllowXSkins, kaizo_always_allow_x_skins, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Always be able to see players using \"x_\" prefixed skins")
+MACRO_CONFIG_INT(KaizoShowXSkinsInSettings, kaizo_show_x_skins_in_settings, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Include \"x_\" prefixed skins in Skin settings")
+MACRO_CONFIG_INT(KaizoAlwaysAllowShowHookColl, kaizo_always_allow_show_hook_coll, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Always be able to use +showhookcoll (WARNING: can be considered as a cheat, use at your own risk!)")
+MACRO_CONFIG_INT(KaizoPrefer07Protocol, kaizo_prefer_07_protocol, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Always prefer 0.7 protocol")
 //From DuckClient by Pointer
 MACRO_CONFIG_INT(KaizoChatInputBackground, kaizo_chat_input_background, 1, 0, 1, CFGFLAG_SAVE | CFGFLAG_CLIENT, "Whether to add a background for the input when chatting")
 MACRO_CONFIG_INT(KaizoScoreboardStyle, kaizo_scoreboard_style, 0, 0, 10, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Style of the scoreboard")
