@@ -82,7 +82,7 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 	switch (s_CurCustomTab)
 	{
 	case KAIZO_SETTINGS_TAB_KAIZO:
-		ScrollHeight = 560.f;
+		ScrollHeight = 580.f;
 		break;
 	case KAIZO_SETTINGS_TAB_TCLIENT_BINDWHEEL:
 		ScrollHeight = SettingsBoxContainer.h;
@@ -282,9 +282,9 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 				g_Config.m_KaizoSendLanguage ^= 1;
 			}
 
-			Left.HSplitTop(20.0f, &Label, &SettingsBox);
+			Left.HSplitTop(40.0f, &Label, &SettingsBox);
 			Ui()->DoLabel(&Label, Localize("Discord Settings"), 20.0f, TEXTALIGN_ML);
-			Left.HSplitTop(25.0f, &Label, &Left);
+			Left.HSplitTop(40.0f, &Label, &Left);
 
 			Left.HSplitTop(2.0f, nullptr, &Left);
 
@@ -474,6 +474,12 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 			{
 				g_Config.m_KaizoFastRespawn ^= 1;
 			}
+
+			Right.HSplitTop(20.0f, &Button, &Right);
+			if(DoButton_CheckBox(&g_Config.m_KaizoAlwaysAllowDummy, Localize("Always be able to connect dummy"), g_Config.m_KaizoAlwaysAllowDummy, &Button))
+			{
+				g_Config.m_KaizoAlwaysAllowDummy ^= 1;
+			}
 			
 			break;
 		}
@@ -503,7 +509,7 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 
 			SettingsBox.HSplitTop(30.0f, nullptr, &SettingsBox);
 			SettingsBox.HSplitTop(20.0f, &Label, &SettingsBox);
-			Ui()->DoLabel(&Label, Localize("Based on DDNet, with some code from other DDNet mods"), 15.0f, TEXTALIGN_MC);
+			Ui()->DoLabel(&Label, Localize("Based on Kaizo Network and DDNet, with some code from other DDNet mods"), 15.0f, TEXTALIGN_MC);
 
 			SettingsBox.HSplitTop(50.0f, nullptr, &SettingsBox);
 

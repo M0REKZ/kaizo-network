@@ -877,6 +877,8 @@ void CClient::DummyDisconnect(const char *pReason)
 
 bool CClient::DummyAllowed() const
 {
+	if(g_Config.m_KaizoAlwaysAllowDummy) //+KZ
+		return true;
 	return m_ServerCapabilities.m_AllowDummy;
 }
 
