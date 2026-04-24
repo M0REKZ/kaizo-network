@@ -433,6 +433,9 @@ bool CControls::OnCursorMove(float x, float y, IInput::ECursorType CursorType)
 
 void CControls::ClampMousePos()
 {
+	if(g_Config.m_KaizoFreeMouse)
+		return;
+
 	if(GameClient()->m_Snap.m_SpecInfo.m_Active && GameClient()->m_Snap.m_SpecInfo.m_SpectatorId < 0)
 	{
 		m_aMousePos[g_Config.m_ClDummy].x = std::clamp(m_aMousePos[g_Config.m_ClDummy].x, -201.0f * 32, (Collision()->GetWidth() + 201.0f) * 32.0f);

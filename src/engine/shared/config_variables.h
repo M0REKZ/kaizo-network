@@ -866,10 +866,20 @@ MACRO_CONFIG_INT(KaizoAlwaysAllowXSkins, kaizo_always_allow_x_skins, 0, 0, 1, CF
 MACRO_CONFIG_INT(KaizoShowXSkinsInSettings, kaizo_show_x_skins_in_settings, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Include \"x_\" prefixed skins in Skin settings")
 MACRO_CONFIG_INT(KaizoAlwaysAllowShowHookColl, kaizo_always_allow_show_hook_coll, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Always be able to use +showhookcoll (WARNING: can be considered as a cheat, use at your own risk!)")
 MACRO_CONFIG_INT(KaizoPrefer07Protocol, kaizo_prefer_07_protocol, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Always prefer 0.7 protocol")
+MACRO_CONFIG_INT(KaizoForceDDNetHUD, kaizo_force_ddnet_hud, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Always show DDNet HUD even if server does not support it (WARNING: can be considered as a cheat, use at your own risk!)")
+MACRO_CONFIG_INT(KaizoForceBugDDRaceInput, kaizo_force_bug_ddrace_input, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Act as if Bug DDRace input is enabled (WARNING: can be considered as a cheat, use at your own risk!)")
 //From DuckClient by Pointer
 MACRO_CONFIG_INT(KaizoChatInputBackground, kaizo_chat_input_background, 1, 0, 1, CFGFLAG_SAVE | CFGFLAG_CLIENT, "Whether to add a background for the input when chatting")
 MACRO_CONFIG_INT(KaizoScoreboardStyle, kaizo_scoreboard_style, 0, 0, 10, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Style of the scoreboard")
 MACRO_CONFIG_INT(KaizoScoreboardShorten, kaizo_scoreboard_shorten, 0, 0, 2, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Shorten the scoreboard if there are not so many players")
+//From DuckDDNet
+MACRO_CONFIG_INT(KaizoShowCharFlags, kaizo_show_char_flags, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Show Character flags (Deep/Jetpack/etc) (WARNING: can be considered as a cheat, use at your own risk!)")
+MACRO_CONFIG_INT(KaizoShowCharFlagsSize, kaizo_show_char_flags_size, 30, -50, 100, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Size of Character flags indicators")
+MACRO_CONFIG_INT(KaizoLaserPath, kaizo_laser_path, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Show laser path (WARNING: can be considered as a cheat, use at your own risk!)")
+MACRO_CONFIG_INT(KaizoGrenadePath, kaizo_grenade_path, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Show grenade path (WARNING: can be considered as a cheat, use at your own risk!)")
+MACRO_CONFIG_INT(KaizoShowCharJumps, kaizo_show_char_jumps, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Show remaining double jumps of a tee (WARNING: can be considered as a cheat, use at your own risk!)")
+MACRO_CONFIG_INT(KaizoShowCharJumpsSize, kaizo_show_char_jumps_size, 30, -50, 100, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Size of double jump indicators")
+MACRO_CONFIG_INT(KaizoFreeMouse, kaizo_free_mouse, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Free mouse (WARNING: can be considered as a cheat, use at your own risk!)")
 //These are from T-Client:
 MACRO_CONFIG_INT(KaizoFastInput, kaizo_fast_input, 1, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Enable fast input")
 MACRO_CONFIG_INT(KaizoFastInputOthers, kaizo_fast_input_others, 1, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Enable fast input for other players")

@@ -218,6 +218,9 @@ void CPlayers::RenderHookCollLine(
 	vec2 Direction = direction(Angle);
 	vec2 Position = GameClient()->m_aClients[ClientId].m_RenderPos;
 
+	//+KZ from DuckDDNet
+	RenderDuckDDNetCollisions(pPrevChar, pPlayerChar, ClientId, Intra);
+
 	static constexpr float HOOK_START_DISTANCE = CCharacterCore::PhysicalSize() * 1.5f;
 
 	// When the other player isn't predicted, we don't know their tunes.

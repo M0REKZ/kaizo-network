@@ -82,7 +82,7 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 	switch (s_CurCustomTab)
 	{
 	case KAIZO_SETTINGS_TAB_KAIZO:
-		ScrollHeight = 640.f;
+		ScrollHeight = 760.f;
 		break;
 	case KAIZO_SETTINGS_TAB_TCLIENT_BINDWHEEL:
 		ScrollHeight = SettingsBoxContainer.h;
@@ -507,6 +507,62 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 			if(DoButton_CheckBox(&g_Config.m_KaizoShowXSkinsInSettings, Localize("Show \"x_\" prefixed skins in Skin settings"), g_Config.m_KaizoShowXSkinsInSettings, &Button))
 			{
 				g_Config.m_KaizoShowXSkinsInSettings ^= 1;
+			}
+
+			Right.HSplitTop(20.0f, &Button, &Right);
+			if(DoButton_CheckBox(&g_Config.m_KaizoForceDDNetHUD, Localize("Always try to show DDNet HUD"), g_Config.m_KaizoForceDDNetHUD, &Button))
+			{
+				g_Config.m_KaizoForceDDNetHUD ^= 1;
+			}
+
+			Right.HSplitTop(20.0f, &Button, &Right);
+			if(DoButton_CheckBox(&g_Config.m_KaizoForceBugDDRaceInput, Localize("Act as if \'Bug DDRace Input\' is enabled"), g_Config.m_KaizoForceBugDDRaceInput, &Button))
+			{
+				g_Config.m_KaizoForceBugDDRaceInput ^= 1;
+			}
+
+			Right.HSplitTop(20.0f, &Button, &Right);
+			if(DoButton_CheckBox(&g_Config.m_KaizoShowCharFlags, Localize("Show Character Flags in nameplate"), g_Config.m_KaizoShowCharFlags, &Button))
+			{
+				g_Config.m_KaizoShowCharFlags ^= 1;
+			}
+
+			if(g_Config.m_KaizoShowCharFlags)
+			{
+				Right.HSplitTop(2.0f, nullptr, &Right);
+				Right.HSplitTop(20.0f, &Button, &Right);
+				Ui()->DoScrollbarOption(&g_Config.m_KaizoShowCharFlagsSize, &g_Config.m_KaizoShowCharFlagsSize, &Button, Localize("Size of Characer Flags indicators"), -50, 100, &CUi::ms_LogarithmicScrollbarScale, 0u);
+			}
+
+			Right.HSplitTop(20.0f, &Button, &Right);
+			if(DoButton_CheckBox(&g_Config.m_KaizoShowCharJumps, Localize("Show Character Flags in nameplate"), g_Config.m_KaizoShowCharJumps, &Button))
+			{
+				g_Config.m_KaizoShowCharJumps ^= 1;
+			}
+
+			if(g_Config.m_KaizoShowCharJumps)
+			{
+				Right.HSplitTop(2.0f, nullptr, &Right);
+				Right.HSplitTop(20.0f, &Button, &Right);
+				Ui()->DoScrollbarOption(&g_Config.m_KaizoShowCharJumpsSize, &g_Config.m_KaizoShowCharJumpsSize, &Button, Localize("Size of Characer Jumps indicator"), -50, 100, &CUi::ms_LogarithmicScrollbarScale, 0u);
+			}
+
+			Right.HSplitTop(20.0f, &Button, &Right);
+			if(DoButton_CheckBox(&g_Config.m_KaizoGrenadePath, Localize("Show Grenade and Gun collisions"), g_Config.m_KaizoGrenadePath, &Button))
+			{
+				g_Config.m_KaizoGrenadePath ^= 1;
+			}
+
+			Right.HSplitTop(20.0f, &Button, &Right);
+			if(DoButton_CheckBox(&g_Config.m_KaizoLaserPath, Localize("Show Laser collisions"), g_Config.m_KaizoLaserPath, &Button))
+			{
+				g_Config.m_KaizoLaserPath ^= 1;
+			}
+
+			Right.HSplitTop(20.0f, &Button, &Right);
+			if(DoButton_CheckBox(&g_Config.m_KaizoFreeMouse, Localize("Free mouse"), g_Config.m_KaizoFreeMouse, &Button))
+			{
+				g_Config.m_KaizoFreeMouse ^= 1;
 			}
 			
 			break;

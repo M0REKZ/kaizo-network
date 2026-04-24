@@ -73,6 +73,7 @@ public:
 
 	//+KZ
 	bool GetNearestAirPos(vec2 Pos, vec2 PrevPos, vec2 *pOutPos);
+	bool IsMarkedForDestroy() { return m_MarkedForDestroy; }
 };
 
 #endif

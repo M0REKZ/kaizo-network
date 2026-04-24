@@ -55,6 +55,7 @@ bool CLaser::HitCharacter(vec2 From, vec2 To)
 	m_From = From;
 	m_Pos = At;
 	m_Energy = -1;
+	m_pLaserLastHit = pHit; //DuckDDNet addition
 	if(m_Type == WEAPON_SHOTGUN)
 	{
 		float Strength = TuningList()[m_TuneZone].m_ShotgunStrength;

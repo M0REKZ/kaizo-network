@@ -48,6 +48,13 @@ public:
 	bool m_ShowHookStrongWeakId;
 	int m_HookStrongWeakId;
 	float m_FontSizeHookStrongWeak;
+
+	// +KZ
+	int m_TrackedFlags; //DuckDDNet Client
+	float m_FontSizeFlags; //DuckDDNet Client
+	int m_JumpsLeft; //DuckDDNet Client
+	int m_JumpsUsed; //DuckDDNet Client
+	float m_FontSizeJumps; //DuckDDNet Client
 };
 
 // Part Types
@@ -531,6 +538,14 @@ private:
 		AddPart<CNamePlatePartClientId>(This, true);
 		AddPart<CNamePlatePartNewLine>(This);
 
+		//DuckDDNet start
+		AddPart<CNamePlatePartJumps>(This);
+		AddPart<CNamePlatePartNewLine>(This);
+
+		AddPart<CNamePlatePartFlags>(This);
+		AddPart<CNamePlatePartNewLine>(This);
+		//DuckDDNet end
+
 		AddPart<CNamePlatePartHookStrongWeak>(This);
 		AddPart<CNamePlatePartHookStrongWeakId>(This);
 
@@ -667,6 +682,9 @@ void CNamePlates::RenderNamePlateGame(vec2 Position, const CNetObj_PlayerInfo *p
 	Data.m_FontSizeHookStrongWeak = 18.0f + 20.0f * g_Config.m_ClNamePlatesStrongSize / 100.0f;
 	Data.m_FontSizeDirection = 18.0f + 20.0f * g_Config.m_ClDirectionSize / 100.0f;
 
+	Data.m_FontSizeFlags = 18.0f + 20.0f * g_Config.m_KaizoShowCharFlagsSize / 100.0f; //DuckDDNet
+	Data.m_FontSizeJumps = 18.0f + 20.0f * g_Config.m_KaizoShowCharJumpsSize / 100.0f; //DuckDDNet
+
 	if(g_Config.m_ClNamePlatesAlways == 0)
 		Alpha *= std::clamp(1.0f - std::pow(distance(GameClient()->m_Controls.m_aTargetPos[g_Config.m_ClDummy], Position) / 200.0f, 16.0f), 0.0f, 1.0f);
 	if(OtherTeam)
@@ -745,6 +763,31 @@ void CNamePlates::RenderNamePlateGame(vec2 Position, const CNetObj_PlayerInfo *p
 	Data.m_ShowHookStrongWeakId = false;
 	Data.m_HookStrongWeakId = 0;
 
+	Data.m_TrackedFlags = 0;
+	Data.m_JumpsUsed = 0;
+	Data.m_JumpsLeft = 0;
+
+	//DuckDDNet
+	{
+		const CGameClient::CSnapState::CCharacterInfo &Other = GameClient()->m_Snap.m_aCharacters[pPlayerInfo->m_ClientId];
+
+		if(Other.m_HasExtendedData)
+		{
+			Data.m_TrackedFlags = Other.m_ExtendedData.m_Flags;
+			if(Other.m_ExtendedData.m_FreezeEnd == -1)
+			{
+				Data.m_TrackedFlags |= CHARACTERFLAG_IN_FREEZE;
+			}
+		}
+		
+		if(Other.m_HasExtendedData && !(Other.m_ExtendedData.m_Flags & CHARACTERFLAG_ENDLESS_JUMP))
+		{
+			const int JumpsTotal = std::clamp(Other.m_ExtendedData.m_Jumps - 1, 0, 5);
+			Data.m_JumpsUsed = std::clamp(Other.m_ExtendedData.m_JumpedTotal, 0, JumpsTotal);
+			Data.m_JumpsLeft = JumpsTotal - Data.m_JumpsUsed;
+		}
+	}
+
 	const bool Following = (GameClient()->m_Snap.m_SpecInfo.m_Active && !GameClient()->m_MultiViewActivated && GameClient()->m_Snap.m_SpecInfo.m_SpectatorId != SPEC_FREEVIEW);
 	if(GameClient()->m_Snap.m_LocalClientId != -1 || Following)
 	{
@@ -780,6 +823,9 @@ void CNamePlates::RenderNamePlatePreview(vec2 Position, int Dummy)
 
 	const float FontSizeDirection = 18.0f + 20.0f * g_Config.m_ClDirectionSize / 100.0f;
 	const float FontSizeHookStrongWeak = 18.0f + 20.0f * g_Config.m_ClNamePlatesStrongSize / 100.0f;
+
+	const float FontSizeFlags = 18.0f + 20.0f * g_Config.m_KaizoShowCharFlagsSize / 100.0f; //DuckDDNet
+	const float FontSizeJumps = 18.0f + 20.0f * g_Config.m_KaizoShowCharJumpsSize / 100.0f; //DuckDDNet
 
 	CNamePlateData Data;
 
@@ -838,6 +884,14 @@ void CNamePlates::RenderNamePlatePreview(vec2 Position, int Dummy)
 		TeeRenderInfo.ApplyColors(g_Config.m_ClDummyUseCustomColor, g_Config.m_ClDummyColorBody, g_Config.m_ClDummyColorFeet);
 	}
 	TeeRenderInfo.m_Size = 64.0f;
+
+	//DuckDDNet start
+	Data.m_TrackedFlags = CHARACTERFLAG_JETPACK | CHARACTERFLAG_ENDLESS_JUMP;
+	Data.m_FontSizeFlags = FontSizeFlags;
+	Data.m_JumpsLeft = 3;
+	Data.m_JumpsUsed = 2;
+	Data.m_FontSizeJumps = FontSizeJumps;
+	//DuckDDNet end
 
 	CNamePlate NamePlate(*GameClient(), Data);
 	Position.y += NamePlate.Size().y / 2.0f;

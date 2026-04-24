@@ -43,7 +43,9 @@ private:
 	int m_TuneZone;
 
 	//+KZ
+public:
 	bool m_IsRecoverJump = false;
+	CCharacter* m_pLaserLastHit = nullptr; //DuckDDNet addition
 };
 
 #endif
