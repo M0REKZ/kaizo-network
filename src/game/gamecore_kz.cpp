@@ -8,7 +8,11 @@
 
 #include <engine/shared/config.h>
 
+#include <engine/map.h>
+#include "layers.h"
+
 #include <limits>
+#include <base/str.h>
 
 class CPortalCore *CWorldCore::SetPortalKZ(CPortalCore *pPortal)
 {
@@ -48,6 +52,72 @@ void CWorldCore::DeletePortalKZ(int OwnerId, bool IsBlue)
 	int blue = IsBlue ? 1 : 0;
 	delete m_apPortals[OwnerId][blue];
 	m_apPortals[OwnerId][blue] = nullptr;
+}
+
+void CWorldCore::InitKZQuads(CLayers *pLayers)
+{
+	m_aKZQuads.clear();
+	for(std::vector<CMapItemLayerQuads *>::size_type i = 0; i < pLayers->m_apKZQuadLayers.size(); i++)
+	{
+		CQuad *pQuads = (CQuad *)pLayers->Map()->GetDataSwapped(pLayers->m_apKZQuadLayers[i]->m_Data);
+		SKZQuadData p;
+
+		for(int j = 0; j < pLayers->m_apKZQuadLayers[i]->m_NumQuads; j++)
+		{
+			CMapItemLayerQuads * pLayer = pLayers->m_apKZQuadLayers[i];
+			p.m_pQuad = pQuads + j;
+
+			char aBuf[30] = {0}; //for now
+
+			IntsToStr(pLayer->m_aName, std::size(pLayer->m_aName), aBuf, std::size(aBuf));
+
+			//get type by name, compat with Gores gamemode
+
+			if(!str_comp_nocase("QFr", aBuf))
+			{
+				p.m_Type = KZQuadType::KZQUADTYPE_FREEZE;
+			}
+			else if(!str_comp_nocase("QUnFr", aBuf))
+			{
+				p.m_Type = KZQuadType::KZQUADTYPE_UNFREEZE;
+			}
+			else if(!str_comp_nocase("QHook", aBuf))
+			{
+				p.m_Type = KZQuadType::KZQUADTYPE_HOOK;
+			}
+			else if(!str_comp_nocase("QUnHook", aBuf))
+			{
+				p.m_Type = KZQuadType::KZQUADTYPE_UNHOOK;
+			}
+			else if(!str_comp_nocase("QStopa", aBuf))
+			{
+				p.m_Type = KZQuadType::KZQUADTYPE_STOPA;
+			}
+			else if(!str_comp_nocase("QDeath", aBuf))
+			{
+				p.m_Type = KZQuadType::KZQUADTYPE_DEATH;
+			}
+			else if(!str_comp_nocase("QCfrm", aBuf))
+			{
+				p.m_Type = KZQuadType::KZQUADTYPE_CFRM;
+			}
+			else if(!str_comp_nocase("KaizoQuads", aBuf))
+			{
+				p.m_Type = KZQuadType::KZQUADTYPE_KAIZOINSTA;
+			}
+
+			m_aKZQuads.push_back(p);
+		}
+	}
+}
+
+void CWorldCore::CopyKZQuads(std::vector<SKZQuadData> * apKZQuads)
+{
+	m_aKZQuads.clear();
+	for(std::vector<SKZQuadData>::size_type i = 0; i < apKZQuads->size(); i++)
+	{
+		m_aKZQuads.push_back((*apKZQuads)[i]);
+	}
 }
 
 CPortalCore::CPortalCore(int OwnerId, vec2 Pos, vec2 Pos2, bool IsBlue, int Team)

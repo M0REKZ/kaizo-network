@@ -225,7 +225,8 @@ void CPlayers::RenderHookCollLine(
 
 	// When the other player isn't predicted, we don't know their tunes.
 	// Use our own tunes instead. This is wrong, but a good heuristic.
-	const CCharacterCore &PlayerCore = GameClient()->m_aClients[ClientId].m_IsPredicted ? GameClient()->m_aClients[ClientId].m_Predicted : GameClient()->m_aClients[GameClient()->m_aLocalIds[g_Config.m_ClDummy]].m_Predicted;
+	//+KZ removed const from PlayerCore for quad collision code below
+	CCharacterCore &PlayerCore = GameClient()->m_aClients[ClientId].m_IsPredicted ? GameClient()->m_aClients[ClientId].m_Predicted : GameClient()->m_aClients[GameClient()->m_aLocalIds[g_Config.m_ClDummy]].m_Predicted;
 	float HookLength = PlayerCore.m_Tuning.m_HookLength;
 	float HookFireSpeed = PlayerCore.m_Tuning.m_HookFireSpeed;
 
@@ -281,7 +282,29 @@ void CPlayers::RenderHookCollLine(
 			{
 				vec2 RetractingHookEndPos = BasePos + normalize(SegmentEndPos - BasePos) * HookLength;
 				// you can't hook a player, if the hook is behind solids, however you miss the solids as well
-				int Hit = Collision()->IntersectLineTeleHook(SegmentStartPos, RetractingHookEndPos, &HitPos, nullptr, &Tele);
+				//+KZ modified for quads
+				//int Hit = Collision()->IntersectLineTeleHook(SegmentStartPos, RetractingHookEndPos, &HitPos, nullptr, &Tele);
+				int Hit = 0;
+				SKZQuadData* pHookedQuad = nullptr;
+				if(g_Config.m_SvGoresQuadsEnable)
+				{
+					pHookedQuad = Collision()->IntersectQuad(&GameClient()->m_GameWorld.m_Core, SegmentStartPos, RetractingHookEndPos, &HitPos); //+KZ
+				}
+				
+				if(pHookedQuad)
+				{
+					if(pHookedQuad->m_Type == KZQUADTYPE_HOOK || (pHookedQuad->m_Type == KZQUADTYPE_KAIZOINSTA && pHookedQuad->m_pQuad && pHookedQuad->m_pQuad->m_ColorEnvOffset == TILE_SOLID))
+					{
+						Hit = TILE_SOLID;
+					}
+					else
+						Hit = TILE_NOHOOK;
+				}
+				else
+				{
+					Hit = Collision()->IntersectLineTeleHook(SegmentStartPos, RetractingHookEndPos, &HitPos, nullptr, &Tele, &PlayerCore.m_GenericParams);
+				}
+				//+KZ end
 
 				if(GameClient()->IntersectCharacter(SegmentStartPos, HitPos, RetractingHookEndPos, ClientId, &IntersectedPlayerPosition) != -1)
 				{
@@ -310,8 +333,29 @@ void CPlayers::RenderHookCollLine(
 			break;
 		}
 
-		// check for map collisions
-		int Hit = Collision()->IntersectLineTeleHook(SegmentStartPos, SegmentEndPos, &HitPos, nullptr, &Tele);
+		// check for map collisions //+KZ modified for quads
+		//int Hit = Collision()->IntersectLineTeleHook(SegmentStartPos, SegmentEndPos, &HitPos, nullptr, &Tele);
+		int Hit = 0;
+		SKZQuadData* pHookedQuad = nullptr;
+		if(g_Config.m_SvGoresQuadsEnable)
+		{
+			pHookedQuad = Collision()->IntersectQuad(&GameClient()->m_GameWorld.m_Core, SegmentStartPos, SegmentEndPos, &HitPos); //+KZ
+		}
+		
+		if(pHookedQuad)
+		{
+			if(pHookedQuad->m_Type == KZQUADTYPE_HOOK || (pHookedQuad->m_Type == KZQUADTYPE_KAIZOINSTA && pHookedQuad->m_pQuad && pHookedQuad->m_pQuad->m_ColorEnvOffset == TILE_SOLID))
+			{
+				Hit = TILE_SOLID;
+			}
+			else
+				Hit = TILE_NOHOOK;
+		}
+		else
+		{
+			Hit = Collision()->IntersectLineTeleHook(SegmentStartPos, SegmentEndPos, &HitPos, nullptr, &Tele, &PlayerCore.m_GenericParams);
+		}
+		//+KZ end
 
 		// check if we intersect a player
 		if(GameClient()->IntersectCharacter(SegmentStartPos, HitPos, SegmentEndPos, ClientId, &IntersectedPlayerPosition) != -1)

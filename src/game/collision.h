@@ -227,28 +227,23 @@ public:
 	CKZTile *m_pKZGame;
 	CKZTile *m_pKZFront;
 
-	CWorldCore *m_pWorldCore;
 	CTeamsCore *m_pTeamsCore;
 
-	// KZQuads
-	std::vector<SKZQuadData> m_aKZQuads;
-
-	void UpdateQuadCache();
-	std::vector<SKZQuadData *> GetQuadsAt(vec2 Pos);
+	// +KZ Kaizo Network Quads (improved for Kaizo Client prediction)
+	void UpdateQuadCache(CWorldCore *pWorldCore);
+	std::vector<SKZQuadData *> GetQuadsAt(CWorldCore *pWorldCore, vec2 Pos);
 	int QuadTypeToTileId(SKZQuadData * pQuadData);
-	void PushBoxOutsideQuads(vec2 * pPos, vec2 * pInOutVel, vec2 Size, CCharacterCore * pCore = nullptr, bool * pGrounded = nullptr);
+	void PushBoxOutsideQuads(CWorldCore *pWorldCore, vec2 * pPos, vec2 * pInOutVel, vec2 Size, CCharacterCore * pCore = nullptr, bool * pGrounded = nullptr);
 	float CalculateSlopeAltitude(float xleft, float xright, vec2 pos1, vec2 pos2);
 	float CalculateSlopeAltitudeSide(float xup, float xdown, vec2 pos1, vec2 pos2);
 	bool AreLinesColliding(vec2 a1, vec2 a2, vec2 b1, vec2 b2, vec2 *pintersect = nullptr);
 	bool IntersectQuad(vec2 From, vec2 To, vec2 *pOut, vec2 *pLineStart, vec2 *pLineEnd, vec2 pos1, vec2 pos2, vec2 pos3, vec2 pos4);
-	SKZQuadData * IntersectQuad(vec2 From, vec2 To, vec2 *pOut = nullptr, vec2 *pLineStart = nullptr, vec2 *pLineEnd = nullptr);
-	SKZQuadData * IntersectQuadTeleWeapon(vec2 From, vec2 To, vec2 *pOut = nullptr, vec2 *pLineStart = nullptr, vec2 *pLineEnd = nullptr);
+	SKZQuadData * IntersectQuad(CWorldCore *pWorldCore, vec2 From, vec2 To, vec2 *pOut = nullptr, vec2 *pLineStart = nullptr, vec2 *pLineEnd = nullptr);
+	SKZQuadData * IntersectQuadTeleWeapon(CWorldCore *pWorldCore, vec2 From, vec2 To, vec2 *pOut = nullptr, vec2 *pLineStart = nullptr, vec2 *pLineEnd = nullptr);
 	vec2 ReflexLineOnLine(vec2 Point, vec2 Center, vec2 P1);
 
 	//Infclass
 	void GetAnimationTransform(float GlobalTime, int Env, vec2& Position, float& Angle) const;
-	double m_Time;
-	void SetTime(double Time) { m_Time = Time; }
 	bool OutOfRange(double value, double q0, double q1, double q2, double q3) const;
 	bool InsideTriangle(const vec2& t0, const vec2& t1, const vec2& t2, const vec2& p) const;
 	bool InsideQuad(const vec2& q0, const vec2& q1, const vec2& q2, const vec2& q3, const vec2& p) const;

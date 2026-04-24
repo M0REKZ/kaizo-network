@@ -78,62 +78,8 @@ void CCollision::Init(class CLayers *pLayers)
 			m_pKZFront = static_cast<CKZTile *>(m_pLayers->Map()->GetData(m_pLayers->KZFrontLayer()->m_KZFront));
 	}
 
-	if(m_pLayers->m_apKZQuadLayers.size())
-	{
-		for(std::vector<CMapItemLayerQuads *>::size_type i = 0; i < m_pLayers->m_apKZQuadLayers.size(); i++)
-		{
+	//KZQuads init code moved to gamecore_kz.cpp
 
-			CQuad *pQuads = (CQuad*) m_pLayers->Map()->GetDataSwapped(m_pLayers->m_apKZQuadLayers[i]->m_Data);
-			SKZQuadData p;
-
-			for(int j = 0; j < m_pLayers->m_apKZQuadLayers[i]->m_NumQuads; j++)
-			{
-				p.m_pLayer = m_pLayers->m_apKZQuadLayers[i];
-				p.m_pQuad = pQuads + j;
-
-				char aBuf[30] = {0}; //for now
-
-				IntsToStr(p.m_pLayer->m_aName, std::size(p.m_pLayer->m_aName), aBuf, std::size(aBuf));
-
-				//get type by name, compat with Gores gamemode
-
-				if(!str_comp_nocase("QFr", aBuf))
-				{
-					p.m_Type = KZQuadType::KZQUADTYPE_FREEZE;
-				}
-				else if(!str_comp_nocase("QUnFr", aBuf))
-				{
-					p.m_Type = KZQuadType::KZQUADTYPE_UNFREEZE;
-				}
-				else if(!str_comp_nocase("QHook", aBuf))
-				{
-					p.m_Type = KZQuadType::KZQUADTYPE_HOOK;
-				}
-				else if(!str_comp_nocase("QUnHook", aBuf))
-				{
-					p.m_Type = KZQuadType::KZQUADTYPE_UNHOOK;
-				}
-				else if(!str_comp_nocase("QStopa", aBuf))
-				{
-					p.m_Type = KZQuadType::KZQUADTYPE_STOPA;
-				}
-				else if(!str_comp_nocase("QDeath", aBuf))
-				{
-					p.m_Type = KZQuadType::KZQUADTYPE_DEATH;
-				}
-				else if(!str_comp_nocase("QCfrm", aBuf))
-				{
-					p.m_Type = KZQuadType::KZQUADTYPE_CFRM;
-				}
-				else if(!str_comp_nocase("KaizoQuads", aBuf))
-				{
-					p.m_Type = KZQuadType::KZQUADTYPE_KAIZOINSTA;
-				}
-
-				m_aKZQuads.push_back(p);
-			}
-		}
-	}
 	//+KZ End
 
 	if(m_pLayers->TeleLayer())
@@ -278,10 +224,7 @@ void CCollision::Unload()
 	m_KZFrontWidth = 0;
 	m_KZFrontHeight = 0;
 
-	m_pWorldCore = nullptr;
 	m_pTeamsCore = nullptr;
-
-	m_aKZQuads.clear();
 }
 
 void CCollision::FillAntibot(CAntibotMapData *pMapData) const
@@ -442,7 +385,7 @@ int CCollision::GetTile(int x, int y) const
 int CCollision::IntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, SKZColIntersectLineParams *pIntersectLineParams) const
 {
 	bool IsWeapon = false;
-	SKZColProjectileParams ProjectileParams;
+	SKZColProjectileParams ProjectileParams(nullptr);
 	if(pIntersectLineParams)
 	{
 		IsWeapon = pIntersectLineParams->IsWeapon;
@@ -454,6 +397,7 @@ int CCollision::IntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *p
 		ProjectileParams.Weapon = pIntersectLineParams->Weapon;
 		ProjectileParams.m_IsDDraceProjectile = pIntersectLineParams->m_IsDDraceProjectile;
 		ProjectileParams.m_pDoResetTick = &pIntersectLineParams->m_DoResetTick;
+		ProjectileParams.m_pOriginWorld = pIntersectLineParams->m_pOriginWorld;
 	}
 
 	float Distance = distance(Pos0, Pos1);
@@ -489,12 +433,13 @@ int CCollision::IntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *p
 
 int CCollision::IntersectLineTeleHook(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, int *pTeleNr, SKZColGenericParams *pGenericParams) const
 {
-	SKZColCharCoreParams CharCoreParams;
+	SKZColCharCoreParams CharCoreParams(nullptr);
 	CharCoreParams.IsHook = true;
 	CharCoreParams.IsWeapon = false;
 	if(pGenericParams)
 	{
 		CharCoreParams.pCore = pGenericParams->pCore;
+		CharCoreParams.m_pOriginWorld = pGenericParams->m_pOriginWorld;
 	}
 
 	float Distance = distance(Pos0, Pos1);
@@ -561,13 +506,14 @@ int CCollision::IntersectLineTeleWeapon(vec2 Pos0, vec2 Pos1, vec2 *pOutCollisio
 	int End(Distance + 1);
 	vec2 Last = Pos0;
 
-	SKZColCharCoreParams CharCoreParams;
+	SKZColCharCoreParams CharCoreParams(nullptr);
 
 	if(pTeleWeaponParams && pTeleWeaponParams->pCharCoreParams)
 	{
 		CharCoreParams.pCore = pTeleWeaponParams->pCharCoreParams->pCore;
 		CharCoreParams.IsHook = pTeleWeaponParams->pCharCoreParams->IsHook;
 		CharCoreParams.IsWeapon = pTeleWeaponParams->pCharCoreParams->IsWeapon;
+		CharCoreParams.m_pOriginWorld = pTeleWeaponParams->m_pOriginWorld;
 	}
 
 	for(int i = 0; i <= End; i++)

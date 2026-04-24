@@ -89,16 +89,54 @@ void CProjectile::Tick()
 		pOwnerCore = (CCharacterCore *)pOwnerChar->Core();
 	}
 
-	SKZColIntersectLineParams ParamsKZ;
+	SKZColIntersectLineParams ParamsKZ(&GameWorld()->m_Core);
 	ParamsKZ.pCore = pOwnerCore;
 	ParamsKZ.IsHook = false;
 	ParamsKZ.IsWeapon = true;
 	ParamsKZ.pProjPos = &m_Pos;
 	ParamsKZ.Weapon = m_Type;
 	ParamsKZ.m_IsDDraceProjectile = m_Freeze;
-	//+KZ end
+	
+	SKZQuadData * pQuadData = nullptr;
+	vec2 QuadColPos;
 
-	int Collide = Collision()->IntersectLine(PrevPos, CurPos, &ColPos, &NewPos, ParamsKZ.m_IsDDraceProjectile ? nullptr : &ParamsKZ); //+KZ added ParamsKZ, also added a check for ddrace projectile to not break explosive bullet prediction
+	if(Collision()->m_IsKaizoServer && g_Config.m_SvGoresQuadsEnable) //Kaizo Network only
+		pQuadData = Collision()->IntersectQuadTeleWeapon(&GameWorld()->m_Core, PrevPos, CurPos, &QuadColPos);
+	int Collide = Collision()->IntersectLine(PrevPos, CurPos, &ColPos, &NewPos, &ParamsKZ); //+KZ added ParamsKZ
+
+	if(ParamsKZ.m_DoResetTick)
+		m_StartTick = GameWorld()->GameTick();
+
+	bool handlequad = false;
+
+	//+KZ Quads:
+	if(pQuadData && Collide)
+	{
+		if(distance(PrevPos, QuadColPos) < distance(PrevPos, ColPos))
+		{
+			handlequad = true;
+		}
+	}
+	else if(pQuadData)
+	{
+		handlequad = true;
+	}
+
+	if(handlequad)
+	{
+		int Index = Collision()->QuadTypeToTileId(pQuadData);
+
+		if(Index == -1) //Kaizo-Insta Quad
+		{
+			Index = pQuadData->m_pQuad->m_ColorEnvOffset;
+		}
+
+		if(!(pQuadData->m_pQuad && (g_Config.m_SvOldTeleportWeapons ? (Index == TILE_TELEIN) : (Index == TILE_TELEINWEAPON))))
+		{
+			Collide = TILE_NOHOOK;
+			ColPos = NewPos = QuadColPos;
+		}
+	}
 
 	CCharacter *pTargetChr = GameWorld()->IntersectCharacter(PrevPos, ColPos, m_Freeze ? 1.0f : 6.0f, ColPos, pOwnerChar, m_Owner);
 

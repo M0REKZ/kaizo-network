@@ -124,10 +124,11 @@ enum KZQuadType
 struct SKZQuadData
 {
 	CQuad *m_pQuad = nullptr;
-	CMapItemLayerQuads *m_pLayer = nullptr;
+	//CMapItemLayerQuads *m_pLayer = nullptr; not needed
 	int m_Type = KZQuadType::KZQUADTYPE_AIR;
 	vec2 m_CachedPos[5];
 	float m_CachedAngle;
+	bool m_NotAnimated = false;
 };
 
 inline int64_t BitWiseAndInt64(int64_t a, int64_t b)

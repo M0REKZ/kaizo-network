@@ -177,7 +177,7 @@ int CCollision::CheckPointForCore(float x, float y, SKZColCharCoreParams *pCharC
 
 int CCollision::CheckPointForProjectile(vec2 Pos, SKZColProjectileParams *pProjectileParams) const
 {
-	if(!m_pWorldCore || !m_pTeamsCore || !pProjectileParams)
+	if(!m_pTeamsCore || (pProjectileParams ? !pProjectileParams->m_pOriginWorld : true))
 		return 0;
 
 	if(!(pProjectileParams->pProjPos))
@@ -191,10 +191,11 @@ int CCollision::CheckPointForProjectile(vec2 Pos, SKZColProjectileParams *pProje
 	int OwnerId = pProjectileParams->OwnerId;
 	int Weapon = pProjectileParams->Weapon;
 	vec2 *pProjPos = pProjectileParams->pProjPos;
+	CWorldCore *pWorldCore = pProjectileParams->m_pOriginWorld;
 
 	if(pKZTile)
 	{
-		if(pKZTile->m_Index == KZ_GAMETILE_HITTABLE_SWITCH && pKZTile->m_Number && !m_pWorldCore->m_vSwitchers.empty() && OwnerId >= 0 && OwnerId < SERVER_MAX_CLIENTS)
+		if(pKZTile->m_Index == KZ_GAMETILE_HITTABLE_SWITCH && pKZTile->m_Number && !pWorldCore->m_vSwitchers.empty() && OwnerId >= 0 && OwnerId < SERVER_MAX_CLIENTS)
 		{
 			bool hit = false;
 			if(BitWiseAndInt64(pKZTile->m_Value3, KZ_HITTABLE_SWITCH_FLAG_GUN) && Weapon == WEAPON_GUN)
@@ -220,49 +221,49 @@ int CCollision::CheckPointForProjectile(vec2 Pos, SKZColProjectileParams *pProje
 				{
 					case 0: //switch deactivate
 						{
-							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aStatus[m_pTeamsCore->Team(OwnerId)] = true;
-							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aEndTick[m_pTeamsCore->Team(OwnerId)] = 0;
-							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aType[m_pTeamsCore->Team(OwnerId)] = TILE_SWITCHOPEN;
-							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aLastUpdateTick[m_pTeamsCore->Team(OwnerId)] = m_pWorldCore->m_WorldTickKZ;
+							pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aStatus[m_pTeamsCore->Team(OwnerId)] = true;
+							pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aEndTick[m_pTeamsCore->Team(OwnerId)] = 0;
+							pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aType[m_pTeamsCore->Team(OwnerId)] = TILE_SWITCHOPEN;
+							pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aLastUpdateTick[m_pTeamsCore->Team(OwnerId)] = pWorldCore->m_WorldTickKZ;
 						}
 						break;
 					case 1: //switch timed deactivate
 						{
-							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aStatus[m_pTeamsCore->Team(OwnerId)] = true;
-							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aEndTick[m_pTeamsCore->Team(OwnerId)] = m_pWorldCore->m_WorldTickKZ + 1 + pKZTile->m_Value2 * SERVER_TICK_SPEED;
-							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aType[m_pTeamsCore->Team(OwnerId)] = TILE_SWITCHTIMEDOPEN;
-							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aLastUpdateTick[m_pTeamsCore->Team(OwnerId)] = m_pWorldCore->m_WorldTickKZ;
+							pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aStatus[m_pTeamsCore->Team(OwnerId)] = true;
+							pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aEndTick[m_pTeamsCore->Team(OwnerId)] = pWorldCore->m_WorldTickKZ + 1 + pKZTile->m_Value2 * SERVER_TICK_SPEED;
+							pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aType[m_pTeamsCore->Team(OwnerId)] = TILE_SWITCHTIMEDOPEN;
+							pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aLastUpdateTick[m_pTeamsCore->Team(OwnerId)] = pWorldCore->m_WorldTickKZ;
 						}
 						break;
 					case 2: //switch timed activate
 						{
-							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aStatus[m_pTeamsCore->Team(OwnerId)] = false;
-							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aEndTick[m_pTeamsCore->Team(OwnerId)] = m_pWorldCore->m_WorldTickKZ + 1 + pKZTile->m_Value2 * SERVER_TICK_SPEED;
-							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aType[m_pTeamsCore->Team(OwnerId)] = TILE_SWITCHTIMEDCLOSE;
-							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aLastUpdateTick[m_pTeamsCore->Team(OwnerId)] = m_pWorldCore->m_WorldTickKZ;
+							pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aStatus[m_pTeamsCore->Team(OwnerId)] = false;
+							pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aEndTick[m_pTeamsCore->Team(OwnerId)] = pWorldCore->m_WorldTickKZ + 1 + pKZTile->m_Value2 * SERVER_TICK_SPEED;
+							pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aType[m_pTeamsCore->Team(OwnerId)] = TILE_SWITCHTIMEDCLOSE;
+							pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aLastUpdateTick[m_pTeamsCore->Team(OwnerId)] = pWorldCore->m_WorldTickKZ;
 						}
 						break;
 					case 3: //switch activate
 						{
-							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aStatus[m_pTeamsCore->Team(OwnerId)] = false;
-							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aEndTick[m_pTeamsCore->Team(OwnerId)] = 0;
-							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aType[m_pTeamsCore->Team(OwnerId)] = TILE_SWITCHCLOSE;
-							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aLastUpdateTick[m_pTeamsCore->Team(OwnerId)] = m_pWorldCore->m_WorldTickKZ;
+							pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aStatus[m_pTeamsCore->Team(OwnerId)] = false;
+							pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aEndTick[m_pTeamsCore->Team(OwnerId)] = 0;
+							pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aType[m_pTeamsCore->Team(OwnerId)] = TILE_SWITCHCLOSE;
+							pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aLastUpdateTick[m_pTeamsCore->Team(OwnerId)] = pWorldCore->m_WorldTickKZ;
 						}
 						break;
 					case 4: // +KZ switch toggle
 						{
-							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aStatus[m_pTeamsCore->Team(OwnerId)] = !m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aStatus[m_pTeamsCore->Team(OwnerId)];
-							if(m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aStatus[m_pTeamsCore->Team(OwnerId)])
+							pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aStatus[m_pTeamsCore->Team(OwnerId)] = !pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aStatus[m_pTeamsCore->Team(OwnerId)];
+							if(pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aStatus[m_pTeamsCore->Team(OwnerId)])
 							{
-								m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aType[m_pTeamsCore->Team(OwnerId)] = TILE_SWITCHOPEN;
+								pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aType[m_pTeamsCore->Team(OwnerId)] = TILE_SWITCHOPEN;
 							}
 							else
 							{
-								m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aType[m_pTeamsCore->Team(OwnerId)] = TILE_SWITCHCLOSE;
+								pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aType[m_pTeamsCore->Team(OwnerId)] = TILE_SWITCHCLOSE;
 							}
-							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aEndTick[m_pTeamsCore->Team(OwnerId)] = 0;
-							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aLastUpdateTick[m_pTeamsCore->Team(OwnerId)] = m_pWorldCore->m_WorldTickKZ;
+							pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aEndTick[m_pTeamsCore->Team(OwnerId)] = 0;
+							pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aLastUpdateTick[m_pTeamsCore->Team(OwnerId)] = pWorldCore->m_WorldTickKZ;
 						}
 						break;
 
@@ -277,7 +278,7 @@ int CCollision::CheckPointForProjectile(vec2 Pos, SKZColProjectileParams *pProje
 	
 	if(pKZFrontTile)
 	{
-		if(pKZFrontTile->m_Index == KZ_FRONTTILE_POS_SHIFTER && BitWiseAndInt64(pKZFrontTile->m_Value3, KZ_POS_SWITCHER_FLAG_PROJECTILE) && ((pKZFrontTile->m_Number && OwnerId >= 0 && OwnerId < SERVER_MAX_CLIENTS && !m_pWorldCore->m_vSwitchers.empty()) ? m_pWorldCore->m_vSwitchers[pKZFrontTile->m_Number].m_aStatus[m_pTeamsCore->Team(OwnerId)] : true))
+		if(pKZFrontTile->m_Index == KZ_FRONTTILE_POS_SHIFTER && BitWiseAndInt64(pKZFrontTile->m_Value3, KZ_POS_SWITCHER_FLAG_PROJECTILE) && ((pKZFrontTile->m_Number && OwnerId >= 0 && OwnerId < SERVER_MAX_CLIENTS && !pWorldCore->m_vSwitchers.empty()) ? pWorldCore->m_vSwitchers[pKZFrontTile->m_Number].m_aStatus[m_pTeamsCore->Team(OwnerId)] : true))
 		{
 			if(pProjectileParams->m_IsDDraceProjectile && pProjectileParams->m_pDoResetTick) //they will stay forever, dont shift it to impossible values
 			{
@@ -297,7 +298,7 @@ int CCollision::CheckPointForProjectile(vec2 Pos, SKZColProjectileParams *pProje
 
 int CCollision::CheckPointForLaser(vec2 Pos, SKZColLaserParams *pLaserParams) const
 {
-	if(!pLaserParams || !m_pWorldCore || !m_pTeamsCore)
+	if((pLaserParams ? !pLaserParams->m_pOriginWorld : true) || !m_pTeamsCore)
 		return 0;
 
 	CKZTile *pKZTile = GetKZGameTile(Pos.x, Pos.y);
@@ -305,9 +306,11 @@ int CCollision::CheckPointForLaser(vec2 Pos, SKZColLaserParams *pLaserParams) co
 	if(!pKZTile && !pKZFrontTile)
 		return 0;
 
+	CWorldCore *pWorldCore = pLaserParams->m_pOriginWorld;
+
 	if(pKZTile)
 	{
-		if(pKZTile->m_Index == KZ_GAMETILE_HITTABLE_SWITCH && pKZTile->m_Number && !m_pWorldCore->m_vSwitchers.empty() && pLaserParams->OwnerId >= 0 && pLaserParams->OwnerId < SERVER_MAX_CLIENTS)
+		if(pKZTile->m_Index == KZ_GAMETILE_HITTABLE_SWITCH && pKZTile->m_Number && !pWorldCore->m_vSwitchers.empty() && pLaserParams->OwnerId >= 0 && pLaserParams->OwnerId < SERVER_MAX_CLIENTS)
 		{
 			bool hit = false;
 			if(BitWiseAndInt64(pKZTile->m_Value3, KZ_HITTABLE_SWITCH_FLAG_GUN) && pLaserParams->Type == WEAPON_GUN)
@@ -333,49 +336,49 @@ int CCollision::CheckPointForLaser(vec2 Pos, SKZColLaserParams *pLaserParams) co
 				{
 					case 0: //switch deactivate
 						{
-							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aStatus[m_pTeamsCore->Team(pLaserParams->OwnerId)] = true;
-							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aEndTick[m_pTeamsCore->Team(pLaserParams->OwnerId)] = 0;
-							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aType[m_pTeamsCore->Team(pLaserParams->OwnerId)] = TILE_SWITCHOPEN;
-							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aLastUpdateTick[m_pTeamsCore->Team(pLaserParams->OwnerId)] = m_pWorldCore->m_WorldTickKZ;
+							pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aStatus[m_pTeamsCore->Team(pLaserParams->OwnerId)] = true;
+							pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aEndTick[m_pTeamsCore->Team(pLaserParams->OwnerId)] = 0;
+							pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aType[m_pTeamsCore->Team(pLaserParams->OwnerId)] = TILE_SWITCHOPEN;
+							pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aLastUpdateTick[m_pTeamsCore->Team(pLaserParams->OwnerId)] = pWorldCore->m_WorldTickKZ;
 						}
 						break;
 					case 1: //switch timed deactivate
 						{
-							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aStatus[m_pTeamsCore->Team(pLaserParams->OwnerId)] = true;
-							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aEndTick[m_pTeamsCore->Team(pLaserParams->OwnerId)] = m_pWorldCore->m_WorldTickKZ + 1 + pKZTile->m_Value2 * SERVER_TICK_SPEED;
-							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aType[m_pTeamsCore->Team(pLaserParams->OwnerId)] = TILE_SWITCHTIMEDOPEN;
-							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aLastUpdateTick[m_pTeamsCore->Team(pLaserParams->OwnerId)] = m_pWorldCore->m_WorldTickKZ;
+							pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aStatus[m_pTeamsCore->Team(pLaserParams->OwnerId)] = true;
+							pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aEndTick[m_pTeamsCore->Team(pLaserParams->OwnerId)] = pWorldCore->m_WorldTickKZ + 1 + pKZTile->m_Value2 * SERVER_TICK_SPEED;
+							pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aType[m_pTeamsCore->Team(pLaserParams->OwnerId)] = TILE_SWITCHTIMEDOPEN;
+							pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aLastUpdateTick[m_pTeamsCore->Team(pLaserParams->OwnerId)] = pWorldCore->m_WorldTickKZ;
 						}
 						break;
 					case 2: //switch timed activate
 						{
-							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aStatus[m_pTeamsCore->Team(pLaserParams->OwnerId)] = false;
-							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aEndTick[m_pTeamsCore->Team(pLaserParams->OwnerId)] = m_pWorldCore->m_WorldTickKZ + 1 + pKZTile->m_Value2 * SERVER_TICK_SPEED;
-							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aType[m_pTeamsCore->Team(pLaserParams->OwnerId)] = TILE_SWITCHTIMEDCLOSE;
-							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aLastUpdateTick[m_pTeamsCore->Team(pLaserParams->OwnerId)] = m_pWorldCore->m_WorldTickKZ;
+							pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aStatus[m_pTeamsCore->Team(pLaserParams->OwnerId)] = false;
+							pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aEndTick[m_pTeamsCore->Team(pLaserParams->OwnerId)] = pWorldCore->m_WorldTickKZ + 1 + pKZTile->m_Value2 * SERVER_TICK_SPEED;
+							pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aType[m_pTeamsCore->Team(pLaserParams->OwnerId)] = TILE_SWITCHTIMEDCLOSE;
+							pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aLastUpdateTick[m_pTeamsCore->Team(pLaserParams->OwnerId)] = pWorldCore->m_WorldTickKZ;
 						}
 						break;
 					case 3: //switch activate
 						{
-							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aStatus[m_pTeamsCore->Team(pLaserParams->OwnerId)] = false;
-							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aEndTick[m_pTeamsCore->Team(pLaserParams->OwnerId)] = 0;
-							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aType[m_pTeamsCore->Team(pLaserParams->OwnerId)] = TILE_SWITCHCLOSE;
-							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aLastUpdateTick[m_pTeamsCore->Team(pLaserParams->OwnerId)] = m_pWorldCore->m_WorldTickKZ;
+							pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aStatus[m_pTeamsCore->Team(pLaserParams->OwnerId)] = false;
+							pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aEndTick[m_pTeamsCore->Team(pLaserParams->OwnerId)] = 0;
+							pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aType[m_pTeamsCore->Team(pLaserParams->OwnerId)] = TILE_SWITCHCLOSE;
+							pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aLastUpdateTick[m_pTeamsCore->Team(pLaserParams->OwnerId)] = pWorldCore->m_WorldTickKZ;
 						}
 						break;
 					case 4: // +KZ switch toggle
 						{
-							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aStatus[m_pTeamsCore->Team(pLaserParams->OwnerId)] = !m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aStatus[m_pTeamsCore->Team(pLaserParams->OwnerId)];
-							if(m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aStatus[m_pTeamsCore->Team(pLaserParams->OwnerId)])
+							pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aStatus[m_pTeamsCore->Team(pLaserParams->OwnerId)] = !pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aStatus[m_pTeamsCore->Team(pLaserParams->OwnerId)];
+							if(pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aStatus[m_pTeamsCore->Team(pLaserParams->OwnerId)])
 							{
-								m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aType[m_pTeamsCore->Team(pLaserParams->OwnerId)] = TILE_SWITCHOPEN;
+								pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aType[m_pTeamsCore->Team(pLaserParams->OwnerId)] = TILE_SWITCHOPEN;
 							}
 							else
 							{
-								m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aType[m_pTeamsCore->Team(pLaserParams->OwnerId)] = TILE_SWITCHCLOSE;
+								pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aType[m_pTeamsCore->Team(pLaserParams->OwnerId)] = TILE_SWITCHCLOSE;
 							}
-							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aEndTick[m_pTeamsCore->Team(pLaserParams->OwnerId)] = 0;
-							m_pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aLastUpdateTick[m_pTeamsCore->Team(pLaserParams->OwnerId)] = m_pWorldCore->m_WorldTickKZ;
+							pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aEndTick[m_pTeamsCore->Team(pLaserParams->OwnerId)] = 0;
+							pWorldCore->m_vSwitchers[pKZTile->m_Number].m_aLastUpdateTick[m_pTeamsCore->Team(pLaserParams->OwnerId)] = pWorldCore->m_WorldTickKZ;
 						}
 						break;
 
@@ -932,7 +935,7 @@ bool CCollision::IsTeleportViable(vec2 Pos) const
 
 bool CCollision::TestBoxKZ(vec2 OrigPos, vec2 *pInOutPos, vec2 *pInOutVel, vec2 Size, float ElasticityX, float ElasticityY, bool *pGrounded, CCharacterCore *pCore) const
 {
-	if(!pCore || !m_pWorldCore || !m_pTeamsCore)
+	if((pCore ? !pCore->m_pWorld : true) || !m_pTeamsCore)
 		return false;
 
 	Size *= 0.5f;
@@ -949,61 +952,62 @@ bool CCollision::TestBoxKZ(vec2 OrigPos, vec2 *pInOutPos, vec2 *pInOutVel, vec2 
 
 	bool updatedpos = false;
 	CKZTile *pPrevKZHITTABLESwitch = nullptr;
+	CWorldCore *pWorldCore = pCore->m_pWorld;
 	if(collide)
 	{
 		for(int i = 0; i < 4; i++)
 		{
 			if(pKZTile[i])
 			{
-				if(pPrevKZHITTABLESwitch != pKZTile[i] && pCore->pTouchingKZTiles[0] != pKZTile[i] && pCore->pTouchingKZTiles[1] != pKZTile[i] && pCore->pTouchingKZTiles[2] != pKZTile[i]&& pCore->pTouchingKZTiles[3] != pKZTile[i] && pKZTile[i]->m_Index == KZ_GAMETILE_HITTABLE_SWITCH && BitWiseAndInt64(pKZTile[i]->m_Value3,KZ_HITTABLE_SWITCH_FLAG_NINJA) && pKZTile[i]->m_Number && !m_pWorldCore->m_vSwitchers.empty() && pCore->m_ActiveWeapon == WEAPON_NINJA && pCore->m_Ninja.m_CurrentMoveTime > 0)
+				if(pPrevKZHITTABLESwitch != pKZTile[i] && pCore->pTouchingKZTiles[0] != pKZTile[i] && pCore->pTouchingKZTiles[1] != pKZTile[i] && pCore->pTouchingKZTiles[2] != pKZTile[i]&& pCore->pTouchingKZTiles[3] != pKZTile[i] && pKZTile[i]->m_Index == KZ_GAMETILE_HITTABLE_SWITCH && BitWiseAndInt64(pKZTile[i]->m_Value3,KZ_HITTABLE_SWITCH_FLAG_NINJA) && pKZTile[i]->m_Number && !pWorldCore->m_vSwitchers.empty() && pCore->m_ActiveWeapon == WEAPON_NINJA && pCore->m_Ninja.m_CurrentMoveTime > 0)
 				{
 					switch(pKZTile[i]->m_Value1) //Type
 					{
 						case 0: //switch deactivate
 							{
-								m_pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aStatus[m_pTeamsCore->Team(pCore->m_Id)] = true;
-								m_pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aEndTick[m_pTeamsCore->Team(pCore->m_Id)] = 0;
-								m_pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aType[m_pTeamsCore->Team(pCore->m_Id)] = TILE_SWITCHOPEN;
-								m_pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aLastUpdateTick[m_pTeamsCore->Team(pCore->m_Id)] = m_pWorldCore->m_WorldTickKZ;
+								pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aStatus[m_pTeamsCore->Team(pCore->m_Id)] = true;
+								pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aEndTick[m_pTeamsCore->Team(pCore->m_Id)] = 0;
+								pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aType[m_pTeamsCore->Team(pCore->m_Id)] = TILE_SWITCHOPEN;
+								pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aLastUpdateTick[m_pTeamsCore->Team(pCore->m_Id)] = pWorldCore->m_WorldTickKZ;
 							}
 							break;
 						case 1: //switch timed deactivate
 							{
-								m_pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aStatus[m_pTeamsCore->Team(pCore->m_Id)] = true;
-								m_pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aEndTick[m_pTeamsCore->Team(pCore->m_Id)] = m_pWorldCore->m_WorldTickKZ + 1 + pKZTile[i]->m_Value2 * SERVER_TICK_SPEED;
-								m_pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aType[m_pTeamsCore->Team(pCore->m_Id)] = TILE_SWITCHTIMEDOPEN;
-								m_pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aLastUpdateTick[m_pTeamsCore->Team(pCore->m_Id)] = m_pWorldCore->m_WorldTickKZ;
+								pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aStatus[m_pTeamsCore->Team(pCore->m_Id)] = true;
+								pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aEndTick[m_pTeamsCore->Team(pCore->m_Id)] = pWorldCore->m_WorldTickKZ + 1 + pKZTile[i]->m_Value2 * SERVER_TICK_SPEED;
+								pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aType[m_pTeamsCore->Team(pCore->m_Id)] = TILE_SWITCHTIMEDOPEN;
+								pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aLastUpdateTick[m_pTeamsCore->Team(pCore->m_Id)] = pWorldCore->m_WorldTickKZ;
 							}
 							break;
 						case 2: //switch timed activate
 							{
-								m_pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aStatus[m_pTeamsCore->Team(pCore->m_Id)] = false;
-								m_pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aEndTick[m_pTeamsCore->Team(pCore->m_Id)] = m_pWorldCore->m_WorldTickKZ + 1 + pKZTile[i]->m_Value2 * SERVER_TICK_SPEED;
-								m_pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aType[m_pTeamsCore->Team(pCore->m_Id)] = TILE_SWITCHTIMEDCLOSE;
-								m_pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aLastUpdateTick[m_pTeamsCore->Team(pCore->m_Id)] = m_pWorldCore->m_WorldTickKZ;
+								pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aStatus[m_pTeamsCore->Team(pCore->m_Id)] = false;
+								pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aEndTick[m_pTeamsCore->Team(pCore->m_Id)] = pWorldCore->m_WorldTickKZ + 1 + pKZTile[i]->m_Value2 * SERVER_TICK_SPEED;
+								pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aType[m_pTeamsCore->Team(pCore->m_Id)] = TILE_SWITCHTIMEDCLOSE;
+								pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aLastUpdateTick[m_pTeamsCore->Team(pCore->m_Id)] = pWorldCore->m_WorldTickKZ;
 							}
 							break;
 						case 3: //switch activate
 							{
-								m_pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aStatus[m_pTeamsCore->Team(pCore->m_Id)] = false;
-								m_pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aEndTick[m_pTeamsCore->Team(pCore->m_Id)] = 0;
-								m_pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aType[m_pTeamsCore->Team(pCore->m_Id)] = TILE_SWITCHCLOSE;
-								m_pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aLastUpdateTick[m_pTeamsCore->Team(pCore->m_Id)] = m_pWorldCore->m_WorldTickKZ;
+								pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aStatus[m_pTeamsCore->Team(pCore->m_Id)] = false;
+								pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aEndTick[m_pTeamsCore->Team(pCore->m_Id)] = 0;
+								pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aType[m_pTeamsCore->Team(pCore->m_Id)] = TILE_SWITCHCLOSE;
+								pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aLastUpdateTick[m_pTeamsCore->Team(pCore->m_Id)] = pWorldCore->m_WorldTickKZ;
 							}
 							break;
 						case 4: // +KZ switch toggle
 							{
-								m_pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aStatus[m_pTeamsCore->Team(pCore->m_Id)] = !m_pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aStatus[m_pTeamsCore->Team(pCore->m_Id)];
-								if(m_pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aStatus[m_pTeamsCore->Team(pCore->m_Id)])
+								pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aStatus[m_pTeamsCore->Team(pCore->m_Id)] = !pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aStatus[m_pTeamsCore->Team(pCore->m_Id)];
+								if(pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aStatus[m_pTeamsCore->Team(pCore->m_Id)])
 								{
-									m_pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aType[m_pTeamsCore->Team(pCore->m_Id)] = TILE_SWITCHOPEN;
+									pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aType[m_pTeamsCore->Team(pCore->m_Id)] = TILE_SWITCHOPEN;
 								}
 								else
 								{
-									m_pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aType[m_pTeamsCore->Team(pCore->m_Id)] = TILE_SWITCHCLOSE;
+									pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aType[m_pTeamsCore->Team(pCore->m_Id)] = TILE_SWITCHCLOSE;
 								}
-								m_pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aEndTick[m_pTeamsCore->Team(pCore->m_Id)] = 0;
-								m_pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aLastUpdateTick[m_pTeamsCore->Team(pCore->m_Id)] = m_pWorldCore->m_WorldTickKZ;
+								pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aEndTick[m_pTeamsCore->Team(pCore->m_Id)] = 0;
+								pWorldCore->m_vSwitchers[pKZTile[i]->m_Number].m_aLastUpdateTick[m_pTeamsCore->Team(pCore->m_Id)] = pWorldCore->m_WorldTickKZ;
 							}
 							break;
 
@@ -1081,51 +1085,77 @@ bool CCollision::TestBoxKZ(vec2 OrigPos, vec2 *pInOutPos, vec2 *pInOutVel, vec2 
 	return false;
 }
 
-void CCollision::UpdateQuadCache()
+void CCollision::UpdateQuadCache(CWorldCore *pWorldCore)
 {
-	for(std::vector<SKZQuadData>::size_type i = 0; i < m_aKZQuads.size(); i++)
+	if(!pWorldCore)
 	{
+		return;
+	}
+
+	//get envelopes
+	int EnvStart, EnvNum;
+	m_pLayers->Map()->GetType(MAPITEMTYPE_ENVELOPE, &EnvStart, &EnvNum);
+
+	std::vector<SKZQuadData>& aKZQuads = pWorldCore->GetKZQuads();
+
+	for(std::vector<SKZQuadData>::size_type i = 0; i < aKZQuads.size(); i++)
+	{
+		if(aKZQuads[i].m_NotAnimated)
+			continue;
 
 		//Get moved quad pos
 
 		vec2 Position = vec2(0,0);
 
-		GetAnimationTransform(m_Time + (m_aKZQuads[i].m_pQuad->m_PosEnvOffset / 1000.0), m_aKZQuads[i].m_pQuad->m_PosEnv, Position, m_aKZQuads[i].m_CachedAngle);
+		GetAnimationTransform(pWorldCore->m_Time + (aKZQuads[i].m_pQuad->m_PosEnvOffset / 1000.0), aKZQuads[i].m_pQuad->m_PosEnv, Position, aKZQuads[i].m_CachedAngle);
 
 		//Set Center first
-		m_aKZQuads[i].m_CachedPos[4] = vec2(fx2f(m_aKZQuads[i].m_pQuad->m_aPoints[4].x), fx2f(m_aKZQuads[i].m_pQuad->m_aPoints[4].y)) + Position;
+		aKZQuads[i].m_CachedPos[4] = vec2(fx2f(aKZQuads[i].m_pQuad->m_aPoints[4].x), fx2f(aKZQuads[i].m_pQuad->m_aPoints[4].y)) + Position;
 
 		//Cache corners
 		for(int j = 0; j < 4; j ++)
 		{
-			m_aKZQuads[i].m_CachedPos[j] = Position + vec2(fx2f(m_aKZQuads[i].m_pQuad->m_aPoints[j].x), fx2f(m_aKZQuads[i].m_pQuad->m_aPoints[j].y));
+			aKZQuads[i].m_CachedPos[j] = Position + vec2(fx2f(aKZQuads[i].m_pQuad->m_aPoints[j].x), fx2f(aKZQuads[i].m_pQuad->m_aPoints[j].y));
 		}
 
 		//Rotate Cached corners
-		if(m_aKZQuads[i].m_CachedAngle != 0)
+		if(aKZQuads[i].m_CachedAngle != 0)
 		{
-			Rotate(m_aKZQuads[i].m_CachedPos[4], &m_aKZQuads[i].m_CachedPos[0], m_aKZQuads[i].m_CachedAngle);
-			Rotate(m_aKZQuads[i].m_CachedPos[4], &m_aKZQuads[i].m_CachedPos[1], m_aKZQuads[i].m_CachedAngle);
-			Rotate(m_aKZQuads[i].m_CachedPos[4], &m_aKZQuads[i].m_CachedPos[2], m_aKZQuads[i].m_CachedAngle);
-			Rotate(m_aKZQuads[i].m_CachedPos[4], &m_aKZQuads[i].m_CachedPos[3], m_aKZQuads[i].m_CachedAngle);
+			Rotate(aKZQuads[i].m_CachedPos[4], &aKZQuads[i].m_CachedPos[0], aKZQuads[i].m_CachedAngle);
+			Rotate(aKZQuads[i].m_CachedPos[4], &aKZQuads[i].m_CachedPos[1], aKZQuads[i].m_CachedAngle);
+			Rotate(aKZQuads[i].m_CachedPos[4], &aKZQuads[i].m_CachedPos[2], aKZQuads[i].m_CachedAngle);
+			Rotate(aKZQuads[i].m_CachedPos[4], &aKZQuads[i].m_CachedPos[3], aKZQuads[i].m_CachedAngle);
+		}
+
+		//dont update ever again if it is not animated
+		if(aKZQuads[i].m_pQuad->m_PosEnv >= EnvNum || aKZQuads[i].m_pQuad->m_PosEnv < 0)
+		{
+			aKZQuads[i].m_NotAnimated = true;
 		}
 	}
 }
 
-std::vector<SKZQuadData *> CCollision::GetQuadsAt(vec2 Pos)
+std::vector<SKZQuadData *> CCollision::GetQuadsAt(CWorldCore *pWorldCore, vec2 Pos)
 {
 	std::vector<SKZQuadData *> apQuads;
 
-	for(std::vector<SKZQuadData>::size_type i = 0; i < m_aKZQuads.size(); i++)
+	if(!pWorldCore)
 	{
-		if(OutOfRange(Pos.x, m_aKZQuads[i].m_CachedPos[0].x, m_aKZQuads[i].m_CachedPos[1].x, m_aKZQuads[i].m_CachedPos[2].x, m_aKZQuads[i].m_CachedPos[3].x))
+		return apQuads;
+	}
+
+	std::vector<SKZQuadData>& aKZQuads = pWorldCore->GetKZQuads();
+
+	for(std::vector<SKZQuadData>::size_type i = 0; i < aKZQuads.size(); i++)
+	{
+		if(OutOfRange(Pos.x, aKZQuads[i].m_CachedPos[0].x, aKZQuads[i].m_CachedPos[1].x, aKZQuads[i].m_CachedPos[2].x, aKZQuads[i].m_CachedPos[3].x))
 			continue;
-		if(OutOfRange(Pos.y, m_aKZQuads[i].m_CachedPos[0].y, m_aKZQuads[i].m_CachedPos[1].y, m_aKZQuads[i].m_CachedPos[2].y, m_aKZQuads[i].m_CachedPos[3].y))
+		if(OutOfRange(Pos.y, aKZQuads[i].m_CachedPos[0].y, aKZQuads[i].m_CachedPos[1].y, aKZQuads[i].m_CachedPos[2].y, aKZQuads[i].m_CachedPos[3].y))
 			continue;
 
-		if(InsideQuad(m_aKZQuads[i].m_CachedPos[0], m_aKZQuads[i].m_CachedPos[1], m_aKZQuads[i].m_CachedPos[2], m_aKZQuads[i].m_CachedPos[3], Pos))
+		if(InsideQuad(aKZQuads[i].m_CachedPos[0], aKZQuads[i].m_CachedPos[1], aKZQuads[i].m_CachedPos[2], aKZQuads[i].m_CachedPos[3], Pos))
 		{
-			apQuads.push_back(&m_aKZQuads[i]);
+			apQuads.push_back(&aKZQuads[i]);
 		}
 	}
 
@@ -1163,8 +1193,15 @@ int CCollision::QuadTypeToTileId(SKZQuadData * pQuadData)
 	return TILE_AIR;
 }
 
-void CCollision::PushBoxOutsideQuads(vec2 *pPos, vec2 *pInOutVel, vec2 Size, CCharacterCore * pCore, bool * pGrounded)
+void CCollision::PushBoxOutsideQuads(CWorldCore *pWorldCore, vec2 *pPos, vec2 *pInOutVel, vec2 Size, CCharacterCore * pCore, bool * pGrounded)
 {
+	if(!pWorldCore)
+	{
+		return;
+	}
+
+	std::vector<SKZQuadData>& aKZQuads = pWorldCore->GetKZQuads();
+
 	vec2 BoxCorners[4];
 
 	Size *= 0.5f;
@@ -1177,7 +1214,7 @@ void CCollision::PushBoxOutsideQuads(vec2 *pPos, vec2 *pInOutVel, vec2 Size, CCh
 	do
 	{
 		bool docontinue;
-		for(std::vector<SKZQuadData>::size_type i = 0; i < m_aKZQuads.size(); i++)
+		for(std::vector<SKZQuadData>::size_type i = 0; i < aKZQuads.size(); i++)
 		{
 			if(needboxupdate)
 			{
@@ -1212,17 +1249,17 @@ void CCollision::PushBoxOutsideQuads(vec2 *pPos, vec2 *pInOutVel, vec2 Size, CCh
 				needboxupdate = false;
 			}
 
-			if(m_aKZQuads[i].m_Type != KZQUADTYPE_HOOK && m_aKZQuads[i].m_Type != KZQUADTYPE_UNHOOK && m_aKZQuads[i].m_Type != KZQUADTYPE_STOPA && m_aKZQuads[i].m_Type != KZQUADTYPE_KAIZOINSTA)
+			if(aKZQuads[i].m_Type != KZQUADTYPE_HOOK && aKZQuads[i].m_Type != KZQUADTYPE_UNHOOK && aKZQuads[i].m_Type != KZQUADTYPE_STOPA && aKZQuads[i].m_Type != KZQUADTYPE_KAIZOINSTA)
 				continue;
 			
-			//Kaizo Quads
-			if(m_aKZQuads[i].m_Type == KZQUADTYPE_KAIZOINSTA ? !(m_aKZQuads[i].m_pQuad && (m_aKZQuads[i].m_pQuad->m_ColorEnvOffset == TILE_SOLID || m_aKZQuads[i].m_pQuad->m_ColorEnvOffset == TILE_NOHOOK || m_aKZQuads[i].m_pQuad->m_ColorEnvOffset == TILE_STOPA)) : false)
+			//Kaizo-Insta Quads
+			if(aKZQuads[i].m_Type == KZQUADTYPE_KAIZOINSTA ? !(aKZQuads[i].m_pQuad && (aKZQuads[i].m_pQuad->m_ColorEnvOffset == TILE_SOLID || aKZQuads[i].m_pQuad->m_ColorEnvOffset == TILE_NOHOOK || aKZQuads[i].m_pQuad->m_ColorEnvOffset == TILE_STOPA)) : false)
 				continue;
 
 			docontinue = true;
 			for(int j = 0; j < 4; j++)
 			{
-				if(!OutOfRange(BoxCorners[j].x, m_aKZQuads[i].m_CachedPos[0].x, m_aKZQuads[i].m_CachedPos[1].x, m_aKZQuads[i].m_CachedPos[2].x, m_aKZQuads[i].m_CachedPos[3].x) && !OutOfRange(BoxCorners[j].y, m_aKZQuads[i].m_CachedPos[0].y, m_aKZQuads[i].m_CachedPos[1].y, m_aKZQuads[i].m_CachedPos[2].y, m_aKZQuads[i].m_CachedPos[3].y))
+				if(!OutOfRange(BoxCorners[j].x, aKZQuads[i].m_CachedPos[0].x, aKZQuads[i].m_CachedPos[1].x, aKZQuads[i].m_CachedPos[2].x, aKZQuads[i].m_CachedPos[3].x) && !OutOfRange(BoxCorners[j].y, aKZQuads[i].m_CachedPos[0].y, aKZQuads[i].m_CachedPos[1].y, aKZQuads[i].m_CachedPos[2].y, aKZQuads[i].m_CachedPos[3].y))
 				{
 					docontinue = false;
 					break;
@@ -1233,7 +1270,7 @@ void CCollision::PushBoxOutsideQuads(vec2 *pPos, vec2 *pInOutVel, vec2 Size, CCh
 				continue;
 
 			//First get out of the quad if we are inside
-			if(InsideQuad(m_aKZQuads[i].m_CachedPos[0], m_aKZQuads[i].m_CachedPos[1], m_aKZQuads[i].m_CachedPos[2], m_aKZQuads[i].m_CachedPos[3], *pPos))
+			if(InsideQuad(aKZQuads[i].m_CachedPos[0], aKZQuads[i].m_CachedPos[1], aKZQuads[i].m_CachedPos[2], aKZQuads[i].m_CachedPos[3], *pPos))
 			{
 				//0 = left
 				//1 = up
@@ -1244,10 +1281,10 @@ void CCollision::PushBoxOutsideQuads(vec2 *pPos, vec2 *pInOutVel, vec2 Size, CCh
 				vec2 intersect[4];
 
 				//we have no idea how is quad rotated nor the quad shape, we will use IntersectQuad()
-				intersected[0] = IntersectQuad(*pPos,vec2(pPos->x - 30, pPos->y),&intersect[0],nullptr,nullptr,m_aKZQuads[i].m_CachedPos[0],m_aKZQuads[i].m_CachedPos[1],m_aKZQuads[i].m_CachedPos[2],m_aKZQuads[i].m_CachedPos[3]);
-				intersected[1] = IntersectQuad(*pPos,vec2(pPos->x, pPos->y - 30),&intersect[1],nullptr,nullptr,m_aKZQuads[i].m_CachedPos[0],m_aKZQuads[i].m_CachedPos[1],m_aKZQuads[i].m_CachedPos[2],m_aKZQuads[i].m_CachedPos[3]);
-				intersected[2] = IntersectQuad(*pPos,vec2(pPos->x, pPos->y + 30),&intersect[2],nullptr,nullptr,m_aKZQuads[i].m_CachedPos[0],m_aKZQuads[i].m_CachedPos[1],m_aKZQuads[i].m_CachedPos[2],m_aKZQuads[i].m_CachedPos[3]);
-				intersected[3] = IntersectQuad(*pPos,vec2(pPos->x + 30, pPos->y),&intersect[3],nullptr,nullptr,m_aKZQuads[i].m_CachedPos[0],m_aKZQuads[i].m_CachedPos[1],m_aKZQuads[i].m_CachedPos[2],m_aKZQuads[i].m_CachedPos[3]);
+				intersected[0] = IntersectQuad(*pPos,vec2(pPos->x - 30, pPos->y),&intersect[0],nullptr,nullptr,aKZQuads[i].m_CachedPos[0],aKZQuads[i].m_CachedPos[1],aKZQuads[i].m_CachedPos[2],aKZQuads[i].m_CachedPos[3]);
+				intersected[1] = IntersectQuad(*pPos,vec2(pPos->x, pPos->y - 30),&intersect[1],nullptr,nullptr,aKZQuads[i].m_CachedPos[0],aKZQuads[i].m_CachedPos[1],aKZQuads[i].m_CachedPos[2],aKZQuads[i].m_CachedPos[3]);
+				intersected[2] = IntersectQuad(*pPos,vec2(pPos->x, pPos->y + 30),&intersect[2],nullptr,nullptr,aKZQuads[i].m_CachedPos[0],aKZQuads[i].m_CachedPos[1],aKZQuads[i].m_CachedPos[2],aKZQuads[i].m_CachedPos[3]);
+				intersected[3] = IntersectQuad(*pPos,vec2(pPos->x + 30, pPos->y),&intersect[3],nullptr,nullptr,aKZQuads[i].m_CachedPos[0],aKZQuads[i].m_CachedPos[1],aKZQuads[i].m_CachedPos[2],aKZQuads[i].m_CachedPos[3]);
 			
 				int found = -1;
 
@@ -1333,14 +1370,14 @@ void CCollision::PushBoxOutsideQuads(vec2 *pPos, vec2 *pInOutVel, vec2 Size, CCh
 			{
 				float altdown[4] = {-9999, -9999, -9999, -9999};
 
-				if(std::abs(m_aKZQuads[i].m_CachedPos[0].x - m_aKZQuads[i].m_CachedPos[1].x) != 0)
-					altdown[0] = CalculateSlopeAltitude(BoxCorners[2].x, BoxCorners[3].x, m_aKZQuads[i].m_CachedPos[0], m_aKZQuads[i].m_CachedPos[1]);
-				if(std::abs(m_aKZQuads[i].m_CachedPos[1].x - m_aKZQuads[i].m_CachedPos[3].x) != 0)
-					altdown[1] = CalculateSlopeAltitude(BoxCorners[2].x, BoxCorners[3].x, m_aKZQuads[i].m_CachedPos[1], m_aKZQuads[i].m_CachedPos[3]);
-				if(std::abs(m_aKZQuads[i].m_CachedPos[3].x - m_aKZQuads[i].m_CachedPos[2].x) != 0)
-					altdown[2] = CalculateSlopeAltitude(BoxCorners[2].x, BoxCorners[3].x, m_aKZQuads[i].m_CachedPos[3], m_aKZQuads[i].m_CachedPos[2]);
-				if(std::abs(m_aKZQuads[i].m_CachedPos[2].x - m_aKZQuads[i].m_CachedPos[0].x) != 0)
-					altdown[3] = CalculateSlopeAltitude(BoxCorners[2].x, BoxCorners[3].x, m_aKZQuads[i].m_CachedPos[2], m_aKZQuads[i].m_CachedPos[0]);
+				if(std::abs(aKZQuads[i].m_CachedPos[0].x - aKZQuads[i].m_CachedPos[1].x) != 0)
+					altdown[0] = CalculateSlopeAltitude(BoxCorners[2].x, BoxCorners[3].x, aKZQuads[i].m_CachedPos[0], aKZQuads[i].m_CachedPos[1]);
+				if(std::abs(aKZQuads[i].m_CachedPos[1].x - aKZQuads[i].m_CachedPos[3].x) != 0)
+					altdown[1] = CalculateSlopeAltitude(BoxCorners[2].x, BoxCorners[3].x, aKZQuads[i].m_CachedPos[1], aKZQuads[i].m_CachedPos[3]);
+				if(std::abs(aKZQuads[i].m_CachedPos[3].x - aKZQuads[i].m_CachedPos[2].x) != 0)
+					altdown[2] = CalculateSlopeAltitude(BoxCorners[2].x, BoxCorners[3].x, aKZQuads[i].m_CachedPos[3], aKZQuads[i].m_CachedPos[2]);
+				if(std::abs(aKZQuads[i].m_CachedPos[2].x - aKZQuads[i].m_CachedPos[0].x) != 0)
+					altdown[3] = CalculateSlopeAltitude(BoxCorners[2].x, BoxCorners[3].x, aKZQuads[i].m_CachedPos[2], aKZQuads[i].m_CachedPos[0]);
 
 				float finalaltdown = altdown[0];
 
@@ -1368,7 +1405,7 @@ void CCollision::PushBoxOutsideQuads(vec2 *pPos, vec2 *pInOutVel, vec2 Size, CCh
 							pInOutVel->y = 0;
 					}
 
-					if(pGrounded && m_aKZQuads[i].m_Type != KZQUADTYPE_STOPA) // set grounded if not stopper quad
+					if(pGrounded && aKZQuads[i].m_Type != KZQUADTYPE_STOPA) // set grounded if not stopper quad
 					{
 						*pGrounded = true;
 					}
@@ -1393,14 +1430,14 @@ void CCollision::PushBoxOutsideQuads(vec2 *pPos, vec2 *pInOutVel, vec2 Size, CCh
 			{
 				float altdown[4] = {-9999, -9999, -9999, -9999};
 
-				if(std::abs(m_aKZQuads[i].m_CachedPos[0].x - m_aKZQuads[i].m_CachedPos[1].x) < std::abs(m_aKZQuads[i].m_CachedPos[0].y - m_aKZQuads[i].m_CachedPos[1].y))
-					altdown[0] = CalculateSlopeAltitudeSide(BoxCorners[1].y, BoxCorners[3].y, m_aKZQuads[i].m_CachedPos[0], m_aKZQuads[i].m_CachedPos[1]);
-				if(std::abs(m_aKZQuads[i].m_CachedPos[1].x - m_aKZQuads[i].m_CachedPos[3].x) < std::abs(m_aKZQuads[i].m_CachedPos[1].y - m_aKZQuads[i].m_CachedPos[3].y))
-					altdown[1] = CalculateSlopeAltitudeSide(BoxCorners[1].y, BoxCorners[3].y, m_aKZQuads[i].m_CachedPos[1], m_aKZQuads[i].m_CachedPos[3]);
-				if(std::abs(m_aKZQuads[i].m_CachedPos[3].x - m_aKZQuads[i].m_CachedPos[2].x) < std::abs(m_aKZQuads[i].m_CachedPos[3].y - m_aKZQuads[i].m_CachedPos[2].y))
-					altdown[2] = CalculateSlopeAltitudeSide(BoxCorners[1].y, BoxCorners[3].y, m_aKZQuads[i].m_CachedPos[3], m_aKZQuads[i].m_CachedPos[2]);
-				if(std::abs(m_aKZQuads[i].m_CachedPos[2].x - m_aKZQuads[i].m_CachedPos[0].x) < std::abs(m_aKZQuads[i].m_CachedPos[2].y - m_aKZQuads[i].m_CachedPos[0].y))
-					altdown[3] = CalculateSlopeAltitudeSide(BoxCorners[1].y, BoxCorners[3].y, m_aKZQuads[i].m_CachedPos[2], m_aKZQuads[i].m_CachedPos[0]);
+				if(std::abs(aKZQuads[i].m_CachedPos[0].x - aKZQuads[i].m_CachedPos[1].x) < std::abs(aKZQuads[i].m_CachedPos[0].y - aKZQuads[i].m_CachedPos[1].y))
+					altdown[0] = CalculateSlopeAltitudeSide(BoxCorners[1].y, BoxCorners[3].y, aKZQuads[i].m_CachedPos[0], aKZQuads[i].m_CachedPos[1]);
+				if(std::abs(aKZQuads[i].m_CachedPos[1].x - aKZQuads[i].m_CachedPos[3].x) < std::abs(aKZQuads[i].m_CachedPos[1].y - aKZQuads[i].m_CachedPos[3].y))
+					altdown[1] = CalculateSlopeAltitudeSide(BoxCorners[1].y, BoxCorners[3].y, aKZQuads[i].m_CachedPos[1], aKZQuads[i].m_CachedPos[3]);
+				if(std::abs(aKZQuads[i].m_CachedPos[3].x - aKZQuads[i].m_CachedPos[2].x) < std::abs(aKZQuads[i].m_CachedPos[3].y - aKZQuads[i].m_CachedPos[2].y))
+					altdown[2] = CalculateSlopeAltitudeSide(BoxCorners[1].y, BoxCorners[3].y, aKZQuads[i].m_CachedPos[3], aKZQuads[i].m_CachedPos[2]);
+				if(std::abs(aKZQuads[i].m_CachedPos[2].x - aKZQuads[i].m_CachedPos[0].x) < std::abs(aKZQuads[i].m_CachedPos[2].y - aKZQuads[i].m_CachedPos[0].y))
+					altdown[3] = CalculateSlopeAltitudeSide(BoxCorners[1].y, BoxCorners[3].y, aKZQuads[i].m_CachedPos[2], aKZQuads[i].m_CachedPos[0]);
 
 				float finalaltdown = altdown[0];
 
@@ -1592,24 +1629,30 @@ bool CCollision::IntersectQuad(vec2 From, vec2 To, vec2 *pOut, vec2 *pLineStart,
 	}
 }
 
-SKZQuadData * CCollision::IntersectQuad(vec2 From, vec2 To, vec2 *pOut, vec2 *pLineStart, vec2 *pLineEnd)
+SKZQuadData * CCollision::IntersectQuad(CWorldCore *pWorldCore, vec2 From, vec2 To, vec2 *pOut, vec2 *pLineStart, vec2 *pLineEnd)
 {
+	if(!pWorldCore)
+	{
+		return nullptr;
+	}
+	std::vector<SKZQuadData>& aKZQuads = pWorldCore->GetKZQuads();
+
 	SKZQuadData * pQuad = nullptr;
 	vec2 CollidePoint = To;
 	float dist = -1;
 
-	for(std::vector<SKZQuadData>::size_type i = 0; i < m_aKZQuads.size(); i++)
+	for(std::vector<SKZQuadData>::size_type i = 0; i < aKZQuads.size(); i++)
 	{
-		if(m_aKZQuads[i].m_Type != KZQUADTYPE_HOOK && m_aKZQuads[i].m_Type != KZQUADTYPE_UNHOOK && m_aKZQuads[i].m_Type != KZQUADTYPE_KAIZOINSTA)
+		if(aKZQuads[i].m_Type != KZQUADTYPE_HOOK && aKZQuads[i].m_Type != KZQUADTYPE_UNHOOK && aKZQuads[i].m_Type != KZQUADTYPE_KAIZOINSTA)
 			continue;
 		
 		//Kaizo Quads
-		if(m_aKZQuads[i].m_Type == KZQUADTYPE_KAIZOINSTA ? !(m_aKZQuads[i].m_pQuad && (m_aKZQuads[i].m_pQuad->m_ColorEnvOffset == TILE_SOLID || m_aKZQuads[i].m_pQuad->m_ColorEnvOffset == TILE_NOHOOK)) : false)
+		if(aKZQuads[i].m_Type == KZQUADTYPE_KAIZOINSTA ? !(aKZQuads[i].m_pQuad && (aKZQuads[i].m_pQuad->m_ColorEnvOffset == TILE_SOLID || aKZQuads[i].m_pQuad->m_ColorEnvOffset == TILE_NOHOOK)) : false)
 			continue;
 
-		if(IntersectQuad(From,To,&CollidePoint,pLineStart,pLineEnd,m_aKZQuads[i].m_CachedPos[0],m_aKZQuads[i].m_CachedPos[1],m_aKZQuads[i].m_CachedPos[2],m_aKZQuads[i].m_CachedPos[3]) && (dist == -1 || distance(From,CollidePoint) < dist))
+		if(IntersectQuad(From,To,&CollidePoint,pLineStart,pLineEnd,aKZQuads[i].m_CachedPos[0],aKZQuads[i].m_CachedPos[1],aKZQuads[i].m_CachedPos[2],aKZQuads[i].m_CachedPos[3]) && (dist == -1 || distance(From,CollidePoint) < dist))
 		{
-			pQuad = &m_aKZQuads[i];
+			pQuad = &aKZQuads[i];
 			dist = distance(From,CollidePoint);
 			if(pOut)
 				*pOut = CollidePoint;
@@ -1620,24 +1663,30 @@ SKZQuadData * CCollision::IntersectQuad(vec2 From, vec2 To, vec2 *pOut, vec2 *pL
 	return pQuad;
 }
 
-SKZQuadData * CCollision::IntersectQuadTeleWeapon(vec2 From, vec2 To, vec2 *pOut, vec2 *pLineStart, vec2 *pLineEnd)
+SKZQuadData * CCollision::IntersectQuadTeleWeapon(CWorldCore *pWorldCore, vec2 From, vec2 To, vec2 *pOut, vec2 *pLineStart, vec2 *pLineEnd)
 {
+	if(!pWorldCore)
+	{
+		return nullptr;
+	}
+	std::vector<SKZQuadData>& aKZQuads = pWorldCore->GetKZQuads();
+	
 	SKZQuadData * pQuad = nullptr;
 	vec2 CollidePoint = To;
 	float dist = -1;
 
-	for(std::vector<SKZQuadData>::size_type i = 0; i < m_aKZQuads.size(); i++)
+	for(std::vector<SKZQuadData>::size_type i = 0; i < aKZQuads.size(); i++)
 	{
-		if(m_aKZQuads[i].m_Type != KZQUADTYPE_HOOK && m_aKZQuads[i].m_Type != KZQUADTYPE_UNHOOK && m_aKZQuads[i].m_Type != KZQUADTYPE_KAIZOINSTA)
+		if(aKZQuads[i].m_Type != KZQUADTYPE_HOOK && aKZQuads[i].m_Type != KZQUADTYPE_UNHOOK && aKZQuads[i].m_Type != KZQUADTYPE_KAIZOINSTA)
 			continue;
 
 		//Kaizo Quads (added teleinweapon)
-		if(m_aKZQuads[i].m_Type == KZQUADTYPE_KAIZOINSTA ? !(m_aKZQuads[i].m_pQuad && (m_aKZQuads[i].m_pQuad->m_ColorEnvOffset == TILE_SOLID || m_aKZQuads[i].m_pQuad->m_ColorEnvOffset == TILE_NOHOOK || (g_Config.m_SvOldTeleportWeapons ? m_aKZQuads[i].m_pQuad->m_ColorEnvOffset == TILE_TELEIN : m_aKZQuads[i].m_pQuad->m_ColorEnvOffset == TILE_TELEINWEAPON))) : false)
+		if(aKZQuads[i].m_Type == KZQUADTYPE_KAIZOINSTA ? !(aKZQuads[i].m_pQuad && (aKZQuads[i].m_pQuad->m_ColorEnvOffset == TILE_SOLID || aKZQuads[i].m_pQuad->m_ColorEnvOffset == TILE_NOHOOK || (g_Config.m_SvOldTeleportWeapons ? aKZQuads[i].m_pQuad->m_ColorEnvOffset == TILE_TELEIN : aKZQuads[i].m_pQuad->m_ColorEnvOffset == TILE_TELEINWEAPON))) : false)
 			continue;
 
-		if(IntersectQuad(From,To,&CollidePoint,pLineStart,pLineEnd,m_aKZQuads[i].m_CachedPos[0],m_aKZQuads[i].m_CachedPos[1],m_aKZQuads[i].m_CachedPos[2],m_aKZQuads[i].m_CachedPos[3]) && (dist == -1 || distance(From,CollidePoint) < dist))
+		if(IntersectQuad(From,To,&CollidePoint,pLineStart,pLineEnd,aKZQuads[i].m_CachedPos[0],aKZQuads[i].m_CachedPos[1],aKZQuads[i].m_CachedPos[2],aKZQuads[i].m_CachedPos[3]) && (dist == -1 || distance(From,CollidePoint) < dist))
 		{
-			pQuad = &m_aKZQuads[i];
+			pQuad = &aKZQuads[i];
 			dist = distance(From,CollidePoint);
 			if(pOut)
 				*pOut = CollidePoint;

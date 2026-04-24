@@ -2843,10 +2843,10 @@ void CGameClient::OnPredict()
 		ApplyPreInputs(Tick, false, m_PredictedWorld);
 
 		//+KZ added this for quads
-		m_GameWorld.m_Core.m_WorldTickKZ = Tick;
-		m_Collision.SetTime(static_cast<double>(Tick - m_LastRoundStartTick) / m_GameWorld.GameTickSpeed());
+		m_PredictedWorld.m_Core.m_WorldTickKZ = Tick;
+		m_PredictedWorld.m_Core.SetTime(static_cast<double>(Tick - m_LastRoundStartTick) / m_PredictedWorld.GameTickSpeed());
 		if(g_Config.m_SvGoresQuadsEnable)
-			m_Collision.UpdateQuadCache();
+			m_Collision.UpdateQuadCache(&m_PredictedWorld.m_Core);
 
 		m_PredictedWorld.Tick();
 
@@ -3910,9 +3910,6 @@ void CGameClient::UpdateLocalTuning()
 
 void CGameClient::UpdatePrediction()
 {
-	//+KZ
-	UpdateKaizoPrediction();
-
 	m_GameWorld.m_WorldConfig.m_IsVanilla = m_GameInfo.m_PredictVanilla;
 	m_GameWorld.m_WorldConfig.m_IsDDRace = m_GameInfo.m_PredictDDRace;
 	m_GameWorld.m_WorldConfig.m_IsFNG = m_GameInfo.m_PredictFNG;
@@ -3994,6 +3991,7 @@ void CGameClient::UpdatePrediction()
 
 			ApplyPreInputs(Tick, false, m_GameWorld);
 
+			UpdateKaizoPrediction();
 			m_GameWorld.Tick();
 
 			for(int i = 0; i < MAX_CLIENTS; i++)

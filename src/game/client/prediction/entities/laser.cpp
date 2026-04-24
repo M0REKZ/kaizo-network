@@ -131,17 +131,112 @@ void CLaser::DoBounce()
 	vec2 To = m_Pos + m_Dir * m_Energy;
 
 	//+KZ
-	SKZColTeleWeaponParams ParamsKZ;
+	SKZColTeleWeaponParams ParamsKZ(&GameWorld()->m_Core);
 	ParamsKZ.From = m_Pos;
 	ParamsKZ.To = To;
 	ParamsKZ.Type = m_Type;
 	ParamsKZ.OwnerId = m_Owner;
 	ParamsKZ.BounceNum = m_Bounces;
-	SKZColCharCoreParams ParamsKZ2;
+	SKZColCharCoreParams ParamsKZ2(&GameWorld()->m_Core);
 	ParamsKZ.pCharCoreParams = &ParamsKZ2;
 	ParamsKZ2.pCore = pOwnerCore;
 
+	SKZQuadData *pQuadData = nullptr;
+	vec2 QuadColPos;
+	vec2 LineStart;
+
+	if(Collision()->m_IsKaizoServer && g_Config.m_SvGoresQuadsEnable) // this is only for Kaizo Network
+		pQuadData = Collision()->IntersectQuadTeleWeapon(&GameWorld()->m_Core ,m_Pos ,To, &QuadColPos, &LineStart);
 	Res = Collision()->IntersectLineTeleWeapon(m_Pos, To, &Coltile, &To, nullptr, &ParamsKZ); //+KZ added ParamsKZ
+
+	bool quadbounce = false;
+
+	if(pQuadData && Res)
+	{
+		if(distance(m_Pos, QuadColPos) < distance(m_Pos, To))
+		{
+			quadbounce = true;
+		}
+	}
+	else if(pQuadData)
+	{
+		quadbounce = true;
+	}
+
+	if(quadbounce)
+	{
+		m_KZQuadBounces++;
+		if(m_KZQuadBounces > 50)
+		{
+			//something is wrong, kill the laser before he can kill us
+			//(Kaizo Network infinite laser bouncing in quads)
+			m_MarkedForDestroy = true;
+			return;
+		}
+
+		int Index = Collision()->QuadTypeToTileId(pQuadData);
+
+		if(Index == -1) //Kaizo-Insta Quad
+		{
+			Index = pQuadData->m_pQuad->m_ColorEnvOffset;
+		}
+
+		//bool WasTele = false;
+
+		if(pQuadData->m_pQuad && (g_Config.m_SvOldTeleportWeapons ? (Index == TILE_TELEIN) : (Index == TILE_TELEINWEAPON)) && !Collision()->TeleOuts(pQuadData->m_pQuad->m_aColors[0].r - 1).empty())
+		{
+			//WasTele = true;
+			m_MarkedForDestroy = true;
+		}
+
+		Res = 0;
+		vec2 OldDir = m_Dir;
+		m_Dir = normalize(Collision()->ReflexLineOnLine(m_Pos, QuadColPos, LineStart));
+		//if(WasTele)
+		//	m_Dir = OldDir;
+		m_From = m_Pos;
+		m_Pos = QuadColPos + normalize(m_Pos - QuadColPos);
+
+		const float Distance = distance(m_From, m_Pos);
+		// Prevent infinite bounces
+		if(Distance == 0.0f && m_ZeroEnergyBounceInLastTick)
+		{
+			m_Energy = -1;
+		}
+		/*else if(!m_TuneZone)
+		{
+			m_Energy -= Distance + GetTuning(0)->m_LaserBounceCost;
+		}*/ //duplicated code
+		else
+		{
+			m_Energy -= Distance + GetTuning(m_TuneZone)->m_LaserBounceCost;
+		}
+
+		int BounceNum = GetTuning(m_TuneZone)->m_LaserBounceNum;
+		
+		if(m_Bounces > BounceNum)
+			m_Energy = -1;
+
+		m_ZeroEnergyBounceInLastTick = Distance == 0.0f;
+
+		GameWorld()->CreatePredictedSound(m_Pos, SOUND_LASER_BOUNCE, m_Id);
+		return;
+	}
+
+	if(m_Bounces != ParamsKZ.BounceNum)
+	{
+		m_Bounces = ParamsKZ.BounceNum;
+
+		int BounceNum = GetTuning(m_TuneZone)->m_LaserBounceNum;
+		if(m_Bounces > BounceNum)
+		{
+			m_Energy = -1;
+			m_From = m_Pos;
+			m_Pos = To;
+		}
+		GameWorld()->CreatePredictedSound(m_Pos, SOUND_LASER_BOUNCE, m_Id);
+		return;
+	}
 
 	if(Res)
 	{
@@ -160,7 +255,7 @@ void CLaser::DoBounce()
 				f = Collision()->GetTile(round_to_int(Coltile.x), round_to_int(Coltile.y));
 				Collision()->SetCollisionAt(round_to_int(Coltile.x), round_to_int(Coltile.y), TILE_SOLID);
 			}
-			Collision()->MovePoint(&TempPos, &TempDir, 1.0f, nullptr);
+			Collision()->MovePoint(&TempPos, &TempDir, 1.0f, nullptr, &ParamsKZ2); //+KZ modified
 			if(Res == -1)
 			{
 				Collision()->SetCollisionAt(round_to_int(Coltile.x), round_to_int(Coltile.y), f);

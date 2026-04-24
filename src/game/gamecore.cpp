@@ -137,10 +137,12 @@ void CCharacterCore::Init(CWorldCore *pWorld, CCollision *pCollision, CTeamsCore
 
 	//+KZ
 	m_CharCoreParams.pCore = this;
+	m_CharCoreParams.m_pOriginWorld = pWorld;
 	m_CharCoreParams.IsHook = false;
 	m_CharCoreParams.IsWeapon = false;
 
 	m_GenericParams.pCore = this;
+	m_GenericParams.m_pOriginWorld = pWorld;
 }
 
 void CCharacterCore::SetCoreWorld(CWorldCore *pWorld, CCollision *pCollision, CTeamsCore *pTeams)
@@ -354,7 +356,7 @@ void CCharacterCore::Tick(bool UseInput, bool DoDeferredTick)
 
 		if(g_Config.m_SvGoresQuadsEnable && !m_pHookedQuad)
 		{
-			m_pHookedQuad = m_pCollision->IntersectQuad(HookBase, NewPos, &NewPos); //+KZ
+			m_pHookedQuad = m_pCollision->IntersectQuad(m_pWorld ,HookBase, NewPos, &NewPos); //+KZ
 		}
 		
 		if(m_pHookedQuad)
@@ -582,7 +584,9 @@ void CCharacterCore::Move()
 {
 	//+KZ: client does a copy of character on prediction, so core must update the pointer to itself
 	m_CharCoreParams.pCore = this;
+	m_CharCoreParams.m_pOriginWorld = m_pWorld;
 	m_GenericParams.pCore = this;
+	m_GenericParams.m_pOriginWorld = m_pWorld;
 
 	float RampValue = VelocityRamp(length(m_Vel) * 50, m_Tuning.m_VelrampStart, m_Tuning.m_VelrampRange, m_Tuning.m_VelrampCurvature);
 
@@ -604,7 +608,7 @@ void CCharacterCore::Move()
 	m_QuadGrounded = false;
 
 	if(g_Config.m_SvGoresQuadsEnable)
-		m_pCollision->PushBoxOutsideQuads(&NewPos, &m_Vel, PhysicalSizeVec2(), this, &m_QuadGrounded); //+KZ
+		m_pCollision->PushBoxOutsideQuads(m_pWorld ,&NewPos, &m_Vel, PhysicalSizeVec2(), this, &m_QuadGrounded); //+KZ
 
 	m_pCollision->MoveBox(&NewPos, &m_Vel, PhysicalSizeVec2(),
 		vec2(m_Tuning.m_GroundElasticityX,

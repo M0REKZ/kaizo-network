@@ -46,6 +46,7 @@ private:
 public:
 	bool m_IsRecoverJump = false;
 	CCharacter* m_pLaserLastHit = nullptr; //DuckDDNet addition
+	int m_KZQuadBounces = 0; //prevent infinite loops
 };
 
 #endif

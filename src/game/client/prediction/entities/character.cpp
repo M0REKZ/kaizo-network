@@ -43,7 +43,14 @@ void CCharacter::SetSuper(bool Super)
 
 bool CCharacter::IsGrounded()
 {
-	if(Collision()->IsOnGround(m_Pos, GetProximityRadius()))
+	if(Collision()->m_IsKaizoServer) //+KZ
+	{
+		if(Collision()->CheckPoint(m_Pos.x + GetProximityRadius() / 2, m_Pos.y + GetProximityRadius() / 2 + 5, &m_Core.m_CharCoreParams)) // KZ added m_Core
+			return true;
+		if(Collision()->CheckPoint(m_Pos.x - GetProximityRadius() / 2, m_Pos.y + GetProximityRadius() / 2 + 5, &m_Core.m_CharCoreParams)) // KZ added m_Core
+			return true;
+	}
+	else if(Collision()->IsOnGround(m_Pos, GetProximityRadius()))
 		return true;
 
 	int MoveRestrictionsBelow = Collision()->GetMoveRestrictions(m_Pos + vec2(0, GetProximityRadius() / 2 + 4), 0.0f);

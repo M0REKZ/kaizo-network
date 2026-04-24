@@ -22,6 +22,7 @@
 class CCollision;
 class CTeamsCore;
 class CPortalCore; //+KZ
+class CLayers;
 
 class CTuneParam
 {
@@ -194,6 +195,16 @@ public:
 	class CPortalCore *GetPortalKZ(int OwnerId, bool IsBlue);
 	void DeletePortalKZ(int OwnerId, bool IsBlue);
 	int m_WorldTickKZ = -1; // +KZ
+
+	//+KZ Kaizo Network Quads
+	std::vector<SKZQuadData> m_aKZQuads;
+	std::vector<SKZQuadData>& GetKZQuads() { return m_aKZQuads; }
+	void InitKZQuads(CLayers *pLayers);
+	void CopyKZQuads(std::vector<SKZQuadData> * apKZQuads);
+
+	//InfClass
+	double m_Time;
+	void SetTime(double Time) { m_Time = Time; }
 };
 
 class CCharacterCore

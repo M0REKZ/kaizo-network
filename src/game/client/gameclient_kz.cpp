@@ -9,7 +9,6 @@
 
 void CGameClient::OnKaizoConnected()
 {
-    m_Collision.m_pWorldCore = &m_GameWorld.m_Core;
     m_Collision.m_pTeamsCore = m_GameWorld.Teams();
     m_Collision.m_IsKaizoServer = false;
 
@@ -20,7 +19,9 @@ void CGameClient::OnKaizoConnected()
     m_GameWorld.m_WorldConfig.m_HasPointerTiles = false;
     m_WaitingForPointerTWPlusInfo = false;   
 
+    m_GameWorld.m_Core.InitKZQuads(Layers());
     m_GameWorld.OnConnected();
+    m_PredictedWorld.m_Core.CopyKZQuads(&m_GameWorld.m_Core.GetKZQuads());
 }
 
 void CGameClient::DoKaizoPredictionEffects(CCharacter *pCharacter)
@@ -46,9 +47,9 @@ void CGameClient::UpdateKaizoPrediction()
 {
     int Tick = (g_Config.m_ClPredict && m_PredictedTick >= MIN_TICK) ? m_PredictedTick : m_GameWorld.GameTick();
     m_GameWorld.m_Core.m_WorldTickKZ = Tick;
-	m_Collision.SetTime(static_cast<double>(Tick - m_LastRoundStartTick) / m_GameWorld.GameTickSpeed());
+	m_GameWorld.m_Core.SetTime(static_cast<double>(Tick - m_LastRoundStartTick) / m_GameWorld.GameTickSpeed());
 	if(g_Config.m_SvGoresQuadsEnable)
-		m_Collision.UpdateQuadCache();
+		m_Collision.UpdateQuadCache(&m_GameWorld.m_Core);
 }
 
 void CGameClient::HandleKaizoMessage(int MsgId, CUnpacker *pUnpacker, int Conn, bool Dummy, void *pRawMsg)
