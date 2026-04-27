@@ -147,6 +147,9 @@ void CPlayers::RenderDuckDDNetCollisions(const CNetObj_Character *pPrevChar, con
         // DClient Projectile prediction
         if(g_Config.m_KaizoGrenadePath && (pPlayerChar->m_Weapon == WEAPON_GRENADE || pPlayerChar->m_Weapon == WEAPON_GUN) && g_Config.m_ClShowOthersAlpha > 0)
         {
+            bool PredEvents = GameClient()->m_PredictedWorld.m_WorldConfig.m_PredictEvents;
+            GameClient()->m_PredictedWorld.m_WorldConfig.m_PredictEvents = false; //dont predict events for this temp projectile
+
             float Alpha = GameClient()->IsOtherTeam(ClientId) ? g_Config.m_ClShowOthersAlpha / 100.0f : 1.0f;
             Alpha *= (float)g_Config.m_ClHookCollAlpha / 100;
 
@@ -203,10 +206,15 @@ void CPlayers::RenderDuckDDNetCollisions(const CNetObj_Character *pPrevChar, con
             IGraphics::CQuadItem QuadItem(FinalGPos.x, FinalGPos.y, MarkerSize, MarkerSize);
             Graphics()->QuadsDraw(&QuadItem, 1);
             Graphics()->QuadsEnd();
+
+            GameClient()->m_PredictedWorld.m_WorldConfig.m_PredictEvents = PredEvents; //restore predict events state
         }
         // DClient FNG laser prediction
         if(Local && g_Config.m_KaizoLaserPath && pPlayerChar->m_Weapon == WEAPON_LASER && (GameClient()->m_GameWorld.m_WorldConfig.m_IsFNG || AlwaysRenderHookColl || RenderHookCollPlayer) && g_Config.m_ClShowOthersAlpha > 0)
         {
+            bool PredEvents = GameClient()->m_PredictedWorld.m_WorldConfig.m_PredictEvents;
+            GameClient()->m_PredictedWorld.m_WorldConfig.m_PredictEvents = false; //dont predict events for this temp laser
+
             float Alpha = GameClient()->IsOtherTeam(ClientId) ? g_Config.m_ClShowOthersAlpha / 100.0f : 1.0f;
             Alpha *= (float)g_Config.m_ClHookCollAlpha / 100;
 
@@ -267,6 +275,8 @@ void CPlayers::RenderDuckDDNetCollisions(const CNetObj_Character *pPrevChar, con
             Proj->GameWorld()->m_GameTick = InitialTick;
             GameClient()->m_PredictedWorld.RemoveEntity(Proj);
             delete Proj;
+
+            GameClient()->m_PredictedWorld.m_WorldConfig.m_PredictEvents = PredEvents; //restore predict events state
         }
 }
 
