@@ -174,7 +174,7 @@ enum
 namespace CountryCode
 {
 	inline constexpr int DEFAULT = -1;
-	inline constexpr int MINIMUM = -1;
+	inline constexpr int MINIMUM = -999; //+KZ
 	inline constexpr int MAXIMUM = 999;
 };
 

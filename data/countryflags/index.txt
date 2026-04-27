@@ -6,6 +6,81 @@
 default
 == -1
 
+##### unicode #####
+
+X-WHITE
+== -101
+
+X-BLACK
+== -102
+
+X-RAINBOW
+== -103
+
+X-PIRATE
+== -104
+
+X-FINISH
+== -105
+
+##### other #####
+
+X-TOTAR
+== -301
+
+X-TROLL
+== -302
+
+X-ENTITY
+== -303
+
+##### skins #####
+
+X-BLUEKITTY
+== -401
+
+X-BLUESTRIPE
+== -402
+
+X-BROWNBEAR
+== -403
+
+X-CAMMO
+== -404
+
+X-CAMMOSTRIPES
+== -405
+
+X-COALA
+== -406
+
+X-LIMEKITTY
+== -407
+
+X-PINKY
+== -408
+
+X-REDBOPP
+== -409
+
+X-REDSTRIPE
+== -410
+
+X-SADDO
+== -411
+
+X-TOPTRI
+== -412
+
+X-TWINBOP
+== -413
+
+X-TWINTRI
+== -414
+
+X-WARPAINT
+== -415
+
 ##### ISO 3166-2 subdivisions #####
 
 GB-ENG

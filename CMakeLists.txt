@@ -1589,6 +1589,29 @@ set(EXPECTED_DATA
   countryflags/VU.png
   countryflags/WF.png
   countryflags/WS.png
+  countryflags/X-BLACK.png
+  countryflags/X-BLUEKITTY.png
+  countryflags/X-BLUESTRIPE.png
+  countryflags/X-BROWNBEAR.png
+  countryflags/X-CAMMO.png
+  countryflags/X-CAMMOSTRIPES.png
+  countryflags/X-COALA.png
+  countryflags/X-ENTITY.png
+  countryflags/X-FINISH.png
+  countryflags/X-LIMEKITTY.png
+  countryflags/X-PINKY.png
+  countryflags/X-PIRATE.png
+  countryflags/X-RAINBOW.png
+  countryflags/X-REDBOPP.png
+  countryflags/X-REDSTRIPE.png
+  countryflags/X-SADDO.png
+  countryflags/X-TOPTRI.png
+  countryflags/X-TOTAR.png
+  countryflags/X-TROLL.png
+  countryflags/X-TWINBOP.png
+  countryflags/X-TWINTRI.png
+  countryflags/X-WARPAINT.png
+  countryflags/X-WHITE.png
   countryflags/YE.png
   countryflags/ZA.png
   countryflags/ZM.png
