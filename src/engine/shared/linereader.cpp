@@ -47,10 +47,16 @@ void CLineReader::OpenBuffer(char *pBuffer)
 	{
 		m_BufferPos += 3;
 	}
+
+	m_GetStateKZ = GETKZ_NONE; //+KZ
 }
 
 const char *CLineReader::Get()
 {
+	//+KZ
+	dbg_assert(m_GetStateKZ == GETKZ_NONE || m_GetStateKZ == GETKZ_NORMAL, "Cant alternate between Get() and GetInverted()");
+	m_GetStateKZ = GETKZ_NORMAL;
+
 	dbg_assert(m_pBuffer != nullptr, "Line reader not initialized");
 	if(m_ReadLastLine)
 	{

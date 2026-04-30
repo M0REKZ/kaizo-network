@@ -11,6 +11,14 @@ class CLineReader
 	unsigned m_BufferPos;
 	bool m_ReadLastLine;
 
+	//+KZ
+	enum EGetKZState
+	{
+		GETKZ_NONE,
+		GETKZ_NORMAL,
+		GETKZ_INVERTED,
+	} m_GetStateKZ;
+
 public:
 	CLineReader();
 	~CLineReader();
@@ -19,5 +27,8 @@ public:
 	void OpenBuffer(char *pBuffer); // Buffer must have been allocated with malloc, will be freed by the line reader
 
 	const char *Get(); // Returned string is valid until the line reader is destroyed
+
+	//+KZ
+	const char *GetInverted();
 };
 #endif

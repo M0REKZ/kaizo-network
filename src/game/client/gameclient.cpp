@@ -213,6 +213,9 @@ void CGameClient::OnConsoleInit()
 	for(auto &pComponent : m_vpAll)
 		pComponent->OnConsoleInit();
 
+	//+KZ
+	OnKaizoConsoleInit();
+
 	Console()->Chain("cl_languagefile", ConchainLanguageUpdate, this);
 
 	Console()->Chain("player_name", ConchainSpecialInfoupdate, this);

@@ -2183,6 +2183,7 @@ set_src(ENGINE_SHARED GLOB_RECURSE src/engine/shared
   jsonwriter.cpp
   jsonwriter.h
   kernel.cpp
+  linereader_kz.cpp
   linereader.cpp
   linereader.h
   localization.h

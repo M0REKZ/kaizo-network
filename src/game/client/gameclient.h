@@ -1003,6 +1003,7 @@ private:
 	void StoreSave(const char *pTeamMembers, const char *pGeneratedCode) const;
 
 	//+KZ
+	void OnKaizoConsoleInit();
 	void OnKaizoConnected();
 	void DoKaizoPredictionEffects(CCharacter *pCharacter);
 	void UpdateKaizoPrediction();

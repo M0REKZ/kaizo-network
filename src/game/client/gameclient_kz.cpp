@@ -6,6 +6,8 @@
 #include <game/mapitems.h>
 #include <game/client/components/countryflags.h>
 #include <game/client/prediction/entities/character.h>
+#include <engine/shared/linereader.h>
+#include <base/io.h>
 
 void CGameClient::OnKaizoConnected()
 {
@@ -460,6 +462,11 @@ bool CGameClient::IsSkinPartDefault(int Dummy, int Part)
 	if (Part == protocol7::SKINPART_MARKING || Part == protocol7::SKINPART_DECORATION)
 		pDefault = "";
 	return !str_comp(CSkins7::ms_apSkinVariables[Dummy][Part], pDefault);
+}
+
+void CGameClient::OnKaizoConsoleInit()
+{
+    
 }
 
 //This one is from T-Client
