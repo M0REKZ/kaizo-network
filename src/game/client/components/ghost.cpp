@@ -313,7 +313,24 @@ void CGhost::OnRender()
 	if(!m_Rendering || !g_Config.m_ClRaceShowGhost)
 		return;
 
-	int PlaybackTick = Client()->PredGameTick(g_Config.m_ClDummy) - m_StartRenderTick;
+	//+KZ modified to fix ghost with fast input
+	float PredIntraTick = Client()->PredIntraGameTick(g_Config.m_ClDummy);
+	int PredTick = Client()->PredGameTick(g_Config.m_ClDummy);
+
+	float FastInputIntra = (g_Config.m_KaizoFastInputAmount % 20) / 20.0f;
+	int FastInputTicks = g_Config.m_KaizoFastInputAmount / 20;
+
+	float CombinedIntra = PredIntraTick + FastInputIntra;
+
+	float IntraRemainder = 0.0f;
+	float FinalIntra = std::modf(CombinedIntra, &IntraRemainder);
+	int CarryOverTicks = static_cast<int>(IntraRemainder);
+
+	FastInputTicks += CarryOverTicks;
+
+	int FinalTick = PredTick + FastInputTicks;
+
+	int PlaybackTick = FinalTick - m_StartRenderTick;
 
 	for(auto &Ghost : m_aActiveGhosts)
 	{
@@ -344,7 +361,7 @@ void CGhost::OnRender()
 		int TickDiff = Player.m_Tick - Prev.m_Tick;
 		float IntraTick = 0.f;
 		if(TickDiff > 0)
-			IntraTick = (GhostTick - Prev.m_Tick - 1 + Client()->PredIntraGameTick(g_Config.m_ClDummy)) / TickDiff;
+			IntraTick = (GhostTick - Prev.m_Tick - 1 + FinalIntra) / TickDiff; //+KZ modified for fast input
 
 		Player.m_AttackTick += Client()->GameTick(g_Config.m_ClDummy) - GhostTick;
 
