@@ -535,7 +535,7 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 			}
 
 			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_Config.m_KaizoShowCharJumps, Localize("Show Character Flags in nameplate"), g_Config.m_KaizoShowCharJumps, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoShowCharJumps, Localize("Show Character Jumps in nameplate"), g_Config.m_KaizoShowCharJumps, &Button))
 			{
 				g_Config.m_KaizoShowCharJumps ^= 1;
 			}
