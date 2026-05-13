@@ -531,7 +531,7 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 			{
 				Right.HSplitTop(2.0f, nullptr, &Right);
 				Right.HSplitTop(20.0f, &Button, &Right);
-				Ui()->DoScrollbarOption(&g_Config.m_KaizoShowCharFlagsSize, &g_Config.m_KaizoShowCharFlagsSize, &Button, Localize("Size of Characer Flags indicators"), -50, 100, &CUi::ms_LogarithmicScrollbarScale, 0u);
+				Ui()->DoScrollbarOption(&g_Config.m_KaizoShowCharFlagsSize, &g_Config.m_KaizoShowCharFlagsSize, &Button, Localize("Size of Characer Flags indicators"), 25, 100, &CUi::ms_LogarithmicScrollbarScale, 0u);
 			}
 
 			Right.HSplitTop(20.0f, &Button, &Right);
@@ -544,7 +544,7 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 			{
 				Right.HSplitTop(2.0f, nullptr, &Right);
 				Right.HSplitTop(20.0f, &Button, &Right);
-				Ui()->DoScrollbarOption(&g_Config.m_KaizoShowCharJumpsSize, &g_Config.m_KaizoShowCharJumpsSize, &Button, Localize("Size of Characer Jumps indicator"), -50, 100, &CUi::ms_LogarithmicScrollbarScale, 0u);
+				Ui()->DoScrollbarOption(&g_Config.m_KaizoShowCharJumpsSize, &g_Config.m_KaizoShowCharJumpsSize, &Button, Localize("Size of Characer Jumps indicator"), 25, 100, &CUi::ms_LogarithmicScrollbarScale, 0u);
 			}
 
 			Right.HSplitTop(20.0f, &Button, &Right);

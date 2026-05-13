@@ -874,11 +874,11 @@ MACRO_CONFIG_INT(KaizoScoreboardStyle, kaizo_scoreboard_style, 0, 0, 10, CFGFLAG
 MACRO_CONFIG_INT(KaizoScoreboardShorten, kaizo_scoreboard_shorten, 0, 0, 2, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Shorten the scoreboard if there are not so many players")
 //From DuckDDNet
 MACRO_CONFIG_INT(KaizoShowCharFlags, kaizo_show_char_flags, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Show Character flags (Deep/Jetpack/etc) (WARNING: can be considered as a cheat, use at your own risk!)")
-MACRO_CONFIG_INT(KaizoShowCharFlagsSize, kaizo_show_char_flags_size, 30, -50, 100, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Size of Character flags indicators")
+MACRO_CONFIG_INT(KaizoShowCharFlagsSize, kaizo_show_char_flags_size, 30, 25, 100, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Size of Character flags indicators")
 MACRO_CONFIG_INT(KaizoLaserPath, kaizo_laser_path, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Show laser path (WARNING: can be considered as a cheat, use at your own risk!)")
 MACRO_CONFIG_INT(KaizoGrenadePath, kaizo_grenade_path, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Show grenade path (WARNING: can be considered as a cheat, use at your own risk!)")
 MACRO_CONFIG_INT(KaizoShowCharJumps, kaizo_show_char_jumps, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Show remaining double jumps of a tee (WARNING: can be considered as a cheat, use at your own risk!)")
-MACRO_CONFIG_INT(KaizoShowCharJumpsSize, kaizo_show_char_jumps_size, 30, -50, 100, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Size of double jump indicators")
+MACRO_CONFIG_INT(KaizoShowCharJumpsSize, kaizo_show_char_jumps_size, 30, 25, 100, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Size of double jump indicators")
 MACRO_CONFIG_INT(KaizoFreeMouse, kaizo_free_mouse, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Free mouse (WARNING: can be considered as a cheat, use at your own risk!)")
 //These are from T-Client:
 MACRO_CONFIG_INT(KaizoFastInput, kaizo_fast_input, 1, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Enable fast input")
