@@ -121,29 +121,21 @@ void CControls::HandleKaizoInput(CNetObj_PlayerInput *pMainInput, CNetObj_Player
 	if(g_Config.m_KaizoFastRespawn)
 	{
 		static bool Shoot = false;
+		bool PrevShoot = Shoot;
 
-		if(!Shoot &&
-			!GameClient()->m_Snap.m_aCharacters[GameClient()->m_aLocalIds[g_Config.m_ClDummy]].m_Active &&
-			GameClient()->m_Snap.m_apPlayerInfos[GameClient()->m_aLocalIds[g_Config.m_ClDummy]] &&
-			GameClient()->m_Snap.m_apPlayerInfos[GameClient()->m_aLocalIds[g_Config.m_ClDummy]]->m_Team != TEAM_SPECTATORS &&
-			!GameClient()->m_aClients[GameClient()->m_aLocalIds[g_Config.m_ClDummy]].m_Paused &&
-			!GameClient()->m_aClients[GameClient()->m_aLocalIds[g_Config.m_ClDummy]].m_Spec
-		)
+		const CNetObj_GameInfo *pGameInfoObj = GameClient()->m_Snap.m_pGameInfoObj;
+		if(GameClient()->m_Snap.m_pLocalInfo && !GameClient()->m_Snap.m_SpecInfo.m_Active && 
+			!GameClient()->m_Snap.m_pLocalCharacter && g_Config.m_ClScoreboardOnDeath &&
+			!(pGameInfoObj && pGameInfoObj->m_GameStateFlags & GAMESTATEFLAG_PAUSED))
+		{
 			Shoot = true;
-
-		if(Shoot && (
-			GameClient()->m_Snap.m_aCharacters[GameClient()->m_aLocalIds[g_Config.m_ClDummy]].m_Active ||
-			(GameClient()->m_Snap.m_apPlayerInfos[GameClient()->m_aLocalIds[g_Config.m_ClDummy]] &&
-			GameClient()->m_Snap.m_apPlayerInfos[GameClient()->m_aLocalIds[g_Config.m_ClDummy]]->m_Team == TEAM_SPECTATORS) ||
-			GameClient()->m_aClients[GameClient()->m_aLocalIds[g_Config.m_ClDummy]].m_Paused ||
-			GameClient()->m_aClients[GameClient()->m_aLocalIds[g_Config.m_ClDummy]].m_Spec
-		))
+		}
+		else
 		{
 			Shoot = false;
-			pMainInput->m_Fire &= ~1;
 		}
-			
-		if(Shoot)
+
+		if(Shoot && !PrevShoot)
 			pMainInput->m_Fire |= 1;
 	}
 

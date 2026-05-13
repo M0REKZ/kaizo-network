@@ -486,7 +486,7 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 			}
 
 			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_Config.m_KaizoFastRespawn, Localize("Spam click to respawn"), g_Config.m_KaizoFastRespawn, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoFastRespawn, Localize("Fast respawn"), g_Config.m_KaizoFastRespawn, &Button))
 			{
 				g_Config.m_KaizoFastRespawn ^= 1;
 			}
