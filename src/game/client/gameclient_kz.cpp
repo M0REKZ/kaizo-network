@@ -174,19 +174,20 @@ void CGameClient::HandleKaizoSnapItem(const IClient::CSnapItem *pItem)
             {
                 int c = 0;
                 unsigned char b[4];
-            } a;
+            } bodyc, feetc;
 
-            a.c = pInfo->m_ColorBody;
+            bodyc.c = pInfo->m_ColorBody;
+            feetc.c = pInfo->m_ColorFeet;
 
-            if(a.b[3] == CCID_COLOR_BODY_KAIZO_CLIENT)
+            if(bodyc.b[3] == CCID_COLOR_BODY_KAIZO_CLIENT && feetc.b[3] == CCID_COLOR_FEET_KAIZO_CLIENT)
             {
                 pClient->m_CustomClient = CUSTOM_CLIENT_ID_KAIZO_NETWORK;
             }
-            else if(a.b[3] == CCID_COLOR_BODY_CHILLERBOTUX)
+            else if(bodyc.b[3] == CCID_COLOR_BODY_CHILLERBOTUX && feetc.b[3] == CCID_COLOR_FEET_CHILLERBOTUX)
             {
                 pClient->m_CustomClient = CUSTOM_CLIENT_ID_CHILLERBOTUX;
             }
-            else if(a.b[3] == CCID_COLOR_BODY_PDUCKCLIENT)
+            else if(bodyc.b[3] == CCID_COLOR_BODY_PDUCKCLIENT && feetc.b[3] == CCID_COLOR_FEET_PDUCKCLIENT)
             {
                 pClient->m_CustomClient = CUSTOM_CLIENT_ID_PDUCKCLIENT;
             }
@@ -427,28 +428,31 @@ void CGameClient::KaizoPostUpdate()
     }
 }
 
-int CGameClient::InsertCustomClientIdIntoSkinColor(int Color)
+void CGameClient::InsertCustomClientIdIntoSkinColor(int &BodyColor, int &FeetColor)
 {
     if(!g_Config.m_KaizoSendClientType)
     {
-        return Color;
+        return;
     }
 
     union
     {
         int c = 0;
         unsigned char b[4];
-    } a;
+    } a,b;
 
-    a.c = Color;
+    a.c = BodyColor;
+    b.c = FeetColor;
 
     //printf("color %d %d %d %d\n", a.b[0], a.b[1], a.b[2], a.b[3]);
     
     //alpha is unused
     a.b[3] = (unsigned char)CCID_COLOR_BODY_KAIZO_CLIENT;
-    Color = a.c;
+    b.b[3] = (unsigned char)CCID_COLOR_FEET_KAIZO_CLIENT;
+    BodyColor = a.c;
+    FeetColor = b.c;
 
-	return Color;
+	return;
 }
 
 bool CGameClient::IsCustomClientId(int Country)

@@ -1354,29 +1354,31 @@ void CMenus::RenderServerbrowserInfoScoreboard(CUIRect View, const CServerInfo *
 				{
 					int c = 0;
 					unsigned char b[4];
-				} a;
+				} a, b;
 
 				a.c = CurrentClient.m_CustomSkinColorBody;
+				b.c = CurrentClient.m_CustomSkinColorFeet;
 
 				int BodyType = a.b[3];
+				int FeetType = b.b[3];
 
 				int Sprite = -1;
 				int Image = -1;
 
-				switch (BodyType)
+				if(BodyType == CCID_COLOR_BODY_CHILLERBOTUX && FeetType == CCID_COLOR_FEET_CHILLERBOTUX)
 				{
-				case CCID_COLOR_BODY_CHILLERBOTUX:
 					Image = IMAGE_KZ_CHILLERBOTUXICON;
 					Sprite = SPRITE_KZ_CHILLERBOTUXICON;
-					break;
-				case CCID_COLOR_BODY_KAIZO_CLIENT:
+				}
+				else if(BodyType == CCID_COLOR_BODY_KAIZO_CLIENT && FeetType == CCID_COLOR_FEET_KAIZO_CLIENT)
+				{
 					Image = IMAGE_KZ_KAIZOICON;
 					Sprite = SPRITE_KZ_KAIZOICON;
-					break;
-				case CCID_COLOR_BODY_PDUCKCLIENT:
+				}
+				else if(BodyType == CCID_COLOR_BODY_PDUCKCLIENT && FeetType == CCID_COLOR_FEET_PDUCKCLIENT)
+				{
 					Image = IMAGE_KZ_DUCKICON;
 					Sprite = SPRITE_KZ_DUCKICON;
-					break;
 				}
 
 				if(Sprite != -1 && Image != -1)
