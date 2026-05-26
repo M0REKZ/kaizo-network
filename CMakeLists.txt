@@ -286,8 +286,8 @@ if(NOT MSVC AND NOT HAIKU)
     endif()
   endif()
 
-  # Disable exceptions as DDNet does not use them.
-  add_cxx_compiler_flag_if_supported(OUR_FLAGS -fno-exceptions)
+  # Disable exceptions as DDNet does not use them. # +KZ i use them
+  # add_cxx_compiler_flag_if_supported(OUR_FLAGS -fno-exceptions)
 
   # Inaccurate floating point numbers cause problems on mingw-w64-gcc when
   # compiling for x86, might cause problems elsewhere. So don't store floats
@@ -2242,6 +2242,19 @@ set_src(ENGINE_GFX GLOB src/engine/gfx
   image_manipulation.h
 )
 
+# From E-Client.. or T-Client?
+set_src(ENGINE_EXTERNAL GLOB src/engine/external
+  regex.cpp
+  regex.h
+)
+
+# ChaiScript
+file(GLOB_RECURSE ENGINE_EXTERNAL_CHAISCRIPT
+  "${PROJECT_SOURCE_DIR}/src/engine/external/chaiscript/include/chaiscript/*.hpp"
+)
+list(APPEND ENGINE_EXTERNAL ${ENGINE_EXTERNAL_CHAISCRIPT})
+
+# +KZ for Quads
 set_src(GAME_KZ GLOB_RECURSE src/game/kz
   envelopeaccess.cpp
   envelopeaccess.h
@@ -2328,7 +2341,7 @@ set(LIBS
 # Targets
 add_library(engine-gfx EXCLUDE_FROM_ALL OBJECT ${ENGINE_GFX})
 target_include_directories(engine-gfx PRIVATE ${PNG_INCLUDE_DIRS})
-add_library(engine-shared EXCLUDE_FROM_ALL OBJECT ${ENGINE_INTERFACE} ${ENGINE_SHARED} ${ENGINE_UUID_SHARED} ${BASE})
+add_library(engine-shared EXCLUDE_FROM_ALL OBJECT ${ENGINE_EXTERNAL} ${ENGINE_INTERFACE} ${ENGINE_SHARED} ${ENGINE_UUID_SHARED} ${BASE})
 add_library(game-shared EXCLUDE_FROM_ALL OBJECT ${GAME_SHARED} ${GAME_GENERATED_SHARED})
 add_dependencies(engine-shared generate_protocol)
 add_dependencies(game-shared generate_protocol)
@@ -2494,6 +2507,10 @@ if(CLIENT)
     components/kz/custom_communities.h
     components/kz/rechargebars.cpp
     components/kz/rechargebars.h
+    components/kz/scripting/impl.cpp
+    components/kz/scripting/impl.h
+    components/kz/scripting.cpp
+    components/kz/scripting.h
     components/key_binder.cpp
     components/key_binder.h
     components/local_server.cpp
@@ -2805,8 +2822,17 @@ if(CLIENT)
   target_link_libraries(game-client ${LIBS_CLIENT})
 
   if(MSVC)
+    target_compile_options(game-client PRIVATE /bigobj) # TClient, required for ChaiScript
     target_link_options(game-client PRIVATE /ENTRY:mainCRTStartup)
   endif()
+
+  if(WIN32 AND NOT MSVC)
+    target_compile_options(game-client PRIVATE -Wa,-mbig-obj) # TClient, required for ChaiScript
+  endif()
+
+  # Silence warnings from ChaiScript
+  target_include_directories(game-client SYSTEM PRIVATE
+    ${PROJECT_SOURCE_DIR}/src/engine/external/chaiscript/include/chaiscript)
 
   target_include_directories(game-client SYSTEM PRIVATE
     ${FREETYPE_INCLUDE_DIRS}

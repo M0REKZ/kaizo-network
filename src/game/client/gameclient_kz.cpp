@@ -549,3 +549,96 @@ bool CGameClient::GetDummyFastInput(CNetObj_PlayerInput& DummyFastInput, const C
 
 	return false;
 }
+
+// E-Client | TClient
+void CGameClient::SetConnectInfo(const NETADDR *pAddress)
+{
+	m_ConnectServerInfo = std::nullopt;
+	if(!pAddress)
+		return;
+	const auto *pEntry = ServerBrowser()->Find(*pAddress);
+	if(!pEntry)
+		return;
+	m_ConnectServerInfo = pEntry->m_Info;
+	const CNetObj_GameInfoEx GameInfoEx = {.m_Version = 0};
+	m_GameInfo = GetGameInfo(&GameInfoEx, 0, &*m_ConnectServerInfo);
+}
+
+//E-Client/T-Client
+vec2 CGameClient::GetFreezePos(int ClientId)
+{
+	vec2 Pos = mix(m_aClients[ClientId].m_PrevPredicted.m_Pos, m_aClients[ClientId].m_Predicted.m_Pos, Client()->PredIntraGameTick(g_Config.m_ClDummy));
+	// int64_t Now = time_get();
+	CCharacter *pChar = m_PredictedWorld.GetCharacterById(m_Snap.m_LocalClientId);
+	CCharacter *pExtraChar = m_ExtraPredictedWorld.GetCharacterById(m_Snap.m_LocalClientId);
+
+	// int64_t Len = clamp(m_aClients[ClientId].m_aSmoothLen[i], (int64_t)1, time_freq());
+	// int64_t TimePassed = Now - m_aClients[ClientId].m_aSmoothStart[i];
+	float MixAmount = 0.0f;
+	int SmoothTick;
+	float SmoothIntra;
+
+	int AdjustTicks = 0;
+	int DelayTicks = g_Config.m_KaizoUnfreezeLagDelayTicks;
+	int FreezeTime = 0;
+	if(pExtraChar && pChar)
+	{
+		AdjustTicks = pChar->m_FreezeAccumulation;
+		if(pExtraChar->m_AliveAccumulation > 0)
+			AdjustTicks -= pExtraChar->m_AliveAccumulation;
+
+		AdjustTicks = std::max(AdjustTicks, 0);
+		FreezeTime = pChar->m_FreezeTime;
+
+		AdjustTicks = std::min(FreezeTime, AdjustTicks);
+	}
+	if(g_Config.m_KaizoRemoveAnti && pChar && AdjustTicks > 0 && FreezeTime > 0)
+		MixAmount = mix(0.0f, 1.0f, 1.0f - AdjustTicks / (float)DelayTicks);
+	// else if(AdjustTicks == 0 && ClientId != m_Snap.m_LocalClientId)
+	//	MixAmount = 1.f - std::pow(1.f - TimePassed / (float)Len, 1.2f);
+	else // our tee when not frozen
+		MixAmount = 1.f;
+
+	Client()->GetSmoothFreezeTick(&SmoothTick, &SmoothIntra, MixAmount);
+
+	m_SmoothTick = SmoothTick;
+	m_SmoothIntraTick = SmoothIntra;
+
+	float FastInputIntra = (g_Config.m_KaizoFastInputAmount % 20) / 20.0f;
+	int FastInputTicks = g_Config.m_KaizoFastInputAmount / 20;
+
+	float CombinedIntra = SmoothIntra + FastInputIntra;
+
+	float IntraRemainder = 0.0f;
+	float FinalIntra = std::modf(CombinedIntra, &IntraRemainder);
+	int CarryOverTicks = static_cast<int>(IntraRemainder);
+
+	FastInputTicks += CarryOverTicks;
+
+	const bool IsLocal = ClientId == m_Snap.m_LocalClientId || (PredictDummy() && ClientId == m_aLocalIds[!g_Config.m_ClDummy]);
+	if(IsLocal && g_Config.m_KaizoFastInput)
+	{
+		SmoothTick += FastInputTicks;
+		SmoothIntra = FinalIntra;
+	}
+	else if(!IsLocal && g_Config.m_KaizoFastInputOthers && g_Config.m_KaizoFastInput)
+	{
+		SmoothTick += FastInputTicks;
+		SmoothIntra = FinalIntra;
+	}
+
+	if(SmoothTick > 0 &&
+		m_aClients[ClientId].m_aPredTick[(SmoothTick - 1) % 200] >= Client()->PrevGameTick(g_Config.m_ClDummy) &&
+		m_aClients[ClientId].m_aPredTick[SmoothTick % 200] <= Client()->PredGameTick(g_Config.m_ClDummy) + FastInputTicks)
+	{
+		Pos = mix(m_aClients[ClientId].m_aPredPos[(SmoothTick - 1) % 200], m_aClients[ClientId].m_aPredPos[SmoothTick % 200], SmoothIntra);
+	}
+
+	return Pos;
+}
+
+//E-Client
+void CGameClient::ClientMessage(const char *pString)
+{
+	m_Chat.AddLine(-3, 0, pString);
+}

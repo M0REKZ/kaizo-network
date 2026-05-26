@@ -4,6 +4,7 @@
 #include <game/version.h>
 #include <game/localization.h>
 #include "client.h"
+#include <base/time.h>
 
 void CClient::SendKaizoNetworkVersion(int Conn)
 {
@@ -55,4 +56,19 @@ void CClient::SendClientLanguage(int Conn)
 			}
 		}
 	}
+}
+
+//T-Client
+void CClient::GetSmoothFreezeTick(int *pSmoothTick, float *pSmoothIntraTick, float MixAmount)
+{
+	int64_t GameTime = m_aGameTime[g_Config.m_ClDummy].Get(time_get());
+	int64_t PredTime = m_PredictedTime.Get(time_get());
+	GameTime = std::min(GameTime, PredTime);
+
+	int64_t UpperPredTime = std::clamp(PredTime - (time_freq() / 50) * g_Config.m_KaizoUnfreezeLagTicks, GameTime, PredTime);
+	int64_t LowestPredTime = std::clamp(PredTime, GameTime, UpperPredTime);
+	int64_t SmoothTime = std::clamp(LowestPredTime + (int64_t)(MixAmount * (PredTime - LowestPredTime)), LowestPredTime, PredTime);
+
+	*pSmoothTick = (int)(SmoothTime * 50 / time_freq()) + 1;
+	*pSmoothIntraTick = (SmoothTime - (*pSmoothTick - 1) * time_freq() / 50) / (float)(time_freq() / 50);
 }

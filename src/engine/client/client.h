@@ -553,6 +553,8 @@ public:
 	void SendFastInputsInfo(int Conn); //FoxNet
 	void SendSupportsCosmeticSnapInfo(int Conn); //FoxNet
 	void SendClientLanguage(int Conn);
+	void GetSmoothFreezeTick(int *pSmoothTick, float *pSmoothIntraTick, float MixAmount) override; //T-Client
+	bool m_aCodeRunAfterJoinConsole[NUM_DUMMIES] = {false, false}; //T-Client/E-Client
 };
 
 #endif

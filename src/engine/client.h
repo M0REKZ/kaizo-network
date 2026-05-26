@@ -367,6 +367,10 @@ public:
 
 	virtual std::optional<int> ShowMessageBox(const IGraphics::CMessageBox &MessageBox) = 0;
 	virtual void GetGpuInfoString(char (&aGpuInfo)[512]) = 0;
+
+	// +KZ
+	virtual void GetSmoothFreezeTick(int *pSmoothTick, float *pSmoothIntraTick, float MixAmount) = 0;
+	bool m_IsLocalFrozen = false; // T-Client
 };
 
 class IGameClient : public IInterface
@@ -427,6 +431,7 @@ public:
 	virtual void ForceUpdateConsoleRemoteCompletionSuggestions() = 0;
 	//+KZ
 	virtual bool CheckNewInput() = 0; // from Fast Input commit
+	virtual void SetConnectInfo(const NETADDR *pAddress) = 0; // E-Client/T-Client
 };
 
 extern IGameClient *CreateGameClient();

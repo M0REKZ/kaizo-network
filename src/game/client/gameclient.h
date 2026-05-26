@@ -71,6 +71,7 @@
 
 #include "components/kz/custom_communities.h" // +KZ from T-Client
 #include "components/kz/rechargebars.h" // +KZ
+#include "components/kz/scripting.h" // +KZ from E-Client/T-Client
 
 #include <memory>
 #include <vector>
@@ -1016,6 +1017,7 @@ private:
 	CCustomCommunities m_CustomCommunities; //+KZ from T-Client
 	CRechargeBars m_RechargeBars; //+KZ
 	CBindWheel m_BindWheel; //+KZ From TClient
+	CScripting m_Scripting; //+KZ From E-Client or T-Client
 
 	void GetKaizoInfo(CServerInfo *pServerInfo);
 	bool m_InstaShield = false;
@@ -1032,12 +1034,26 @@ private:
 	CPredControllerKZ m_PredControllerKZ;
 
 	//TClient
+	int m_SmoothTick = 0;
+	float m_SmoothIntraTick = 0;
 	CGameWorld m_PredSmoothingWorld;
 	CGameWorld m_RegularPredictedWorld;
 	CGameWorld m_PrevRegularPredictedWorld;
+	CGameWorld m_ExtraPredictedWorld;
 	vec2 GetFastInputPos(int ClientId);
 	bool GetDummyFastInput(CNetObj_PlayerInput &DummyFastInput, const CNetObj_PlayerInput *pDummyInputData, const class CCharacter *pDummyChar, int LocalTee, int DummyTee) const;
+	std::optional<CServerInfo> m_ConnectServerInfo = std::nullopt;
+	void SetConnectInfo(const NETADDR *pAddress) override;
+	vec2 GetFreezePos(int ClientId);
+
+	//E-Client
+	void ClientMessage(const char *pString);
 };
+
+//+KZ
+
+//GetGameInfo is from DDNet but was not in the header, only in the .cpp file
+extern CGameInfo GetGameInfo(const CNetObj_GameInfoEx *pInfoEx, int InfoExSize, const CServerInfo *pFallbackServerInfo);
 
 ColorRGBA CalculateNameColor(ColorHSLA TextColorHSL);
 

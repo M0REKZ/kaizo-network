@@ -14,6 +14,7 @@ class ColorRGBA;
 
 class CMapLayers : public CComponent
 {
+	friend class CScriptRunner; // TClient
 	friend class CBackground;
 	friend class CMenuBackground;
 

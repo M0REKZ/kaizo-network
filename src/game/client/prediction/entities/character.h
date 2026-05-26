@@ -194,6 +194,8 @@ private:
 	bool m_IsDead = false;
 	bool m_InPointerTele = false;
 
+	int m_FreezeAccumulation; //TClient
+	int m_AliveAccumulation; //TClient
 	CNetObj_PlayerInput * LatestInput() { return &m_LatestInput; }
 };
 

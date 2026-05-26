@@ -515,6 +515,8 @@ void CClient::EnterGame(int Conn)
 
 	m_aDidPostConnect[Conn] = false;
 
+	m_aCodeRunAfterJoinConsole[Conn] = false; //E-Client/T-Client
+
 	// now we will wait for two snapshots
 	// to finish the connection
 	SendEnterGame(Conn);
@@ -700,6 +702,15 @@ void CClient::Connect(const char *pAddress, const char *pPassword)
 
 	m_ConnectionId = RandomUuid();
 	ServerInfoRequest();
+
+	// TClient
+	// If user has manually specified password don't run autoexec
+	if(!m_SendPassword)
+	{
+		m_pGameClient->SetConnectInfo(&aConnectAddrs[0]);
+		m_pConsole->ExecuteLine(g_Config.m_KaizoExecuteOnConnect, IConsole::CLIENT_ID_UNSPECIFIED);
+	}
+	m_pGameClient->SetConnectInfo(nullptr);
 
 	if(m_SendPassword)
 	{
@@ -2293,6 +2304,12 @@ void CClient::ProcessServerPacket(CNetChunk *pPacket, int Conn, bool Dummy)
 					{
 						OnPostConnect(Conn);
 						m_aDidPostConnect[Conn] = true;
+					}
+
+					if(g_Config.m_KaizoRunOnJoinConsole[0] && m_aReceivedSnapshots[Conn] > g_Config.m_KaizoRunOnJoinConsoleDelay && !m_aCodeRunAfterJoinConsole[Conn])
+					{
+						m_pConsole->ExecuteLine(g_Config.m_KaizoRunOnJoinConsole, IConsole::CLIENT_ID_UNSPECIFIED);
+						m_aCodeRunAfterJoinConsole[Conn] = true;
 					}
 
 					// ack snapshot
@@ -5347,6 +5364,10 @@ int CClient::MaxLatencyTicks() const
 
 int CClient::PredictionMargin() const
 {
+	if(g_Config.m_KaizoPredMarginInFreeze && m_IsLocalFrozen)
+	{
+		return g_Config.m_KaizoPredMarginInFreezeAmount;
+	}
 	return m_ServerCapabilities.m_SyncWeaponInput ? g_Config.m_ClPredictionMargin : 10;
 }
 

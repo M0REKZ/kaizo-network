@@ -166,6 +166,7 @@ void CGameClient::OnConsoleInit()
 					      &m_Motd,
 					      &m_Menus,
 					      &m_Tooltips,
+						  &m_Scripting, // +KZ From E-Client... or T-Client
 					      &m_KeyBinder,
 					      &m_GameConsole,
 					      &m_MenuBackground});
@@ -1560,7 +1561,8 @@ void CGameClient::ProcessEvents()
 	}
 }
 
-static CGameInfo GetGameInfo(const CNetObj_GameInfoEx *pInfoEx, int InfoExSize, const CServerInfo *pFallbackServerInfo)
+//+KZ removed static
+CGameInfo GetGameInfo(const CNetObj_GameInfoEx *pInfoEx, int InfoExSize, const CServerInfo *pFallbackServerInfo)
 {
 	int Version = -1;
 	if(InfoExSize >= 12)
@@ -2958,6 +2960,47 @@ void CGameClient::OnPredict()
 		// m_PrevPredictedWorld.CopyWorld(&m_PrevRegularPredictedWorld); // not sure if this is worth performance cost, it seems to not matter
 	}
 
+	//T-Client
+	if(g_Config.m_KaizoRemoveAnti)
+	{
+		m_ExtraPredictedWorld.CopyWorldClean(&m_PredictedWorld);
+
+		// Remove other tees to reduce lag and because they aren't really important in this case
+		for(int i = 0; i < MAX_CLIENTS; i++)
+			if(i != m_Snap.m_LocalClientId)
+				if(CCharacter *pDelChar = m_ExtraPredictedWorld.GetCharacterById(i))
+					pDelChar->Destroy();
+
+		CCharacter *pExtraChar = m_ExtraPredictedWorld.GetCharacterById(m_Snap.m_LocalClientId);
+		if(pExtraChar)
+		{
+			bool Unfrozen = false;
+			bool Frozen = false;
+			for(int i = 0; i < g_Config.m_KaizoUnfreezeLagDelayTicks; i++)
+			{
+				if(!pExtraChar)
+					continue;
+
+				if(Frozen && pExtraChar->m_AliveAccumulation > 0)
+					Unfrozen = true;
+
+				if(pExtraChar->m_AliveAccumulation < 0)
+					Frozen = true;
+
+				if(!Unfrozen)
+				{
+					m_ExtraPredictedWorld.m_GameTick++;
+					m_ExtraPredictedWorld.Tick();
+				}
+				else
+				{
+					pExtraChar->m_AliveAccumulation = std::max(pExtraChar->m_AliveAccumulation, 1);
+					pExtraChar->m_AliveAccumulation = std::min(pExtraChar->m_AliveAccumulation + 1, g_Config.m_KaizoUnfreezeLagDelayTicks);
+				}
+			}
+		}
+	}
+
 	// detect mispredictions of other players and make corrections smoother when possible
 	if(!g_Config.m_KaizoAntiPingImproved && g_Config.m_ClAntiPingSmooth && Predict() && AntiPingPlayers() && m_NewTick && m_PredictedTick >= MIN_TICK && absolute(m_PredictedTick - Client()->PredGameTick(g_Config.m_ClDummy)) <= 1 && absolute(Client()->GameTick(g_Config.m_ClDummy) - Client()->PrevGameTick(g_Config.m_ClDummy)) <= 2)
 	{
@@ -4206,8 +4249,13 @@ void CGameClient::UpdateRenderedCharacters()
 			vec2(m_Snap.m_aCharacters[i].m_Cur.m_X, m_Snap.m_aCharacters[i].m_Cur.m_Y),
 			Client()->IntraGameTick(g_Config.m_ClDummy));
 		vec2 Pos = UnpredPos;
-
 		CCharacter *pChar = m_PredictedWorld.GetCharacterById(i);
+
+		// EClient
+		if(i == m_Snap.m_LocalClientId)
+			Client()->m_IsLocalFrozen = pChar && pChar->m_FreezeTime > 0;
+
+		//CCharacter *pChar = m_PredictedWorld.GetCharacterById(i); moved up
 		if(Predict() && (i == m_Snap.m_LocalClientId || (AntiPingPlayers() && !IsOtherTeam(i))) && pChar)
 		{
 			m_aClients[i].m_Predicted.Write(&m_aClients[i].m_RenderCur);
@@ -4251,8 +4299,13 @@ void CGameClient::UpdateRenderedCharacters()
 					Pos = mix(m_aClients[i].m_PrevImprovedPredPos, m_aClients[i].m_ImprovedPredPos, Client()->PredIntraGameTick(g_Config.m_ClDummy));
 			
 				//TClient
-				if(g_Config.m_KaizoFastInput && g_Config.m_KaizoFastInputOthers && !g_Config.m_KaizoAntiPingImproved)
+				if(g_Config.m_KaizoRemoveAnti && m_pClient->m_IsLocalFrozen)
+					Pos = GetFreezePos(i);
+				else if(g_Config.m_KaizoFastInput && g_Config.m_KaizoFastInputOthers && !g_Config.m_KaizoAntiPingImproved)
 					Pos = GetFastInputPos(i);
+				
+				if(g_Config.m_KaizoUnpredOthersInFreeze && Client()->m_IsLocalFrozen)
+					Pos = UnpredPos;
 			}
 		}
 		m_aClients[i].m_RenderPos = Pos;

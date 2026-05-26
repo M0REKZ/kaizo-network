@@ -892,3 +892,14 @@ MACRO_CONFIG_INT(KaizoAntiPingUncertaintyScale, kaizo_antiping_uncertainty_scale
 MACRO_CONFIG_INT(KaizoRevertHookLine, kaizo_revert_hook_line, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Revert that weird hook line update")
 MACRO_CONFIG_INT(KaizoResetBindWheelMouse, kaizo_reset_bindwheel_mouse, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Reset position of mouse when opening bindwheel")
 MACRO_CONFIG_INT(KaizoAnimateWheelTime, kaizo_animate_wheel_time, 80, 0, 1000, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Duration of emote and bind wheel animations, in milliseconds (0 == no animation, 1000 = 1 second)")
+MACRO_CONFIG_INT(KaizoUnpredOthersInFreeze, kaizo_unpred_others_in_freeze, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Dont predict other players if you are frozen")
+MACRO_CONFIG_INT(KaizoPredMarginInFreeze, kaizo_pred_margin_in_freeze, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Enable changing prediction margin while frozen")
+MACRO_CONFIG_INT(KaizoPredMarginInFreezeAmount, kaizo_pred_margin_in_freeze_amount, 15, 0, 2000, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Set what your prediction margin while frozen should be")
+MACRO_CONFIG_INT(KaizoRemoveAnti, kaizo_remove_anti, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Removes some amount of antiping & player prediction in freeze")
+MACRO_CONFIG_INT(KaizoUnfreezeLagTicks, kaizo_remove_anti_ticks, 5, 0, 20, CFGFLAG_CLIENT | CFGFLAG_SAVE, "The biggest amount of prediction ticks that are removed")
+MACRO_CONFIG_INT(KaizoUnfreezeLagDelayTicks, kaizo_remove_anti_delay_ticks, 25, 5, 150, CFGFLAG_CLIENT | CFGFLAG_SAVE, "How many ticks it takes to remove the maximum prediction after being frozen")
+//These are from E-Client:
+// Run on Join
+MACRO_CONFIG_STR(KaizoExecuteOnConnect, kaizo_execute_on_connect, 100, "", CFGFLAG_CLIENT | CFGFLAG_SAVE, "Run a console command before connect")
+MACRO_CONFIG_STR(KaizoRunOnJoinConsole, kaizo_run_on_join_console, 128, "", CFGFLAG_CLIENT | CFGFLAG_SAVE, "What it should run inside of the Console")
+MACRO_CONFIG_INT(KaizoRunOnJoinConsoleDelay, kaizo_run_on_join_delay, 2, 7, 50000, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Tick Delay before using run on join")
