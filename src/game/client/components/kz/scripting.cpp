@@ -2,6 +2,7 @@
 
 #include "scripting/impl.h"
 
+#include <base/io.h>
 #include <base/log.h>
 #include <base/str.h>
 #include <base/types.h>
@@ -20,6 +21,8 @@
 #include <algorithm>
 #include <string>
 #include <variant>
+#include <base/helper_kz.h>
+#include <engine/shared/linereader.h>
 
 class CScriptRunner : CComponentInterfaces
 {
@@ -388,6 +391,142 @@ private:
 		return LowerStr;
 	}
 
+	//+KZ start
+
+	//returns true on success
+	CScriptingCtx::Any KaizoSendRconCommand(const std::string &Str)
+	{
+		Client()->Rcon(Str.c_str());
+	}
+
+	//DDNet does not support 0.7 ForceVote correctly
+	//returns true on success
+	CScriptingCtx::Any KaizoSendCallVote07(const std::string &Str, const CScriptingCtx::Any &Arg)
+	{
+
+		bool Force = false;
+		if(std::holds_alternative<int>(Arg))
+		{
+			Force = std::get<int>(Arg);
+		}
+
+		const char * pType = GetParsedArgument(Str.c_str(), 0, false);
+		const char * pValue = GetParsedArgument(Str.c_str(), 1, false);
+		const char * pReason = GetParsedArgument(Str.c_str(), 2, false);
+
+		if(!pReason)
+			pReason = "";
+
+		if(!pType || !pValue)
+			throw std::string("Type or Value are missing");
+
+		protocol7::CNetMsg_Cl_CallVote Msg;
+		Msg.m_Force = Force;
+		Msg.m_pReason = pReason;
+		Msg.m_pType = pType;
+		Msg.m_pValue = pValue;
+
+		CMsgPacker Packer(&Msg, false, true);
+		if(Msg.Pack(&Packer))
+			return false;
+		Client()->SendMsg(0, &Packer, MSGFLAG_VITAL | MSGFLAG_FLUSH);
+
+		return true;
+	}
+
+	CLineReader * m_pKaizoLineReader = nullptr;
+
+	CScriptingCtx::Any KaizoOpenFile(const std::string &Str)
+	{
+		if(m_pKaizoLineReader)
+		{
+			delete m_pKaizoLineReader;
+			m_pKaizoLineReader = nullptr;
+		}
+		
+		m_pKaizoLineReader = new CLineReader;
+		return m_pKaizoLineReader && m_pKaizoLineReader->OpenFile(Storage()->OpenFile(Str.c_str(), IOFLAG_READ, IStorage::TYPE_ALL));
+	}
+
+	CScriptingCtx::Any KaizoCloseFile()
+	{
+		if(m_pKaizoLineReader)
+		{
+			delete m_pKaizoLineReader;
+			m_pKaizoLineReader = nullptr;
+		}
+	}
+
+	CScriptingCtx::Any KaizoGetFileLine()
+	{
+		if(m_pKaizoLineReader)
+		{
+			const char * p = m_pKaizoLineReader->Get();
+			
+			if(p)
+				return std::string(p);
+			return std::string();
+		}
+		else
+		{
+			throw "No file open";
+		}
+	}
+
+	CScriptingCtx::Any KaizoGetFileLineInverted()
+	{
+		if(m_pKaizoLineReader)
+		{
+			const char * p = m_pKaizoLineReader->GetInverted();
+			
+			if(p)
+				return std::string(p);
+			return nullptr;
+		}
+		else
+		{
+			throw "No file open";
+		}
+	}
+
+	CScriptingCtx::Any KaizoIsSixup()
+	{
+		return Client()->IsSixup();
+	}
+
+	CScriptingCtx::Any KaizoEscapeString(const std::string &Str)
+	{
+		char aBuf[1024];
+		char * pChar = aBuf;
+		char ** ppChar = &pChar;
+		std::string result;
+		str_escape(ppChar, Str.c_str(), &aBuf[sizeof(aBuf) - 1]);
+		result = aBuf;
+		return result;
+	}
+
+	//+KZ end
+
+	//From FoxNet
+	static CScriptingCtx::Any ParseArgument(const std::string &Str, const CScriptingCtx::Any &Arg)
+	{
+		if(!std::holds_alternative<int>(Arg))
+			return std::string();
+
+		const int RequestedIndex = std::get<int>(Arg);
+		if(RequestedIndex < 0)
+			return std::string();
+
+		if(Str.empty())
+			return std::string();
+
+		const char *pArg = GetParsedArgument(Str.c_str(), RequestedIndex, false);
+		if(!pArg)
+			return std::string();
+
+		return std::string(pArg);
+	}
+
 public:
 	CScriptRunner(CGameClient *pClient)
 	{
@@ -417,6 +556,47 @@ public:
 		});
 
 		// EClient>
+
+		//+KZ start
+		m_ScriptingCtx.AddFunction("kaizo_send_rcon_command", [this](const std::string &Str) {
+			return KaizoSendRconCommand(Str);
+		});
+
+		//DDNet cant force_vote in Vanilla 0.7
+		m_ScriptingCtx.AddFunction("kaizo_send_call_vote_07", [this](const std::string &Str, const CScriptingCtx::Any &Arg) {
+			return KaizoSendCallVote07(Str, Arg);
+		});
+
+		m_ScriptingCtx.AddFunction("kaizo_open_file", [this](const std::string &Str) {
+			return KaizoOpenFile(Str);
+		});
+
+		m_ScriptingCtx.AddFunction("kaizo_close_file", [this]() {
+			return KaizoCloseFile();
+		});
+
+		m_ScriptingCtx.AddFunction("kaizo_get_file_line", [this]() {
+			return KaizoGetFileLine();
+		});
+
+		m_ScriptingCtx.AddFunction("kaizo_get_file_line_inverted", [this]() {
+			return KaizoGetFileLineInverted();
+		});
+
+		m_ScriptingCtx.AddFunction("kaizo_is_sixup", [this]() {
+			return KaizoIsSixup();
+		});
+
+		m_ScriptingCtx.AddFunction("kaizo_escape_string", [this](const std::string &Str) {
+			return KaizoEscapeString(Str);
+		});
+		//+KZ end
+
+		//from FoxNet
+		m_ScriptingCtx.AddFunction("parse_argument", [this](const std::string &Str, const CScriptingCtx::Any &Arg) {
+			return ParseArgument(Str, Arg);
+		});
+
 		m_ScriptingCtx.SaveState();
 	}
 	void Run(const char *pFilename, const char *pArgs)
