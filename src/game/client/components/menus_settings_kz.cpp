@@ -78,7 +78,7 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 
 	float ScrollHeight = 0.f;
 
-	// for now all is 0, but ready for future additions
+	// settings tab height so we can scroll
 	switch (s_CurCustomTab)
 	{
 	case KAIZO_SETTINGS_TAB_KAIZO:
