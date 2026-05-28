@@ -1038,7 +1038,7 @@ private:
 	float m_SmoothIntraTick = 0;
 	CGameWorld m_PredSmoothingWorld;
 	CGameWorld m_RegularPredictedWorld;
-	CGameWorld m_PrevRegularPredictedWorld;
+	//CGameWorld m_PrevRegularPredictedWorld; // +KZ: i realized this is unused
 	CGameWorld m_ExtraPredictedWorld;
 	vec2 GetFastInputPos(int ClientId);
 	bool GetDummyFastInput(CNetObj_PlayerInput &DummyFastInput, const CNetObj_PlayerInput *pDummyInputData, const class CCharacter *pDummyChar, int LocalTee, int DummyTee) const;

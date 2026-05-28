@@ -709,7 +709,8 @@ void CGameClient::OnReset()
 	m_PredictedWorld.CopyWorld(&m_GameWorld);
 	m_PrevPredictedWorld.CopyWorld(&m_PredictedWorld);
 	m_RegularPredictedWorld.CopyWorldClean(&m_PredictedWorld);
-	m_PrevRegularPredictedWorld.CopyWorldClean(&m_PredictedWorld);
+	// +KZ: m_PrevRegularPredictedWorld is not used anywhere
+	//m_PrevRegularPredictedWorld.CopyWorldClean(&m_PredictedWorld);
 
 	m_vSnapEntities.clear();
 
@@ -2740,12 +2741,6 @@ void CGameClient::OnPredict()
 				if(CCharacter *pChar = m_PredictedWorld.GetCharacterById(i))
 					m_aClients[i].m_PrevPredicted = pChar->GetCore();
 		}
-		if (Tick == FinalTickRegular)
-		{
-			for (int i = 0; i < MAX_CLIENTS; i++)
-				if (CCharacter* pChar = m_PredictedWorld.GetCharacterById(i))
-					m_aClients[i].m_RegularPredicted = pChar->GetCore();
-		}
 
 		if(Tick == Client()->PredGameTick(g_Config.m_ClDummy))
 		{
@@ -2756,8 +2751,9 @@ void CGameClient::OnPredict()
 				m_aClients[m_aLocalIds[!g_Config.m_ClDummy]].m_PrevPredicted = pDummyChar->GetCore();
 		}
 
-		if(Tick == FinalTickRegular)
-			m_PrevRegularPredictedWorld.CopyWorldClean(&m_PredictedWorld);
+		// +KZ: m_PrevRegularPredictedWorld is not used anywhere
+		//if(Tick == FinalTickRegular)
+		//	m_PrevRegularPredictedWorld.CopyWorldClean(&m_PredictedWorld);
 
 		// optionally allow some movement in freeze by not predicting freeze the last one to two ticks
 		if(g_Config.m_ClPredictFreeze == 2 && Client()->PredGameTick(g_Config.m_ClDummy) - 1 - Client()->PredGameTick(g_Config.m_ClDummy) % 2 <= Tick)
@@ -2873,6 +2869,12 @@ void CGameClient::OnPredict()
 			for(int i = 0; i < MAX_CLIENTS; i++)
 				if(CCharacter *pChar = m_PredictedWorld.GetCharacterById(i))
 					m_aClients[i].m_Predicted = pChar->GetCore();
+		}
+		if(Tick == FinalTickRegular)
+		{
+			for(int i = 0; i < MAX_CLIENTS; i++)
+				if(CCharacter *pChar = m_PredictedWorld.GetCharacterById(i))
+					m_aClients[i].m_RegularPredicted = pChar->GetCore();
 		}
 
 		if(Tick == Client()->PredGameTick(g_Config.m_ClDummy))
