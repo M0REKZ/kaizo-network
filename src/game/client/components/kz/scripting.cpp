@@ -394,7 +394,7 @@ private:
 	//+KZ start
 
 	//returns true on success
-	CScriptingCtx::Any KaizoSendRconCommand(const std::string &Str)
+	void KaizoSendRconCommand(const std::string &Str)
 	{
 		Client()->Rcon(Str.c_str());
 	}
@@ -410,21 +410,21 @@ private:
 			Force = std::get<int>(Arg);
 		}
 
-		const char * pType = GetParsedArgument(Str.c_str(), 0, false);
-		const char * pValue = GetParsedArgument(Str.c_str(), 1, false);
-		const char * pReason = GetParsedArgument(Str.c_str(), 2, false);
+		std::string Type = GetParsedArgument(Str.c_str(), 0, false);
+		std::string Value = GetParsedArgument(Str.c_str(), 1, false);
+		std::string Reason = GetParsedArgument(Str.c_str(), 2, false);
 
-		if(!pReason)
-			pReason = "";
+		if(Reason.empty())
+			Reason = "";
 
-		if(!pType || !pValue)
+		if(Type.empty() || Value.empty())
 			throw std::string("Type or Value are missing");
 
 		protocol7::CNetMsg_Cl_CallVote Msg;
 		Msg.m_Force = Force;
-		Msg.m_pReason = pReason;
-		Msg.m_pType = pType;
-		Msg.m_pValue = pValue;
+		Msg.m_pReason = Reason.c_str();
+		Msg.m_pType = Type.c_str();
+		Msg.m_pValue = Value.c_str();
 
 		CMsgPacker Packer(&Msg, false, true);
 		if(Msg.Pack(&Packer))
@@ -455,6 +455,8 @@ private:
 			delete m_pKaizoLineReader;
 			m_pKaizoLineReader = nullptr;
 		}
+
+		return nullptr;
 	}
 
 	CScriptingCtx::Any KaizoGetFileLine()
@@ -481,7 +483,7 @@ private:
 			
 			if(p)
 				return std::string(p);
-			return nullptr;
+			return std::string();
 		}
 		else
 		{
@@ -559,7 +561,7 @@ public:
 
 		//+KZ start
 		m_ScriptingCtx.AddFunction("kaizo_send_rcon_command", [this](const std::string &Str) {
-			return KaizoSendRconCommand(Str);
+			KaizoSendRconCommand(Str);
 		});
 
 		//DDNet cant force_vote in Vanilla 0.7

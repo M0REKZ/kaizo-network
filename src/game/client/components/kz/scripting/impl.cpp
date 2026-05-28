@@ -172,9 +172,27 @@ void CScriptingCtx::AddFunctionInternal(const char *pName, const std::function<C
 }
 
 template<>
+void CScriptingCtx::AddFunctionInternal(const char *pName, const std::function<CScriptingCtx::Any(const std::string &Str)> &Function)
+{
+	m_pData->m_Chai.add(chaiscript::fun([=](const std::string &Str) {
+		return Any2Boxed(Function(Str));
+	}),
+		pName);
+}
+
+template<>
 void CScriptingCtx::AddFunctionInternal(const char *pName, const std::function<void(const std::string &Str)> &Function)
 {
 	m_pData->m_Chai.add(chaiscript::fun([=](const std::string &Str) { Function(Str); }), pName);
+}
+
+template<>
+void CScriptingCtx::AddFunctionInternal(const char *pName, const std::function<CScriptingCtx::Any()> &Function)
+{
+	m_pData->m_Chai.add(chaiscript::fun([=]() {
+		return Any2Boxed(Function());
+	}),
+		pName);
 }
 
 template<>
