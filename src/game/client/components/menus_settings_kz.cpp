@@ -82,7 +82,7 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 	switch (s_CurCustomTab)
 	{
 	case KAIZO_SETTINGS_TAB_KAIZO:
-		ScrollHeight = 800.f;
+		ScrollHeight = 880.f;
 		break;
 	case KAIZO_SETTINGS_TAB_TCLIENT_BINDWHEEL:
 		ScrollHeight = SettingsBoxContainer.h;
@@ -436,6 +436,29 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 			if(DoButton_CheckBox(&g_Config.m_KaizoPredictVanillaHammerFix, Localize("Fix Vanilla hammer hit prediction through walls"), g_Config.m_KaizoPredictVanillaHammerFix, &Button))
 			{
 				g_Config.m_KaizoPredictVanillaHammerFix ^= 1;
+			}
+
+			Right.HSplitTop(2.0f, nullptr, &Right);
+
+			Right.HSplitTop(20.0f, &Button, &Right);
+			if(DoButton_CheckBox(&g_Config.m_KaizoUnpredOthersInFreeze, Localize("Dont predict others if we are in freeze"), g_Config.m_KaizoUnpredOthersInFreeze, &Button))
+			{
+				g_Config.m_KaizoUnpredOthersInFreeze ^= 1;
+			}
+
+			Right.HSplitTop(2.0f, nullptr, &Right);
+
+			Right.HSplitTop(20.0f, &Button, &Right);
+			if(DoButton_CheckBox(&g_Config.m_KaizoPredMarginInFreeze, Localize("Change prediction margin while frozen"), g_Config.m_KaizoPredMarginInFreeze, &Button))
+			{
+				g_Config.m_KaizoPredMarginInFreeze ^= 1;
+			}
+
+			if(g_Config.m_KaizoPredMarginInFreeze)
+			{
+				Right.HSplitTop(2.0f, nullptr, &Right);
+				Right.HSplitTop(20.0f, &Button, &Right);
+				Ui()->DoScrollbarOption(&g_Config.m_KaizoPredMarginInFreezeAmount, &g_Config.m_KaizoPredMarginInFreezeAmount, &Button, Localize("Margin while frozen"), 1, 100, &CUi::ms_LogarithmicScrollbarScale, 0u, "");
 			}
 
 			// dangerous settings, some communities may consider it a cheat, chill communities may not, use at your own risk!
