@@ -261,7 +261,7 @@ CProjectile::CProjectile(CGameWorld *pGameWorld, int Id, const CProjectileData *
 	m_Layer = m_Number > 0 ? LAYER_SWITCH : LAYER_GAME;
 
 	//+KZ
-	m_GoresTeleportGrenade = g_Config.m_KaizoPredictGoresGrenadeTele && g_Config.m_SvGoresGrenadeTele && pProj->m_Type == WEAPON_GRENADE;
+	m_GoresTeleportGrenade = g_Config.m_KaizoPredictGoresGrenadeTele && g_Config.m_SvGoresGrenadeTele == 1 && pProj->m_Type == WEAPON_GRENADE;
 }
 
 CProjectileData CProjectile::GetData() const

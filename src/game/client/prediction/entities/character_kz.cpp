@@ -383,7 +383,7 @@ bool CCharacter::KaizoPredictFireWeapon()
             break;
         }
     }
-    else if(g_Config.m_KaizoPredictGoresGrenadeTele && g_Config.m_SvGoresGrenadeTele)
+    else if(g_Config.m_KaizoPredictGoresGrenadeTele && g_Config.m_SvGoresGrenadeTele == 1)
     {
         switch (m_Core.m_ActiveWeapon)
         {

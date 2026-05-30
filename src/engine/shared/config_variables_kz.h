@@ -40,7 +40,7 @@ MACRO_CONFIG_INT(SvKaizoVanillaMode, sv_kaizo_vanilla_mode, 0, 0, 1, CFGFLAG_SER
 //SvPortalMode has a PPRace compatibility option
 MACRO_CONFIG_INT(SvPortalProjectile, sv_portal_projectile, 0, 0, 1, CFGFLAG_SERVER | CFGFLAG_GAME, "Kaizo-Insta compatibility: Use Portal Projectile instead of Laser")
 MACRO_CONFIG_INT(SvGoresQuadsEnable, sv_kog_qquads_enable, 0, 0, 1, CFGFLAG_SERVER | CFGFLAG_GAME, "Gores compatibility: Moving tiles")
-MACRO_CONFIG_INT(SvGoresGrenadeTele, sv_kog_grenade_tele, 0, 0, 1, CFGFLAG_SERVER | CFGFLAG_GAME, "Gores compatibility: Teleport grenade")
+MACRO_CONFIG_INT(SvGoresGrenadeTele, sv_kog_grenade_tele, 0, 0, 2, CFGFLAG_SERVER | CFGFLAG_GAME, "Gores compatibility: Teleport grenade") //Pointer's ddrace mod supports mode 2
 
 //*========================================================*
 //KAIZO CLIENT CONFIGS
