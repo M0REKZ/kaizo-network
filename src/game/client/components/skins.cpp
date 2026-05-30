@@ -500,7 +500,7 @@ void CSkins::OnInit()
 
 	// load skins
 	Refresh([this]() {
-		GameClient()->m_Menus.RenderLoading(Localize("Loading DDNet Client"), Localize("Loading skin files"), 0);
+		GameClient()->m_Menus.RenderLoading(Localize("Loading Kaizo Client"), Localize("Loading skin files"), 0); //+KZ modified
 	});
 }
 
