@@ -2750,6 +2750,7 @@ void CMenus::RefreshBrowserTab(bool Force)
 			UpdateCommunityCache(true);
 		}
 	}
+	m_OnlinePlayersCacheDirty = true; // from EClient
 }
 
 void CMenus::ForceRefreshLanPage()

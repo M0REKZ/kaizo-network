@@ -129,6 +129,7 @@ MACRO_CONFIG_INT(KaizoResetBindWheelMouse, kaizo_reset_bindwheel_mouse, 0, 0, 1,
 MACRO_CONFIG_STR(KaizoExecuteOnConnect, kaizo_execute_on_connect, 100, "", CFGFLAG_CLIENT | CFGFLAG_SAVE, "Run a console command before connect")
 MACRO_CONFIG_STR(KaizoRunOnJoinConsole, kaizo_run_on_join_console, 128, "", CFGFLAG_CLIENT | CFGFLAG_SAVE, "What it should run inside of the Console")
 MACRO_CONFIG_INT(KaizoRunOnJoinConsoleDelay, kaizo_run_on_join_delay, 2, 7, 50000, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Tick Delay before using run on join")
+MACRO_CONFIG_INT(KaizoClientIndicatorBrowser, kaizo_client_indicator_browser, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Whether to show a list of people using Kaizo Client in the server browser")
 
 //*=========================================*
 //DANGEROUS

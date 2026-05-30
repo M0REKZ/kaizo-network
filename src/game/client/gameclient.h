@@ -1048,6 +1048,7 @@ private:
 
 	//E-Client
 	void ClientMessage(const char *pString);
+	void OnServerBrowserRefresh() override;
 };
 
 //+KZ

@@ -23,6 +23,9 @@ public:
 	void Add(const CAnimation *pAnim, float Time, float Amount);
 
 	const static CAnimState *GetIdle();
+
+	//+KZ
+	const static CAnimState *GetSpec(); //From EClient
 };
 
 #endif

@@ -162,6 +162,9 @@ public:
 	 * @return Center position as vec2.
 	 */
 	vec2 Center() const { return TopLeft() + Size() / 2.0f; }
+
+	//+KZ
+	void DrawOutlineEClient(ColorRGBA Color, int Corners, float Rounding) const; // From EClient
 };
 
 #endif

@@ -26,7 +26,8 @@
 
 static constexpr ColorRGBA HIGHLIGHTED_TEXT_COLOR = ColorRGBA(0.4f, 0.4f, 1.0f, 1.0f);
 
-static ColorRGBA PlayerBackgroundColor(bool Friend, bool Clan, bool Afk, bool InSelectedServer, bool Inside)
+//+KZ removed static, added to header
+ColorRGBA PlayerBackgroundColor(bool Friend, bool Clan, bool Afk, bool InSelectedServer, bool Inside)
 {
 	static const ColorRGBA COLORS[] = {ColorRGBA(0.5f, 1.0f, 0.5f), ColorRGBA(0.4f, 0.4f, 1.0f), ColorRGBA(0.75f, 0.75f, 0.75f)};
 	static const ColorRGBA COLORS_AFK[] = {ColorRGBA(1.0f, 1.0f, 0.5f), ColorRGBA(0.4f, 0.75f, 1.0f), ColorRGBA(0.6f, 0.6f, 0.6f)};
@@ -547,7 +548,7 @@ void CMenus::RenderServerbrowserStatusBox(CUIRect StatusBox, bool WasListboxItem
 			s_FilterInput.SelectAll();
 		}
 		if(Ui()->DoClearableEditBox(&s_FilterInput, &QuickSearch, 12.0f))
-			Client()->ServerBrowserUpdate();
+			ServerBrowserUpdate(); //EClient removed "Client()->"
 	}
 
 	// render quick exclude
@@ -576,7 +577,7 @@ void CMenus::RenderServerbrowserStatusBox(CUIRect StatusBox, bool WasListboxItem
 			s_ExcludeInput.SelectAll();
 		}
 		if(Ui()->DoClearableEditBox(&s_ExcludeInput, &QuickExclude, 12.0f))
-			Client()->ServerBrowserUpdate();
+			ServerBrowserUpdate(); //EClient removed "Client()->"
 	}
 
 	// render status
@@ -715,7 +716,7 @@ void CMenus::RenderServerbrowserFilters(CUIRect View)
 	Button.VSplitRight(60.0f, nullptr, &Button);
 	static CLineInput s_GametypeInput(g_Config.m_BrFilterGametype, sizeof(g_Config.m_BrFilterGametype));
 	if(Ui()->DoEditBox(&s_GametypeInput, &Button, FontSize))
-		Client()->ServerBrowserUpdate();
+		ServerBrowserUpdate(); //EClient removed "Client()->"
 
 	// server address
 	View.HSplitTop(6.0f, nullptr, &View);
@@ -725,7 +726,7 @@ void CMenus::RenderServerbrowserFilters(CUIRect View)
 	Button.VSplitRight(60.0f, nullptr, &Button);
 	static CLineInput s_FilterServerAddressInput(g_Config.m_BrFilterServerAddress, sizeof(g_Config.m_BrFilterServerAddress));
 	if(Ui()->DoEditBox(&s_FilterServerAddressInput, &Button, FontSize))
-		Client()->ServerBrowserUpdate();
+		ServerBrowserUpdate(); //EClient removed "Client()->"
 
 	// player country
 	{
@@ -763,7 +764,10 @@ void CMenus::RenderServerbrowserFilters(CUIRect View)
 		{
 			g_Config.m_BrIndicateFinished ^= 1;
 			if(g_Config.m_BrIndicateFinished)
+			{
 				ServerBrowser()->Refresh(ServerBrowser()->GetCurrentType());
+				UpdateOnlinePlayerCache(); // EClient
+			}
 		}
 
 		if(g_Config.m_BrIndicateFinished)
@@ -859,7 +863,7 @@ void CMenus::ResetServerbrowserFilters()
 		UpdateCommunityCache(true);
 	}
 
-	Client()->ServerBrowserUpdate();
+	ServerBrowserUpdate(); //EClient removed "Client()->"
 }
 
 void CMenus::RenderServerbrowserDDNetFilter(CUIRect View,
@@ -954,7 +958,7 @@ void CMenus::RenderServerbrowserDDNetFilter(CUIRect View,
 				}
 			}
 
-			Client()->ServerBrowserUpdate();
+			ServerBrowserUpdate(); //EClient removed "Client()->"
 			if(UpdateCommunityCacheOnChange)
 				UpdateCommunityCache(true);
 		}
@@ -965,7 +969,7 @@ void CMenus::RenderServerbrowserDDNetFilter(CUIRect View,
 			{
 				Filter.Remove(GetItemName(j));
 			}
-			Client()->ServerBrowserUpdate();
+			ServerBrowserUpdate(); //EClient removed "Client()->"
 			if(UpdateCommunityCacheOnChange)
 				UpdateCommunityCache(true);
 		}
@@ -1151,7 +1155,7 @@ CUi::EPopupMenuFunctionResult CMenus::PopupCountrySelection(void *pContext, CUIR
 	{
 		g_Config.m_BrFilterCountry = 1;
 		g_Config.m_BrFilterCountryIndex = pPopupContext->m_Selection;
-		pMenus->Client()->ServerBrowserUpdate();
+		pMenus->ServerBrowserUpdate(); //EClient removed "Client()->"
 		return CUi::POPUP_CLOSE_CURRENT;
 	}
 
@@ -1213,7 +1217,7 @@ void CMenus::RenderServerbrowserInfo(CUIRect View)
 						Favorites()->AllowPing(pSelectedServer->m_aAddresses, pSelectedServer->m_NumAddresses, true);
 					}
 				}
-				Client()->ServerBrowserUpdate();
+				ServerBrowserUpdate(); //EClient removed "Client()->"
 			}
 			if(pSelectedServer->m_Favorite != TRISTATE::NONE)
 			{
@@ -1221,7 +1225,7 @@ void CMenus::RenderServerbrowserInfo(CUIRect View)
 				if(DoButton_CheckBox_Tristate(&s_LeakIpButton, Localize("Leak IP"), pSelectedServer->m_FavoriteAllowPing, &ButtonLeakIp))
 				{
 					Favorites()->AllowPing(pSelectedServer->m_aAddresses, pSelectedServer->m_NumAddresses, pSelectedServer->m_FavoriteAllowPing == TRISTATE::NONE);
-					Client()->ServerBrowserUpdate();
+					ServerBrowserUpdate(); //EClient removed "Client()->"
 				}
 			}
 		}
@@ -1340,7 +1344,7 @@ void CMenus::RenderServerbrowserInfoScoreboard(CUIRect View, const CServerInfo *
 		if(CurrentClient.m_aSkin[0] != '\0')
 		{
 			const CTeeRenderInfo TeeInfo = GetTeeRenderInfo(vec2(Skin.w, Skin.h), CurrentClient.m_aSkin, CurrentClient.m_CustomSkinColors, CurrentClient.m_CustomSkinColorBody, CurrentClient.m_CustomSkinColorFeet);
-			const CAnimState *pIdleState = CAnimState::GetIdle();
+			const CAnimState *pIdleState = CurrentClient.m_Afk ? CAnimState::GetSpec() : CAnimState::GetIdle(); //GetSpec added by +KZ (i guess EClient too?)
 			vec2 OffsetToMid;
 			CRenderTools::GetRenderTeeOffsetToRenderedTee(pIdleState, &TeeInfo, OffsetToMid);
 			const vec2 TeeRenderPos = vec2(Skin.x + TeeInfo.m_Size / 2.0f, Skin.y + Skin.h / 2.0f + OffsetToMid.y);
@@ -1406,7 +1410,7 @@ void CMenus::RenderServerbrowserInfoScoreboard(CUIRect View, const CServerInfo *
 				GameClient()->m_Skins7.FindSkinPart(Part, CurrentClient.m_aaSkin7[Part], true)->ApplyTo(TeeInfo.m_aSixup[g_Config.m_ClDummy]);
 				GameClient()->m_Skins7.ApplyColorTo(TeeInfo.m_aSixup[g_Config.m_ClDummy], CurrentClient.m_aUseCustomSkinColor7[Part], CurrentClient.m_aCustomSkinColor7[Part], Part);
 			}
-			const CAnimState *pIdleState = CAnimState::GetIdle();
+			const CAnimState *pIdleState = CurrentClient.m_Afk ? CAnimState::GetSpec() : CAnimState::GetIdle(); //GetSpec added by +KZ (i guess EClient too??)
 			vec2 OffsetToMid;
 			CRenderTools::GetRenderTeeOffsetToRenderedTee(pIdleState, &TeeInfo, OffsetToMid);
 			const vec2 TeeRenderPos = vec2(Skin.x + TeeInfo.m_Size / 2.0f, Skin.y + Skin.h / 2.0f + OffsetToMid.y);
@@ -1549,7 +1553,7 @@ void CMenus::RenderServerbrowserInfoScoreboard(CUIRect View, const CServerInfo *
 		else
 			GameClient()->Friends()->AddFriend(SelectedClient.m_aName, SelectedClient.m_aClan);
 		FriendlistOnUpdate();
-		Client()->ServerBrowserUpdate();
+		ServerBrowserUpdate(); //EClient removed "Client()->"
 	}
 }
 
@@ -1612,6 +1616,8 @@ void CMenus::RenderServerbrowserFriends(CUIRect View)
 	ScrollParams.m_ScrollUnit = 80.0f;
 	ScrollParams.m_Flags = CScrollRegionParams::FLAG_CONTENT_STATIC_WIDTH;
 	s_ScrollRegion.Begin(&List, &ScrollParams);
+
+	RenderKaizoClientUsers(View, List, s_ScrollRegion); // From EClient
 
 	char aBuf[256];
 	for(size_t FriendType = 0; FriendType < NUM_FRIEND_TYPES; ++FriendType)
@@ -1699,7 +1705,7 @@ void CMenus::RenderServerbrowserFriends(CUIRect View)
 				if(Friend.Skin()[0] != '\0')
 				{
 					const CTeeRenderInfo TeeInfo = GetTeeRenderInfo(vec2(Skin.w, Skin.h), Friend.Skin(), Friend.CustomSkinColors(), Friend.CustomSkinColorBody(), Friend.CustomSkinColorFeet());
-					const CAnimState *pIdleState = CAnimState::GetIdle();
+					const CAnimState *pIdleState = Friend.IsAfk() ? CAnimState::GetSpec() : CAnimState::GetIdle(); //GetSpec added by +KZ (i guess EClient too?)
 					vec2 OffsetToMid;
 					CRenderTools::GetRenderTeeOffsetToRenderedTee(pIdleState, &TeeInfo, OffsetToMid);
 					const vec2 TeeRenderPos = vec2(Skin.x + Skin.w / 2.0f, Skin.y + Skin.h * 0.55f + OffsetToMid.y);
@@ -1716,7 +1722,7 @@ void CMenus::RenderServerbrowserFriends(CUIRect View)
 						GameClient()->m_Skins7.FindSkinPart(Part, Friend.Skin7(Part), true)->ApplyTo(TeeInfo.m_aSixup[g_Config.m_ClDummy]);
 						GameClient()->m_Skins7.ApplyColorTo(TeeInfo.m_aSixup[g_Config.m_ClDummy], Friend.UseCustomSkinColor7(Part), Friend.CustomSkinColor7(Part), Part);
 					}
-					const CAnimState *pIdleState = CAnimState::GetIdle();
+					const CAnimState *pIdleState = Friend.IsAfk() ? CAnimState::GetSpec() : CAnimState::GetIdle(); //GetSpec added by +KZ (i guess EClient too?)
 					vec2 OffsetToMid;
 					CRenderTools::GetRenderTeeOffsetToRenderedTee(pIdleState, &TeeInfo, OffsetToMid);
 					const vec2 TeeRenderPos = vec2(Skin.x + Skin.w / 2.0f, Skin.y + Skin.h * 0.55f + OffsetToMid.y);
@@ -1857,7 +1863,7 @@ void CMenus::RenderServerbrowserFriends(CUIRect View)
 			s_NameInput.Clear();
 			s_ClanInput.Clear();
 			FriendlistOnUpdate();
-			Client()->ServerBrowserUpdate();
+			ServerBrowserUpdate(); //EClient removed "Client()->"
 		}
 	}
 }
@@ -1871,7 +1877,7 @@ void CMenus::PopupConfirmRemoveFriend()
 {
 	GameClient()->Friends()->RemoveFriend(m_pRemoveFriend->FriendState() == IFriends::FRIEND_PLAYER ? m_pRemoveFriend->Name() : "", m_pRemoveFriend->Clan());
 	FriendlistOnUpdate();
-	Client()->ServerBrowserUpdate();
+	ServerBrowserUpdate(); //EClient removed "Client()->"
 	m_pRemoveFriend = nullptr;
 }
 
@@ -1879,7 +1885,7 @@ enum
 {
 	UI_TOOLBOX_PAGE_FILTERS = 0,
 	UI_TOOLBOX_PAGE_INFO,
-	UI_TOOLBOX_PAGE_FRIENDS,
+	UI_TOOLBOX_PAGE_FRIENDS, //+KZ note: EClient calls this "UI_TOOLBOX_PAGE_ONLINE_PLAYERS" but ill keep it as-is to avoid git conflict headaches
 	NUM_UI_TOOLBOX_PAGES,
 };
 
@@ -1949,6 +1955,24 @@ void CMenus::RenderServerbrowserToolBox(CUIRect ToolBox)
 void CMenus::RenderServerbrowser(CUIRect MainView)
 {
 	UpdateCommunityCache(false);
+
+	//From EClient:
+	static bool s_UpdatedWhileRefreshing = false;
+	if(m_OnlinePlayersCacheDirty)
+	{
+		if(!ServerBrowser()->IsRefreshing() && !ServerBrowser()->IsGettingServerlist())
+		{
+			UpdateOnlinePlayerCache();
+			m_OnlinePlayersCacheDirty = false;
+			s_UpdatedWhileRefreshing = false;
+		}
+		else if(!s_UpdatedWhileRefreshing)
+		{
+			UpdateOnlinePlayerCache();
+			s_UpdatedWhileRefreshing = true;
+		}
+	}
+	//EClient end
 
 	switch(g_Config.m_UiPage)
 	{
@@ -2066,7 +2090,7 @@ void CMenus::ConchainFriendlistUpdate(IConsole::IResult *pResult, void *pUserDat
 	if(pResult->NumArguments() >= 1 && (pThis->Client()->State() == IClient::STATE_OFFLINE || pThis->Client()->State() == IClient::STATE_ONLINE))
 	{
 		pThis->FriendlistOnUpdate();
-		pThis->Client()->ServerBrowserUpdate();
+		pThis->ServerBrowserUpdate(); //EClient removed "Client()->"
 	}
 }
 
@@ -2074,7 +2098,10 @@ void CMenus::ConchainFavoritesUpdate(IConsole::IResult *pResult, void *pUserData
 {
 	pfnCallback(pResult, pCallbackUserData);
 	if(pResult->NumArguments() >= 1 && g_Config.m_UiPage == PAGE_FAVORITES)
+	{
 		((CMenus *)pUserData)->ServerBrowser()->Refresh(IServerBrowser::TYPE_FAVORITES);
+		((CMenus *)pUserData)->UpdateOnlinePlayerCache(); // From EClient
+	}
 }
 
 void CMenus::ConchainCommunitiesUpdate(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData)
@@ -2084,7 +2111,7 @@ void CMenus::ConchainCommunitiesUpdate(IConsole::IResult *pResult, void *pUserDa
 	if(pResult->NumArguments() >= 1 && (g_Config.m_UiPage == PAGE_INTERNET || g_Config.m_UiPage == PAGE_FAVORITES || (g_Config.m_UiPage >= PAGE_FAVORITE_COMMUNITY_1 && g_Config.m_UiPage <= PAGE_FAVORITE_COMMUNITY_5)))
 	{
 		pThis->UpdateCommunityCache(true);
-		pThis->Client()->ServerBrowserUpdate();
+		pThis->ServerBrowserUpdate(); //EClient removed "Client()->"
 	}
 }
 
@@ -2102,6 +2129,7 @@ void CMenus::ConchainUiPageUpdate(IConsole::IResult *pResult, void *pUserData, I
 		}
 
 		pThis->SetMenuPage(g_Config.m_UiPage);
+		pThis->UpdateOnlinePlayerCache(); //From EClient
 	}
 }
 

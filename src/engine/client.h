@@ -432,6 +432,7 @@ public:
 	//+KZ
 	virtual bool CheckNewInput() = 0; // from Fast Input commit
 	virtual void SetConnectInfo(const NETADDR *pAddress) = 0; // E-Client/T-Client
+	virtual void OnServerBrowserRefresh() = 0; // E-Client
 };
 
 extern IGameClient *CreateGameClient();

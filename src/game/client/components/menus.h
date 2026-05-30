@@ -842,5 +842,94 @@ private:
 	void RenderSettingsKaizo(CUIRect MainView);
 	bool DoLine_KeyReader(CUIRect &View, CButtonContainer &ReaderButton, CButtonContainer &ClearButton, const char *pName, const char *pCommand); //From TClient
 	void RenderSettingsTClientBindWheel(CUIRect MainView); //From TClient... i mean... its even in the function name...
+
+	bool m_OnlinePlayersCacheDirty = true; //From EClient
+public:
+
+	//CGenericPlayerInfo is from EClient
+	class CGenericPlayerInfo
+	{
+	public:
+		char m_aName[MAX_NAME_LENGTH];
+		char m_aClan[MAX_CLAN_LENGTH];
+
+		// ServerInfo
+		char m_aAddress[MAX_SERVER_ADDRESSES * NETADDR_MAXSTRSIZE];
+		int m_Latency; // in ms
+		char m_aGameType[16];
+		char m_aMap[MAX_MAP_LENGTH];
+
+		int m_ServerIndex;
+
+		char m_aCommunityId[32];
+
+		bool m_IsPlayer;
+		bool m_IsAfk;
+		// skin
+		char m_aSkin[MAX_SKIN_LENGTH];
+		bool m_CustomSkinColors;
+		int m_CustomSkinColorBody;
+		int m_CustomSkinColorFeet;
+		// skin info 0.7
+		char m_aaSkin7[protocol7::NUM_SKINPARTS][protocol7::MAX_SKIN_LENGTH];
+		bool m_aUseCustomSkinColor7[protocol7::NUM_SKINPARTS];
+		int m_aCustomSkinColor7[protocol7::NUM_SKINPARTS];
+
+		CGenericPlayerInfo(const CServerInfo::CClient *pOnlineClient, const CServerInfo *pServer)
+		{
+			str_copy(m_aName, pOnlineClient->m_aName);
+			str_copy(m_aClan, pOnlineClient->m_aClan);
+
+			str_copy(m_aAddress, pServer->m_aAddress);
+			m_Latency = pServer->m_Latency;
+			str_copy(m_aGameType, pServer->m_aGameType);
+			str_copy(m_aMap, pServer->m_aMap);
+			str_copy(m_aCommunityId, pServer->m_aCommunityId);
+			m_ServerIndex = pServer->m_ServerIndex;
+			m_IsPlayer = pOnlineClient->m_Player;
+			m_IsAfk = pOnlineClient->m_Afk;
+			str_copy(m_aSkin, pOnlineClient->m_aSkin);
+			m_CustomSkinColors = pOnlineClient->m_CustomSkinColors;
+			m_CustomSkinColorBody = pOnlineClient->m_CustomSkinColorBody;
+			m_CustomSkinColorFeet = pOnlineClient->m_CustomSkinColorFeet;
+
+			//+KZ for 0.7
+			for(int i = 0; i < protocol7::NUM_SKINPARTS; i++)
+			{
+				str_copy(m_aaSkin7[i], pOnlineClient->m_aaSkin7[i]);
+				m_aUseCustomSkinColor7[i] = pOnlineClient->m_aUseCustomSkinColor7[i];
+				m_aCustomSkinColor7[i] = pOnlineClient->m_aCustomSkinColor7[i];
+			}
+		}
+
+		const char *Name() const { return m_aName; }
+		const char *Clan() const { return m_aClan; }
+		bool IsPlayer() const { return m_IsPlayer; }
+		bool IsAfk() const { return m_IsAfk; }
+		const char *Skin() const { return m_aSkin; }
+		bool CustomSkinColors() const { return m_CustomSkinColors; }
+		int CustomSkinColorBody() const { return m_CustomSkinColorBody; }
+		int CustomSkinColorFeet() const { return m_CustomSkinColorFeet; }
+		int Latency() const { return m_Latency; }
+
+		const void *ListItemId() const { return &m_aName; }
+		const void *CommunityTooltipId() const { return &m_IsPlayer; }
+		const void *SkinTooltipId() const { return &m_aSkin; }
+
+		bool operator<(const CGenericPlayerInfo &Other) const
+		{
+			const int Result = str_comp_nocase(m_aName, Other.m_aName);
+			return Result < 0 || (Result == 0 && str_comp_nocase(m_aClan, Other.m_aClan) < 0);
+		}
+	};
+
+	std::vector<CGenericPlayerInfo> m_vKaizoUsersCache; //From EClient
+	void RenderKaizoClientUsers(CUIRect &View, CUIRect &List, CScrollRegion &ScrollRegion); //From EClient
+	void UpdateOnlinePlayerCache(); //From EClient
+	void ServerBrowserUpdate(); //From EClient
 };
+
+//+KZ removed static, added to header
+ColorRGBA PlayerBackgroundColor(bool Friend, bool Clan, bool Afk, bool InSelectedServer, bool Inside);
+
 #endif

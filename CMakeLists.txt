@@ -2451,6 +2451,7 @@ if(CLIENT)
     warning.cpp
   )
   set_src(GAME_CLIENT GLOB_RECURSE src/game/client
+    animstate_kz.cpp
     animstate.cpp
     animstate.h
     component.cpp
@@ -2526,6 +2527,7 @@ if(CLIENT)
     components/menu_background.h
     components/menus.cpp
     components/menus.h
+    components/menus_browser_kz.cpp
     components/menus_browser.cpp
     components/menus_demo.cpp
     components/menus_ingame.cpp
@@ -2620,6 +2622,7 @@ if(CLIENT)
     ui_listbox_kz.cpp
     ui_listbox.cpp
     ui_listbox.h
+    ui_rect_kz.cpp
     ui_rect.cpp
     ui_rect.h
     ui_scrollregion.cpp

@@ -642,3 +642,8 @@ void CGameClient::ClientMessage(const char *pString)
 {
 	m_Chat.AddLine(-3, 0, pString);
 }
+
+void CGameClient::OnServerBrowserRefresh()
+{
+    m_Menus.UpdateOnlinePlayerCache(); //EClient
+}

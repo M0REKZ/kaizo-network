@@ -3039,6 +3039,7 @@ void CClient::Update()
 			}
 
 			ResetDDNetInfoTask();
+			GameClient()->OnServerBrowserRefresh(); // From EClient
 		}
 		else if(m_pDDNetInfoTask->State() == EHttpState::ERROR || m_pDDNetInfoTask->State() == EHttpState::ABORTED)
 		{
