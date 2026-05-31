@@ -16,7 +16,7 @@ void CClient::SendKaizoNetworkVersion(int Conn)
 void CClient::SendKaizoClientIAm(int Conn)
 {
 	CMsgPacker Msg(NETMSG_IAM_KAIZO_CLIENT, true);
-	Msg.AddString("Kaizo Client by +KZ. Kaizo protocol version: " STRINGIFY(KAIZO_NETWORK_VERSION_LATEST) ", built on " __DATE__ ", " __TIME__ "");
+	Msg.AddString("Kaizo Client by +KZ. Client version: " KAIZO_CLIENT_VERSION_LATEST_STR ", built on " __DATE__ ", " __TIME__ "");
 	SendMsg(Conn, &Msg, MSGFLAG_VITAL);
 }
 
