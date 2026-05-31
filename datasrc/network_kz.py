@@ -5,7 +5,7 @@
 import datatypes
 
 KaizoCharacterFlags = ["BLUEPORTAL", "LASERRECOVERJUMP"]
-GameInfoFlagsTWPlus = datatypes.Flags("GAMETWPLUSFLAG", ["PREDICT_PTWPLUS_TILES", "LASERJUMPS", "GUN_FULLAUTO"])
+GameInfoFlagsTWPlus = ["PREDICT_PTWPLUS_TILES", "LASERJUMPS", "GUN_FULLAUTO"]
 
 RawHeader += '''
 
@@ -26,7 +26,7 @@ enum
 
 Flags += [
 	datatypes.Flags("KAIZOCHARACTERFLAG", KaizoCharacterFlags),
- 	GameInfoFlagsTWPlus
+ 	datatypes.Flags("GAMETWPLUSFLAG", GameInfoFlagsTWPlus),
 ]
 
 Objects += [
@@ -71,10 +71,6 @@ Objects += [
     
     NetObjectEx("RespawnTimer", "respawn-timer@ddnet-community.github.io", [
 		NetIntAny("m_TicksLeft"),
-	]),
-    
-    NetMessageEx("Cl_Language", "language@ddnet-community.github.io", [
-		NetStringStrict("m_pLanguage"),
 	]),
     
 	# <FoxNet
@@ -126,5 +122,11 @@ Messages += [
  
 	NetMessageEx("Sv_KaizoNetworkCrown", "kaizocrown@m0rekz.github.io", [
 		NetIntAny("m_ClientId"),
+	]),
+ 
+	# Duck/InfClass Client
+ 
+	NetMessageEx("Cl_Language", "language@ddnet-community.github.io", [
+		NetStringStrict("m_pLanguage"),
 	]),
 ]
