@@ -653,7 +653,7 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 
 			if(DoButton_Menu(&DiscordButton, Localize("Discord"), false, &DiscordRect))
 			{
-				Client()->ViewLink(Localize("https://m0rekz.github.io/discord.html"));
+				Client()->ViewLink(Localize("https://m0rekz.github.io/kaizo-client-discord.html"));
 			}
 
 			if(DoButton_Menu(&SourceCodeButton, Localize("Source Code"), false, &SourceCodeRect))

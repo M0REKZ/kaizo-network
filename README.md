@@ -1,7 +1,7 @@
 ![](https://raw.githubusercontent.com/M0REKZ/kaizo-client/refs/heads/client/data/kz/gui_logo.png)
 
 * [+KZ Website](https://m0rekz.github.io/)
-* [Discord Server](https://discord.gg/nt8aStQxcR)
+* [Discord Server](https://m0rekz.github.io/kaizo-client-discord.html)
 
 > [!NOTE]
 > This client is not actively maintained
