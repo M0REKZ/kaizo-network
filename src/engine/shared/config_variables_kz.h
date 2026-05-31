@@ -1,4 +1,5 @@
-
+//Copyright (C) Benjamín Gajardo (also known as +KZ)
+//
 //Config variables for:
 //  Kaizo Network Server and Client by +KZ
 //  Kaizo Client by +KZ
