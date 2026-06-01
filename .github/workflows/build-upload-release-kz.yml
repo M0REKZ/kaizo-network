@@ -108,7 +108,7 @@ jobs:
     - name: Prepare Linux
       run: |
         sudo apt-get update -y
-        sudo apt-get install ninja-build openjdk-21-jdk openssl
+        sudo apt-get install ninja-build openjdk-21-jdk openssl libwavpack-dev
         curl -LO https://github.com/Kitware/CMake/releases/download/v3.22.1/cmake-3.22.1-Linux-x86_64.tar.gz
         mkdir -p /home/runner/cmake
         tar --strip-components 1 -C /home/runner/cmake -xf cmake-3.22.1-Linux-x86_64.tar.gz
