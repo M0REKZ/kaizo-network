@@ -5,6 +5,7 @@
 #include "helper_kz.h"
 #include <cstdio>
 #include "dbg.h"
+#include <cctype>
 
 const char * str_format_time_kz(double Time)
 {
