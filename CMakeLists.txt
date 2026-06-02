@@ -133,6 +133,11 @@ if(TEST_MYSQL)
   set(MYSQL ON)
 endif()
 
+# +KZ: discord breaks android build
+if(TARGET_OS STREQUAL "android")
+  set(DISCORD OFF)
+endif()
+
 # Set version if not explicitly set
 if(NOT VERSION)
   set(VERSION ${PROJECT_VERSION})
