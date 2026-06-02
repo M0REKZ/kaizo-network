@@ -7,6 +7,10 @@
 #include "dbg.h"
 #include <cctype>
 
+#if defined(_MSC_VER)
+    #include <intrin.h> // Required for MSVC intrinsics
+#endif
+
 const char * str_format_time_kz(double Time)
 {
     static char stringvar[256];
@@ -76,6 +80,17 @@ void get_str_double_kz(char *buffer, int buffer_size, double value)
 	if(len < buffer_size) //keep the decimal digit but first check for string size
 		len++;
 	buffer[len] = '\0';
+}
+
+int not_builtin_popcount(int v)
+{
+#if defined(_MSC_VER)
+    return __popcnt(v);
+#elif defined(__GNUC__) || defined(__clang__)
+    return __builtin_popcount(v);
+#else
+    #error "need to add another popcount in helper_kz.cpp"
+#endif
 }
 
 //From FoxNet

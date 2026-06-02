@@ -5,6 +5,7 @@
 
 #include <game/client/gameclient.h>
 #include <game/mapitems.h>
+#include <base/helper_kz.h>
 
 class CNamePlatePartKaizoPlayerPing : public CNamePlatePart
 {
@@ -119,7 +120,7 @@ private:
 protected:
 	void Update(CGameClient &This, const CNamePlateData &Data) override
 	{
-		int Count = __builtin_popcount(Data.m_TrackedFlags);
+		int Count = not_builtin_popcount(Data.m_TrackedFlags);
 		if(!g_Config.m_KaizoShowCharFlags || !Data.m_TrackedFlags || Data.m_ClientId == This.m_Snap.m_LocalClientId)
 		{
 			m_Size = vec2();
