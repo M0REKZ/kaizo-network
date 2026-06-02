@@ -362,10 +362,10 @@ void CGameClient::GetKaizoInfo(CServerInfo *pServerInfo)
     if(IsZoomAllowed && m_GameInfo.m_GameInfoVersionKZ < 0 && g_Config.m_KaizoOldModsZooming)
         m_GameInfo.m_AllowZoom = true;
 
-    m_GameInfo.m_AllowXSkins |= g_Config.m_KaizoAlwaysAllowXSkins;
-    m_GameInfo.m_AllowHookColl |= g_Config.m_KaizoAlwaysAllowShowHookColl;
-    m_GameInfo.m_HudDDRace |= g_Config.m_KaizoForceDDNetHUD;
-    m_GameInfo.m_BugDDRaceInput |= g_Config.m_KaizoForceBugDDRaceInput;
+    m_GameInfo.m_AllowXSkins |= (bool)g_Config.m_KaizoAlwaysAllowXSkins;
+    m_GameInfo.m_AllowHookColl |= (bool)g_Config.m_KaizoAlwaysAllowShowHookColl;
+    m_GameInfo.m_HudDDRace |= (bool)g_Config.m_KaizoForceDDNetHUD;
+    m_GameInfo.m_BugDDRaceInput |= (bool)g_Config.m_KaizoForceBugDDRaceInput;
 
     //save gametype name
     m_PredControllerKZ.SetGameType(pServerInfo->m_aGameType);
