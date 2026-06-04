@@ -1,6 +1,6 @@
 ![](https://raw.githubusercontent.com/M0REKZ/kaizo-client/refs/heads/client/data/kz/gui_logo.png)
 
-* [+KZ Website](https://m0rekz.github.io/)
+* [Website](https://m0rekz.github.io/Kaizo-Client/)
 * [Discord Server](https://m0rekz.github.io/kaizo-client-discord.html)
 
 > [!NOTE]
