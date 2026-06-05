@@ -2499,6 +2499,7 @@ if(CLIENT)
     components/freezebars.h
     components/ghost.cpp
     components/ghost.h
+    components/hud_kz.cpp
     components/hud.cpp
     components/hud.h
     components/important_alert.cpp
@@ -2518,6 +2519,8 @@ if(CLIENT)
     components/kz/scripting/impl.h
     components/kz/scripting.cpp
     components/kz/scripting.h
+    components/kz/splits.cpp
+    components/kz/splits.h
     components/key_binder.cpp
     components/key_binder.h
     components/local_server.cpp

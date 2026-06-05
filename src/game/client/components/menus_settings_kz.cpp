@@ -13,6 +13,7 @@ enum
 {
 	KAIZO_SETTINGS_TAB_KAIZO = 0,
 	KAIZO_SETTINGS_TAB_TCLIENT_BINDWHEEL,
+	KAIZO_SETTINGS_TAB_CMCLIENT_SPLITS,
 	KAIZO_SETTINGS_TAB_INFO,
 	NUM_KAIZO_SETTINGS_TABS,
 };
@@ -54,6 +55,7 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 	const char *apTabNames[NUM_KAIZO_SETTINGS_TABS] = {
 		Localize("Kaizo"),
 		Localize("Bind Wheel"),
+		Localize("Splits", "Kaizo Client Settings"),
 		Localize("Info"),
 		};
 
@@ -601,6 +603,178 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 		case KAIZO_SETTINGS_TAB_TCLIENT_BINDWHEEL:
 		{
 			RenderSettingsTClientBindWheel(SettingsBox);
+			break;
+		}
+		case KAIZO_SETTINGS_TAB_CMCLIENT_SPLITS:
+		{
+			SettingsBox.VSplitMid(&Left, &Right, 20.0f);
+
+			Left.HSplitTop(20.0f, &Label, &SettingsBox);
+			Ui()->DoLabel(&Label, Localize("Splits Settings"), 20.0f, TEXTALIGN_ML);
+			Left.HSplitTop(40.0f, &Label, &Left);
+
+			//Allowing the user to disable it will make fake reports of it being bugged
+			/*Left.HSplitTop(2.0f, nullptr, &Left);
+
+			Left.HSplitTop(20.0f, &Button, &Left);
+			if(DoButton_CheckBox(&g_Config.m_KaizoSplits, Localize("Track Splits"), g_Config.m_KaizoSplits, &Button))
+			{
+				g_Config.m_KaizoSplits ^= 1;
+			}*/
+
+			Left.HSplitTop(2.0f, nullptr, &Left);
+
+			Left.HSplitTop(20.0f, &Button, &Left);
+			Ui()->DoLabel(&Button, Localize("Show Splits HUD"), Button.h * CUi::ms_FontmodHeight * 0.8f, TEXTALIGN_ML);
+
+			Left.HSplitTop(2.0f, nullptr, &Left);
+
+			Left.HSplitTop(20.0f, &Button, &Left);
+			if(DoButton_CheckBox("splits hud disabled", Localize("Disabled"), !g_Config.m_KaizoShowhudSplits, &Button))
+			{
+				g_Config.m_KaizoShowhudSplits = 0;
+			}
+
+			Left.HSplitTop(2.0f, nullptr, &Left);
+
+			Left.HSplitTop(20.0f, &Button, &Left);
+			if(DoButton_CheckBox("splits hud enabled on finished maps", Localize("Enabled on finished maps"), g_Config.m_KaizoShowhudSplits == 1, &Button))
+			{
+				g_Config.m_KaizoShowhudSplits = 1;
+			}
+
+			Left.HSplitTop(2.0f, nullptr, &Left);
+
+			Left.HSplitTop(20.0f, &Button, &Left);
+			if(DoButton_CheckBox("splits hud always enabled", Localize("Always enabled"), g_Config.m_KaizoShowhudSplits == 2, &Button))
+			{
+				g_Config.m_KaizoShowhudSplits = 2;
+			}
+
+			if(g_Config.m_KaizoShowhudSplits)
+			{
+				Left.HSplitTop(5.0f, nullptr, &Left);
+
+				Left.HSplitTop(20.0f, &Button, &Left);
+				Ui()->DoLabel(&Button, Localize("HUD settings"), Button.h * CUi::ms_FontmodHeight * 0.8f, TEXTALIGN_ML);
+
+				Left.HSplitTop(2.0f, nullptr, &Left);
+
+				Left.HSplitTop(20.0f, &Button, &Left);
+				if(DoButton_CheckBox(&g_Config.m_KaizoSplitsShowMap, Localize("Show map in HUD"), g_Config.m_KaizoSplitsShowMap, &Button))
+				{
+					g_Config.m_KaizoSplitsShowMap = !g_Config.m_KaizoSplitsShowMap;
+				}
+
+				Left.HSplitTop(2.0f, nullptr, &Left);
+
+				Left.HSplitTop(20.0f, &Button, &Left);
+				if(DoButton_CheckBox(&g_Config.m_KaizoSplitsShowSplits, Localize("Show splits in HUD (xD)"), g_Config.m_KaizoSplitsShowSplits, &Button))
+				{
+					g_Config.m_KaizoSplitsShowSplits = !g_Config.m_KaizoSplitsShowSplits;
+				}
+
+				Left.HSplitTop(2.0f, nullptr, &Left);
+
+				Left.HSplitTop(20.0f, &Button, &Left);
+				if(DoButton_CheckBox(&g_Config.m_KaizoSplitsShowCategory, Localize("Show rank category in HUD"), g_Config.m_KaizoSplitsShowCategory, &Button))
+				{
+					g_Config.m_KaizoSplitsShowCategory = !g_Config.m_KaizoSplitsShowCategory;
+				}
+
+				Left.HSplitTop(2.0f, nullptr, &Left);
+
+				Left.HSplitTop(20.0f, &Button, &Left);
+				if(DoButton_CheckBox(&g_Config.m_KaizoSplitsShowTimer, Localize("Show timer in HUD"), g_Config.m_KaizoSplitsShowTimer, &Button))
+				{
+					g_Config.m_KaizoSplitsShowTimer = !g_Config.m_KaizoSplitsShowTimer;
+				}
+
+				Left.HSplitTop(2.0f, nullptr, &Left);
+
+				Left.HSplitTop(20.0f, &Button, &Left);
+				if(DoButton_CheckBox(&g_Config.m_KaizoSplitsShowLastSegment, Localize("Show previous segment time in HUD"), g_Config.m_KaizoSplitsShowLastSegment, &Button))
+				{
+					g_Config.m_KaizoSplitsShowLastSegment = !g_Config.m_KaizoSplitsShowLastSegment;
+				}
+
+				Left.HSplitTop(2.0f, nullptr, &Left);
+
+				Left.HSplitTop(20.0f, &Button, &Left);
+				if(DoButton_CheckBox(&g_Config.m_KaizoSplitsShowFurthest, Localize("Show furthest segment in HUD"), g_Config.m_KaizoSplitsShowFurthest, &Button))
+				{
+					g_Config.m_KaizoSplitsShowFurthest = !g_Config.m_KaizoSplitsShowFurthest;
+				}
+
+				Left.HSplitTop(2.0f, nullptr, &Left);
+
+				Left.HSplitTop(20.0f, &Button, &Left);
+				if(DoButton_CheckBox(&g_Config.m_KaizoSplitsShowSumOfBest, Localize("Show sum of best segments in HUD"), g_Config.m_KaizoSplitsShowSumOfBest, &Button))
+				{
+					g_Config.m_KaizoSplitsShowSumOfBest = !g_Config.m_KaizoSplitsShowSumOfBest;
+				}
+
+				Left.HSplitTop(2.0f, nullptr, &Left);
+
+				Left.HSplitTop(20.0f, &Button, &Left);
+				Ui()->DoScrollbarOption(&g_Config.m_KaizoSplitsX, &g_Config.m_KaizoSplitsX, &Button, Localize("HUD X Position"), 0, 100, &CUi::ms_LogarithmicScrollbarScale, 0u, "%");
+
+				//Splits Labels Start
+
+				Left.HSplitTop(5.0f, nullptr, &Left);
+
+				Left.HSplitTop(20.0f, &Button, &Left);
+				Ui()->DoLabel(&Button, Localize("Splits labels"), Button.h * CUi::ms_FontmodHeight * 0.8f, TEXTALIGN_ML);
+
+				Left.HSplitTop(2.0f, nullptr, &Left);
+
+				Left.HSplitTop(20.0f, &Button, &Left);
+				if(DoButton_CheckBox("splits label none", Localize("None"), !g_Config.m_KaizoSplitsLabels, &Button))
+				{
+					g_Config.m_KaizoSplitsLabels = 0;
+				}
+
+				Left.HSplitTop(2.0f, nullptr, &Left);
+
+				Left.HSplitTop(20.0f, &Button, &Left);
+				if(DoButton_CheckBox("splits label small", Localize("Small"), g_Config.m_KaizoSplitsLabels == 1, &Button))
+				{
+					g_Config.m_KaizoSplitsLabels = 1;
+				}
+
+				Left.HSplitTop(2.0f, nullptr, &Left);
+
+				Left.HSplitTop(20.0f, &Button, &Left);
+				if(DoButton_CheckBox("splits label full size", Localize("Full size"), g_Config.m_KaizoSplitsLabels == 2, &Button))
+				{
+					g_Config.m_KaizoSplitsLabels = 2;
+				}
+
+				//Splits Labels End
+
+				Left.HSplitTop(5.0f, nullptr, &Left);
+
+				Left.HSplitTop(20.0f, &Button, &Left);
+				Ui()->DoLabel(&Button, Localize("Advanced settings can be changed in F1 console"), Button.h * CUi::ms_FontmodHeight * 0.8f, TEXTALIGN_ML);
+
+				//Preview HUD
+				//does not work for now, need more changes
+				/*static bool s_DoPreview = false;
+
+				Left.HSplitTop(2.0f, nullptr, &Left);
+
+				Left.HSplitTop(20.0f, &Button, &Left);
+				if(DoButton_CheckBox(&s_DoPreview, Localize("Preview"), s_DoPreview, &Button))
+				{
+					s_DoPreview = !s_DoPreview;
+				}
+
+				if(s_DoPreview)
+				{
+					GameClient()->m_Hud.RenderSplits();
+				}*/
+			}
+
 			break;
 		}
 		case KAIZO_SETTINGS_TAB_INFO:

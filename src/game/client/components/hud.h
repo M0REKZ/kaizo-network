@@ -134,7 +134,7 @@ private:
 	int m_TimeCpLastReceivedTick;
 	bool m_ShowFinishTime;
 
-	inline float GetMovementInformationBoxHeight();
+	/*inline //+KZ removed inline */float GetMovementInformationBoxHeight();
 	inline int GetDigitsIndex(int Value, int Max);
 
 	// Quad Offsets
@@ -169,6 +169,13 @@ private:
 	int m_PracticeModeOffset;
 	int m_Team0ModeOffset;
 	int m_LockModeOffset;
+
+	//+KZ
+
+	//CMClient
+	float m_SplitsLastWidth;
+public:
+	void RenderSplits();
 };
 
 #endif

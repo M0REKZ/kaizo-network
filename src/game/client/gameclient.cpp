@@ -150,6 +150,7 @@ void CGameClient::OnConsoleInit()
 					      &m_FreezeBars,
 						  &m_RechargeBars, //+KZ
 					      &m_DamageInd,
+						  &m_Splits, // +KZ from CMClient
 						  &m_CustomCommunities, // +KZ from T-Client
 					      &m_Hud,
 					      &m_Spectator,
@@ -1166,6 +1167,10 @@ void CGameClient::OnMessage(int MsgId, CUnpacker *pUnpacker, int Conn, bool Dumm
 				m_Chat.OnMessage(MsgId, pRawMsg);
 			}
 		}
+		/* +KZ From CMClient: */
+		if(MsgId == NETMSGTYPE_SV_DDRACETIME || MsgId == NETMSGTYPE_SV_DDRACETIMELEGACY)
+			m_Splits.OnMessage(MsgId, pRawMsg, Dummy);
+		/* end CMClient */
 		return; // no need of all that stuff for the dummy
 	}
 

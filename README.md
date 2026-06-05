@@ -28,6 +28,7 @@ This repo also uses code from the following mods that are NOT made by +KZ:
 * [Pointer's Duck/Infclass Client](https://pointer31.github.io/duckclient)
 * [Entity Client](https://github.com/FoxNet-DDNet/Entity-Client-DDNet)
 * [DuckDDNet](https://github.com/Ar1gin/duck-ddnet)
+* [CMClient](https://petal.im/cmclient/)
 * ...and other mods and rejected DDNet Pull requests.
 
 Other credits:

@@ -87,6 +87,7 @@ void CHud::OnReset()
 	m_aLastPlayerSpeedChange[0] = ESpeedChange::NONE;
 	m_aLastPlayerSpeedChange[1] = ESpeedChange::NONE;
 	m_LastSpectatorCountTick = 0;
+	m_SplitsLastWidth = 0.0f; //CMClient
 
 	ResetHudContainers();
 }
@@ -737,6 +738,9 @@ void CHud::RenderAmmoHealthAndArmor(const CNetObj_Character *pCharacter)
 	bool IsSixupGameSkin = GameClient()->m_GameSkin.IsSixup();
 	int QuadOffsetSixup = (IsSixupGameSkin ? 10 : 0);
 
+	//From CMClient
+	float SplitsWidth = g_Config.m_KaizoSplitsX == 0 ? m_SplitsLastWidth : 0.0f;
+
 	if(GameClient()->m_GameInfo.m_HudAmmo)
 	{
 		// ammo display
@@ -755,9 +759,9 @@ void CHud::RenderAmmoHealthAndArmor(const CNetObj_Character *pCharacter)
 		else if(CurWeapon >= 0 && GameClient()->m_GameSkin.m_aSpriteWeaponProjectiles[CurWeapon].IsValid())
 		{
 			Graphics()->TextureSet(GameClient()->m_GameSkin.m_aSpriteWeaponProjectiles[CurWeapon]);
-			if(AmmoOffsetY > 0)
+			if(AmmoOffsetY > 0 || SplitsWidth != 0.0f) // CMClient
 			{
-				Graphics()->RenderQuadContainerEx(m_HudQuadContainerIndex, m_aAmmoOffset[CurWeapon] + QuadOffsetSixup, std::clamp(pCharacter->m_AmmoCount, 0, 10), 0, AmmoOffsetY);
+				Graphics()->RenderQuadContainerEx(m_HudQuadContainerIndex, m_aAmmoOffset[CurWeapon] + QuadOffsetSixup, std::clamp(pCharacter->m_AmmoCount, 0, 10), SplitsWidth /* CMClient */, AmmoOffsetY);
 			}
 			else
 			{
@@ -770,15 +774,27 @@ void CHud::RenderAmmoHealthAndArmor(const CNetObj_Character *pCharacter)
 	{
 		// health display
 		Graphics()->TextureSet(GameClient()->m_GameSkin.m_SpriteHealthFull);
-		Graphics()->RenderQuadContainer(m_HudQuadContainerIndex, m_HealthOffset + QuadOffsetSixup, minimum(pCharacter->m_Health, 10));
+		if(SplitsWidth != 0.0f) /* CMClient */
+			Graphics()->RenderQuadContainerEx(m_HudQuadContainerIndex, m_HealthOffset + QuadOffsetSixup, minimum(pCharacter->m_Health, 10), SplitsWidth /* CMClient */, 0);
+		else
+			Graphics()->RenderQuadContainer(m_HudQuadContainerIndex, m_HealthOffset + QuadOffsetSixup, minimum(pCharacter->m_Health, 10));
 		Graphics()->TextureSet(GameClient()->m_GameSkin.m_SpriteHealthEmpty);
-		Graphics()->RenderQuadContainer(m_HudQuadContainerIndex, m_EmptyHealthOffset + QuadOffsetSixup + minimum(pCharacter->m_Health, 10), 10 - minimum(pCharacter->m_Health, 10));
+		if(SplitsWidth != 0.0f) /* CMClient */
+			Graphics()->RenderQuadContainerEx(m_HudQuadContainerIndex, m_EmptyHealthOffset + QuadOffsetSixup + minimum(pCharacter->m_Health, 10), 10 - minimum(pCharacter->m_Health, 10), SplitsWidth /* CMClient */, 0);
+		else
+			Graphics()->RenderQuadContainer(m_HudQuadContainerIndex, m_EmptyHealthOffset + QuadOffsetSixup + minimum(pCharacter->m_Health, 10), 10 - minimum(pCharacter->m_Health, 10));
 
 		// armor display
 		Graphics()->TextureSet(GameClient()->m_GameSkin.m_SpriteArmorFull);
-		Graphics()->RenderQuadContainer(m_HudQuadContainerIndex, m_ArmorOffset + QuadOffsetSixup, minimum(pCharacter->m_Armor, 10));
+		if(SplitsWidth != 0.0f) /* CMClient */
+			Graphics()->RenderQuadContainerEx(m_HudQuadContainerIndex, m_ArmorOffset + QuadOffsetSixup, minimum(pCharacter->m_Armor, 10), SplitsWidth /* CMClient */, 0);
+		else
+			Graphics()->RenderQuadContainer(m_HudQuadContainerIndex, m_ArmorOffset + QuadOffsetSixup, minimum(pCharacter->m_Armor, 10));
 		Graphics()->TextureSet(GameClient()->m_GameSkin.m_SpriteArmorEmpty);
-		Graphics()->RenderQuadContainer(m_HudQuadContainerIndex, m_ArmorOffset + QuadOffsetSixup + minimum(pCharacter->m_Armor, 10), 10 - minimum(pCharacter->m_Armor, 10));
+		if(SplitsWidth != 0.0f) /* CMClient */
+			Graphics()->RenderQuadContainerEx(m_HudQuadContainerIndex, m_ArmorOffset + QuadOffsetSixup + minimum(pCharacter->m_Armor, 10), 10 - minimum(pCharacter->m_Armor, 10), SplitsWidth /* CMClient */, 0);
+		else
+			Graphics()->RenderQuadContainer(m_HudQuadContainerIndex, m_ArmorOffset + QuadOffsetSixup + minimum(pCharacter->m_Armor, 10), 10 - minimum(pCharacter->m_Armor, 10));
 	}
 }
 
@@ -845,6 +861,9 @@ void CHud::RenderPlayerState(const int ClientId)
 {
 	Graphics()->SetColor(1.f, 1.f, 1.f, 1.f);
 
+	/* From CMClient */
+	float SplitsWidth = g_Config.m_KaizoSplitsX == 0 ? m_SplitsLastWidth : 0.0f;
+
 	// pCharacter contains the predicted character for local players or the last snap for players who are spectated
 	CCharacterCore *pCharacter = &GameClient()->m_aClients[ClientId].m_Predicted;
 	CNetObj_Character *pPlayer = &GameClient()->m_aClients[ClientId].m_RenderCur;
@@ -893,12 +912,12 @@ void CHud::RenderPlayerState(const int ClientId)
 		// render available and used jumps
 		int JumpsOffsetY = ((GameClient()->m_GameInfo.m_HudHealthArmor && g_Config.m_ClShowhudHealthAmmo ? 24 : 0) +
 				    (GameClient()->m_GameInfo.m_HudAmmo && g_Config.m_ClShowhudHealthAmmo ? 12 : 0));
-		if(JumpsOffsetY > 0)
+		if(JumpsOffsetY > 0 || SplitsWidth != 0.0f) //CMClient
 		{
 			Graphics()->TextureSet(GameClient()->m_HudSkin.m_SpriteHudAirjump);
-			Graphics()->RenderQuadContainerEx(m_HudQuadContainerIndex, m_AirjumpOffset, AvailableJumpsToDisplay, 0, JumpsOffsetY);
+			Graphics()->RenderQuadContainerEx(m_HudQuadContainerIndex, m_AirjumpOffset, AvailableJumpsToDisplay, SplitsWidth /* CMClient */, JumpsOffsetY);
 			Graphics()->TextureSet(GameClient()->m_HudSkin.m_SpriteHudAirjumpEmpty);
-			Graphics()->RenderQuadContainerEx(m_HudQuadContainerIndex, m_AirjumpEmptyOffset + AvailableJumpsToDisplay, TotalJumpsToDisplay - AvailableJumpsToDisplay, 0, JumpsOffsetY);
+			Graphics()->RenderQuadContainerEx(m_HudQuadContainerIndex, m_AirjumpEmptyOffset + AvailableJumpsToDisplay, TotalJumpsToDisplay - AvailableJumpsToDisplay, SplitsWidth /* CMClient */, JumpsOffsetY);
 		}
 		else
 		{
@@ -909,7 +928,7 @@ void CHud::RenderPlayerState(const int ClientId)
 		}
 	}
 
-	float x = 5 + 12;
+	float x = 5 + 12 + SplitsWidth /* CMClient */;
 	float y = (5 + 12 + (GameClient()->m_GameInfo.m_HudHealthArmor && g_Config.m_ClShowhudHealthAmmo ? 24 : 0) +
 		   (GameClient()->m_GameInfo.m_HudAmmo && g_Config.m_ClShowhudHealthAmmo ? 12 : 0));
 
@@ -948,7 +967,7 @@ void CHud::RenderPlayerState(const int ClientId)
 	}
 
 	// render capabilities
-	x = 5;
+	x = 5 + SplitsWidth /* CMClient */;
 	y += 12;
 	if(TotalJumpsToDisplay > 0)
 	{
@@ -998,7 +1017,7 @@ void CHud::RenderPlayerState(const int ClientId)
 	}
 
 	// render prohibited capabilities
-	x = 5;
+	x = 5 + SplitsWidth /* CMClient */;
 	if(HasCapabilities)
 	{
 		y += 12;
@@ -1061,7 +1080,7 @@ void CHud::RenderPlayerState(const int ClientId)
 	}
 
 	// render dummy actions and freeze state
-	x = 5;
+	x = 5 + SplitsWidth /* CMClient */;
 	if(HasProhibitedCapabilities)
 	{
 		y += 12;
@@ -1753,7 +1772,10 @@ void CHud::OnRender()
 		RenderTextInfo();
 		RenderLocalTime((m_Width / 7) * 3);
 		if(Client()->State() != IClient::STATE_DEMOPLAYBACK)
+		{
+			RenderSplits(); //CMClient
 			RenderConnectionWarning();
+		}
 		RenderTeambalanceWarning();
 		GameClient()->m_Voting.Render();
 		if(g_Config.m_ClShowRecord)

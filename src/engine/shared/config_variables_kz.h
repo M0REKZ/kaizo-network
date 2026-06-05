@@ -132,6 +132,35 @@ MACRO_CONFIG_STR(KaizoRunOnJoinConsole, kaizo_run_on_join_console, 128, "", CFGF
 MACRO_CONFIG_INT(KaizoRunOnJoinConsoleDelay, kaizo_run_on_join_delay, 2, 7, 50000, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Tick Delay before using run on join")
 MACRO_CONFIG_INT(KaizoClientIndicatorBrowser, kaizo_client_indicator_browser, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Whether to show a list of people using Kaizo Client in the server browser")
 
+//From CMClient
+//Splits
+MACRO_CONFIG_INT(KaizoSplits, kaizo_splits, 1, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Whether to track splits (requires a map reload)")
+MACRO_CONFIG_INT(KaizoSplitsTrackDummy, kaizo_splits_trackdummy, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Whether to track splits for dummies")
+MACRO_CONFIG_INT(KaizoSplitsForceAny, kaizo_splits_forceany, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Whether to force all runs to be in the any rank category")
+MACRO_CONFIG_INT(KaizoSplitsResetAfterDeath, kaizo_splits_resetafterdeath, 1, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Whether to reset the splits after a death")
+MACRO_CONFIG_INT(KaizoSplitsResetAfterFinishDeath, kaizo_splits_resetafterfinishdeath, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Whether to reset the splits after a death after crossing the finish line")
+MACRO_CONFIG_INT(KaizoSplitsComparisonSource, kaizo_splits_comparisonsource, 0, 0, 2, CFGFLAG_CLIENT | CFGFLAG_SAVE, "The source to use for the comparison time (0: best run, 1: best segment total, 2: best segment segmented)")
+MACRO_CONFIG_INT(KaizoSplitsComparisonForceCategory, kaizo_splits_comparisonforcecategory, 0, 0, 4, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Whether to always use ranks from a certain category for the comparison time (1: any, 2: team, 3: dummy, 4: solo)")
+MACRO_CONFIG_INT(KaizoShowhudSplits, kaizo_showhud_splits, 0, 0, 2, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Show ingame HUD (Splits) (2 to show on maps with no splits)")
+MACRO_CONFIG_INT(KaizoSplitsDisplaySegmentTime, kaizo_splits_displaysegmenttime, 0, 0, 3, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Whether to show split times as run time or segment time (0: both run, 1: check segment and total run, 2: check run and total segment, 3: both segment)")
+MACRO_CONFIG_INT(KaizoSplitsNameFormat, kaizo_splits_nameformat, 0, 0, 4, CFGFLAG_CLIENT | CFGFLAG_SAVE, "The format of split names (0: from → to, 1: from, 2: to, 3/4: same as 1/2 if segments are in order else same as 0)")
+MACRO_CONFIG_INT(KaizoSplitsMaxRowsInRun, kaizo_splits_maxrowsinrun, 5, 0, 26, CFGFLAG_CLIENT | CFGFLAG_SAVE, "The number of splits to show while in a run")
+MACRO_CONFIG_INT(KaizoSplitsMaxRowsBeforeRun, kaizo_splits_maxrowsbeforerun, 26, 0, 26, CFGFLAG_CLIENT | CFGFLAG_SAVE, "The number of splits to show before starting a run")
+MACRO_CONFIG_INT(KaizoSplitsMaxRowsAfterRun, kaizo_splits_maxrowsafterrun, 26, 0, 26, CFGFLAG_CLIENT | CFGFLAG_SAVE, "The number of splits to show after finishing a run")
+MACRO_CONFIG_INT(KaizoSplitsAlwaysShowFinalSplit, kaizo_splits_alwaysshowfinalsplit, 1, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Whether to always show the final split")
+MACRO_CONFIG_INT(KaizoSplitsMaximumCurrentCheck, kaizo_splits_maximumcurrentcheck, 10, -1, 86400, CFGFLAG_CLIENT | CFGFLAG_SAVE, "The maximum current split check time to show in seconds (-1 to always show)")
+MACRO_CONFIG_INT(KaizoSplitsShowMap, kaizo_splits_showmap, 1, 0, 9, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Show the current map on the splits HUD")
+MACRO_CONFIG_INT(KaizoSplitsShowSplits, kaizo_splits_showsplits, 1, 0, 9, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Show the splits on the splits HUD")
+MACRO_CONFIG_INT(KaizoSplitsShowCategory, kaizo_splits_showcategory, 0, 0, 9, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Show the current rank category on the splits HUD")
+MACRO_CONFIG_INT(KaizoSplitsShowTimer, kaizo_splits_showtimer, 0, 0, 9, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Show the run timer on the splits HUD")
+MACRO_CONFIG_INT(KaizoSplitsShowLastSegment, kaizo_splits_showlastsegment, 0, 0, 9, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Show the previous segment time on the splits HUD")
+MACRO_CONFIG_INT(KaizoSplitsShowFurthest, kaizo_splits_showfurthest, 0, 0, 9, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Show the furthest segment on the splits HUD")
+MACRO_CONFIG_INT(KaizoSplitsShowSumOfBest, kaizo_splits_showsumofbest, 0, 0, 9, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Show the sum of best segments on the splits HUD")
+MACRO_CONFIG_INT(KaizoSplitsShowCurrentPace, kaizo_splits_showcurrentpace, 0, 0, 9, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Show the current pace on the splits HUD")
+MACRO_CONFIG_INT(KaizoSplitsShowBestPossible, kaizo_splits_showbestpossible, 0, 0, 9, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Show the best possible finish time on the splits HUD")
+MACRO_CONFIG_INT(KaizoSplitsLabels, kaizo_splits_labels, 1, 0, 2, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Whether to show labels for items on the splits HUD (0: no, 1: small, 2: full size)")
+MACRO_CONFIG_INT(KaizoSplitsX, kaizo_splits_x, 22, 0, 100, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Horizontal position of splits as percentage of screen width")
+
 //*=========================================*
 //DANGEROUS
 //*=========================================*
