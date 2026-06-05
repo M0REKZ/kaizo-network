@@ -13,7 +13,7 @@ enum
 {
 	KAIZO_SETTINGS_TAB_KAIZO = 0,
 	KAIZO_SETTINGS_TAB_TCLIENT_BINDWHEEL,
-	KAIZO_SETTINGS_TAB_CMCLIENT_SPLITS,
+	KAIZO_SETTINGS_TAB_SPLITS,
 	KAIZO_SETTINGS_TAB_INFO,
 	NUM_KAIZO_SETTINGS_TABS,
 };
@@ -605,7 +605,7 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 			RenderSettingsTClientBindWheel(SettingsBox);
 			break;
 		}
-		case KAIZO_SETTINGS_TAB_CMCLIENT_SPLITS:
+		case KAIZO_SETTINGS_TAB_SPLITS:
 		{
 			SettingsBox.VSplitMid(&Left, &Right, 20.0f);
 
