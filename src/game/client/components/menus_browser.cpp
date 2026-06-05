@@ -611,6 +611,28 @@ void CMenus::RenderServerbrowserStatusBox(CUIRect StatusBox, bool WasListboxItem
 			m_ServerBrowserShouldRevealSelection = true;
 	}
 
+	//+KZ quick toggle for 0.7 connection
+	{
+		CUIRect Use07;
+		Use07.x = ServerAddr.x + ServerAddr.w;
+		Use07.w = ConnectButtons.x - Use07.x;
+		Use07.y = ServerAddr.y;
+		Use07.h = ServerAddr.h;
+
+		//Add some X offset
+		Use07.x += 2.f;
+		Use07.w -= 2.f;
+
+		//Adjust size so checkbox does not look weird
+		Use07.y -= 2.f;
+		Use07.h += 4.f;
+
+		if(DoButton_CheckBox(&g_Config.m_KaizoPrefer07Protocol, Localize("Use 0.7 connection"), g_Config.m_KaizoPrefer07Protocol, &Use07))
+		{
+			g_Config.m_KaizoPrefer07Protocol ^= 1;
+		}
+	}
+
 	// buttons
 	{
 		CUIRect ButtonRefresh, ButtonConnect;
