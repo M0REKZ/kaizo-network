@@ -184,13 +184,21 @@ void CMenusStart::RenderKaizoStartMenu(CUIRect MainView)
 	}
 
 	// render version
+	char aTempBuf[256] = {'\0'};
+
 	CUIRect CurVersion, ConsoleButton;
 	MainView.HSplitTop(45.0f, &CurVersion, nullptr);
 	CurVersion.VSplitLeft(40.0f, nullptr, &CurVersion);
 	CurVersion.HSplitTop(20.0f, &ConsoleButton, &CurVersion);
 	CurVersion.HSplitTop(5.0f, nullptr, &CurVersion);
 	ConsoleButton.VSplitRight(60.0f, nullptr, &ConsoleButton);
-	Ui()->DoLabel(&CurVersion, "Based on DDNet " GAME_RELEASE_VERSION, 14.0f, TEXTALIGN_MR);
+	Ui()->DoLabel(&CurVersion, KAIZO_GAME_NAME " V" KAIZO_CLIENT_VERSION_LATEST_STR, 14.0f, TEXTALIGN_MR);
+	//DDNet version in a different line
+	CurVersion.HSplitTop(20.0f, nullptr, &CurVersion);
+	CurVersion.HSplitTop(5.0f, nullptr, &CurVersion);
+	//idk maybe someone will translate it in the future (or not (i dont plan to))
+	str_format(aTempBuf, sizeof(aTempBuf), "%s %s", Localize("Based on DDNet"), GAME_RELEASE_VERSION);
+	Ui()->DoLabel(&CurVersion, aTempBuf, 14.0f, TEXTALIGN_MR);
 
 	static CButtonContainer s_ConsoleButton;
 	TextRender()->SetFontPreset(EFontPreset::ICON_FONT);
