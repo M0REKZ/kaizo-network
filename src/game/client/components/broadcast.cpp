@@ -31,6 +31,10 @@ void CBroadcast::OnRender()
 	if(Client()->State() != IClient::STATE_ONLINE && Client()->State() != IClient::STATE_DEMOPLAYBACK)
 		return;
 
+	//+KZ
+	if(g_Config.m_KaizoHideBroadcastOnChat && GameClient()->m_Chat.IsActive())
+		return;
+
 	RenderServerBroadcast();
 }
 
