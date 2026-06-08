@@ -213,5 +213,8 @@ public:
 	//
 	// It uses team or public chat depending on m_Mode.
 	void SendChatQueued(const char *pLine);
+
+	//+KZ
+	bool IsShowing() { return m_Show; }
 };
 #endif

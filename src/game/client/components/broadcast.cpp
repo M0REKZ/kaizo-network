@@ -32,7 +32,7 @@ void CBroadcast::OnRender()
 		return;
 
 	//+KZ
-	if(g_Config.m_KaizoHideBroadcastOnChat && GameClient()->m_Chat.IsActive())
+	if(g_Config.m_KaizoHideBroadcastOnChat && (GameClient()->m_Chat.IsActive() || GameClient()->m_Chat.IsShowing()))
 		return;
 
 	RenderServerBroadcast();
