@@ -598,6 +598,18 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 				g_Config.m_KaizoFreeMouse ^= 1;
 			}
 			
+			Right.HSplitTop(20.0f, &Button, &Right);
+			if(DoButton_CheckBox(&g_Config.m_KaizoHideAiming, Localize("Hide aiming (may break /pause and /spec)"), g_Config.m_KaizoHideAiming, &Button))
+			{
+				g_Config.m_KaizoHideAiming ^= 1;
+			}
+
+			Right.HSplitTop(20.0f, &Button, &Right);
+			if(DoButton_CheckBox(&g_Config.m_KaizoFakeMaxZoom, Localize("Send fake max zoom (may improve prediction)"), g_Config.m_KaizoFakeMaxZoom, &Button))
+			{
+				g_Config.m_KaizoFakeMaxZoom ^= 1;
+			}
+
 			break;
 		}
 		case KAIZO_SETTINGS_TAB_TCLIENT_BINDWHEEL:
