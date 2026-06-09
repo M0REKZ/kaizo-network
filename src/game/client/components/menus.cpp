@@ -855,7 +855,7 @@ void CMenus::OnInit()
 	if(g_Config.m_ClShowWelcome)
 	{
 		m_Popup = POPUP_LANGUAGE;
-		m_CreateDefaultFavoriteCommunities = true;
+		m_CreateDefaultFavoriteCommunities = false; //+KZ: no
 	}
 
 	if(g_Config.m_UiPage >= PAGE_FAVORITE_COMMUNITY_1 && g_Config.m_UiPage <= PAGE_FAVORITE_COMMUNITY_5 &&
