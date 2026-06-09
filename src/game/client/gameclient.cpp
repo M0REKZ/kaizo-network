@@ -157,6 +157,7 @@ void CGameClient::OnConsoleInit()
 					      &m_Emoticon,
 						  &m_BindWheel, //+KZ from T-Client
 					      &m_InfoMessages,
+						  &m_PerformanceStatistics, // +KZ from E-Client
 					      &m_Chat,
 					      &m_Broadcast,
 					      &m_ImportantAlert,

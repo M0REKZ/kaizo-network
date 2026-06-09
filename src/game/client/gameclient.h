@@ -73,6 +73,7 @@
 #include "components/kz/rechargebars.h" // +KZ
 #include "components/kz/scripting.h" // +KZ from E-Client/T-Client
 #include "components/kz/splits.h" // +KZ from CMClient
+#include "components/kz/performance_statistics.h" // +KZ from E-Client
 
 #include <memory>
 #include <vector>
@@ -1020,6 +1021,7 @@ private:
 	CBindWheel m_BindWheel; //+KZ From TClient
 	CScripting m_Scripting; //+KZ From E-Client or T-Client
 	CSplits m_Splits; //+KZ from CMClient
+	CPerformanceStatistics m_PerformanceStatistics; //+KZ from E-Client
 
 	void GetKaizoInfo(CServerInfo *pServerInfo);
 	bool m_InstaShield = false;

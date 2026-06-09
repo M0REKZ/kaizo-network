@@ -132,6 +132,9 @@ MACRO_CONFIG_STR(KaizoExecuteOnConnect, kaizo_execute_on_connect, 100, "", CFGFL
 MACRO_CONFIG_STR(KaizoRunOnJoinConsole, kaizo_run_on_join_console, 128, "", CFGFLAG_CLIENT | CFGFLAG_SAVE, "What it should run inside of the Console")
 MACRO_CONFIG_INT(KaizoRunOnJoinConsoleDelay, kaizo_run_on_join_delay, 2, 7, 50000, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Tick Delay before using run on join")
 MACRO_CONFIG_INT(KaizoClientIndicatorBrowser, kaizo_client_indicator_browser, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Whether to show a list of people using Kaizo Client in the server browser")
+MACRO_CONFIG_INT(KaizoStatisticsShowFps, kaizo_statistics_show_fps, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Whether to show FPS in the statistics")
+MACRO_CONFIG_INT(KaizoStatisticsShowPing, kaizo_statistics_show_ping, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Whether to show Ping in the statistics")
+MACRO_CONFIG_INT(KaizoStatisticsShowSnapRate, kaizo_statistics_show_snap_rate, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Whether to show Snap Rate in the statistics")
 
 //From CMClient
 //Splits

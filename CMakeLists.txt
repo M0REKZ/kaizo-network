@@ -2513,6 +2513,8 @@ if(CLIENT)
     components/kz/bindwheel.h
     components/kz/custom_communities.cpp
     components/kz/custom_communities.h
+    components/kz/performance_statistics.cpp
+    components/kz/performance_statistics.h
     components/kz/rechargebars.cpp
     components/kz/rechargebars.h
     components/kz/scripting/impl.cpp

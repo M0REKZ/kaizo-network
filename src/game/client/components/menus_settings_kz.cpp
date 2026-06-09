@@ -308,6 +308,30 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 				g_Config.m_KaizoClientIndicatorBrowser ^= 1;
 			}
 
+			Left.HSplitTop(2.0f, nullptr, &Left);
+
+			Left.HSplitTop(20.0f, &Button, &Left);
+			if(DoButton_CheckBox(&g_Config.m_KaizoStatisticsShowFps, Localize("Show FPS"), g_Config.m_KaizoStatisticsShowFps, &Button))
+			{
+				g_Config.m_KaizoStatisticsShowFps ^= 1;
+			}
+
+			Left.HSplitTop(2.0f, nullptr, &Left);
+
+			Left.HSplitTop(20.0f, &Button, &Left);
+			if(DoButton_CheckBox(&g_Config.m_KaizoStatisticsShowPing, Localize("Show ping"), g_Config.m_KaizoStatisticsShowPing, &Button))
+			{
+				g_Config.m_KaizoStatisticsShowPing ^= 1;
+			}
+
+			Left.HSplitTop(2.0f, nullptr, &Left);
+
+			Left.HSplitTop(20.0f, &Button, &Left);
+			if(DoButton_CheckBox(&g_Config.m_KaizoStatisticsShowSnapRate, Localize("Show snapshot rate"), g_Config.m_KaizoStatisticsShowSnapRate, &Button))
+			{
+				g_Config.m_KaizoStatisticsShowSnapRate ^= 1;
+			}
+
 			Left.HSplitTop(40.0f, &Label, &SettingsBox);
 			Ui()->DoLabel(&Label, Localize("Discord Settings"), 20.0f, TEXTALIGN_ML);
 			Left.HSplitTop(40.0f, &Label, &Left);
