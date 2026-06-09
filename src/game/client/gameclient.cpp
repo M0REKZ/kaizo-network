@@ -2409,13 +2409,29 @@ void CGameClient::OnNewSnapshot()
 		FollowFactor = m_LastFollowFactor;
 	}
 
+	//+KZ fake max zoom
+	if(g_Config.m_KaizoFakeMaxZoom)
+	{
+		Zoom = std::numeric_limits<float>::max(); //is not that value high enough?
+		ShowDistanceZoom = std::numeric_limits<float>::max();
+	}
+
 	// initialize dummy vital when first connected
 	if(Client()->DummyConnected() && !m_LastDummyConnected)
 	{
 		{
 			CNetMsg_Cl_ShowDistance Msg;
 			float x, y;
-			Graphics()->CalcScreenParams(Graphics()->ScreenAspect(), ShowDistanceZoom, &x, &y);
+			//+KZ fake max zoom
+			if(g_Config.m_KaizoFakeMaxZoom)
+			{
+				x = std::numeric_limits<float>::max();
+				y = std::numeric_limits<float>::max();
+			}
+			else
+			{
+				Graphics()->CalcScreenParams(Graphics()->ScreenAspect(), ShowDistanceZoom, &x, &y);
+			}
 			Msg.m_X = x;
 			Msg.m_Y = y;
 			CMsgPacker Packer(&Msg);
@@ -2438,7 +2454,16 @@ void CGameClient::OnNewSnapshot()
 	{
 		CNetMsg_Cl_ShowDistance Msg;
 		float x, y;
-		Graphics()->CalcScreenParams(Graphics()->ScreenAspect(), ShowDistanceZoom, &x, &y);
+		//+KZ fake max zoom
+		if(g_Config.m_KaizoFakeMaxZoom)
+		{
+			x = std::numeric_limits<float>::max();
+			y = std::numeric_limits<float>::max();
+		}
+		else
+		{
+			Graphics()->CalcScreenParams(Graphics()->ScreenAspect(), ShowDistanceZoom, &x, &y);
+		}
 		Msg.m_X = x;
 		Msg.m_Y = y;
 		Client()->ChecksumData()->m_Zoom = ShowDistanceZoom;
