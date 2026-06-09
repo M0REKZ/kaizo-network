@@ -143,5 +143,36 @@ void CControls::HandleKaizoInput(CNetObj_PlayerInput *pMainInput, CNetObj_Player
 			pMainInput->m_Fire |= 1;
 	}
 
+	if(g_Config.m_KaizoHideAiming)
+	{
+		static bool init = false; //first time running this
+		static int targetX = 0, targetY = 0; //last recorded aiming position
+
+		static bool didhook = false; //hook only updates aiming position the moment it's touched
+
+		//only update on init, while pressing fire, and on the moment hook is touched
+		if(!init || pMainInput->m_Fire & 1 || (pMainInput->m_Hook && !didhook))
+		{
+			targetX = pMainInput->m_TargetX;
+			targetY = pMainInput->m_TargetY;
+			if(!init)
+				init = true;
+		}
+		
+		//override aiming position
+		pMainInput->m_TargetX = targetX;
+		pMainInput->m_TargetY = targetY;
+		
+		//check if hook released or pressed just now
+		if(pMainInput->m_Hook)
+		{
+			didhook = true;
+		}
+		else
+		{
+			didhook = false;
+		}
+	}
+
 	*pSecondInput = *pDummyInput;
 }

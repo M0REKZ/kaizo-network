@@ -327,6 +327,8 @@ int CControls::SnapInput(int *pData)
 		Send = Send || (GameClient()->m_Snap.m_pLocalCharacter && GameClient()->m_Snap.m_pLocalCharacter->m_Weapon == WEAPON_NINJA && (m_aInputData[g_Config.m_ClDummy].m_Direction || m_aInputData[g_Config.m_ClDummy].m_Jump || m_aInputData[g_Config.m_ClDummy].m_Hook));
 	}
 
+	Send |= g_Config.m_KaizoHideAiming != 0; //always send input so we always get snapshots
+
 	HandleKaizoInput(&m_aInputData[g_Config.m_ClDummy], &m_aInputData[!g_Config.m_ClDummy]);
 
 	// copy and return size
