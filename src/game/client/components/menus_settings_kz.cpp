@@ -332,6 +332,14 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 				g_Config.m_KaizoStatisticsShowSnapRate ^= 1;
 			}
 
+			Left.HSplitTop(2.0f, nullptr, &Left);
+
+			Left.HSplitTop(20.0f, &Button, &Left);
+			if(DoButton_CheckBox(&g_Config.m_KaizoKeepMenuAfterVoteInMods, Localize("Fix vote menu in F-DDrace, FoxNet, MMOTEE, etc..."), g_Config.m_KaizoKeepMenuAfterVoteInMods, &Button))
+			{
+				g_Config.m_KaizoKeepMenuAfterVoteInMods ^= 1;
+			}
+
 			Left.HSplitTop(40.0f, &Label, &SettingsBox);
 			Ui()->DoLabel(&Label, Localize("Discord Settings"), 20.0f, TEXTALIGN_ML);
 			Left.HSplitTop(40.0f, &Label, &Left);
@@ -503,7 +511,7 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 
 			SLabelProperties DangerLabelProps;
 			DangerLabelProps.SetColor(ColorRGBA(1.f,0.f,0.f));
-			Ui()->DoLabel(&Label, Localize("Some communities may consider these features as cheats while others may not.\nUSE AT YOUR OWN RISK! (Some wont work in some servers and it is NOT a bug)"), 10.0f, TEXTALIGN_ML, DangerLabelProps);
+			Ui()->DoLabel(&Label, Localize("Some communities may consider these features as cheats while others may not.\nUSE AT YOUR OWN RISK! (Some wont work in some servers and it is NOT a bug)\nAlso note that they may cause bugs in the game, try disabling them if something is wrong"), 10.0f, TEXTALIGN_ML, DangerLabelProps);
 			Right.HSplitTop(25.0f, &Label, &Right);
 
 			Right.HSplitTop(20.0f, &Button, &Right);

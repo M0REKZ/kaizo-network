@@ -1028,7 +1028,7 @@ void CMenus::RenderServerControl(CUIRect MainView)
 			if(0 <= m_CallvoteSelectedOption && m_CallvoteSelectedOption < GameClient()->m_Voting.NumOptions())
 			{
 				GameClient()->m_Voting.CallvoteOption(m_CallvoteSelectedOption, m_CallvoteReasonInput.GetString());
-				if(g_Config.m_UiCloseWindowAfterChangingSetting)
+				if(g_Config.m_UiCloseWindowAfterChangingSetting && !g_Config.m_KaizoKeepMenuAfterVoteInMods) //+KZ modified
 					SetActive(false);
 			}
 		}

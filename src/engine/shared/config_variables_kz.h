@@ -101,6 +101,7 @@ MACRO_CONFIG_INT(KaizoAlwaysAllowXSkins, kaizo_always_allow_x_skins, 0, 0, 1, CF
 MACRO_CONFIG_INT(KaizoShowXSkinsInSettings, kaizo_show_x_skins_in_settings, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Include \"x_\" prefixed skins in Skin settings")
 MACRO_CONFIG_INT(KaizoPrefer07Protocol, kaizo_prefer_07_protocol, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Always connect by using the 0.7 protocol")
 MACRO_CONFIG_INT(KaizoHideBroadcastOnChat, kaizo_hide_broadcast_on_chat, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Hide broadcasts when looking the chat")
+MACRO_CONFIG_INT(KaizoKeepMenuAfterVoteInMods, kaizo_keep_menu_after_vote_in_mods, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Dont close the menu while changing settings in F-DDrace, FoxNet, MMOTEE and other similar mods")
 
 //Idenfity other custom clients
 MACRO_CONFIG_INT(KaizoSendClientType, kaizo_send_client_type, 1, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Let know other clients that we are Kaizo Client")

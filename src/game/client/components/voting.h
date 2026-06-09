@@ -64,6 +64,9 @@ public:
 	bool IsReceivingOptions() const { return m_ReceivingOptions; }
 	int NumOptions() const { return m_NumVoteOptions; }
 	const CVoteOptionClient *FirstOption() const { return m_pFirst; }
+
+	//+KZ
+	char m_BetterVotingLastVote[512] = {'\0'};
 };
 
 #endif

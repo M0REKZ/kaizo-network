@@ -927,6 +927,8 @@ public:
 	void RenderKaizoClientUsers(CUIRect &View, CUIRect &List, CScrollRegion &ScrollRegion); //From EClient
 	void UpdateOnlinePlayerCache(); //From EClient
 	void ServerBrowserUpdate(); //From EClient
+
+	int GetGamePage() { return m_GamePage; } //+KZ
 };
 
 //+KZ removed static, added to header

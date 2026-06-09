@@ -47,6 +47,15 @@ void CVoting::Callvote(const char *pType, const char *pValue, const char *pReaso
 	Msg.m_pValue = pValue;
 	Msg.m_pReason = pReason;
 	Client()->SendPackMsgActive(&Msg, MSGFLAG_VITAL);
+
+	//+KZ
+	if(g_Config.m_KaizoKeepMenuAfterVoteInMods)
+	{
+		if(pValue && pType && !str_comp(pType, "option"))
+		{
+			str_copy(m_BetterVotingLastVote, pValue);
+		}
+	}
 }
 
 void CVoting::CallvoteSpectate(int ClientId, const char *pReason, bool ForceVote)
@@ -279,6 +288,9 @@ void CVoting::OnReset()
 	m_Yes = m_No = m_Pass = m_Total = 0;
 	m_Voted = 0;
 	m_ReceivingOptions = false;
+
+	//+KZ
+	m_BetterVotingLastVote[0] = '\0';
 }
 
 void CVoting::OnConsoleInit()
@@ -310,6 +322,16 @@ void CVoting::OnMessage(int MsgType, void *pRawMsg)
 				Client()->Notify("DDNet Vote", aBuf);
 				GameClient()->m_Sounds.Play(CSounds::CHN_GUI, SOUND_CHAT_HIGHLIGHT, 1.0f);
 			}
+
+			//+KZ better voting in mods
+			if(!str_comp(m_BetterVotingLastVote, m_aDescription))
+			{
+				if(GameClient()->m_Menus.GetGamePage() == CMenus::PAGE_CALLVOTE)
+				{
+					GameClient()->m_Menus.SetActive(false);
+				}
+			}
+			m_BetterVotingLastVote[0] = '\0'; //always reset it, its better to not close the menu than receiving a random vote that could close it
 		}
 	}
 	else if(MsgType == NETMSGTYPE_SV_VOTESTATUS)
