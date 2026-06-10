@@ -1376,32 +1376,29 @@ void CMenus::RenderServerbrowserInfoScoreboard(CUIRect View, const CServerInfo *
 
 			if(g_Config.m_KaizoShowClientType)
 			{
-				union
-				{
-					int c = 0;
-					unsigned char b[4];
-				} a, b;
-
-				a.c = CurrentClient.m_CustomSkinColorBody;
-				b.c = CurrentClient.m_CustomSkinColorFeet;
-
-				int BodyType = a.b[3];
-				int FeetType = b.b[3];
-
 				int Sprite = -1;
 				int Image = -1;
 
-				if(BodyType == CCID_COLOR_BODY_CHILLERBOTUX && FeetType == CCID_COLOR_FEET_CHILLERBOTUX)
+				if(MACRO_IS_SKIN_COLOR_CCID(
+					CurrentClient.m_CustomSkinColorBody, CurrentClient.m_CustomSkinColorFeet,
+					CCID_COLOR_BODY_CHILLERBOTUX, CCID_COLOR_FEET_CHILLERBOTUX
+				))
 				{
 					Image = IMAGE_KZ_CHILLERBOTUXICON;
 					Sprite = SPRITE_KZ_CHILLERBOTUXICON;
 				}
-				else if(BodyType == CCID_COLOR_BODY_KAIZO_CLIENT && FeetType == CCID_COLOR_FEET_KAIZO_CLIENT)
+				else if(MACRO_IS_SKIN_COLOR_CCID(
+					CurrentClient.m_CustomSkinColorBody, CurrentClient.m_CustomSkinColorFeet,
+					CCID_COLOR_BODY_KAIZO_CLIENT, CCID_COLOR_FEET_KAIZO_CLIENT
+				))
 				{
 					Image = IMAGE_KZ_KAIZOICON;
 					Sprite = SPRITE_KZ_KAIZOICON;
 				}
-				else if(BodyType == CCID_COLOR_BODY_PDUCKCLIENT && FeetType == CCID_COLOR_FEET_PDUCKCLIENT)
+				else if(MACRO_IS_SKIN_COLOR_CCID(
+					CurrentClient.m_CustomSkinColorBody, CurrentClient.m_CustomSkinColorFeet,
+					CCID_COLOR_BODY_PDUCKCLIENT, CCID_COLOR_FEET_PDUCKCLIENT
+				))
 				{
 					Image = IMAGE_KZ_DUCKICON;
 					Sprite = SPRITE_KZ_DUCKICON;

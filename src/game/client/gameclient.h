@@ -1030,7 +1030,6 @@ private:
 
 	bool m_WaitingForPointerTWPlusInfo = false;
 
-	void InsertCustomClientIdIntoSkinColor(int &BodyColor, int &FeetColor);
 	bool IsCustomClientId(int Country);
 
 	bool IsSkinPartDefault(int Dummy, int Part);

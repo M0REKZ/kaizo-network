@@ -3712,7 +3712,13 @@ void CGameClient::SendInfo(bool Start)
 		Msg.m_UseCustomColor = g_Config.m_ClPlayerUseCustomColor;
 		Msg.m_ColorBody = g_Config.m_ClPlayerColorBody;
 		Msg.m_ColorFeet = g_Config.m_ClPlayerColorFeet;
-		InsertCustomClientIdIntoSkinColor(Msg.m_ColorBody, Msg.m_ColorFeet);
+		if(g_Config.m_KaizoSendClientType)
+		{
+			MACRO_INSERT_CCID_INTO_SKIN_COLOR(
+				Msg.m_ColorBody, Msg.m_ColorFeet,
+				CCID_COLOR_BODY_KAIZO_CLIENT, CCID_COLOR_FEET_KAIZO_CLIENT
+			)
+		}
 		CMsgPacker Packer(&Msg);
 		Msg.Pack(&Packer);
 		Client()->SendMsg(IClient::CONN_MAIN, &Packer, MSGFLAG_VITAL | MSGFLAG_FLUSH);
@@ -3728,7 +3734,13 @@ void CGameClient::SendInfo(bool Start)
 		Msg.m_UseCustomColor = g_Config.m_ClPlayerUseCustomColor;
 		Msg.m_ColorBody = g_Config.m_ClPlayerColorBody;
 		Msg.m_ColorFeet = g_Config.m_ClPlayerColorFeet;
-		InsertCustomClientIdIntoSkinColor(Msg.m_ColorBody, Msg.m_ColorFeet);
+		if(g_Config.m_KaizoSendClientType)
+		{
+			MACRO_INSERT_CCID_INTO_SKIN_COLOR(
+				Msg.m_ColorBody, Msg.m_ColorFeet,
+				CCID_COLOR_BODY_KAIZO_CLIENT, CCID_COLOR_FEET_KAIZO_CLIENT
+			)
+		}
 		CMsgPacker Packer(&Msg);
 		Msg.Pack(&Packer);
 		Client()->SendMsg(IClient::CONN_MAIN, &Packer, MSGFLAG_VITAL);
@@ -3756,7 +3768,13 @@ void CGameClient::SendDummyInfo(bool Start)
 		Msg.m_UseCustomColor = g_Config.m_ClDummyUseCustomColor;
 		Msg.m_ColorBody = g_Config.m_ClDummyColorBody;
 		Msg.m_ColorFeet = g_Config.m_ClDummyColorFeet;
-		InsertCustomClientIdIntoSkinColor(Msg.m_ColorBody, Msg.m_ColorFeet);
+		if(g_Config.m_KaizoSendClientType)
+		{
+			MACRO_INSERT_CCID_INTO_SKIN_COLOR(
+				Msg.m_ColorBody, Msg.m_ColorFeet,
+				CCID_COLOR_BODY_KAIZO_CLIENT, CCID_COLOR_FEET_KAIZO_CLIENT
+			)
+		}
 		CMsgPacker Packer(&Msg);
 		Msg.Pack(&Packer);
 		Client()->SendMsg(IClient::CONN_DUMMY, &Packer, MSGFLAG_VITAL);
@@ -3772,7 +3790,13 @@ void CGameClient::SendDummyInfo(bool Start)
 		Msg.m_UseCustomColor = g_Config.m_ClDummyUseCustomColor;
 		Msg.m_ColorBody = g_Config.m_ClDummyColorBody;
 		Msg.m_ColorFeet = g_Config.m_ClDummyColorFeet;
-		InsertCustomClientIdIntoSkinColor(Msg.m_ColorBody, Msg.m_ColorFeet);
+		if(g_Config.m_KaizoSendClientType)
+		{
+			MACRO_INSERT_CCID_INTO_SKIN_COLOR(
+				Msg.m_ColorBody, Msg.m_ColorFeet,
+				CCID_COLOR_BODY_KAIZO_CLIENT, CCID_COLOR_FEET_KAIZO_CLIENT
+			)
+		}
 		CMsgPacker Packer(&Msg);
 		Msg.Pack(&Packer);
 		Client()->SendMsg(IClient::CONN_DUMMY, &Packer, MSGFLAG_VITAL);

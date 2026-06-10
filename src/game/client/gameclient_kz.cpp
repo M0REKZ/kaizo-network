@@ -170,24 +170,24 @@ void CGameClient::HandleKaizoSnapItem(const IClient::CSnapItem *pItem)
 
             //identify kaizo
 
-            union
-            {
-                int c = 0;
-                unsigned char b[4];
-            } bodyc, feetc;
-
-            bodyc.c = pInfo->m_ColorBody;
-            feetc.c = pInfo->m_ColorFeet;
-
-            if(bodyc.b[3] == CCID_COLOR_BODY_KAIZO_CLIENT && feetc.b[3] == CCID_COLOR_FEET_KAIZO_CLIENT)
+            if(MACRO_IS_SKIN_COLOR_CCID(
+                pInfo->m_ColorBody, pInfo->m_ColorFeet,
+                CCID_COLOR_BODY_KAIZO_CLIENT, CCID_COLOR_FEET_KAIZO_CLIENT
+            ))
             {
                 pClient->m_CustomClient = CUSTOM_CLIENT_ID_KAIZO_NETWORK;
             }
-            else if(bodyc.b[3] == CCID_COLOR_BODY_CHILLERBOTUX && feetc.b[3] == CCID_COLOR_FEET_CHILLERBOTUX)
+            else if(MACRO_IS_SKIN_COLOR_CCID(
+                pInfo->m_ColorBody, pInfo->m_ColorFeet,
+                CCID_COLOR_BODY_CHILLERBOTUX, CCID_COLOR_FEET_CHILLERBOTUX
+            ))
             {
                 pClient->m_CustomClient = CUSTOM_CLIENT_ID_CHILLERBOTUX;
             }
-            else if(bodyc.b[3] == CCID_COLOR_BODY_PDUCKCLIENT && feetc.b[3] == CCID_COLOR_FEET_PDUCKCLIENT)
+            else if(MACRO_IS_SKIN_COLOR_CCID(
+                pInfo->m_ColorBody, pInfo->m_ColorFeet,
+                CCID_COLOR_BODY_PDUCKCLIENT, CCID_COLOR_FEET_PDUCKCLIENT
+            ))
             {
                 pClient->m_CustomClient = CUSTOM_CLIENT_ID_PDUCKCLIENT;
             }
@@ -426,33 +426,6 @@ void CGameClient::KaizoPostUpdate()
             }
         }
     }
-}
-
-void CGameClient::InsertCustomClientIdIntoSkinColor(int &BodyColor, int &FeetColor)
-{
-    if(!g_Config.m_KaizoSendClientType)
-    {
-        return;
-    }
-
-    union
-    {
-        int c = 0;
-        unsigned char b[4];
-    } a,b;
-
-    a.c = BodyColor;
-    b.c = FeetColor;
-
-    //printf("color %d %d %d %d\n", a.b[0], a.b[1], a.b[2], a.b[3]);
-    
-    //alpha is unused
-    a.b[3] = (unsigned char)CCID_COLOR_BODY_KAIZO_CLIENT;
-    b.b[3] = (unsigned char)CCID_COLOR_FEET_KAIZO_CLIENT;
-    BodyColor = a.c;
-    FeetColor = b.c;
-
-	return;
 }
 
 bool CGameClient::IsCustomClientId(int Country)
