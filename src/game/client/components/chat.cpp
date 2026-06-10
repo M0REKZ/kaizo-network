@@ -244,6 +244,9 @@ void CChat::OnInit()
 	Console()->Chain("cl_chat_old", ConchainChatOld, this);
 	Console()->Chain("cl_chat_size", ConchainChatFontSize, this);
 	Console()->Chain("cl_chat_width", ConchainChatWidth, this);
+
+	//+KZ
+	m_EmojiKZ.Init(Kernel());
 }
 
 bool CChat::OnInput(const IInput::CEvent &Event)
@@ -1358,6 +1361,14 @@ void CChat::SendChat(int Team, const char *pLine)
 	// don't send empty messages
 	if(*str_utf8_skip_whitespaces(pLine) == '\0')
 		return;
+
+	std::string EmojizedString;
+
+	if(g_Config.m_KaizoEmoticonToEmoji)
+	{
+		EmojizedString = m_EmojiKZ.Emojize(pLine);
+		pLine = EmojizedString.c_str();
+	}
 
 	m_LastChatSend = time();
 

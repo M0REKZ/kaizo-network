@@ -18,6 +18,9 @@
 
 #include <vector>
 
+//+KZ
+#include <engine/shared/emoji_kz.h>
+
 constexpr auto SAVES_FILE = "ddnet-saves.txt";
 
 class CChat : public CComponent
@@ -216,5 +219,7 @@ public:
 
 	//+KZ
 	bool IsShowing() { return m_Show; }
+private:
+	CEmojiKZ m_EmojiKZ;
 };
 #endif

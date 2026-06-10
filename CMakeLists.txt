@@ -1489,6 +1489,7 @@ set(EXPECTED_DATA
   kz/chillerbotux.png
   kz/crown.png
   kz/duckicon.png
+  kz/emojis.json
   kz/fclient.png
   kz/gamer.png
   kz/gui_logo.png
@@ -2171,6 +2172,8 @@ set_src(ENGINE_SHARED GLOB_RECURSE src/engine/shared
   econ.cpp
   econ.h
   engine.cpp
+  emoji_kz.cpp
+  emoji_kz.h
   fifo.cpp
   fifo.h
   filecollection.cpp
