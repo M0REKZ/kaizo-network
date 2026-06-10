@@ -60,15 +60,43 @@ int CResources::FileScan(const char *pName, int IsDir, int DirType, void *pUser)
 
 void CResources::OnInit()
 {
-	for (int index = 0; index < 64; index++)
+	for (int index = 0; index < MAX_RESOURCES; index++)
+	{
+		m_pTasks[index].m_pTask = nullptr;
+	}
+
+	for (int index = 0; index < MAX_RESOURCES; index++)
 	{
 		str_copy(ResourceMapping[index], "\0", 64);
 	}
+
+	str_copy(m_DownloadBaseUrl, "https://raw.githubusercontent.com/Pointer31/teeworlds-custom-resources/refs/heads/main/");
 
 	m_aResources.clear();
 	Storage()->ListDirectory(IStorage::TYPE_ALL, "resources", FileScan, this);
 	
 	dbg_assert(Find("unknown") >= 0, "data/resources/unknown.png has not been loaded");
+}
+
+void CResources::OnUpdate()
+{
+	for (int index = 0; index < MAX_RESOURCES; index++)
+	{
+		if (m_pTasks[index].m_pTask != nullptr && m_pTasks[index].m_pTask->Done())
+		{
+			// reload list of resources
+			m_aResources.clear();
+			Storage()->ListDirectory(IStorage::TYPE_ALL, "resources", FileScan, this);
+			dbg_assert(Find("unknown") >= 0, "data/resources/unknown.png has not been loaded");
+
+			// send I have resource message
+			CNetMsg_Cl_IHaveResource MsgIHaveResource;
+			MsgIHaveResource.m_Id = m_pTasks[index].m_ResourceId;
+			Client()->SendPackMsgActive(&MsgIHaveResource, MSGFLAG_VITAL);
+
+			m_pTasks[index].m_pTask = nullptr;
+		}
+	}
 }
 
 const CResources::CResource *CResources::Get(int ResourceId)
@@ -118,6 +146,28 @@ void CResources::OnResourceMessage(CNetMsg_Sv_ImageResourceTWPlus* msg)
 		CNetMsg_Cl_IHaveResourceTWPlus MsgIHaveResource;
 		MsgIHaveResource.m_Id = Id;
 		Client()->SendPackMsgActive(&MsgIHaveResource, MSGFLAG_VITAL);
+	}
+	else
+	{
+		char downloadUrl [256];
+		char saveUrl [256];
+		str_format(downloadUrl, sizeof(downloadUrl), "%s%s.png", m_DownloadBaseUrl, pName);
+		str_format(saveUrl, sizeof(saveUrl), "resources/%s.png", pName);
+
+		int newTaskIndex = -1;
+		for (int index = 0; index < MAX_RESOURCES; index++)
+			if (m_pTasks[index].m_pTask == nullptr)
+				newTaskIndex = index;
+
+		if (newTaskIndex >= 0)
+		{
+			m_pTasks[newTaskIndex].m_pTask = HttpGetFile(downloadUrl, Storage(), saveUrl, IStorage::TYPE_SAVE);
+			m_pTasks[newTaskIndex].m_pTask->Timeout(CTimeout{10000, 0, 500, 10});
+			// Task->SkipByFileTime(false); // Always re-download.
+			m_pTasks[newTaskIndex].m_pTask->IpResolve(IPRESOLVE::V4);
+			Http()->Run(m_pTasks[newTaskIndex].m_pTask);
+			m_pTasks[newTaskIndex].m_ResourceId = Id;
+		}
 	}
 
 	str_copy(ResourceMapping[Id], pName, sizeof(ResourceMapping[Id]));
