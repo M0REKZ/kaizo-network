@@ -340,6 +340,27 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 				g_Config.m_KaizoKeepMenuAfterVoteInMods ^= 1;
 			}
 
+			Left.HSplitTop(2.0f, nullptr, &Left);
+
+			{ //to make a char buffer only accesible here
+
+				static char s_aBuf[128] = {'\0'};
+				static int s_PrevKaizoEmoticonToEmoji = -1;
+
+				if(g_Config.m_KaizoEmoticonToEmoji != s_PrevKaizoEmoticonToEmoji)
+				{
+					const char *pHamburger = g_Config.m_KaizoEmoticonToEmoji ? "🍔" : ":hamburger:";
+					str_format(s_aBuf, sizeof(s_aBuf), "%s %s",Localize("Send :emoticons: as emojis"), pHamburger);
+					s_PrevKaizoEmoticonToEmoji = g_Config.m_KaizoEmoticonToEmoji;
+				}
+
+				Left.HSplitTop(20.0f, &Button, &Left);
+				if(DoButton_CheckBox(&g_Config.m_KaizoEmoticonToEmoji, s_aBuf, g_Config.m_KaizoEmoticonToEmoji, &Button))
+				{
+					g_Config.m_KaizoEmoticonToEmoji ^= 1;
+				}
+			}
+
 			Left.HSplitTop(40.0f, &Label, &SettingsBox);
 			Ui()->DoLabel(&Label, Localize("Discord Settings"), 20.0f, TEXTALIGN_ML);
 			Left.HSplitTop(40.0f, &Label, &Left);
