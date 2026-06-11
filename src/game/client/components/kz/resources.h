@@ -17,6 +17,7 @@ class CResources : public CComponent
 public:
 	int Sizeof() const override { return sizeof(*this); }
 	void OnUpdate() override;
+	void OnStateChange(int NewState, int OldState) override;
 	struct CResource
 	{
 		char m_aName[MAX_RESOURCE_ARRAY_SIZE];

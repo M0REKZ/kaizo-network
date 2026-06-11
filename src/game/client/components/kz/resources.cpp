@@ -70,7 +70,7 @@ void CResources::OnInit()
 		str_copy(ResourceMapping[index], "\0", 64);
 	}
 
-	m_DownloadBaseUrl[0] = '\0';
+	str_copy(m_DownloadBaseUrl, g_Config.m_KaizoResourcesDownloadUrl, 64);
 
 	m_aResources.clear();
 	Storage()->ListDirectory(IStorage::TYPE_ALL, "resources", FileScan, this);
@@ -90,12 +90,26 @@ void CResources::OnUpdate()
 			dbg_assert(Find("unknown") >= 0, "data/resources/unknown.png has not been loaded");
 
 			// send I have resource message
-			CNetMsg_Cl_IHaveResource MsgIHaveResource;
+			CNetMsg_Cl_IHaveResourceTWPlus MsgIHaveResource;
 			MsgIHaveResource.m_Id = m_pTasks[index].m_ResourceId;
 			Client()->SendPackMsgActive(&MsgIHaveResource, MSGFLAG_VITAL);
 
 			m_pTasks[index].m_pTask = nullptr;
 		}
+	}
+}
+
+void CResources::OnStateChange(int NewState, int OldState)
+{
+	// clear mappings and url when disconnected from a server
+	if (NewState == IClient::STATE_OFFLINE)
+	{
+		for (int index = 0; index < MAX_RESOURCES; index++)
+		{
+			str_copy(ResourceMapping[index], "\0", 64);
+		}
+
+		str_copy(m_DownloadBaseUrl, g_Config.m_KaizoResourcesDownloadUrl, 64);
 	}
 }
 
@@ -121,6 +135,9 @@ int CResources::Find(const char *pName)
 
 void CResources::OnResourceMessage(CNetMsg_Sv_ImageResourceTWPlus* msg)
 {
+	if (!g_Config.m_KaizoResourcesEnable)
+		return;
+
 	char aBuf[IO_MAX_PATH_LENGTH];
 
 	int Id = msg->m_Id;
@@ -147,7 +164,7 @@ void CResources::OnResourceMessage(CNetMsg_Sv_ImageResourceTWPlus* msg)
 		MsgIHaveResource.m_Id = Id;
 		Client()->SendPackMsgActive(&MsgIHaveResource, MSGFLAG_VITAL);
 	}
-	else
+	else if (g_Config.m_KaizoResourcesDownload >= 1)
 	{
 		char downloadUrl [256];
 		char saveUrl [256];
@@ -176,5 +193,6 @@ void CResources::OnResourceMessage(CNetMsg_Sv_ImageResourceTWPlus* msg)
 
 void CResources::OnResourceDownloadUrlMessage(CNetMsg_Sv_ResourceDownloadBaseUrlTWPlus* msg)
 {
-	str_copy(m_DownloadBaseUrl, msg->m_pUrl);
+	if (g_Config.m_KaizoResourcesDownload == 2)
+		str_copy(m_DownloadBaseUrl, msg->m_pUrl);
 }

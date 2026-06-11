@@ -167,6 +167,12 @@ MACRO_CONFIG_INT(KaizoSplitsShowBestPossible, kaizo_splits_showbestpossible, 0, 
 MACRO_CONFIG_INT(KaizoSplitsLabels, kaizo_splits_labels, 1, 0, 2, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Whether to show labels for items on the splits HUD (0: no, 1: small, 2: full size)")
 MACRO_CONFIG_INT(KaizoSplitsX, kaizo_splits_x, 22, 0, 100, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Horizontal position of splits as percentage of screen width")
 
+//From Duck/Infclass Client
+// Custom Resource Protocol
+MACRO_CONFIG_INT(KaizoResourcesEnable, kaizo_resources_enable, 1, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Whether to enable the custom resource system/protocol")
+MACRO_CONFIG_INT(KaizoResourcesDownload, kaizo_resources_download, 2, 0, 2, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Whether to download custom resources (2=allow server to set the url)")
+MACRO_CONFIG_STR(KaizoResourcesDownloadUrl, kaizo_resources_download_url, 128, "", CFGFLAG_CLIENT | CFGFLAG_SAVE, "The URL to be used for downloading custom resources if kaizo_resources_download is enabled")
+
 //*=========================================*
 //DANGEROUS
 //*=========================================*
