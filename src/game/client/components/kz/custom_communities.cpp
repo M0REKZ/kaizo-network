@@ -8,14 +8,11 @@
 #include <engine/external/json-parser/json.h>
 #include <engine/shared/config.h>
 
-//+KZ
-extern CKZConfigString g_KaizoConfig_KaizoCustomCommunitiesUrl;
-
 static constexpr char CUSTOM_COMMUNITIES_DDNET_INFO_FILE[] = "custom-communities-ddnet-info.json";
 
 void CCustomCommunities::DownloadCustomCommunitiesDDNetInfo()
 {
-	if(g_KaizoConfig_KaizoCustomCommunitiesUrl.m_pStr[0] == '\0')
+	if(g_Config.m_KaizoCustomCommunitiesUrl[0] == '\0')
 	{
 		LoadCustomCommunitiesDDNetInfo();
 	}
@@ -26,7 +23,7 @@ void CCustomCommunities::DownloadCustomCommunitiesDDNetInfo()
 			m_pCustomCommunitiesDDNetInfoTask->Abort();
 			m_pCustomCommunitiesDDNetInfoTask = nullptr;
 		}
-		m_pCustomCommunitiesDDNetInfoTask = HttpGetFile(g_KaizoConfig_KaizoCustomCommunitiesUrl.m_pStr, Storage(), CUSTOM_COMMUNITIES_DDNET_INFO_FILE, IStorage::TYPE_SAVE);
+		m_pCustomCommunitiesDDNetInfoTask = HttpGetFile(g_Config.m_KaizoCustomCommunitiesUrl, Storage(), CUSTOM_COMMUNITIES_DDNET_INFO_FILE, IStorage::TYPE_SAVE);
 		m_pCustomCommunitiesDDNetInfoTask->Timeout(CTimeout{10000, 0, 500, 10});
 		m_pCustomCommunitiesDDNetInfoTask->SkipByFileTime(false); // Always re-download.
 		// Use ipv4 so we can know the ingame ip addresses of players before they join game servers
@@ -41,7 +38,7 @@ void CCustomCommunities::LoadCustomCommunitiesDDNetInfo()
 	dbg_assert(pServerBrowser, "pServerBrowser is nullptr");
 
 	// Handle disabled case
-	if(g_KaizoConfig_KaizoCustomCommunitiesUrl.m_pStr[0] == '\0')
+	if(g_Config.m_KaizoCustomCommunitiesUrl[0] == '\0')
 	{
 		pServerBrowser->m_CustomCommunitiesFunction = nullptr;
 		pServerBrowser->LoadDDNetServers();

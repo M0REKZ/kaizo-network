@@ -85,25 +85,6 @@
 #include <chrono>
 #include <limits>
 
-//+KZ
-extern int g_KaizoConfig_KaizoSleepingInMenuPlayers;
-extern int g_KaizoConfig_KaizoFakeMaxZoom;
-extern int g_KaizoConfig_KaizoFastInput;
-extern int g_KaizoConfig_KaizoFastInputAmount;
-extern int g_KaizoConfig_KaizoFastInputOthers;
-extern int g_KaizoConfig_KaizoApplyGuessedInput;
-extern int g_KaizoConfig_SvGoresQuadsEnable;
-extern int g_KaizoConfig_KaizoPredictGameTypes;
-extern int g_KaizoConfig_KaizoPredictOthersEffects;
-extern int g_KaizoConfig_KaizoUnpredOthersInFreeze;
-extern int g_KaizoConfig_KaizoRemoveAnti;
-extern int g_KaizoConfig_KaizoUnfreezeLagDelayTicks;
-extern int g_KaizoConfig_KaizoAntiPingImproved;
-extern int g_KaizoConfig_KaizoAntiPingUncertaintyScale;
-extern int g_KaizoConfig_KaizoAntiPingNegativeBuffer;
-extern int g_KaizoConfig_KaizoAntiPingStableDirection;
-extern int g_KaizoConfig_KaizoSendClientType;
-
 using namespace std::chrono_literals;
 
 const char *CGameClient::Version() const { return GAME_VERSION; }
@@ -1975,7 +1956,7 @@ void CGameClient::OnNewSnapshot()
 						m_aClients[Item.m_Id].m_Snapped = *((const CNetObj_Character *)Item.m_pData);
 						m_aClients[Item.m_Id].m_Evolved = m_Snap.m_aCharacters[Item.m_Id].m_Cur;
 
-						if(g_KaizoConfig_KaizoSleepingInMenuPlayers && (m_Snap.m_aCharacters[Item.m_Id].m_Cur.m_PlayerFlags & PLAYERFLAG_IN_MENU)) //+KZ added
+						if(g_Config.m_KaizoSleepingInMenuPlayers && (m_Snap.m_aCharacters[Item.m_Id].m_Cur.m_PlayerFlags & PLAYERFLAG_IN_MENU)) //+KZ added
 							m_aClients[Item.m_Id].m_Afk = true;
 					}
 					else
@@ -2430,7 +2411,7 @@ void CGameClient::OnNewSnapshot()
 	}
 
 	//+KZ fake max zoom
-	if(g_KaizoConfig_KaizoFakeMaxZoom)
+	if(g_Config.m_KaizoFakeMaxZoom)
 	{
 		Zoom = std::numeric_limits<float>::max(); //is not that value high enough?
 		ShowDistanceZoom = std::numeric_limits<float>::max();
@@ -2443,7 +2424,7 @@ void CGameClient::OnNewSnapshot()
 			CNetMsg_Cl_ShowDistance Msg;
 			float x, y;
 			//+KZ fake max zoom
-			if(g_KaizoConfig_KaizoFakeMaxZoom)
+			if(g_Config.m_KaizoFakeMaxZoom)
 			{
 				x = std::numeric_limits<float>::max();
 				y = std::numeric_limits<float>::max();
@@ -2475,7 +2456,7 @@ void CGameClient::OnNewSnapshot()
 		CNetMsg_Cl_ShowDistance Msg;
 		float x, y;
 		//+KZ fake max zoom
-		if(g_KaizoConfig_KaizoFakeMaxZoom)
+		if(g_Config.m_KaizoFakeMaxZoom)
 		{
 			x = std::numeric_limits<float>::max();
 			y = std::numeric_limits<float>::max();
@@ -2764,13 +2745,13 @@ void CGameClient::OnPredict()
 
 	// predict //+KZ modified for fast input commit
 	int FastInputTicks = 0;
-	if(g_KaizoConfig_KaizoFastInput)
-		FastInputTicks = (g_KaizoConfig_KaizoFastInputAmount + 19) / 20;
+	if(g_Config.m_KaizoFastInput)
+		FastInputTicks = (g_Config.m_KaizoFastInputAmount + 19) / 20;
 	int FinalTickRegular = Client()->PredGameTick(g_Config.m_ClDummy); // The vanilla final tick disregarding fast input
 	
 	int FinalTickSelf = FinalTickRegular + FastInputTicks; // the final tick for just our local tee
 	int FinalTickOthers = FinalTickSelf; // the final tick for all other tees
-	if(g_KaizoConfig_KaizoFastInput && !g_KaizoConfig_KaizoFastInputOthers)
+	if(g_Config.m_KaizoFastInput && !g_Config.m_KaizoFastInputOthers)
 		FinalTickOthers = FinalTickSelf - FastInputTicks;
 	
 	int LocalTee = g_Config.m_ClDummy ^ m_IsDummySwapping;
@@ -2816,7 +2797,7 @@ void CGameClient::OnPredict()
 		bool DummyFirst = pInputData && pDummyInputData && pDummyChar->GetCid() < pLocalChar->GetCid();
 
 		//+KZ fast input commit
-		if(g_KaizoConfig_KaizoFastInput && Tick > FinalTickRegular)
+		if(g_Config.m_KaizoFastInput && Tick > FinalTickRegular)
 		{
 			pInputData = &m_Controls.m_aFastInput[LocalTee];
 			if(GetDummyFastInput(DummyFastInput, pDummyInputData, pDummyChar, LocalTee, DummyTee))
@@ -2838,7 +2819,7 @@ void CGameClient::OnPredict()
 			pDummyChar->OnDirectInput(pDummyInputData);
 
 		//+KZ guessed input
-		if(g_KaizoConfig_KaizoApplyGuessedInput)
+		if(g_Config.m_KaizoApplyGuessedInput)
 		{
 			for(auto &PlayerClient : m_aClients)
 			{
@@ -2869,7 +2850,7 @@ void CGameClient::OnPredict()
 			pDummyChar->OnPredictedInput(pDummyInputData);
 
 		//+KZ guessed input
-		if(g_KaizoConfig_KaizoApplyGuessedInput)
+		if(g_Config.m_KaizoApplyGuessedInput)
 		{
 			for(auto &PlayerClient : m_aClients)
 			{
@@ -2896,7 +2877,7 @@ void CGameClient::OnPredict()
 		//+KZ added this for quads
 		m_PredictedWorld.m_Core.m_WorldTickKZ = Tick;
 		m_PredictedWorld.m_Core.SetTime(static_cast<double>(Tick - m_LastRoundStartTick) / m_PredictedWorld.GameTickSpeed());
-		if(g_KaizoConfig_SvGoresQuadsEnable)
+		if(g_Config.m_SvGoresQuadsEnable)
 			m_Collision.UpdateQuadCache(&m_PredictedWorld.m_Core);
 
 		m_PredictedWorld.Tick();
@@ -2905,7 +2886,7 @@ void CGameClient::OnPredict()
 		m_PredictedWorld.m_WorldConfig.m_PredictEvents = TempPredEventState;
 
 		//+KZ
-		if(g_KaizoConfig_KaizoPredictGameTypes && m_PredControllerKZ.m_pController)
+		if(g_Config.m_KaizoPredictGameTypes && m_PredControllerKZ.m_pController)
 			m_PredControllerKZ.m_pController->Tick(m_PredictedWorld);
 
 		// fetch the current characters
@@ -2970,7 +2951,7 @@ void CGameClient::OnPredict()
 			//+KZ
 			if(g_Config.m_ClPredict && !m_SuppressEvents)
 			{
-				if(g_KaizoConfig_KaizoPredictOthersEffects)
+				if(g_Config.m_KaizoPredictOthersEffects)
 				{
 					for(int i = 0; i < MAX_CLIENTS; i++)
 					{
@@ -3013,7 +2994,7 @@ void CGameClient::OnPredict()
 	}
 
 	//T-Client
-	if(g_KaizoConfig_KaizoRemoveAnti)
+	if(g_Config.m_KaizoRemoveAnti)
 	{
 		m_ExtraPredictedWorld.CopyWorldClean(&m_PredictedWorld);
 
@@ -3028,7 +3009,7 @@ void CGameClient::OnPredict()
 		{
 			bool Unfrozen = false;
 			bool Frozen = false;
-			for(int i = 0; i < g_KaizoConfig_KaizoUnfreezeLagDelayTicks; i++)
+			for(int i = 0; i < g_Config.m_KaizoUnfreezeLagDelayTicks; i++)
 			{
 				if(!pExtraChar)
 					continue;
@@ -3047,14 +3028,14 @@ void CGameClient::OnPredict()
 				else
 				{
 					pExtraChar->m_AliveAccumulation = std::max(pExtraChar->m_AliveAccumulation, 1);
-					pExtraChar->m_AliveAccumulation = std::min(pExtraChar->m_AliveAccumulation + 1, g_KaizoConfig_KaizoUnfreezeLagDelayTicks);
+					pExtraChar->m_AliveAccumulation = std::min(pExtraChar->m_AliveAccumulation + 1, g_Config.m_KaizoUnfreezeLagDelayTicks);
 				}
 			}
 		}
 	}
 
 	// detect mispredictions of other players and make corrections smoother when possible
-	if(!g_KaizoConfig_KaizoAntiPingImproved && g_Config.m_ClAntiPingSmooth && Predict() && AntiPingPlayers() && m_NewTick && m_PredictedTick >= MIN_TICK && absolute(m_PredictedTick - Client()->PredGameTick(g_Config.m_ClDummy)) <= 1 && absolute(Client()->GameTick(g_Config.m_ClDummy) - Client()->PrevGameTick(g_Config.m_ClDummy)) <= 2)
+	if(!g_Config.m_KaizoAntiPingImproved && g_Config.m_ClAntiPingSmooth && Predict() && AntiPingPlayers() && m_NewTick && m_PredictedTick >= MIN_TICK && absolute(m_PredictedTick - Client()->PredGameTick(g_Config.m_ClDummy)) <= 1 && absolute(Client()->GameTick(g_Config.m_ClDummy) - Client()->PrevGameTick(g_Config.m_ClDummy)) <= 2)
 	{
 		int PredTime = std::clamp(Client()->GetPredictionTime(), 0, 800);
 		float SmoothPace = 4 - 1.5f * PredTime / 800.f; // smoothing pace (a lower value will make the smoothing quicker)
@@ -3113,7 +3094,7 @@ void CGameClient::OnPredict()
 	// TClient
 	// New antiping smoothing
 	CCharacter *pSmoothLocalChar = m_PredSmoothingWorld.GetCharacterById(m_Snap.m_LocalClientId);
-	if(g_KaizoConfig_KaizoAntiPingImproved &&
+	if(g_Config.m_KaizoAntiPingImproved &&
 		Predict() && AntiPingPlayers() &&
 		pSmoothLocalChar &&
 		RealPredTick && m_PredictedTick >= MIN_TICK)
@@ -3280,11 +3261,11 @@ void CGameClient::OnPredict()
 			float TickDuration = (float)1000 / (float)Client()->GameTickSpeed();
 
 			// Manage uncertainty value
-			float PredTimeScale = (float)g_KaizoConfig_KaizoAntiPingUncertaintyScale / 100.0f;
+			float PredTimeScale = (float)g_Config.m_KaizoAntiPingUncertaintyScale / 100.0f;
 			float TickSize = TickDuration / ((float)PredTime * PredTimeScale); // 20ms / PredTime
 			float PrevConfidence = 1.0f - m_aClients[i].m_Uncertainty;
 			float NewConfidence = PrevConfidence - Uncertainty + TickSize;
-			float MinConfidence = g_KaizoConfig_KaizoAntiPingNegativeBuffer ? -1.0f : 0.0f;
+			float MinConfidence = g_Config.m_KaizoAntiPingNegativeBuffer ? -1.0f : 0.0f;
 			NewConfidence = std::clamp(NewConfidence, MinConfidence, 1.0f); // A certain about of "negative buffer" is allowed
 			m_aClients[i].m_Uncertainty = 1.0f - NewConfidence;
 			NewConfidence = std::max(0.0f, NewConfidence);
@@ -3298,7 +3279,7 @@ void CGameClient::OnPredict()
 				ConfidenceParallel = vec2(0, 0);
 			vec2 ConfidencePerp = PredVector - ConfidenceParallel;
 
-			if(!g_KaizoConfig_KaizoAntiPingStableDirection)
+			if(!g_Config.m_KaizoAntiPingStableDirection)
 				TrustFactor = 0.0f;
 
 			vec2 ConfidenceVector = ConfidenceParallel * std::max(TrustFactor, NewConfidence) + ConfidencePerp * NewConfidence;
@@ -3323,7 +3304,7 @@ void CGameClient::OnPredict()
 		}
 	}
 	// Copy the current pred world so on the next tick we have the "previous" pred world to advance and test against
-	if(m_NewPredictedTick && g_KaizoConfig_KaizoAntiPingImproved)
+	if(m_NewPredictedTick && g_Config.m_KaizoAntiPingImproved)
 		m_PredSmoothingWorld.CopyWorldClean(&m_RegularPredictedWorld);
 
 	for(int i = 0; i < MAX_CLIENTS; i++)
@@ -3731,7 +3712,7 @@ void CGameClient::SendInfo(bool Start)
 		Msg.m_UseCustomColor = g_Config.m_ClPlayerUseCustomColor;
 		Msg.m_ColorBody = g_Config.m_ClPlayerColorBody;
 		Msg.m_ColorFeet = g_Config.m_ClPlayerColorFeet;
-		if(g_KaizoConfig_KaizoSendClientType)
+		if(g_Config.m_KaizoSendClientType)
 		{
 			MACRO_INSERT_CCID_INTO_SKIN_COLOR(
 				Msg.m_ColorBody, Msg.m_ColorFeet,
@@ -3753,7 +3734,7 @@ void CGameClient::SendInfo(bool Start)
 		Msg.m_UseCustomColor = g_Config.m_ClPlayerUseCustomColor;
 		Msg.m_ColorBody = g_Config.m_ClPlayerColorBody;
 		Msg.m_ColorFeet = g_Config.m_ClPlayerColorFeet;
-		if(g_KaizoConfig_KaizoSendClientType)
+		if(g_Config.m_KaizoSendClientType)
 		{
 			MACRO_INSERT_CCID_INTO_SKIN_COLOR(
 				Msg.m_ColorBody, Msg.m_ColorFeet,
@@ -3787,7 +3768,7 @@ void CGameClient::SendDummyInfo(bool Start)
 		Msg.m_UseCustomColor = g_Config.m_ClDummyUseCustomColor;
 		Msg.m_ColorBody = g_Config.m_ClDummyColorBody;
 		Msg.m_ColorFeet = g_Config.m_ClDummyColorFeet;
-		if(g_KaizoConfig_KaizoSendClientType)
+		if(g_Config.m_KaizoSendClientType)
 		{
 			MACRO_INSERT_CCID_INTO_SKIN_COLOR(
 				Msg.m_ColorBody, Msg.m_ColorFeet,
@@ -3809,7 +3790,7 @@ void CGameClient::SendDummyInfo(bool Start)
 		Msg.m_UseCustomColor = g_Config.m_ClDummyUseCustomColor;
 		Msg.m_ColorBody = g_Config.m_ClDummyColorBody;
 		Msg.m_ColorFeet = g_Config.m_ClDummyColorFeet;
-		if(g_KaizoConfig_KaizoSendClientType)
+		if(g_Config.m_KaizoSendClientType)
 		{
 			MACRO_INSERT_CCID_INTO_SKIN_COLOR(
 				Msg.m_ColorBody, Msg.m_ColorFeet,
@@ -4348,7 +4329,7 @@ void CGameClient::UpdateRenderedCharacters()
 				m_aClients[i].m_IsPredicted ? Client()->PredIntraGameTick(g_Config.m_ClDummy) : Client()->IntraGameTick(g_Config.m_ClDummy));
 
 			// +KZ From TClient
-			if(g_KaizoConfig_KaizoFastInput && (i == m_Snap.m_LocalClientId || (PredictDummy() && i == m_aLocalIds[!g_Config.m_ClDummy])))
+			if(g_Config.m_KaizoFastInput && (i == m_Snap.m_LocalClientId || (PredictDummy() && i == m_aLocalIds[!g_Config.m_ClDummy])))
 				Pos = GetFastInputPos(i);
 
 			if(i == m_Snap.m_LocalClientId || (PredictDummy() && i == m_aLocalIds[!g_Config.m_ClDummy]))
@@ -4367,20 +4348,20 @@ void CGameClient::UpdateRenderedCharacters()
 				m_aClients[i].m_RenderPrev.m_Angle = m_Snap.m_aCharacters[i].m_Prev.m_Angle;
 				m_aClients[i].m_RenderCur.m_Angle = m_Snap.m_aCharacters[i].m_Cur.m_Angle;
 
-				if(!g_KaizoConfig_KaizoAntiPingImproved && g_Config.m_ClAntiPingSmooth)
+				if(!g_Config.m_KaizoAntiPingImproved && g_Config.m_ClAntiPingSmooth)
 					Pos = GetSmoothPos(i);
 
 				//TClient
-				if(g_KaizoConfig_KaizoAntiPingImproved && m_aClients[i].m_ValidAntipingSmooth)
+				if(g_Config.m_KaizoAntiPingImproved && m_aClients[i].m_ValidAntipingSmooth)
 					Pos = mix(m_aClients[i].m_PrevImprovedPredPos, m_aClients[i].m_ImprovedPredPos, Client()->PredIntraGameTick(g_Config.m_ClDummy));
 			
 				//TClient
-				if(g_KaizoConfig_KaizoRemoveAnti && m_pClient->m_IsLocalFrozen)
+				if(g_Config.m_KaizoRemoveAnti && m_pClient->m_IsLocalFrozen)
 					Pos = GetFreezePos(i);
-				else if(g_KaizoConfig_KaizoFastInput && g_KaizoConfig_KaizoFastInputOthers && !g_KaizoConfig_KaizoAntiPingImproved)
+				else if(g_Config.m_KaizoFastInput && g_Config.m_KaizoFastInputOthers && !g_Config.m_KaizoAntiPingImproved)
 					Pos = GetFastInputPos(i);
 				
-				if(g_KaizoConfig_KaizoUnpredOthersInFreeze && Client()->m_IsLocalFrozen)
+				if(g_Config.m_KaizoUnpredOthersInFreeze && Client()->m_IsLocalFrozen)
 					Pos = UnpredPos;
 			}
 		}
@@ -4524,7 +4505,7 @@ void CGameClient::DetectStrongHook()
 
 vec2 CGameClient::GetSmoothPos(int ClientId)
 {
-	const int FastInputTicks = g_KaizoConfig_KaizoFastInput ? (g_KaizoConfig_KaizoFastInputAmount + 19) / 20 : 0;
+	const int FastInputTicks = g_Config.m_KaizoFastInput ? (g_Config.m_KaizoFastInputAmount + 19) / 20 : 0;
 	vec2 Pos = mix(m_aClients[ClientId].m_PrevPredicted.m_Pos, m_aClients[ClientId].m_Predicted.m_Pos, Client()->PredIntraGameTick(g_Config.m_ClDummy));
 	int64_t Now = time_get();
 	for(int i = 0; i < 2; i++)
@@ -4539,7 +4520,7 @@ vec2 CGameClient::GetSmoothPos(int ClientId)
 			Client()->GetSmoothTick(&SmoothTick, &SmoothIntra, MixAmount);
 
 			//+KZ from tclient
-			if(ClientId != m_Snap.m_LocalClientId && g_KaizoConfig_KaizoFastInputOthers && FastInputTicks > 0)
+			if(ClientId != m_Snap.m_LocalClientId && g_Config.m_KaizoFastInputOthers && FastInputTicks > 0)
 				SmoothTick += FastInputTicks;
 
 			if(SmoothTick > 0 &&

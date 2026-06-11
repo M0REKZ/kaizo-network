@@ -27,11 +27,6 @@
 
 #include <cmath>
 
-//+KZ
-extern int g_KaizoConfig_KaizoSplitsX;
-extern int g_KaizoConfig_KaizoHudRealPosition;
-extern int g_KaizoConfig_KaizoHudRealVelocity;
-
 CHud::CHud()
 {
 	m_FPSTextContainerIndex.Reset();
@@ -744,7 +739,7 @@ void CHud::RenderAmmoHealthAndArmor(const CNetObj_Character *pCharacter)
 	int QuadOffsetSixup = (IsSixupGameSkin ? 10 : 0);
 
 	//From CMClient
-	float SplitsWidth = g_KaizoConfig_KaizoSplitsX == 0 ? m_SplitsLastWidth : 0.0f;
+	float SplitsWidth = g_Config.m_KaizoSplitsX == 0 ? m_SplitsLastWidth : 0.0f;
 
 	if(GameClient()->m_GameInfo.m_HudAmmo)
 	{
@@ -867,7 +862,7 @@ void CHud::RenderPlayerState(const int ClientId)
 	Graphics()->SetColor(1.f, 1.f, 1.f, 1.f);
 
 	/* From CMClient */
-	float SplitsWidth = g_KaizoConfig_KaizoSplitsX == 0 ? m_SplitsLastWidth : 0.0f;
+	float SplitsWidth = g_Config.m_KaizoSplitsX == 0 ? m_SplitsLastWidth : 0.0f;
 
 	// pCharacter contains the predicted character for local players or the last snap for players who are spectated
 	CCharacterCore *pCharacter = &GameClient()->m_aClients[ClientId].m_Predicted;
@@ -1497,7 +1492,7 @@ CHud::CMovementInformation CHud::GetMovementInformation(int ClientId, int Conn) 
 	}
 
 	//+KZ evil to do this after all calculations but i dont want hard git conflicts
-	if(g_KaizoConfig_KaizoHudRealPosition)
+	if(g_Config.m_KaizoHudRealPosition)
 	{
 		if(ClientId == SPEC_FREEVIEW)
 		{
@@ -1514,7 +1509,7 @@ CHud::CMovementInformation CHud::GetMovementInformation(int ClientId, int Conn) 
 		}
 	}
 
-	if(g_KaizoConfig_KaizoHudRealVelocity)
+	if(g_Config.m_KaizoHudRealVelocity)
 	{
 		const CNetObj_Character *pCurChar = &GameClient()->m_Snap.m_aCharacters[ClientId].m_Cur;
 		Out.m_Speed =  vec2(pCurChar->m_VelX, pCurChar->m_VelY);

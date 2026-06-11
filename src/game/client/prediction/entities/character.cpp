@@ -14,11 +14,6 @@
 
 #include <game/client/prediction/predcontroller_kz.h> //+KZ
 
-//+KZ
-extern int g_KaizoConfig_KaizoPredictPointerTWPlus;
-extern int g_KaizoConfig_KaizoPredictVanillaHammerFix;
-extern int g_KaizoConfig_KaizoUnfreezeLagDelayTicks;
-
 // Character, "physical" player's part
 
 void CCharacter::SetWeapon(int Weapon)
@@ -291,7 +286,7 @@ void CCharacter::FireWeapon()
 	if(m_FrozenLastTick)
 		FullAuto = true;
 
-	if(((g_KaizoConfig_KaizoPredictPointerTWPlus && GameWorld()->m_WorldConfig.m_IsPointerTWPlus) || GameWorld()->m_WorldConfig.m_HasAutoPistol) && m_Core.m_ActiveWeapon == WEAPON_GUN)
+	if(((g_Config.m_KaizoPredictPointerTWPlus && GameWorld()->m_WorldConfig.m_IsPointerTWPlus) || GameWorld()->m_WorldConfig.m_HasAutoPistol) && m_Core.m_ActiveWeapon == WEAPON_GUN)
 		FullAuto = true; //+KZ try to predict Pointer auto gun
 
 	// don't fire hammer when player is deep and sv_deepfly is disabled
@@ -350,7 +345,7 @@ void CCharacter::FireWeapon()
 				continue;
 
 			//+KZ: Vanilla hammer prediction fix
-			if(g_KaizoConfig_KaizoPredictVanillaHammerFix && GameWorld()->m_WorldConfig.m_IsPureVanilla &&
+			if(g_Config.m_KaizoPredictVanillaHammerFix && GameWorld()->m_WorldConfig.m_IsPureVanilla &&
 				Collision()->IntersectLine(ProjStartPos, pTarget->m_Pos, nullptr, nullptr))
 				continue;
 
@@ -1115,13 +1110,13 @@ void CCharacter::DDRaceTick()
 	
 		//T-Client
 		m_AliveAccumulation = std::min(m_AliveAccumulation - 1, 0);
-		m_AliveAccumulation = std::max(m_AliveAccumulation, -g_KaizoConfig_KaizoUnfreezeLagDelayTicks);
+		m_AliveAccumulation = std::max(m_AliveAccumulation, -g_Config.m_KaizoUnfreezeLagDelayTicks);
 	}
 	else
 	{
 		//T-Client
 		m_AliveAccumulation = std::max(m_AliveAccumulation, 1);
-		m_AliveAccumulation = std::min(m_AliveAccumulation + 1, g_KaizoConfig_KaizoUnfreezeLagDelayTicks);
+		m_AliveAccumulation = std::min(m_AliveAccumulation + 1, g_Config.m_KaizoUnfreezeLagDelayTicks);
 	}
 
 	HandleTuneLayer();

@@ -18,9 +18,6 @@
 #include <array>
 #include <chrono>
 
-//+KZ
-extern int g_KaizoConfig_SvGoresQuadsEnable;
-
 /************************
  * Render Buffer Helper *
  ************************/
@@ -1400,7 +1397,7 @@ void CRenderLayerQuads::Render(const CRenderLayerParams &Params)
 bool CRenderLayerQuads::DoRender(const CRenderLayerParams &Params)
 {
 	//+KZ added entities quads handling
-	if(g_KaizoConfig_SvGoresQuadsEnable && m_IsEntitiesQuads)
+	if(g_Config.m_SvGoresQuadsEnable && m_IsEntitiesQuads)
 	{
 		//ALWAYS render
 		return true;

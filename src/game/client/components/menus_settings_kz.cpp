@@ -9,22 +9,6 @@
 #include <game/client/gameclient.h>
 #include <generated/client_data.h>
 
-//+KZ im not writing all of the configs one by one here :P
-//+KZ start
-#define MACRO_CONFIG_INT(Name, ScriptName, Def, Min, Max, Save, Desc)	\
-extern int g_KaizoConfig_##Name;
-#define MACRO_CONFIG_COL(Name, ScriptName, Def, Save, Desc)	\
-extern unsigned g_KaizoConfig_##Name;
-#define MACRO_CONFIG_STR(Name, ScriptName, Len, Def, Save, Desc)	\
-extern CKZConfigString g_KaizoConfig_##Name;
-
-#include <engine/shared/config_variables_kz.h>
-
-#undef MACRO_CONFIG_INT
-#undef MACRO_CONFIG_COL
-#undef MACRO_CONFIG_STR
-//+KZ end
-
 enum
 {
 	KAIZO_SETTINGS_TAB_KAIZO = 0,
@@ -133,88 +117,88 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 			Left.HSplitTop(2.0f, nullptr, &Left);
 
 			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoShowCrowns, Localize("Show crowns on Kaizo servers"), g_KaizoConfig_KaizoShowCrowns, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoShowCrowns, Localize("Show crowns on Kaizo servers"), g_Config.m_KaizoShowCrowns, &Button))
 			{
-				g_KaizoConfig_KaizoShowCrowns ^= 1;
+				g_Config.m_KaizoShowCrowns ^= 1;
 			}
 
 			Left.HSplitTop(2.0f, nullptr, &Left);
 
 			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoPingCircles, Localize("Show ping circles above players"), g_KaizoConfig_KaizoPingCircles, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoPingCircles, Localize("Show ping circles above players"), g_Config.m_KaizoPingCircles, &Button))
 			{
-				g_KaizoConfig_KaizoPingCircles ^= 1;
+				g_Config.m_KaizoPingCircles ^= 1;
 			}
 
 			Left.HSplitTop(2.0f, nullptr, &Left);
 
 			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoSleepingInMenuPlayers, Localize("Show players navigating menu as sleeping tees"), g_KaizoConfig_KaizoSleepingInMenuPlayers, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoSleepingInMenuPlayers, Localize("Show players navigating menu as sleeping tees"), g_Config.m_KaizoSleepingInMenuPlayers, &Button))
 			{
-				g_KaizoConfig_KaizoSleepingInMenuPlayers ^= 1;
+				g_Config.m_KaizoSleepingInMenuPlayers ^= 1;
 			}
 
 			Left.HSplitTop(2.0f, nullptr, &Left);
 
 			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoShowClientType, Localize("Try to identify custom clients of other players"), g_KaizoConfig_KaizoShowClientType, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoShowClientType, Localize("Try to identify custom clients of other players"), g_Config.m_KaizoShowClientType, &Button))
 			{
-				g_KaizoConfig_KaizoShowClientType ^= 1;
+				g_Config.m_KaizoShowClientType ^= 1;
 			}
 
 			Left.HSplitTop(2.0f, nullptr, &Left);
 
 			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoSendClientType, Localize("Let know other clients we are using Kaizo Client"), g_KaizoConfig_KaizoSendClientType, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoSendClientType, Localize("Let know other clients we are using Kaizo Client"), g_Config.m_KaizoSendClientType, &Button))
 			{
-				g_KaizoConfig_KaizoSendClientType ^= 1;
+				g_Config.m_KaizoSendClientType ^= 1;
 			}
 
 			Left.HSplitTop(2.0f, nullptr, &Left);
 
 			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoRotatingHammer, Localize("Rotating hammer (like other weapons)"), g_KaizoConfig_KaizoRotatingHammer, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoRotatingHammer, Localize("Rotating hammer (like other weapons)"), g_Config.m_KaizoRotatingHammer, &Button))
 			{
-				g_KaizoConfig_KaizoRotatingHammer ^= 1;
+				g_Config.m_KaizoRotatingHammer ^= 1;
 			}
 
 			Left.HSplitTop(2.0f, nullptr, &Left);
 
 			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoHudRealPosition, Localize("If HUD player position is enabled, show real position"), g_KaizoConfig_KaizoHudRealPosition, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoHudRealPosition, Localize("If HUD player position is enabled, show real position"), g_Config.m_KaizoHudRealPosition, &Button))
 			{
-				g_KaizoConfig_KaizoHudRealPosition ^= 1;
+				g_Config.m_KaizoHudRealPosition ^= 1;
 			}
 
 			Left.HSplitTop(2.0f, nullptr, &Left);
 
 			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoHudRealVelocity, Localize("If HUD player velocity is enabled, show real velocity"), g_KaizoConfig_KaizoHudRealVelocity, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoHudRealVelocity, Localize("If HUD player velocity is enabled, show real velocity"), g_Config.m_KaizoHudRealVelocity, &Button))
 			{
-				g_KaizoConfig_KaizoHudRealVelocity ^= 1;
+				g_Config.m_KaizoHudRealVelocity ^= 1;
 			}
 
 			Left.HSplitTop(2.0f, nullptr, &Left);
 
 			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoChatInputBackground, Localize("Show background while typing in chat"), g_KaizoConfig_KaizoChatInputBackground, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoChatInputBackground, Localize("Show background while typing in chat"), g_Config.m_KaizoChatInputBackground, &Button))
 			{
-				g_KaizoConfig_KaizoChatInputBackground ^= 1;
+				g_Config.m_KaizoChatInputBackground ^= 1;
 			}
 
 			Left.HSplitTop(2.0f, nullptr, &Left);
 
 			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoFastMapDownload, Localize("Fast map download (Experimental)"), g_KaizoConfig_KaizoFastMapDownload, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoFastMapDownload, Localize("Fast map download (Experimental)"), g_Config.m_KaizoFastMapDownload, &Button))
 			{
-				g_KaizoConfig_KaizoFastMapDownload ^= 1;
+				g_Config.m_KaizoFastMapDownload ^= 1;
 			}
 
-			if(g_KaizoConfig_KaizoFastMapDownload)
+			if(g_Config.m_KaizoFastMapDownload)
 			{
 				Left.HSplitTop(2.0f, nullptr, &Left);
 				Left.HSplitTop(20.0f, &Button, &Left);
-				Ui()->DoScrollbarOption(&g_KaizoConfig_KaizoFastMapDownloadWindow, &g_KaizoConfig_KaizoFastMapDownloadWindow, &Button, Localize("Map data to request"), 0, 500, &CUi::ms_LogarithmicScrollbarScale, 0u, " KiB/s");
+				Ui()->DoScrollbarOption(&g_Config.m_KaizoFastMapDownloadWindow, &g_Config.m_KaizoFastMapDownloadWindow, &Button, Localize("Map data to request"), 0, 500, &CUi::ms_LogarithmicScrollbarScale, 0u, " KiB/s");
 
 				Left.HSplitTop(2.0f, nullptr, &Left);
 				Left.HSplitTop(10.0f, &Label, &Left);
@@ -224,39 +208,39 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 			Left.HSplitTop(2.0f, nullptr, &Left);
 
 			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoEmotionalTees, Localize("Emotional Tees in non-DDNet servers (Client-side)"), g_KaizoConfig_KaizoEmotionalTees, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoEmotionalTees, Localize("Emotional Tees in non-DDNet servers (Client-side)"), g_Config.m_KaizoEmotionalTees, &Button))
 			{
-				g_KaizoConfig_KaizoEmotionalTees ^= 1;
+				g_Config.m_KaizoEmotionalTees ^= 1;
 			}
 
 			Left.HSplitTop(2.0f, nullptr, &Left);
 
 			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoInstaShieldShield, Localize("InstaShield Shield"), g_KaizoConfig_KaizoInstaShieldShield, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoInstaShieldShield, Localize("InstaShield Shield"), g_Config.m_KaizoInstaShieldShield, &Button))
 			{
-				g_KaizoConfig_KaizoInstaShieldShield ^= 1;
+				g_Config.m_KaizoInstaShieldShield ^= 1;
 			}
 
 			Left.HSplitTop(2.0f, nullptr, &Left);
 
 			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoKillingSpreeSparkles, Localize("Killing spree sparkles"), g_KaizoConfig_KaizoKillingSpreeSparkles, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoKillingSpreeSparkles, Localize("Killing spree sparkles"), g_Config.m_KaizoKillingSpreeSparkles, &Button))
 			{
-				g_KaizoConfig_KaizoKillingSpreeSparkles ^= 1;
+				g_Config.m_KaizoKillingSpreeSparkles ^= 1;
 			}
 
 			Left.HSplitTop(2.0f, nullptr, &Left);
 
 			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoReplyTabbedOut, Localize("Reply when tabbed out"), g_KaizoConfig_KaizoReplyTabbedOut, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoReplyTabbedOut, Localize("Reply when tabbed out"), g_Config.m_KaizoReplyTabbedOut, &Button))
 			{
-				g_KaizoConfig_KaizoReplyTabbedOut ^= 1;
+				g_Config.m_KaizoReplyTabbedOut ^= 1;
 			}
 
-			if(g_KaizoConfig_KaizoReplyTabbedOut)
+			if(g_Config.m_KaizoReplyTabbedOut)
 			{
 				static CLineInput s_TabbedOutInput;
-				s_TabbedOutInput.SetBuffer(g_KaizoConfig_KaizoReplyTabbedOutMsg.m_pStr, g_KaizoConfig_KaizoReplyTabbedOutMsg.m_Length);
+				s_TabbedOutInput.SetBuffer(g_Config.m_KaizoReplyTabbedOutMsg, sizeof(g_Config.m_KaizoReplyTabbedOutMsg));
 
 				Left.HSplitTop(2.0f, nullptr, &Left);
 				Left.HSplitTop(10.0f, &Label, &Left);
@@ -270,90 +254,90 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 			Left.HSplitTop(2.0f, nullptr, &Left);
 
 			Left.HSplitTop(20.0f, &Button, &Left);
-			Ui()->DoScrollbarOption(&g_KaizoConfig_KaizoScoreboardStyle, &g_KaizoConfig_KaizoScoreboardStyle, &Button, Localize("Scoreboard style"), 0, 3, &CUi::ms_LogarithmicScrollbarScale, 0u, "");
+			Ui()->DoScrollbarOption(&g_Config.m_KaizoScoreboardStyle, &g_Config.m_KaizoScoreboardStyle, &Button, Localize("Scoreboard style"), 0, 3, &CUi::ms_LogarithmicScrollbarScale, 0u, "");
 
 			Left.HSplitTop(2.0f, nullptr, &Left);
 
 			Left.HSplitTop(20.0f, &Button, &Left);
-			Ui()->DoScrollbarOption(&g_KaizoConfig_KaizoScoreboardShorten, &g_KaizoConfig_KaizoScoreboardShorten, &Button, Localize("Shorten scoreboard"), 0, 2, &CUi::ms_LogarithmicScrollbarScale, 0u, "");
+			Ui()->DoScrollbarOption(&g_Config.m_KaizoScoreboardShorten, &g_Config.m_KaizoScoreboardShorten, &Button, Localize("Shorten scoreboard"), 0, 2, &CUi::ms_LogarithmicScrollbarScale, 0u, "");
 
 			Left.HSplitTop(2.0f, nullptr, &Left);
 
 			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoRevertHookLine, Localize("Old Hook line"), g_KaizoConfig_KaizoRevertHookLine, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoRevertHookLine, Localize("Old Hook line"), g_Config.m_KaizoRevertHookLine, &Button))
 			{
-				if(g_KaizoConfig_KaizoRevertHookLine)
+				if(g_Config.m_KaizoRevertHookLine)
 				{
-					g_KaizoConfig_KaizoRevertHookLine = 0;
+					g_Config.m_KaizoRevertHookLine = 0;
 				}
 				else
 				{
-					g_KaizoConfig_KaizoRevertHookLine = 1;
+					g_Config.m_KaizoRevertHookLine = 1;
 				}
 			}
 
 			Left.HSplitTop(2.0f, nullptr, &Left);
 
 			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoSendLanguage, Localize("Send Client language to server"), g_KaizoConfig_KaizoSendLanguage, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoSendLanguage, Localize("Send Client language to server"), g_Config.m_KaizoSendLanguage, &Button))
 			{
-				g_KaizoConfig_KaizoSendLanguage ^= 1;
+				g_Config.m_KaizoSendLanguage ^= 1;
 			}
 
 			Left.HSplitTop(2.0f, nullptr, &Left);
 
 			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoPrefer07Protocol, Localize("Always prefer 0.7 connection"), g_KaizoConfig_KaizoPrefer07Protocol, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoPrefer07Protocol, Localize("Always prefer 0.7 connection"), g_Config.m_KaizoPrefer07Protocol, &Button))
 			{
-				g_KaizoConfig_KaizoPrefer07Protocol ^= 1;
+				g_Config.m_KaizoPrefer07Protocol ^= 1;
 			}
 
 			Left.HSplitTop(2.0f, nullptr, &Left);
 
 			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoAlwaysAllowXSkins, Localize("Be able to see players using \"x_\" prefixed skins"), g_KaizoConfig_KaizoAlwaysAllowXSkins, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoAlwaysAllowXSkins, Localize("Be able to see players using \"x_\" prefixed skins"), g_Config.m_KaizoAlwaysAllowXSkins, &Button))
 			{
-				g_KaizoConfig_KaizoAlwaysAllowXSkins ^= 1;
+				g_Config.m_KaizoAlwaysAllowXSkins ^= 1;
 			}
 
 			Left.HSplitTop(2.0f, nullptr, &Left);
 
 			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoClientIndicatorBrowser, Localize("Show detected Kaizo Client users in friends tab"), g_KaizoConfig_KaizoClientIndicatorBrowser, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoClientIndicatorBrowser, Localize("Show detected Kaizo Client users in friends tab"), g_Config.m_KaizoClientIndicatorBrowser, &Button))
 			{
-				g_KaizoConfig_KaizoClientIndicatorBrowser ^= 1;
+				g_Config.m_KaizoClientIndicatorBrowser ^= 1;
 			}
 
 			Left.HSplitTop(2.0f, nullptr, &Left);
 
 			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoStatisticsShowFps, Localize("Show FPS"), g_KaizoConfig_KaizoStatisticsShowFps, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoStatisticsShowFps, Localize("Show FPS"), g_Config.m_KaizoStatisticsShowFps, &Button))
 			{
-				g_KaizoConfig_KaizoStatisticsShowFps ^= 1;
+				g_Config.m_KaizoStatisticsShowFps ^= 1;
 			}
 
 			Left.HSplitTop(2.0f, nullptr, &Left);
 
 			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoStatisticsShowPing, Localize("Show ping"), g_KaizoConfig_KaizoStatisticsShowPing, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoStatisticsShowPing, Localize("Show ping"), g_Config.m_KaizoStatisticsShowPing, &Button))
 			{
-				g_KaizoConfig_KaizoStatisticsShowPing ^= 1;
+				g_Config.m_KaizoStatisticsShowPing ^= 1;
 			}
 
 			Left.HSplitTop(2.0f, nullptr, &Left);
 
 			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoStatisticsShowSnapRate, Localize("Show snapshot rate"), g_KaizoConfig_KaizoStatisticsShowSnapRate, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoStatisticsShowSnapRate, Localize("Show snapshot rate"), g_Config.m_KaizoStatisticsShowSnapRate, &Button))
 			{
-				g_KaizoConfig_KaizoStatisticsShowSnapRate ^= 1;
+				g_Config.m_KaizoStatisticsShowSnapRate ^= 1;
 			}
 
 			Left.HSplitTop(2.0f, nullptr, &Left);
 
 			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoKeepMenuAfterVoteInMods, Localize("Fix vote menu in F-DDrace, FoxNet, MMOTEE, etc..."), g_KaizoConfig_KaizoKeepMenuAfterVoteInMods, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoKeepMenuAfterVoteInMods, Localize("Fix vote menu in F-DDrace, FoxNet, MMOTEE, etc..."), g_Config.m_KaizoKeepMenuAfterVoteInMods, &Button))
 			{
-				g_KaizoConfig_KaizoKeepMenuAfterVoteInMods ^= 1;
+				g_Config.m_KaizoKeepMenuAfterVoteInMods ^= 1;
 			}
 
 			Left.HSplitTop(2.0f, nullptr, &Left);
@@ -363,17 +347,17 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 				static char s_aBuf[128] = {'\0'};
 				static int s_PrevKaizoEmoticonToEmoji = -1;
 
-				if(g_KaizoConfig_KaizoEmoticonToEmoji != s_PrevKaizoEmoticonToEmoji)
+				if(g_Config.m_KaizoEmoticonToEmoji != s_PrevKaizoEmoticonToEmoji)
 				{
-					const char *pHamburger = g_KaizoConfig_KaizoEmoticonToEmoji ? "🍔" : ":hamburger:";
+					const char *pHamburger = g_Config.m_KaizoEmoticonToEmoji ? "🍔" : ":hamburger:";
 					str_format(s_aBuf, sizeof(s_aBuf), "%s %s",Localize("Send :emoticons: as emojis"), pHamburger);
-					s_PrevKaizoEmoticonToEmoji = g_KaizoConfig_KaizoEmoticonToEmoji;
+					s_PrevKaizoEmoticonToEmoji = g_Config.m_KaizoEmoticonToEmoji;
 				}
 
 				Left.HSplitTop(20.0f, &Button, &Left);
-				if(DoButton_CheckBox(&g_KaizoConfig_KaizoEmoticonToEmoji, s_aBuf, g_KaizoConfig_KaizoEmoticonToEmoji, &Button))
+				if(DoButton_CheckBox(&g_Config.m_KaizoEmoticonToEmoji, s_aBuf, g_Config.m_KaizoEmoticonToEmoji, &Button))
 				{
-					g_KaizoConfig_KaizoEmoticonToEmoji ^= 1;
+					g_Config.m_KaizoEmoticonToEmoji ^= 1;
 				}
 			}
 
@@ -384,17 +368,17 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 			Left.HSplitTop(2.0f, nullptr, &Left);
 
 			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoDiscordRpc, Localize("Enable Discord Rich Presence (Requires restart)"), g_KaizoConfig_KaizoDiscordRpc, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoDiscordRpc, Localize("Enable Discord Rich Presence (Requires restart)"), g_Config.m_KaizoDiscordRpc, &Button))
 			{
-				g_KaizoConfig_KaizoDiscordRpc ^= 1;
+				g_Config.m_KaizoDiscordRpc ^= 1;
 			}
 
 			Left.HSplitTop(2.0f, nullptr, &Left);
 
 			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoDiscordLaunchSteam, Localize("Open Steam when joining through Discord (requires restarting Discord and Client)"), g_KaizoConfig_KaizoDiscordLaunchSteam, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoDiscordLaunchSteam, Localize("Open Steam when joining through Discord (requires restarting Discord and Client)"), g_Config.m_KaizoDiscordLaunchSteam, &Button))
 			{
-				g_KaizoConfig_KaizoDiscordLaunchSteam ^= 1;
+				g_Config.m_KaizoDiscordLaunchSteam ^= 1;
 			}
 
 			// Prediction
@@ -405,24 +389,24 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 			Right.HSplitTop(2.0f, &Label, &Right);
 
 			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoFastInput, Localize("Fast input"), g_KaizoConfig_KaizoFastInput, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoFastInput, Localize("Fast input"), g_Config.m_KaizoFastInput, &Button))
 			{
-				g_KaizoConfig_KaizoFastInput ^= 1;
+				g_Config.m_KaizoFastInput ^= 1;
 			}
 
 			Right.HSplitTop(2.0f, nullptr, &Right);
 
 			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoFastInputOthers, Localize("Fast input others"), g_KaizoConfig_KaizoFastInputOthers, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoFastInputOthers, Localize("Fast input others"), g_Config.m_KaizoFastInputOthers, &Button))
 			{
-				g_KaizoConfig_KaizoFastInputOthers ^= 1;
+				g_Config.m_KaizoFastInputOthers ^= 1;
 			}
 
-			if(g_KaizoConfig_KaizoFastInput || g_KaizoConfig_KaizoFastInputOthers)
+			if(g_Config.m_KaizoFastInput || g_Config.m_KaizoFastInputOthers)
 			{
 				Right.HSplitTop(2.0f, nullptr, &Right);
 				Right.HSplitTop(20.0f, &Button, &Right);
-				Ui()->DoScrollbarOption(&g_KaizoConfig_KaizoFastInputAmount, &g_KaizoConfig_KaizoFastInputAmount, &Button, Localize("Fast input amount"), 1, 100, &CUi::ms_LogarithmicScrollbarScale, 0u, " ms");
+				Ui()->DoScrollbarOption(&g_Config.m_KaizoFastInputAmount, &g_Config.m_KaizoFastInputAmount, &Button, Localize("Fast input amount"), 1, 100, &CUi::ms_LogarithmicScrollbarScale, 0u, " ms");
 
 				Right.HSplitTop(2.0f, nullptr, &Right);
 				Right.HSplitTop(10.0f, &Label, &Right);
@@ -432,112 +416,112 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 			Right.HSplitTop(2.0f, nullptr, &Right);
 
 			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoAntiPingImproved, Localize("Better Antiping algorithm"), g_KaizoConfig_KaizoAntiPingImproved, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoAntiPingImproved, Localize("Better Antiping algorithm"), g_Config.m_KaizoAntiPingImproved, &Button))
 			{
-				g_KaizoConfig_KaizoAntiPingImproved ^= 1;
+				g_Config.m_KaizoAntiPingImproved ^= 1;
 			}
 
 			Right.HSplitTop(2.0f, nullptr, &Right);
 
 			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoAntiPingNegativeBuffer, Localize("Negative stability buffer (for Gores)"), g_KaizoConfig_KaizoAntiPingNegativeBuffer, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoAntiPingNegativeBuffer, Localize("Negative stability buffer (for Gores)"), g_Config.m_KaizoAntiPingNegativeBuffer, &Button))
 			{
-				g_KaizoConfig_KaizoAntiPingNegativeBuffer ^= 1;
+				g_Config.m_KaizoAntiPingNegativeBuffer ^= 1;
 			}
 
 			Right.HSplitTop(2.0f, nullptr, &Right);
 
 			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoApplyGuessedInput, Localize("Use received info as player input for prediction"), g_KaizoConfig_KaizoApplyGuessedInput, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoApplyGuessedInput, Localize("Use received info as player input for prediction"), g_Config.m_KaizoApplyGuessedInput, &Button))
 			{
-				g_KaizoConfig_KaizoApplyGuessedInput ^= 1;
+				g_Config.m_KaizoApplyGuessedInput ^= 1;
 			}
 
 			Right.HSplitTop(2.0f, nullptr, &Right);
 
 			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoPredictGoresGrenadeTele, Localize("Predict Gores grenade teleport"), g_KaizoConfig_KaizoPredictGoresGrenadeTele, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoPredictGoresGrenadeTele, Localize("Predict Gores grenade teleport"), g_Config.m_KaizoPredictGoresGrenadeTele, &Button))
 			{
-				g_KaizoConfig_KaizoPredictGoresGrenadeTele ^= 1;
+				g_Config.m_KaizoPredictGoresGrenadeTele ^= 1;
 			}
 
 			Right.HSplitTop(2.0f, nullptr, &Right);
 
 			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoPredictTeleToDeath, Localize("Predict death effect if teleport leads to Death"), g_KaizoConfig_KaizoPredictTeleToDeath, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoPredictTeleToDeath, Localize("Predict death effect if teleport leads to Death"), g_Config.m_KaizoPredictTeleToDeath, &Button))
 			{
-				g_KaizoConfig_KaizoPredictTeleToDeath ^= 1;
+				g_Config.m_KaizoPredictTeleToDeath ^= 1;
 			}
 
 			Right.HSplitTop(2.0f, nullptr, &Right);
 
 			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoPredictDDNetTeleport, Localize("Predict DDNet teleports if there is only 1 exit"), g_KaizoConfig_KaizoPredictDDNetTeleport, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoPredictDDNetTeleport, Localize("Predict DDNet teleports if there is only 1 exit"), g_Config.m_KaizoPredictDDNetTeleport, &Button))
 			{
-				g_KaizoConfig_KaizoPredictDDNetTeleport ^= 1;
+				g_Config.m_KaizoPredictDDNetTeleport ^= 1;
 			}
 
 			Right.HSplitTop(2.0f, nullptr, &Right);
 
 			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoPredictDeathTiles, Localize("Predict Death tiles"), g_KaizoConfig_KaizoPredictDeathTiles, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoPredictDeathTiles, Localize("Predict Death tiles"), g_Config.m_KaizoPredictDeathTiles, &Button))
 			{
-				g_KaizoConfig_KaizoPredictDeathTiles ^= 1;
+				g_Config.m_KaizoPredictDeathTiles ^= 1;
 			}
 
 			Right.HSplitTop(2.0f, nullptr, &Right);
 
 			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoPredictOthersEffects, Localize("Predict other players effects"), g_KaizoConfig_KaizoPredictOthersEffects, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoPredictOthersEffects, Localize("Predict other players effects"), g_Config.m_KaizoPredictOthersEffects, &Button))
 			{
-				g_KaizoConfig_KaizoPredictOthersEffects ^= 1;
+				g_Config.m_KaizoPredictOthersEffects ^= 1;
 			}
 
 			Right.HSplitTop(2.0f, nullptr, &Right);
 
 			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoPredictGameTypes, Localize("Predict GameTypes"), g_KaizoConfig_KaizoPredictGameTypes, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoPredictGameTypes, Localize("Predict GameTypes"), g_Config.m_KaizoPredictGameTypes, &Button))
 			{
-				g_KaizoConfig_KaizoPredictGameTypes ^= 1;
+				g_Config.m_KaizoPredictGameTypes ^= 1;
 			}
 
 			Right.HSplitTop(2.0f, nullptr, &Right);
 
 			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoPredictPointerTWPlus, Localize("Predict Pointer's TW+"), g_KaizoConfig_KaizoPredictPointerTWPlus, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoPredictPointerTWPlus, Localize("Predict Pointer's TW+"), g_Config.m_KaizoPredictPointerTWPlus, &Button))
 			{
-				g_KaizoConfig_KaizoPredictPointerTWPlus ^= 1;
+				g_Config.m_KaizoPredictPointerTWPlus ^= 1;
 			}
 
 			Right.HSplitTop(2.0f, nullptr, &Right);
 
 			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoPredictVanillaHammerFix, Localize("Fix Vanilla hammer hit prediction through walls"), g_KaizoConfig_KaizoPredictVanillaHammerFix, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoPredictVanillaHammerFix, Localize("Fix Vanilla hammer hit prediction through walls"), g_Config.m_KaizoPredictVanillaHammerFix, &Button))
 			{
-				g_KaizoConfig_KaizoPredictVanillaHammerFix ^= 1;
+				g_Config.m_KaizoPredictVanillaHammerFix ^= 1;
 			}
 
 			Right.HSplitTop(2.0f, nullptr, &Right);
 
 			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoUnpredOthersInFreeze, Localize("Dont predict others if we are in freeze"), g_KaizoConfig_KaizoUnpredOthersInFreeze, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoUnpredOthersInFreeze, Localize("Dont predict others if we are in freeze"), g_Config.m_KaizoUnpredOthersInFreeze, &Button))
 			{
-				g_KaizoConfig_KaizoUnpredOthersInFreeze ^= 1;
+				g_Config.m_KaizoUnpredOthersInFreeze ^= 1;
 			}
 
 			Right.HSplitTop(2.0f, nullptr, &Right);
 
 			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoPredMarginInFreeze, Localize("Change prediction margin while frozen"), g_KaizoConfig_KaizoPredMarginInFreeze, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoPredMarginInFreeze, Localize("Change prediction margin while frozen"), g_Config.m_KaizoPredMarginInFreeze, &Button))
 			{
-				g_KaizoConfig_KaizoPredMarginInFreeze ^= 1;
+				g_Config.m_KaizoPredMarginInFreeze ^= 1;
 			}
 
-			if(g_KaizoConfig_KaizoPredMarginInFreeze)
+			if(g_Config.m_KaizoPredMarginInFreeze)
 			{
 				Right.HSplitTop(2.0f, nullptr, &Right);
 				Right.HSplitTop(20.0f, &Button, &Right);
-				Ui()->DoScrollbarOption(&g_KaizoConfig_KaizoPredMarginInFreezeAmount, &g_KaizoConfig_KaizoPredMarginInFreezeAmount, &Button, Localize("Margin while frozen"), 1, 100, &CUi::ms_LogarithmicScrollbarScale, 0u, "");
+				Ui()->DoScrollbarOption(&g_Config.m_KaizoPredMarginInFreezeAmount, &g_Config.m_KaizoPredMarginInFreezeAmount, &Button, Localize("Margin while frozen"), 1, 100, &CUi::ms_LogarithmicScrollbarScale, 0u, "");
 			}
 
 			// dangerous settings, some communities may consider it a cheat, chill communities may not, use at your own risk!
@@ -552,131 +536,131 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 			Right.HSplitTop(25.0f, &Label, &Right);
 
 			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoOldModsZooming, Localize("Zooming in Old non-DDNet mods (only if zoom is not prohibited)"), g_KaizoConfig_KaizoOldModsZooming, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoOldModsZooming, Localize("Zooming in Old non-DDNet mods (only if zoom is not prohibited)"), g_Config.m_KaizoOldModsZooming, &Button))
 			{
-				g_KaizoConfig_KaizoOldModsZooming ^= 1;
+				g_Config.m_KaizoOldModsZooming ^= 1;
 			}
 
 			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoShowRechargeBar, Localize("Show weapon recharge bar"), g_KaizoConfig_KaizoShowRechargeBar, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoShowRechargeBar, Localize("Show weapon recharge bar"), g_Config.m_KaizoShowRechargeBar, &Button))
 			{
-				g_KaizoConfig_KaizoShowRechargeBar ^= 1;
+				g_Config.m_KaizoShowRechargeBar ^= 1;
 			}
 
 			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoHideChatBubble, Localize("Dont send chat bubble"), g_KaizoConfig_KaizoHideChatBubble, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoHideChatBubble, Localize("Dont send chat bubble"), g_Config.m_KaizoHideChatBubble, &Button))
 			{
-				g_KaizoConfig_KaizoHideChatBubble ^= 1;
+				g_Config.m_KaizoHideChatBubble ^= 1;
 			}
 
 			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoHideInMenuStatus, Localize("Dont send in-menu status"), g_KaizoConfig_KaizoHideInMenuStatus, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoHideInMenuStatus, Localize("Dont send in-menu status"), g_Config.m_KaizoHideInMenuStatus, &Button))
 			{
-				g_KaizoConfig_KaizoHideInMenuStatus ^= 1;
+				g_Config.m_KaizoHideInMenuStatus ^= 1;
 			}
 
 			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoForceChatBubble, Localize("Always send chat bubble"), g_KaizoConfig_KaizoForceChatBubble, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoForceChatBubble, Localize("Always send chat bubble"), g_Config.m_KaizoForceChatBubble, &Button))
 			{
-				g_KaizoConfig_KaizoForceChatBubble ^= 1;
+				g_Config.m_KaizoForceChatBubble ^= 1;
 			}
 
 			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoForceInMenuStatus, Localize("Always send in-menu status"), g_KaizoConfig_KaizoForceInMenuStatus, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoForceInMenuStatus, Localize("Always send in-menu status"), g_Config.m_KaizoForceInMenuStatus, &Button))
 			{
-				g_KaizoConfig_KaizoForceInMenuStatus ^= 1;
+				g_Config.m_KaizoForceInMenuStatus ^= 1;
 			}
 
 			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoFastRespawn, Localize("Fast respawn"), g_KaizoConfig_KaizoFastRespawn, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoFastRespawn, Localize("Fast respawn"), g_Config.m_KaizoFastRespawn, &Button))
 			{
-				g_KaizoConfig_KaizoFastRespawn ^= 1;
+				g_Config.m_KaizoFastRespawn ^= 1;
 			}
 
 			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoAlwaysAllowDummy, Localize("Always be able to connect dummy"), g_KaizoConfig_KaizoAlwaysAllowDummy, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoAlwaysAllowDummy, Localize("Always be able to connect dummy"), g_Config.m_KaizoAlwaysAllowDummy, &Button))
 			{
-				g_KaizoConfig_KaizoAlwaysAllowDummy ^= 1;
+				g_Config.m_KaizoAlwaysAllowDummy ^= 1;
 			}
 
 			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoAlwaysAllowShowHookColl, Localize("Always be able to use \"Show Hook Collisions\""), g_KaizoConfig_KaizoAlwaysAllowShowHookColl, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoAlwaysAllowShowHookColl, Localize("Always be able to use \"Show Hook Collisions\""), g_Config.m_KaizoAlwaysAllowShowHookColl, &Button))
 			{
-				g_KaizoConfig_KaizoAlwaysAllowShowHookColl ^= 1;
+				g_Config.m_KaizoAlwaysAllowShowHookColl ^= 1;
 			}
 
 			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoShowXSkinsInSettings, Localize("Show \"x_\" prefixed skins in Skin settings"), g_KaizoConfig_KaizoShowXSkinsInSettings, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoShowXSkinsInSettings, Localize("Show \"x_\" prefixed skins in Skin settings"), g_Config.m_KaizoShowXSkinsInSettings, &Button))
 			{
-				g_KaizoConfig_KaizoShowXSkinsInSettings ^= 1;
+				g_Config.m_KaizoShowXSkinsInSettings ^= 1;
 			}
 
 			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoForceDDNetHUD, Localize("Always try to show DDNet HUD"), g_KaizoConfig_KaizoForceDDNetHUD, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoForceDDNetHUD, Localize("Always try to show DDNet HUD"), g_Config.m_KaizoForceDDNetHUD, &Button))
 			{
-				g_KaizoConfig_KaizoForceDDNetHUD ^= 1;
+				g_Config.m_KaizoForceDDNetHUD ^= 1;
 			}
 
 			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoForceBugDDRaceInput, Localize("Act as if \'Bug DDRace Input\' is enabled"), g_KaizoConfig_KaizoForceBugDDRaceInput, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoForceBugDDRaceInput, Localize("Act as if \'Bug DDRace Input\' is enabled"), g_Config.m_KaizoForceBugDDRaceInput, &Button))
 			{
-				g_KaizoConfig_KaizoForceBugDDRaceInput ^= 1;
+				g_Config.m_KaizoForceBugDDRaceInput ^= 1;
 			}
 
 			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoShowCharFlags, Localize("Show Character Flags in nameplate"), g_KaizoConfig_KaizoShowCharFlags, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoShowCharFlags, Localize("Show Character Flags in nameplate"), g_Config.m_KaizoShowCharFlags, &Button))
 			{
-				g_KaizoConfig_KaizoShowCharFlags ^= 1;
+				g_Config.m_KaizoShowCharFlags ^= 1;
 			}
 
-			if(g_KaizoConfig_KaizoShowCharFlags)
+			if(g_Config.m_KaizoShowCharFlags)
 			{
 				Right.HSplitTop(2.0f, nullptr, &Right);
 				Right.HSplitTop(20.0f, &Button, &Right);
-				Ui()->DoScrollbarOption(&g_KaizoConfig_KaizoShowCharFlagsSize, &g_KaizoConfig_KaizoShowCharFlagsSize, &Button, Localize("Size of Characer Flags indicators"), 25, 100, &CUi::ms_LogarithmicScrollbarScale, 0u);
+				Ui()->DoScrollbarOption(&g_Config.m_KaizoShowCharFlagsSize, &g_Config.m_KaizoShowCharFlagsSize, &Button, Localize("Size of Characer Flags indicators"), 25, 100, &CUi::ms_LogarithmicScrollbarScale, 0u);
 			}
 
 			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoShowCharJumps, Localize("Show Character Jumps in nameplate"), g_KaizoConfig_KaizoShowCharJumps, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoShowCharJumps, Localize("Show Character Jumps in nameplate"), g_Config.m_KaizoShowCharJumps, &Button))
 			{
-				g_KaizoConfig_KaizoShowCharJumps ^= 1;
+				g_Config.m_KaizoShowCharJumps ^= 1;
 			}
 
-			if(g_KaizoConfig_KaizoShowCharJumps)
+			if(g_Config.m_KaizoShowCharJumps)
 			{
 				Right.HSplitTop(2.0f, nullptr, &Right);
 				Right.HSplitTop(20.0f, &Button, &Right);
-				Ui()->DoScrollbarOption(&g_KaizoConfig_KaizoShowCharJumpsSize, &g_KaizoConfig_KaizoShowCharJumpsSize, &Button, Localize("Size of Characer Jumps indicator"), 25, 100, &CUi::ms_LogarithmicScrollbarScale, 0u);
+				Ui()->DoScrollbarOption(&g_Config.m_KaizoShowCharJumpsSize, &g_Config.m_KaizoShowCharJumpsSize, &Button, Localize("Size of Characer Jumps indicator"), 25, 100, &CUi::ms_LogarithmicScrollbarScale, 0u);
 			}
 
 			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoGrenadePath, Localize("Show Grenade and Gun collisions"), g_KaizoConfig_KaizoGrenadePath, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoGrenadePath, Localize("Show Grenade and Gun collisions"), g_Config.m_KaizoGrenadePath, &Button))
 			{
-				g_KaizoConfig_KaizoGrenadePath ^= 1;
+				g_Config.m_KaizoGrenadePath ^= 1;
 			}
 
 			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoLaserPath, Localize("Show Laser collisions"), g_KaizoConfig_KaizoLaserPath, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoLaserPath, Localize("Show Laser collisions"), g_Config.m_KaizoLaserPath, &Button))
 			{
-				g_KaizoConfig_KaizoLaserPath ^= 1;
+				g_Config.m_KaizoLaserPath ^= 1;
 			}
 
 			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoFreeMouse, Localize("Free mouse"), g_KaizoConfig_KaizoFreeMouse, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoFreeMouse, Localize("Free mouse"), g_Config.m_KaizoFreeMouse, &Button))
 			{
-				g_KaizoConfig_KaizoFreeMouse ^= 1;
+				g_Config.m_KaizoFreeMouse ^= 1;
 			}
 			
 			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoHideAiming, Localize("Hide aiming (may break /pause and /spec)"), g_KaizoConfig_KaizoHideAiming, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoHideAiming, Localize("Hide aiming (may break /pause and /spec)"), g_Config.m_KaizoHideAiming, &Button))
 			{
-				g_KaizoConfig_KaizoHideAiming ^= 1;
+				g_Config.m_KaizoHideAiming ^= 1;
 			}
 
 			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoFakeMaxZoom, Localize("Send fake max zoom (may improve prediction)"), g_KaizoConfig_KaizoFakeMaxZoom, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoFakeMaxZoom, Localize("Send fake max zoom (may improve prediction)"), g_Config.m_KaizoFakeMaxZoom, &Button))
 			{
-				g_KaizoConfig_KaizoFakeMaxZoom ^= 1;
+				g_Config.m_KaizoFakeMaxZoom ^= 1;
 			}
 
 			break;
@@ -698,9 +682,9 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 			/*Left.HSplitTop(2.0f, nullptr, &Left);
 
 			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoSplits, Localize("Track Splits"), g_KaizoConfig_KaizoSplits, &Button))
+			if(DoButton_CheckBox(&g_Config.m_KaizoSplits, Localize("Track Splits"), g_Config.m_KaizoSplits, &Button))
 			{
-				g_KaizoConfig_KaizoSplits ^= 1;
+				g_Config.m_KaizoSplits ^= 1;
 			}*/
 
 			Left.HSplitTop(2.0f, nullptr, &Left);
@@ -711,28 +695,28 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 			Left.HSplitTop(2.0f, nullptr, &Left);
 
 			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox("splits hud disabled", Localize("Disabled"), !g_KaizoConfig_KaizoShowhudSplits, &Button))
+			if(DoButton_CheckBox("splits hud disabled", Localize("Disabled"), !g_Config.m_KaizoShowhudSplits, &Button))
 			{
-				g_KaizoConfig_KaizoShowhudSplits = 0;
+				g_Config.m_KaizoShowhudSplits = 0;
 			}
 
 			Left.HSplitTop(2.0f, nullptr, &Left);
 
 			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox("splits hud enabled on finished maps", Localize("Enabled on finished maps"), g_KaizoConfig_KaizoShowhudSplits == 1, &Button))
+			if(DoButton_CheckBox("splits hud enabled on finished maps", Localize("Enabled on finished maps"), g_Config.m_KaizoShowhudSplits == 1, &Button))
 			{
-				g_KaizoConfig_KaizoShowhudSplits = 1;
+				g_Config.m_KaizoShowhudSplits = 1;
 			}
 
 			Left.HSplitTop(2.0f, nullptr, &Left);
 
 			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox("splits hud always enabled", Localize("Always enabled"), g_KaizoConfig_KaizoShowhudSplits == 2, &Button))
+			if(DoButton_CheckBox("splits hud always enabled", Localize("Always enabled"), g_Config.m_KaizoShowhudSplits == 2, &Button))
 			{
-				g_KaizoConfig_KaizoShowhudSplits = 2;
+				g_Config.m_KaizoShowhudSplits = 2;
 			}
 
-			if(g_KaizoConfig_KaizoShowhudSplits)
+			if(g_Config.m_KaizoShowhudSplits)
 			{
 				Left.HSplitTop(5.0f, nullptr, &Left);
 
@@ -742,63 +726,63 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 				Left.HSplitTop(2.0f, nullptr, &Left);
 
 				Left.HSplitTop(20.0f, &Button, &Left);
-				if(DoButton_CheckBox(&g_KaizoConfig_KaizoSplitsShowMap, Localize("Show map in HUD"), g_KaizoConfig_KaizoSplitsShowMap, &Button))
+				if(DoButton_CheckBox(&g_Config.m_KaizoSplitsShowMap, Localize("Show map in HUD"), g_Config.m_KaizoSplitsShowMap, &Button))
 				{
-					g_KaizoConfig_KaizoSplitsShowMap = !g_KaizoConfig_KaizoSplitsShowMap;
+					g_Config.m_KaizoSplitsShowMap = !g_Config.m_KaizoSplitsShowMap;
 				}
 
 				Left.HSplitTop(2.0f, nullptr, &Left);
 
 				Left.HSplitTop(20.0f, &Button, &Left);
-				if(DoButton_CheckBox(&g_KaizoConfig_KaizoSplitsShowSplits, Localize("Show splits in HUD (xD)"), g_KaizoConfig_KaizoSplitsShowSplits, &Button))
+				if(DoButton_CheckBox(&g_Config.m_KaizoSplitsShowSplits, Localize("Show splits in HUD (xD)"), g_Config.m_KaizoSplitsShowSplits, &Button))
 				{
-					g_KaizoConfig_KaizoSplitsShowSplits = !g_KaizoConfig_KaizoSplitsShowSplits;
+					g_Config.m_KaizoSplitsShowSplits = !g_Config.m_KaizoSplitsShowSplits;
 				}
 
 				Left.HSplitTop(2.0f, nullptr, &Left);
 
 				Left.HSplitTop(20.0f, &Button, &Left);
-				if(DoButton_CheckBox(&g_KaizoConfig_KaizoSplitsShowCategory, Localize("Show rank category in HUD"), g_KaizoConfig_KaizoSplitsShowCategory, &Button))
+				if(DoButton_CheckBox(&g_Config.m_KaizoSplitsShowCategory, Localize("Show rank category in HUD"), g_Config.m_KaizoSplitsShowCategory, &Button))
 				{
-					g_KaizoConfig_KaizoSplitsShowCategory = !g_KaizoConfig_KaizoSplitsShowCategory;
+					g_Config.m_KaizoSplitsShowCategory = !g_Config.m_KaizoSplitsShowCategory;
 				}
 
 				Left.HSplitTop(2.0f, nullptr, &Left);
 
 				Left.HSplitTop(20.0f, &Button, &Left);
-				if(DoButton_CheckBox(&g_KaizoConfig_KaizoSplitsShowTimer, Localize("Show timer in HUD"), g_KaizoConfig_KaizoSplitsShowTimer, &Button))
+				if(DoButton_CheckBox(&g_Config.m_KaizoSplitsShowTimer, Localize("Show timer in HUD"), g_Config.m_KaizoSplitsShowTimer, &Button))
 				{
-					g_KaizoConfig_KaizoSplitsShowTimer = !g_KaizoConfig_KaizoSplitsShowTimer;
+					g_Config.m_KaizoSplitsShowTimer = !g_Config.m_KaizoSplitsShowTimer;
 				}
 
 				Left.HSplitTop(2.0f, nullptr, &Left);
 
 				Left.HSplitTop(20.0f, &Button, &Left);
-				if(DoButton_CheckBox(&g_KaizoConfig_KaizoSplitsShowLastSegment, Localize("Show previous segment time in HUD"), g_KaizoConfig_KaizoSplitsShowLastSegment, &Button))
+				if(DoButton_CheckBox(&g_Config.m_KaizoSplitsShowLastSegment, Localize("Show previous segment time in HUD"), g_Config.m_KaizoSplitsShowLastSegment, &Button))
 				{
-					g_KaizoConfig_KaizoSplitsShowLastSegment = !g_KaizoConfig_KaizoSplitsShowLastSegment;
+					g_Config.m_KaizoSplitsShowLastSegment = !g_Config.m_KaizoSplitsShowLastSegment;
 				}
 
 				Left.HSplitTop(2.0f, nullptr, &Left);
 
 				Left.HSplitTop(20.0f, &Button, &Left);
-				if(DoButton_CheckBox(&g_KaizoConfig_KaizoSplitsShowFurthest, Localize("Show furthest segment in HUD"), g_KaizoConfig_KaizoSplitsShowFurthest, &Button))
+				if(DoButton_CheckBox(&g_Config.m_KaizoSplitsShowFurthest, Localize("Show furthest segment in HUD"), g_Config.m_KaizoSplitsShowFurthest, &Button))
 				{
-					g_KaizoConfig_KaizoSplitsShowFurthest = !g_KaizoConfig_KaizoSplitsShowFurthest;
+					g_Config.m_KaizoSplitsShowFurthest = !g_Config.m_KaizoSplitsShowFurthest;
 				}
 
 				Left.HSplitTop(2.0f, nullptr, &Left);
 
 				Left.HSplitTop(20.0f, &Button, &Left);
-				if(DoButton_CheckBox(&g_KaizoConfig_KaizoSplitsShowSumOfBest, Localize("Show sum of best segments in HUD"), g_KaizoConfig_KaizoSplitsShowSumOfBest, &Button))
+				if(DoButton_CheckBox(&g_Config.m_KaizoSplitsShowSumOfBest, Localize("Show sum of best segments in HUD"), g_Config.m_KaizoSplitsShowSumOfBest, &Button))
 				{
-					g_KaizoConfig_KaizoSplitsShowSumOfBest = !g_KaizoConfig_KaizoSplitsShowSumOfBest;
+					g_Config.m_KaizoSplitsShowSumOfBest = !g_Config.m_KaizoSplitsShowSumOfBest;
 				}
 
 				Left.HSplitTop(2.0f, nullptr, &Left);
 
 				Left.HSplitTop(20.0f, &Button, &Left);
-				Ui()->DoScrollbarOption(&g_KaizoConfig_KaizoSplitsX, &g_KaizoConfig_KaizoSplitsX, &Button, Localize("HUD X Position"), 0, 100, &CUi::ms_LogarithmicScrollbarScale, 0u, "%");
+				Ui()->DoScrollbarOption(&g_Config.m_KaizoSplitsX, &g_Config.m_KaizoSplitsX, &Button, Localize("HUD X Position"), 0, 100, &CUi::ms_LogarithmicScrollbarScale, 0u, "%");
 
 				//Splits Labels Start
 
@@ -810,25 +794,25 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 				Left.HSplitTop(2.0f, nullptr, &Left);
 
 				Left.HSplitTop(20.0f, &Button, &Left);
-				if(DoButton_CheckBox("splits label none", Localize("None"), !g_KaizoConfig_KaizoSplitsLabels, &Button))
+				if(DoButton_CheckBox("splits label none", Localize("None"), !g_Config.m_KaizoSplitsLabels, &Button))
 				{
-					g_KaizoConfig_KaizoSplitsLabels = 0;
+					g_Config.m_KaizoSplitsLabels = 0;
 				}
 
 				Left.HSplitTop(2.0f, nullptr, &Left);
 
 				Left.HSplitTop(20.0f, &Button, &Left);
-				if(DoButton_CheckBox("splits label small", Localize("Small"), g_KaizoConfig_KaizoSplitsLabels == 1, &Button))
+				if(DoButton_CheckBox("splits label small", Localize("Small"), g_Config.m_KaizoSplitsLabels == 1, &Button))
 				{
-					g_KaizoConfig_KaizoSplitsLabels = 1;
+					g_Config.m_KaizoSplitsLabels = 1;
 				}
 
 				Left.HSplitTop(2.0f, nullptr, &Left);
 
 				Left.HSplitTop(20.0f, &Button, &Left);
-				if(DoButton_CheckBox("splits label full size", Localize("Full size"), g_KaizoConfig_KaizoSplitsLabels == 2, &Button))
+				if(DoButton_CheckBox("splits label full size", Localize("Full size"), g_Config.m_KaizoSplitsLabels == 2, &Button))
 				{
-					g_KaizoConfig_KaizoSplitsLabels = 2;
+					g_Config.m_KaizoSplitsLabels = 2;
 				}
 
 				//Splits Labels End
@@ -1143,5 +1127,5 @@ void CMenus::RenderSettingsTClientBindWheel(CUIRect MainView)
 	DoLine_KeyReader(Label, s_ReaderButtonWheel, s_ClearButtonWheel, Localize("Bind Wheel Key"), "+bindwheel");
 
 	LeftView.HSplitBottom(LineSize, &LeftView, &Label);
-	DoButton_CheckBoxAutoVMarginAndSet(&g_KaizoConfig_KaizoResetBindWheelMouse, Localize("Reset position of mouse when opening bindwheel"), &g_KaizoConfig_KaizoResetBindWheelMouse, &Label, LineSize);
+	DoButton_CheckBoxAutoVMarginAndSet(&g_Config.m_KaizoResetBindWheelMouse, Localize("Reset position of mouse when opening bindwheel"), &g_Config.m_KaizoResetBindWheelMouse, &Label, LineSize);
 }

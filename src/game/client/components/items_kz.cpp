@@ -8,9 +8,6 @@
 #include <game/client/render.h>
 #include "items.h"
 
-//+KZ
-extern int g_KaizoConfig_KaizoShowCrowns;
-
 void CItems::OnInitKZ()
 {
 	Graphics()->QuadsSetSubset(0, 0, 1, 1);
@@ -38,7 +35,7 @@ void CItems::OnInitKZ()
 
 void CItems::RenderCrown()
 {
-	if(!g_KaizoConfig_KaizoShowCrowns)
+	if(!g_Config.m_KaizoShowCrowns)
 		return;
 
 	for(int i = 0; i < MAX_CLIENTS; ++i)

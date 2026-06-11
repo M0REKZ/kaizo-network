@@ -12,9 +12,6 @@
 #include <game/collision.h>
 #include <game/mapitems.h>
 
-//+KZ
-extern int g_KaizoConfig_SvGoresQuadsEnable;
-
 CLaser::CLaser(CGameWorld *pGameWorld, vec2 Pos, vec2 Direction, float StartEnergy, int Owner, int Type, SKZLaserParams *pParams) :
 	CEntity(pGameWorld, CGameWorld::ENTTYPE_LASER)
 {
@@ -148,7 +145,7 @@ void CLaser::DoBounce()
 	vec2 QuadColPos;
 	vec2 LineStart;
 
-	if(Collision()->m_IsKaizoServer && g_KaizoConfig_SvGoresQuadsEnable) // this is only for Kaizo Network
+	if(Collision()->m_IsKaizoServer && g_Config.m_SvGoresQuadsEnable) // this is only for Kaizo Network
 		pQuadData = Collision()->IntersectQuadTeleWeapon(&GameWorld()->m_Core ,m_Pos ,To, &QuadColPos, &LineStart);
 	Res = Collision()->IntersectLineTeleWeapon(m_Pos, To, &Coltile, &To, nullptr, &ParamsKZ); //+KZ added ParamsKZ
 

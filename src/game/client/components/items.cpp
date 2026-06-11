@@ -21,9 +21,6 @@
 #include <game/client/projectile_data.h>
 #include <game/mapitems.h>
 
-//+KZ
-extern int g_KaizoConfig_KaizoInstaShieldShield;
-
 void CItems::RenderProjectile(const CProjectileData *pCurrent, int ItemId)
 {
 	int CurWeapon = std::clamp(pCurrent->m_Type, 0, NUM_WEAPONS - 1);
@@ -132,7 +129,7 @@ void CItems::RenderProjectile(const CProjectileData *pCurrent, int ItemId)
 void CItems::RenderPickup(const CNetObj_Pickup *pPrev, const CNetObj_Pickup *pCurrent, bool IsPredicted, int Flags)
 {
 	//+KZ from Dune Gamer client
-	if(pCurrent->m_Type == POWERUP_ARMOR && (g_KaizoConfig_KaizoInstaShieldShield ? GameClient()->m_InstaShield : false))
+	if(pCurrent->m_Type == POWERUP_ARMOR && (g_Config.m_KaizoInstaShieldShield ? GameClient()->m_InstaShield : false))
 		return;
 
 	int CurWeapon = std::clamp(pCurrent->m_Subtype, 0, NUM_WEAPONS - 1);
