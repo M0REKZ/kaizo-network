@@ -126,6 +126,12 @@ void CGameClient::HandleKaizoMessage(int MsgId, CUnpacker *pUnpacker, int Conn, 
 
 		m_Resources.OnResourceMessage(pMsg);
 	}
+	else if (MsgId == NETMSGTYPE_SV_RESOURCEDOWNLOADBASEURLTWPLUS) //From Duck/Infclass Client
+	{
+		CNetMsg_Sv_ResourceDownloadBaseUrlTWPlus *pMsg = (CNetMsg_Sv_ResourceDownloadBaseUrlTWPlus *)pRawMsg;
+
+		m_Resources.OnResourceDownloadUrlMessage(pMsg);
+	}
 }
 
 void CGameClient::HandleKaizoSnapItem(const IClient::CSnapItem *pItem)

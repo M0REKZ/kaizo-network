@@ -30,6 +30,7 @@ public:
 	int Find(const char *pName);
 
 	void OnResourceMessage(CNetMsg_Sv_ImageResourceTWPlus* msg);
+	void OnResourceDownloadUrlMessage(CNetMsg_Sv_ResourceDownloadBaseUrlTWPlus* msg);
 	
 private:
 	std::vector<CResource> m_aResources;

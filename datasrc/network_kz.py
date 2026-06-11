@@ -138,6 +138,10 @@ Messages += [
 
 	# Pointer's TW+ 0.7 & Duck/InfClass Client
 
+	NetMessageEx("Sv_ResourceDownloadBaseUrlTWPlus", "resource-download-base-url@pointerstwplus", [
+		NetString("m_pUrl"),
+	]),
+
 	NetMessageEx("Sv_ImageResourceTWPlus", "image-resource@pointerstwplus", [
 		NetIntAny("m_Id"),
 		NetString("m_pName"),
