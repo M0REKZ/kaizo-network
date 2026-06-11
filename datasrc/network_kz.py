@@ -66,6 +66,12 @@ Objects += [
     NetObjectEx("GameInfoTWPlus", "gameinfo-twplus@pointerstwplus", [
         NetIntAny("m_Flags", default=0),
     ], validate_size=False),
+
+	NetObjectEx("PickupCustomTWPlus", "pickup-custom@pointerstwplus", [
+		NetIntAny("m_X"),
+		NetIntAny("m_Y"),
+		NetIntAny("m_ResourceId"),
+	]),
     
     # Duck/InfClass Client
     
@@ -128,5 +134,17 @@ Messages += [
  
 	NetMessageEx("Cl_Language", "language@ddnet-community.github.io", [
 		NetStringStrict("m_pLanguage"),
+	]),
+
+	# Pointer's TW+ 0.7 & Duck/InfClass Client
+
+	NetMessageEx("Sv_ImageResourceTWPlus", "image-resource@pointerstwplus", [
+		NetIntAny("m_Id"),
+		NetString("m_pName"),
+		NetString("m_pUnused"),
+	]),
+
+	NetMessageEx("Cl_IHaveResourceTWPlus", "i-have-resource@pointerstwplus", [
+		NetIntAny("m_Id"),
 	]),
 ]

@@ -1630,6 +1630,7 @@ set(EXPECTED_DATA
   menuimages/settings.png
   particles.png
   race_flag.png
+  resources/unknown.png
   shader/pipeline.frag
   shader/pipeline.vert
   shader/prim.frag
@@ -2520,6 +2521,8 @@ if(CLIENT)
     components/kz/performance_statistics.h
     components/kz/rechargebars.cpp
     components/kz/rechargebars.h
+    components/kz/resources.cpp
+    components/kz/resources.h
     components/kz/scripting/impl.cpp
     components/kz/scripting/impl.h
     components/kz/scripting.cpp

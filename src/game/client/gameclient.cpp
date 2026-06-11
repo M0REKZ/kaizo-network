@@ -159,6 +159,7 @@ void CGameClient::OnConsoleInit()
 					      &m_Particles.m_RenderTrail,
 					      &m_Particles.m_RenderTrailExtra,
 					      &m_Items,
+					      &m_Resources, // +KZ from Duck/Infclass Client
 					      &m_Ghost,
 					      &m_Players,
 					      &m_MapLayersForeground,
@@ -5462,6 +5463,9 @@ void CGameClient::SnapCollectEntities()
 		else if(Item.m_Type == NETOBJTYPE_COSMETICPICKUP || Item.m_Type == NETOBJTYPE_COSMETICLASER || Item.m_Type == NETOBJTYPE_COSMETICPROJECTILE)
 			vItemData.push_back({Item, nullptr});
 		// FoxNet>
+		// Pointer's Duck/Infclass Client
+		else if(Item.m_Type == NETOBJTYPE_PICKUPCUSTOMTWPLUS)
+			vItemData.push_back({Item, nullptr});
 	}
 
 	// sort by id

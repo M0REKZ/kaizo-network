@@ -138,6 +138,12 @@ void CGameClient::HandleKaizoMessage(int MsgId, CUnpacker *pUnpacker, int Conn, 
         CNetMsg_Sv_PreInput *pMsg = (CNetMsg_Sv_PreInput *)pRawMsg;
         m_aClients[pMsg->m_Owner].m_ReceivedPreInputs = true;
     }
+    else if (MsgId == NETMSGTYPE_SV_IMAGERESOURCETWPLUS) //From Duck/Infclass Client
+	{
+		CNetMsg_Sv_ImageResourceTWPlus *pMsg = (CNetMsg_Sv_ImageResourceTWPlus *)pRawMsg;
+
+		m_Resources.OnResourceMessage(pMsg);
+	}
 }
 
 void CGameClient::HandleKaizoSnapItem(const IClient::CSnapItem *pItem)

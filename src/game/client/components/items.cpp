@@ -641,6 +641,13 @@ void CItems::OnRender()
 				RenderCosmeticProjectile((const CNetObj_CosmeticProjectile *)pPrev, (const CNetObj_CosmeticProjectile *)pData);
 		}
 		//FoxNet End
+		//Pointer's Duck/Infclass client
+		else if(Item.m_Type == NETOBJTYPE_PICKUPCUSTOMTWPLUS)
+		{			
+			const void *pPrev = Client()->SnapFindItem(IClient::SNAP_PREV, Item.m_Type, Item.m_Id);
+			if(pPrev)
+				RenderPickupCustom((const CNetObj_PickupCustomTWPlus *)pPrev, (const CNetObj_PickupCustomTWPlus *)pData, false, 0);
+		}
 	}
 
 	// render Kaizo Network Snap items

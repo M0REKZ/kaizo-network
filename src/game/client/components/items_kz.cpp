@@ -465,3 +465,52 @@ void CItems::RenderCosmeticProjectile(const CNetObj_CosmeticProjectile *pPrev, c
 	Graphics()->QuadsSetRotation(0);
 }
 
+//From Pointer's Duck/Infclass client
+void CItems::RenderPickupCustom(const CNetObj_PickupCustomTWPlus *pPrev, const CNetObj_PickupCustomTWPlus *pCurrent, bool IsPredicted, int Flags)
+{
+	float IntraTick = IsPredicted ? Client()->PredIntraGameTick(g_Config.m_ClDummy) : Client()->IntraGameTick(g_Config.m_ClDummy);
+	vec2 Pos = mix(vec2(pPrev->m_X, pPrev->m_Y), vec2(pCurrent->m_X, pCurrent->m_Y), IntraTick);
+
+	Graphics()->QuadsSetRotation(0);
+	Graphics()->SetColor(1.f, 1.f, 1.f, 1.f);
+
+	vec2 Scale = vec2(1, 1);
+	if(Flags & PICKUPFLAG_XFLIP)
+		Scale.x = -Scale.x;
+
+	if(Flags & PICKUPFLAG_YFLIP)
+		Scale.y = -Scale.y;
+
+	if(Flags & PICKUPFLAG_ROTATE)
+	{
+		Graphics()->QuadsSetRotation(90.f * (pi / 180));
+		std::swap(Scale.x, Scale.y);
+	}
+
+	static float s_Time = 0.0f;
+	static float s_LastLocalTime = LocalTime();
+	float Offset = Pos.y / 32.0f + Pos.x / 32.0f;
+	if(Client()->State() == IClient::STATE_DEMOPLAYBACK)
+	{
+		const IDemoPlayer::CInfo *pInfo = DemoPlayer()->BaseInfo();
+		if(!pInfo->m_Paused)
+			s_Time += (LocalTime() - s_LastLocalTime) * pInfo->m_Speed;
+	}
+	else
+	{
+		if(GameClient()->m_Snap.m_pGameInfoObj && !(GameClient()->m_Snap.m_pGameInfoObj->m_GameStateFlags & GAMESTATEFLAG_PAUSED))
+			s_Time += LocalTime() - s_LastLocalTime;
+	}
+	Pos += direction(s_Time * 2.0f + Offset) * 2.5f;
+	s_LastLocalTime = LocalTime();
+
+	Graphics()->QuadsSetRotation(0);
+
+	const CResources::CResource* res = GameClient()->m_Resources.Get(pCurrent->m_ResourceId);	
+	IGraphics::CQuadItem QuadItem(Pos.x, Pos.y, 128, 128);
+	Graphics()->TextureSet(res->m_Texture);
+	Graphics()->QuadsBegin();
+	Graphics()->SetColor(1.0f, 1.0f, 1.0f, 1.0f);
+	Graphics()->QuadsDraw(&QuadItem, 1);
+	Graphics()->QuadsEnd();
+}

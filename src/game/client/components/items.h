@@ -62,6 +62,7 @@ private:
 	void RenderTurret(CNetObj_KaizoNetworkTurret *pTurret);
 	void RenderMine(CNetObj_KaizoNetworkMine *pMine);
 	void RenderKaizoPickup(CNetObj_KaizoNetworkPickup *pPickup);
+	void RenderPickupCustom(const CNetObj_PickupCustomTWPlus *pPrev, const CNetObj_PickupCustomTWPlus *pCurrent, bool IsPredicted, int Flags);
 
 	int m_CrownOffset;
 	int m_TurretOffset_1;
