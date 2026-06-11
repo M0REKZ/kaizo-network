@@ -14,6 +14,15 @@
 #include <base/io.h>
 #include <base/process.h>
 
+//+KZ
+extern int g_KaizoConfig_KaizoSplits;
+extern int g_KaizoConfig_KaizoSplitsComparisonSource;
+extern int g_KaizoConfig_KaizoSplitsResetAfterFinishDeath;
+extern int g_KaizoConfig_KaizoSplitsResetAfterDeath;
+extern int g_KaizoConfig_KaizoSplitsTrackDummy;
+extern int g_KaizoConfig_KaizoSplitsForceAny;
+extern int g_KaizoConfig_KaizoSplitsComparisonForceCategory;
+
 const char *CSplits::ms_pSplitsDir = "splits";
 
 CSplits::CSplits()
@@ -50,7 +59,7 @@ void CSplits::OnMapLoad()
 {
 	OnReset();
 	m_SplitsActive = false;
-	if(g_Config.m_KaizoSplits)
+	if(g_KaizoConfig_KaizoSplits)
 	{
 		m_MapHasCheckpoints = false;
 		for(int i = 0; i < Collision()->GetWidth() * Collision()->GetHeight(); i++)
@@ -151,7 +160,7 @@ bool CSplits::CommitTimeCheckpoint(int Dummy, int RunTime, int SplitId)
 			for(int j = SplitIdOrdered + 1; j < SPLIT_FINISH; j++)
 				m_aSplitOrdering[j] = -1;
 			RecalculateSplitOrdering(SplitIdOrdered + 1, SplitId);
-			if(g_Config.m_KaizoSplitsComparisonSource == 2)
+			if(g_KaizoConfig_KaizoSplitsComparisonSource == 2)
 			{
 				int prevI = PrevIdOrdered >= 0 ? m_aSplitOrdering[PrevIdOrdered] : -1;
 				int t = 0;
@@ -246,7 +255,7 @@ void CSplits::OnUpdate()
 			}
 		}
 		// reset current splits if the player died and this death should reset the splits
-		if(((m_HasStarted[i] && m_aSplitTimesCurrent[i][SPLIT_FINISH] >= 0) ? g_Config.m_KaizoSplitsResetAfterFinishDeath : g_Config.m_KaizoSplitsResetAfterDeath) && m_HasDied[i])
+		if(((m_HasStarted[i] && m_aSplitTimesCurrent[i][SPLIT_FINISH] >= 0) ? g_KaizoConfig_KaizoSplitsResetAfterFinishDeath : g_KaizoConfig_KaizoSplitsResetAfterDeath) && m_HasDied[i])
 			ResetCurrentSplits[i] = true;
 		if(m_HasDied[i])
 			m_HasStarted[i] = false, m_HasQueuedSplit[i] = false;
@@ -314,7 +323,7 @@ void CSplits::OnUpdate()
 	}
 
 	// check for split completions
-	for(int i = 0; i < (g_Config.m_KaizoSplitsTrackDummy ? NUM_DUMMIES : 1); i++)
+	for(int i = 0; i < (g_KaizoConfig_KaizoSplitsTrackDummy ? NUM_DUMMIES : 1); i++)
 	{
 		m_LastRaceStartTick[m_CurrentDummy] = m_RaceStartTick[m_CurrentDummy];
 		if((!m_HasQueuedSplit[i] || !m_QueuedSplitFinish[i]) && CurRaceStartTick[i] < 0)
@@ -465,9 +474,9 @@ void CSplits::OnUpdate()
 		}
 		if(RecalculateCategory[i])
 		{
-			if((g_Config.m_KaizoSplitsTrackDummy && i > 0) || m_DummyId[i] < 0 || GameClient()->m_Teams.Team(m_DummyId[i]) < 0 || (GameClient()->m_Snap.m_aCharacters[m_DummyId[i]].m_HasExtendedDisplayInfo && (GameClient()->m_Snap.m_aCharacters[m_DummyId[i]].m_ExtendedData.m_Flags & CHARACTERFLAG_PRACTICE_MODE)))
+			if((g_KaizoConfig_KaizoSplitsTrackDummy && i > 0) || m_DummyId[i] < 0 || GameClient()->m_Teams.Team(m_DummyId[i]) < 0 || (GameClient()->m_Snap.m_aCharacters[m_DummyId[i]].m_HasExtendedDisplayInfo && (GameClient()->m_Snap.m_aCharacters[m_DummyId[i]].m_ExtendedData.m_Flags & CHARACTERFLAG_PRACTICE_MODE)))
 				m_SplitCategory[i] = SPLITCATEGORY_NORANK;
-			else if(g_Config.m_KaizoSplitsForceAny || !GameClient()->m_GameInfo.m_DDRaceTeam || GameClient()->m_Teams.Team(m_DummyId[i]) == 0 || (GameClient()->m_Snap.m_aCharacters[m_DummyId[i]].m_HasExtendedDisplayInfo && (GameClient()->m_Snap.m_aCharacters[m_DummyId[i]].m_ExtendedData.m_Flags & CHARACTERFLAG_TEAM0_MODE)))
+			else if(g_KaizoConfig_KaizoSplitsForceAny || !GameClient()->m_GameInfo.m_DDRaceTeam || GameClient()->m_Teams.Team(m_DummyId[i]) == 0 || (GameClient()->m_Snap.m_aCharacters[m_DummyId[i]].m_HasExtendedDisplayInfo && (GameClient()->m_Snap.m_aCharacters[m_DummyId[i]].m_ExtendedData.m_Flags & CHARACTERFLAG_TEAM0_MODE)))
 				m_SplitCategory[i] = SPLITCATEGORY_ANYRANK;
 			else
 			{
@@ -536,7 +545,7 @@ void CSplits::OnUpdate()
 					m_aSplitTimesBestSegmentSegmented = m_aSplitTimesBestSoloSegmentSegmented;
 					break;
 				}
-				switch(g_Config.m_KaizoSplitsComparisonForceCategory)
+				switch(g_KaizoConfig_KaizoSplitsComparisonForceCategory)
 				{
 				case 0:
 					m_aSplitTimesComparisonRun = m_aSplitTimesBestRun;
@@ -579,7 +588,7 @@ void CSplits::OnUpdate()
 					m_aSplitOrdering[SPLIT_FINISH] = SPLIT_FINISH;
 					int *source, *sourceSegmented = m_aSplitTimesComparisonSegmentSegmented;
 					int sourceBest;
-					if(g_Config.m_KaizoSplitsComparisonSource == 0 && m_aSplitTimesComparisonRun[SPLIT_FINISH] >= 0)
+					if(g_KaizoConfig_KaizoSplitsComparisonSource == 0 && m_aSplitTimesComparisonRun[SPLIT_FINISH] >= 0)
 						source = m_aSplitTimesComparisonRun, sourceBest = m_aSplitTimesBestDisplay[SPLIT_FINISH] = m_aSplitTimesComparisonRun[SPLIT_FINISH];
 					else
 					{
@@ -610,7 +619,7 @@ void CSplits::OnUpdate()
 					}
 					for(int j = orderedI; j < SPLIT_FINISH; j++)
 						m_aSplitTimesBestDisplay[j] = -1, m_aSplitOrdering[j] = -1;
-					if(g_Config.m_KaizoSplitsComparisonSource == 2)
+					if(g_KaizoConfig_KaizoSplitsComparisonSource == 2)
 					{
 						prevI = -1;
 						int t = 0;
@@ -1391,7 +1400,7 @@ bool CSplits::SplitsActive()
 
 bool CSplits::VisualIgnoreDummy()
 {
-	if(!g_Config.m_KaizoSplitsTrackDummy)
+	if(!g_KaizoConfig_KaizoSplitsTrackDummy)
 		return true;
 	if(m_SplitCategory[0] == SPLITCATEGORY_NORANK)
 		return false;

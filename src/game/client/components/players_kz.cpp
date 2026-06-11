@@ -14,6 +14,11 @@
 #include <game/client/prediction/entity.h>
 #include <game/client/prediction/gameworld.h>
 
+//+KZ
+extern int g_KaizoConfig_KaizoGrenadePath;
+extern int g_KaizoConfig_KaizoLaserPath;
+extern int g_KaizoConfig_KaizoEmotionalTees;
+
 void CPlayers::OnKaizoInit()
 {
     float ScaleX, ScaleY;
@@ -145,7 +150,7 @@ void CPlayers::RenderDuckDDNetCollisions(const CNetObj_Character *pPrevChar, con
 
 	
         // DClient Projectile prediction
-        if(g_Config.m_KaizoGrenadePath && (pPlayerChar->m_Weapon == WEAPON_GRENADE || pPlayerChar->m_Weapon == WEAPON_GUN) && g_Config.m_ClShowOthersAlpha > 0)
+        if(g_KaizoConfig_KaizoGrenadePath && (pPlayerChar->m_Weapon == WEAPON_GRENADE || pPlayerChar->m_Weapon == WEAPON_GUN) && g_Config.m_ClShowOthersAlpha > 0)
         {
             bool PredEvents = GameClient()->m_PredictedWorld.m_WorldConfig.m_PredictEvents;
             GameClient()->m_PredictedWorld.m_WorldConfig.m_PredictEvents = false; //dont predict events for this temp projectile
@@ -210,7 +215,7 @@ void CPlayers::RenderDuckDDNetCollisions(const CNetObj_Character *pPrevChar, con
             GameClient()->m_PredictedWorld.m_WorldConfig.m_PredictEvents = PredEvents; //restore predict events state
         }
         // DClient FNG laser prediction
-        if(Local && g_Config.m_KaizoLaserPath && pPlayerChar->m_Weapon == WEAPON_LASER && (GameClient()->m_GameWorld.m_WorldConfig.m_IsFNG || AlwaysRenderHookColl || RenderHookCollPlayer) && g_Config.m_ClShowOthersAlpha > 0)
+        if(Local && g_KaizoConfig_KaizoLaserPath && pPlayerChar->m_Weapon == WEAPON_LASER && (GameClient()->m_GameWorld.m_WorldConfig.m_IsFNG || AlwaysRenderHookColl || RenderHookCollPlayer) && g_Config.m_ClShowOthersAlpha > 0)
         {
             bool PredEvents = GameClient()->m_PredictedWorld.m_WorldConfig.m_PredictEvents;
             GameClient()->m_PredictedWorld.m_WorldConfig.m_PredictEvents = false; //dont predict events for this temp laser
@@ -282,7 +287,7 @@ void CPlayers::RenderDuckDDNetCollisions(const CNetObj_Character *pPrevChar, con
 
 void CPlayers::SetPlayerEmoteKZ(CNetObj_Character &Player, int ClientId)
 {
-    if(g_Config.m_KaizoEmotionalTees)
+    if(g_KaizoConfig_KaizoEmotionalTees)
     {
         if(GameClient()->m_aClients[ClientId].m_EmoticonStartTick != -1)
         {

@@ -38,6 +38,9 @@
 #include <string>
 #include <vector>
 
+//+KZ
+extern int g_KaizoConfig_KaizoShowXSkinsInSettings;
+
 using namespace std::chrono_literals;
 
 void CMenus::RenderSettingsGeneral(CUIRect MainView)
@@ -525,7 +528,7 @@ void CMenus::RenderSettingsTee(CUIRect MainView)
 	CSkins::CSkinList &SkinList = GameClient()->m_Skins.SkinList();
 	const CSkin *pDefaultSkin = GameClient()->m_Skins.Find("default");
 	const CSkins::CSkinContainer *pOwnSkinContainer = GameClient()->m_Skins.FindContainerOrNullptr(pSkinName[0] == '\0' ? "default" : pSkinName);
-	if(!g_Config.m_KaizoShowXSkinsInSettings && pOwnSkinContainer != nullptr && pOwnSkinContainer->IsSpecial()) //+KZ modified
+	if(!g_KaizoConfig_KaizoShowXSkinsInSettings && pOwnSkinContainer != nullptr && pOwnSkinContainer->IsSpecial()) //+KZ modified
 	{
 		pOwnSkinContainer = nullptr; // Special skins cannot be selected, show as missing due to invalid name
 	}
