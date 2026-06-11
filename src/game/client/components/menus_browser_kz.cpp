@@ -8,9 +8,6 @@
 #include <game/client/gameclient.h>
 #include <game/client/animstate.h>
 
-//+KZ
-extern int g_KaizoConfig_KaizoClientIndicatorBrowser;
-
 //From EClient, modified by +KZ
 void CMenus::UpdateOnlinePlayerCache()
 {
@@ -66,7 +63,7 @@ void CMenus::ServerBrowserUpdate()
 //From EClient
 void CMenus::RenderKaizoClientUsers(CUIRect &View, CUIRect &List, CScrollRegion &ScrollRegion)
 {
-	if(!g_KaizoConfig_KaizoClientIndicatorBrowser)
+	if(!g_Config.m_KaizoClientIndicatorBrowser)
 		return;
 
 	const float FontSize = 10.0f;

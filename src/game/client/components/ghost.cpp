@@ -16,9 +16,6 @@
 #include <game/client/gameclient.h>
 #include <game/client/race.h>
 
-//+KZ
-extern int g_KaizoConfig_KaizoFastInputAmount;
-
 const char *CGhost::ms_pGhostDir = "ghosts";
 
 static const LOG_COLOR LOG_COLOR_GHOST{165, 153, 153};
@@ -320,8 +317,8 @@ void CGhost::OnRender()
 	float PredIntraTick = Client()->PredIntraGameTick(g_Config.m_ClDummy);
 	int PredTick = Client()->PredGameTick(g_Config.m_ClDummy);
 
-	float FastInputIntra = (g_KaizoConfig_KaizoFastInputAmount % 20) / 20.0f;
-	int FastInputTicks = g_KaizoConfig_KaizoFastInputAmount / 20;
+	float FastInputIntra = (g_Config.m_KaizoFastInputAmount % 20) / 20.0f;
+	int FastInputTicks = g_Config.m_KaizoFastInputAmount / 20;
 
 	float CombinedIntra = PredIntraTick + FastInputIntra;
 

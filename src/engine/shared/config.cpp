@@ -15,22 +15,6 @@
 
 CConfig g_Config;
 
-//+KZ start
-#define MACRO_CONFIG_INT(Name, ScriptName, Def, Min, Max, Save, Desc)	\
-int g_KaizoConfig_##Name;
-#define MACRO_CONFIG_COL(Name, ScriptName, Def, Save, Desc)	\
-unsigned g_KaizoConfig_##Name;
-#define MACRO_CONFIG_STR(Name, ScriptName, Len, Def, Save, Desc)	\
-static char s_LocalKaizoConfig_##Name[Len];	/* this one should not be used */	\
-CKZConfigString g_KaizoConfig_##Name = {s_LocalKaizoConfig_##Name, Len}; /* use this one instead */
-
-#include "config_variables_kz.h"
-
-#undef MACRO_CONFIG_INT
-#undef MACRO_CONFIG_COL
-#undef MACRO_CONFIG_STR
-//+KZ end
-
 // ----------------------- Config Variables
 
 static void EscapeParam(char *pDst, const char *pSrc, int Size)
@@ -333,38 +317,6 @@ void CConfigManager::Init()
 #undef MACRO_CONFIG_INT
 #undef MACRO_CONFIG_COL
 #undef MACRO_CONFIG_STR
-
-//+KZ start
-#define MACRO_CONFIG_INT(Name, ScriptName, Def, Min, Max, Flags, Desc) \
-	{ \
-		const char *pHelp = Min == Max ? Desc " (default: " #Def ")" : (Max == 0 ? Desc " (default: " #Def ", min: " #Min ")" : Desc " (default: " #Def ", min: " #Min ", max: " #Max ")"); \
-		AddVariable(m_ConfigHeap.Allocate<SIntConfigVariable>(m_pConsole, #ScriptName, SConfigVariable::VAR_INT, Flags, pHelp, &g_KaizoConfig_##Name, Def, Min, Max)); \
-	}
-
-#define MACRO_CONFIG_COL(Name, ScriptName, Def, Flags, Desc) \
-	{ \
-		const size_t HelpSize = (size_t)str_length(Desc) + 32; \
-		char *pHelp = static_cast<char *>(m_ConfigHeap.Allocate(HelpSize)); \
-		const bool Alpha = ((Flags) & CFGFLAG_COLALPHA) != 0; \
-		str_format(pHelp, HelpSize, "%s (default: $%0*X)", Desc, Alpha ? 8 : 6, color_cast<ColorRGBA>(ColorHSLA(Def, Alpha)).Pack(Alpha)); \
-		AddVariable(m_ConfigHeap.Allocate<SColorConfigVariable>(m_pConsole, #ScriptName, SConfigVariable::VAR_COLOR, Flags, pHelp, &g_KaizoConfig_##Name, Def)); \
-	}
-
-#define MACRO_CONFIG_STR(Name, ScriptName, Len, Def, Flags, Desc) \
-	{ \
-		const size_t HelpSize = (size_t)str_length(Desc) + str_length(Def) + 64; \
-		char *pHelp = static_cast<char *>(m_ConfigHeap.Allocate(HelpSize)); \
-		str_format(pHelp, HelpSize, "%s (default: \"%s\", max length: %d)", Desc, Def, Len - 1); \
-		char *pOldValue = static_cast<char *>(m_ConfigHeap.Allocate(Len)); \
-		AddVariable(m_ConfigHeap.Allocate<SStringConfigVariable>(m_pConsole, #ScriptName, SConfigVariable::VAR_STRING, Flags, pHelp, g_KaizoConfig_##Name.m_pStr, Def, Len, pOldValue)); \
-	}
-
-#include "config_variables_kz.h"
-
-#undef MACRO_CONFIG_INT
-#undef MACRO_CONFIG_COL
-#undef MACRO_CONFIG_STR
-//+KZ end
 
 	m_pConsole->Register("reset", "s[config-name]", CFGFLAG_SERVER | CFGFLAG_CLIENT | CFGFLAG_STORE, Con_Reset, this, "Reset a config to its default value");
 	m_pConsole->Register("toggle", "s[config-option] s[value 1] s[value 2]", CFGFLAG_SERVER | CFGFLAG_CLIENT, Con_Toggle, this, "Toggle config value");

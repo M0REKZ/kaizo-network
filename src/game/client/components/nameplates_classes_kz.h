@@ -13,7 +13,7 @@ protected:
 	ColorRGBA m_Color = ColorRGBA(1.0f, 1.0f, 1.0f, 0.0f);
 	void Update(CGameClient &This, const CNamePlateData &Data) override
 	{
-		if(!g_KaizoConfig_KaizoPingCircles || Data.m_ClientId == This.m_Snap.m_LocalClientId)
+		if(!g_Config.m_KaizoPingCircles || Data.m_ClientId == This.m_Snap.m_LocalClientId)
 		{
 			m_Visible = false;
 			return;
@@ -51,7 +51,7 @@ class CNamePlatePartKaizoCustomClient : public CNamePlatePartSprite
 public:
 	void Update(CGameClient &This, const CNamePlateData &Data) override
 	{
-		if(!g_KaizoConfig_KaizoShowClientType || Data.m_ClientId == This.m_Snap.m_LocalClientId)
+		if(!g_Config.m_KaizoShowClientType || Data.m_ClientId == This.m_Snap.m_LocalClientId)
 		{
 			m_Visible = false;
 			return;
@@ -121,7 +121,7 @@ protected:
 	void Update(CGameClient &This, const CNamePlateData &Data) override
 	{
 		int Count = not_builtin_popcount(Data.m_TrackedFlags);
-		if(!g_KaizoConfig_KaizoShowCharFlags || !Data.m_TrackedFlags || Data.m_ClientId == This.m_Snap.m_LocalClientId)
+		if(!g_Config.m_KaizoShowCharFlags || !Data.m_TrackedFlags || Data.m_ClientId == This.m_Snap.m_LocalClientId)
 		{
 			m_Size = vec2();
 			m_Visible = false;
@@ -192,7 +192,7 @@ protected:
 	void Update(CGameClient &This, const CNamePlateData &Data) override
 	{
 		int Count = Data.m_JumpsLeft + Data.m_JumpsUsed;
-		if(!g_KaizoConfig_KaizoShowCharJumps || Data.m_ClientId == This.m_Snap.m_LocalClientId)
+		if(!g_Config.m_KaizoShowCharJumps || Data.m_ClientId == This.m_Snap.m_LocalClientId)
 		{
 			m_Size = vec2();
 			m_Visible = false;

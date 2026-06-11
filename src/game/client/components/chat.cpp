@@ -24,10 +24,6 @@
 #include <game/client/gameclient.h>
 #include <game/localization.h>
 
-//+KZ
-extern int g_KaizoConfig_KaizoChatInputBackground;
-extern int g_KaizoConfig_KaizoEmoticonToEmoji;
-
 char CChat::ms_aDisplayText[MAX_LINE_LENGTH] = "";
 
 CChat::CLine::CLine()
@@ -1184,7 +1180,7 @@ void CChat::OnRender()
 	if(m_Mode != MODE_NONE)
 	{
 		// +KZ from DuckClient: Draw background for message
-		if(!g_Config.m_ClChatOld && g_KaizoConfig_KaizoChatInputBackground)
+		if(!g_Config.m_ClChatOld && g_Config.m_KaizoChatInputBackground)
 		{
 			Graphics()->TextureClear();
 			int yy = y - 1.0f;
@@ -1368,7 +1364,7 @@ void CChat::SendChat(int Team, const char *pLine)
 
 	std::string EmojizedString;
 
-	if(g_KaizoConfig_KaizoEmoticonToEmoji)
+	if(g_Config.m_KaizoEmoticonToEmoji)
 	{
 		EmojizedString = m_EmojiKZ.Emojize(pLine);
 		pLine = EmojizedString.c_str();

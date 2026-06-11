@@ -13,9 +13,6 @@
 #include <game/client/components/scoreboard.h>
 #include <game/client/gameclient.h>
 
-//+KZ
-extern int g_KaizoConfig_KaizoHideBroadcastOnChat;
-
 void CBroadcast::OnReset()
 {
 	m_BroadcastTick = 0;
@@ -35,7 +32,7 @@ void CBroadcast::OnRender()
 		return;
 
 	//+KZ
-	if(g_KaizoConfig_KaizoHideBroadcastOnChat && (GameClient()->m_Chat.IsActive() || GameClient()->m_Chat.IsShowing()))
+	if(g_Config.m_KaizoHideBroadcastOnChat && (GameClient()->m_Chat.IsActive() || GameClient()->m_Chat.IsShowing()))
 		return;
 
 	RenderServerBroadcast();

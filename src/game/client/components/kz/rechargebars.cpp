@@ -3,9 +3,6 @@
 #include <game/client/gameclient.h>
 #include <game/client/prediction/entities/character.h>
 
-//+KZ
-extern int g_KaizoConfig_KaizoShowRechargeBar;
-
 void CRechargeBars::RenderFreezeBar(const int ClientId)
 {
 	const float FreezeBarWidth = 64.0f;
@@ -205,7 +202,7 @@ void CRechargeBars::OnRender()
 	if(Client()->State() != IClient::STATE_ONLINE && Client()->State() != IClient::STATE_DEMOPLAYBACK)
 		return;
 
-    if(!g_KaizoConfig_KaizoShowRechargeBar)
+    if(!g_Config.m_KaizoShowRechargeBar)
     {
         return;
     }

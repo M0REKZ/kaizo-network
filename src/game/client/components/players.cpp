@@ -27,18 +27,6 @@
 
 #include <game/client/prediction/entities/character.h>
 
-//+KZ
-extern int g_KaizoConfig_KaizoRevertHookLine;
-extern int g_KaizoConfig_KaizoAntiPingImproved;
-extern int g_KaizoConfig_KaizoRotatingHammer;
-extern int g_KaizoConfig_KaizoInstaShieldShield;
-extern int g_KaizoConfig_KaizoSleepingInMenuPlayers;
-extern int g_KaizoConfig_KaizoKillingSpreeSparkles;
-extern int g_KaizoConfig_KaizoPredictGameTypes;
-extern int g_KaizoConfig_KaizoPredictOthersEffects;
-extern int g_KaizoConfig_KaizoFastInput;
-extern int g_KaizoConfig_SvGoresQuadsEnable;
-
 static float CalculateHandAngle(vec2 Dir, float AngleOffset)
 {
 	const float Angle = angle(Dir);
@@ -298,7 +286,7 @@ void CPlayers::RenderHookCollLine(
 				//int Hit = Collision()->IntersectLineTeleHook(SegmentStartPos, RetractingHookEndPos, &HitPos, nullptr, &Tele);
 				int Hit = 0;
 				SKZQuadData* pHookedQuad = nullptr;
-				if(g_KaizoConfig_SvGoresQuadsEnable)
+				if(g_Config.m_SvGoresQuadsEnable)
 				{
 					pHookedQuad = Collision()->IntersectQuad(&GameClient()->m_GameWorld.m_Core, SegmentStartPos, RetractingHookEndPos, &HitPos); //+KZ
 				}
@@ -349,7 +337,7 @@ void CPlayers::RenderHookCollLine(
 		//int Hit = Collision()->IntersectLineTeleHook(SegmentStartPos, SegmentEndPos, &HitPos, nullptr, &Tele);
 		int Hit = 0;
 		SKZQuadData* pHookedQuad = nullptr;
-		if(g_KaizoConfig_SvGoresQuadsEnable)
+		if(g_Config.m_SvGoresQuadsEnable)
 		{
 			pHookedQuad = Collision()->IntersectQuad(&GameClient()->m_GameWorld.m_Core, SegmentStartPos, SegmentEndPos, &HitPos); //+KZ
 		}
@@ -490,7 +478,7 @@ void CPlayers::RenderHookCollLine(
 		Graphics()->QuadsBegin();
 		Graphics()->SetColor(HookCollColor.WithAlpha(Alpha));
 		Graphics()->QuadsDrawFreeform(vLineQuadSegments.data(), vLineQuadSegments.size());
-		if(HookTipLineSegment.has_value() && HookCollTipColor.a > 0.0f && !g_KaizoConfig_KaizoRevertHookLine /*TClient*/)
+		if(HookTipLineSegment.has_value() && HookCollTipColor.a > 0.0f && !g_Config.m_KaizoRevertHookLine /*TClient*/)
 		{
 			vLineQuadSegments.clear();
 			ConvertLineSegments(HookTipLineSegment.value());
@@ -504,7 +492,7 @@ void CPlayers::RenderHookCollLine(
 		Graphics()->LinesBegin();
 		Graphics()->SetColor(HookCollColor.WithAlpha(Alpha));
 		Graphics()->LinesDraw(vLineSegments.data(), vLineSegments.size());
-		if(HookTipLineSegment.has_value() && HookCollTipColor.a > 0.0f && !g_KaizoConfig_KaizoRevertHookLine /*TClient*/)
+		if(HookTipLineSegment.has_value() && HookCollTipColor.a > 0.0f && !g_Config.m_KaizoRevertHookLine /*TClient*/)
 		{
 			Graphics()->SetColor(HookCollTipColor.WithMultipliedAlpha(Alpha));
 			Graphics()->LinesDraw(&HookTipLineSegment.value(), 1);
@@ -660,7 +648,7 @@ void CPlayers::RenderPlayer(
 
 	bool Stationary = Player.m_VelX <= 1 && Player.m_VelX >= -1;
 	bool InAir = !Collision()->CheckPoint(Player.m_X, Player.m_Y + 16);
-	if(g_KaizoConfig_KaizoAntiPingImproved && !Local) //TClient
+	if(g_Config.m_KaizoAntiPingImproved && !Local) //TClient
 		InAir = !Collision()->CheckPoint(Position.x, Position.y + 16);
 	bool Running = Player.m_VelX >= 5000 || Player.m_VelX <= -5000;
 	bool WantOtherDir = (Player.m_Direction == -1 && Vel.x > 0) || (Player.m_Direction == 1 && Vel.x < 0);
@@ -748,7 +736,7 @@ void CPlayers::RenderPlayer(
 				// if active and attack is under way, bash stuffs
 				if(!Inactive || LastAttackTime * HammerAnimationTimeScale < 1.0f)
 				{
-					if(g_KaizoConfig_KaizoRotatingHammer) //+KZ from rotating hammer pull request
+					if(g_Config.m_KaizoRotatingHammer) //+KZ from rotating hammer pull request
 					{
 						if(Direction.x < 0)
 							Graphics()->QuadsSetRotation(-pi / 2.0f - State.GetAttach()->m_Angle * pi * 2.0f + Angle + pi);
@@ -892,7 +880,7 @@ void CPlayers::RenderPlayer(
 			}
 
 			//+KZ from Dune Gamer client
-			if(g_KaizoConfig_KaizoInstaShieldShield && Player.m_Weapon == WEAPON_SHOTGUN && GameClient()->m_InstaShield)
+			if(g_Config.m_KaizoInstaShieldShield && Player.m_Weapon == WEAPON_SHOTGUN && GameClient()->m_InstaShield)
 			{
 				Graphics()->TextureSet(g_pData->m_aImages[IMAGE_KZ_SHIELD].m_Id);
 				Graphics()->QuadsBegin();
@@ -908,7 +896,7 @@ void CPlayers::RenderPlayer(
 	SetPlayerEmoteKZ(Player, ClientId);
 
 	//+KZ sleeping menu tees
-	if(g_KaizoConfig_KaizoSleepingInMenuPlayers && (GameClient()->m_Snap.m_aCharacters[ClientId].m_Cur.m_PlayerFlags & PLAYERFLAG_IN_MENU))
+	if(g_Config.m_KaizoSleepingInMenuPlayers && (GameClient()->m_Snap.m_aCharacters[ClientId].m_Cur.m_PlayerFlags & PLAYERFLAG_IN_MENU))
 		Player.m_Emote = EMOTE_BLINK;
 
 	// render the "shadow" tee
@@ -939,7 +927,7 @@ void CPlayers::RenderPlayer(
 	}
 
 	//+KZ
-	if(g_KaizoConfig_KaizoKillingSpreeSparkles && GameClient()->m_aClients[ClientId].m_KillingSpreeMode)
+	if(g_Config.m_KaizoKillingSpreeSparkles && GameClient()->m_aClients[ClientId].m_KillingSpreeMode)
 		GameClient()->m_Effects.ColouredSparkleTrailKaizo(BodyPos, ColorRGBA(1.f,0.f,0.f,Alpha));
 
 	if(ClientId < 0)
@@ -1027,9 +1015,9 @@ void CPlayers::OnRender()
 		aRenderInfo[i].m_TeeRenderFlags = 0;
 
 		//+KZ
-		if(g_KaizoConfig_KaizoPredictGameTypes)
+		if(g_Config.m_KaizoPredictGameTypes)
 		{
-			if(g_KaizoConfig_KaizoPredictOthersEffects ? true : (i == GameClient()->m_aLocalIds[0] || i == GameClient()->m_aLocalIds[1]))
+			if(g_Config.m_KaizoPredictOthersEffects ? true : (i == GameClient()->m_aLocalIds[0] || i == GameClient()->m_aLocalIds[1]))
 			{
 				if(GameClient()->m_PredictedWorld.GetCharacterById(i))
 				{
@@ -1056,7 +1044,7 @@ void CPlayers::OnRender()
 			Frozen = GameClient()->m_aClients[i].m_Predicted.m_FreezeEnd != 0;
 
 			// TClient
-			if(g_KaizoConfig_KaizoFastInput)
+			if(g_Config.m_KaizoFastInput)
 				Frozen = GameClient()->m_aClients[i].m_RegularPredicted.m_FreezeEnd != 0;
 		}
 		else

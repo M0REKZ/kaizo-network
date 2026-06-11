@@ -6,12 +6,6 @@
 #include "client.h"
 #include <base/time.h>
 
-//+KZ configs used in this file
-extern int g_KaizoConfig_KaizoFastInput;
-extern int g_KaizoConfig_KaizoFastInputAmount;
-extern int g_KaizoConfig_KaizoSendLanguage;
-extern int g_KaizoConfig_KaizoUnfreezeLagTicks;
-
 void CClient::SendKaizoNetworkVersion(int Conn)
 {
     CMsgPacker Msg(NETMSG_KZ_KAIZO_NETWORK_VERSION, true);
@@ -29,8 +23,8 @@ void CClient::SendKaizoClientIAm(int Conn)
 void CClient::SendFastInputsInfo(int Conn)
 {
 	CMsgPacker Msg(NETMSG_FOXNET_FASTINPUTS, true);
-	Msg.AddInt(g_KaizoConfig_KaizoFastInput);
-	Msg.AddInt(g_KaizoConfig_KaizoFastInputAmount);
+	Msg.AddInt(g_Config.m_KaizoFastInput);
+	Msg.AddInt(g_Config.m_KaizoFastInputAmount);
 	SendMsg(Conn, &Msg, MSGFLAG_VITAL);
 }
 
@@ -42,7 +36,7 @@ void CClient::SendSupportsCosmeticSnapInfo(int Conn)
 
 void CClient::SendClientLanguage(int Conn)
 {
-	if(g_KaizoConfig_KaizoSendLanguage && g_Config.m_ClLanguagefile[0])
+	if(g_Config.m_KaizoSendLanguage && g_Config.m_ClLanguagefile[0])
 	{
 		//first check if the client supports that language
 		for(const CLanguage &Lang : g_Localization.Languages())
@@ -71,7 +65,7 @@ void CClient::GetSmoothFreezeTick(int *pSmoothTick, float *pSmoothIntraTick, flo
 	int64_t PredTime = m_PredictedTime.Get(time_get());
 	GameTime = std::min(GameTime, PredTime);
 
-	int64_t UpperPredTime = std::clamp(PredTime - (time_freq() / 50) * g_KaizoConfig_KaizoUnfreezeLagTicks, GameTime, PredTime);
+	int64_t UpperPredTime = std::clamp(PredTime - (time_freq() / 50) * g_Config.m_KaizoUnfreezeLagTicks, GameTime, PredTime);
 	int64_t LowestPredTime = std::clamp(PredTime, GameTime, UpperPredTime);
 	int64_t SmoothTime = std::clamp(LowestPredTime + (int64_t)(MixAmount * (PredTime - LowestPredTime)), LowestPredTime, PredTime);
 

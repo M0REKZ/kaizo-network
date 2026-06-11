@@ -21,13 +21,10 @@
 #include <android/android_main.h>
 #endif
 
-//+KZ
-extern int g_KaizoConfig_KaizoStartMenu;
-
 void CMenusStart::RenderStartMenu(CUIRect MainView)
 {
 	//+KZ
-	if(g_KaizoConfig_KaizoStartMenu)
+	if(g_Config.m_KaizoStartMenu)
 	{
 		RenderKaizoStartMenu(MainView);
 		return;

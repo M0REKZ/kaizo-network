@@ -6,15 +6,6 @@
 #include <game/client/gameclient.h>
 #include "controls.h"
 
-//+KZ
-extern int g_KaizoConfig_KaizoPingCircles;
-extern int g_KaizoConfig_KaizoHideChatBubble;
-extern int g_KaizoConfig_KaizoHideInMenuStatus;
-extern int g_KaizoConfig_KaizoForceChatBubble;
-extern int g_KaizoConfig_KaizoForceInMenuStatus;
-extern int g_KaizoConfig_KaizoFastRespawn;
-extern int g_KaizoConfig_KaizoHideAiming;
-
 bool CControls::CheckNewInput()
 {
 	bool NewInput[2] = {};
@@ -92,18 +83,18 @@ void CControls::HandleKaizoInput(CNetObj_PlayerInput *pMainInput, CNetObj_Player
 
 	//this is so we always receive ping from other players
 	//exclude F-DDrace since some features requires pressing/releasing scoreboard key
-	if(g_KaizoConfig_KaizoPingCircles && !GameClient()->m_GameInfo.m_EntitiesFDDrace)
+	if(g_Config.m_KaizoPingCircles && !GameClient()->m_GameInfo.m_EntitiesFDDrace)
 	{
 		pMainInput->m_PlayerFlags |= PLAYERFLAG_SCOREBOARD;
 	}
 
-	if(g_KaizoConfig_KaizoHideChatBubble)
+	if(g_Config.m_KaizoHideChatBubble)
 	{
 		pMainInput->m_PlayerFlags &= ~(PLAYERFLAG_CHATTING);
 		pDummyInput->m_PlayerFlags &= ~(PLAYERFLAG_CHATTING);
 	}
 
-	if(g_KaizoConfig_KaizoHideInMenuStatus)
+	if(g_Config.m_KaizoHideInMenuStatus)
 	{
 		//PLAYERFLAG_IN_MENU & PLAYERFLAG_PLAYING are about in-menu state
 		pMainInput->m_PlayerFlags &= ~(PLAYERFLAG_IN_MENU);
@@ -112,13 +103,13 @@ void CControls::HandleKaizoInput(CNetObj_PlayerInput *pMainInput, CNetObj_Player
 		pDummyInput->m_PlayerFlags |= PLAYERFLAG_PLAYING;
 	}
 
-	if(g_KaizoConfig_KaizoForceChatBubble)
+	if(g_Config.m_KaizoForceChatBubble)
 	{
 		pMainInput->m_PlayerFlags |= PLAYERFLAG_CHATTING;
 		pDummyInput->m_PlayerFlags |= PLAYERFLAG_CHATTING;
 	}
 
-	if(g_KaizoConfig_KaizoForceInMenuStatus)
+	if(g_Config.m_KaizoForceInMenuStatus)
 	{
 		//PLAYERFLAG_IN_MENU & PLAYERFLAG_PLAYING are about in-menu state
 		pMainInput->m_PlayerFlags |= PLAYERFLAG_IN_MENU;
@@ -127,7 +118,7 @@ void CControls::HandleKaizoInput(CNetObj_PlayerInput *pMainInput, CNetObj_Player
 		pDummyInput->m_PlayerFlags &= ~(PLAYERFLAG_PLAYING);
 	}
 
-	if(g_KaizoConfig_KaizoFastRespawn)
+	if(g_Config.m_KaizoFastRespawn)
 	{
 		static bool Shoot = false;
 		bool PrevShoot = Shoot;
@@ -152,7 +143,7 @@ void CControls::HandleKaizoInput(CNetObj_PlayerInput *pMainInput, CNetObj_Player
 			pMainInput->m_Fire |= 1;
 	}
 
-	if(g_KaizoConfig_KaizoHideAiming)
+	if(g_Config.m_KaizoHideAiming)
 	{
 		static bool init = false; //first time running this
 		static int targetX = 0, targetY = 0; //last recorded aiming position

@@ -13,10 +13,6 @@
 
 #include <limits>
 
-//+KZ configs used in this file
-extern int g_KaizoConfig_SvKaizoMaxVel;
-extern int g_KaizoConfig_SvGoresQuadsEnable;
-
 const char *CTuningParams::ms_apNames[] =
 	{
 #define MACRO_TUNING_PARAM(Name, ScriptName, Value, Description) #ScriptName,
@@ -358,7 +354,7 @@ void CCharacterCore::Tick(bool UseInput, bool DoDeferredTick)
 		int TeleNr = 0;
 		int Hit = 0;
 
-		if(g_KaizoConfig_SvGoresQuadsEnable && !m_pHookedQuad)
+		if(g_Config.m_SvGoresQuadsEnable && !m_pHookedQuad)
 		{
 			m_pHookedQuad = m_pCollision->IntersectQuad(m_pWorld ,HookBase, NewPos, &NewPos); //+KZ
 		}
@@ -601,8 +597,8 @@ void CCharacterCore::Move()
 	// Kaizo Client: this is only needed on Kaizo Network Servers
 	if(m_pCollision->m_IsKaizoServer)
 	{
-		m_Vel.x = std::clamp(m_Vel.x, (float)-g_KaizoConfig_SvKaizoMaxVel, (float)g_KaizoConfig_SvKaizoMaxVel);
-		m_Vel.y = std::clamp(m_Vel.y, (float)-g_KaizoConfig_SvKaizoMaxVel, (float)g_KaizoConfig_SvKaizoMaxVel);
+		m_Vel.x = std::clamp(m_Vel.x, (float)-g_Config.m_SvKaizoMaxVel, (float)g_Config.m_SvKaizoMaxVel);
+		m_Vel.y = std::clamp(m_Vel.y, (float)-g_Config.m_SvKaizoMaxVel, (float)g_Config.m_SvKaizoMaxVel);
 	}
 
 	vec2 NewPos = m_Pos;
@@ -611,7 +607,7 @@ void CCharacterCore::Move()
 	bool Grounded = false;
 	m_QuadGrounded = false;
 
-	if(g_KaizoConfig_SvGoresQuadsEnable)
+	if(g_Config.m_SvGoresQuadsEnable)
 		m_pCollision->PushBoxOutsideQuads(m_pWorld ,&NewPos, &m_Vel, PhysicalSizeVec2(), this, &m_QuadGrounded); //+KZ
 
 	m_pCollision->MoveBox(&NewPos, &m_Vel, PhysicalSizeVec2(),
