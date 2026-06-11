@@ -84,6 +84,18 @@
 #include <thread>
 #include <tuple>
 
+//+KZ configs used in this file
+extern int g_KaizoConfig_KaizoFastInput;
+extern int g_KaizoConfig_KaizoPrefer07Protocol;
+extern CKZConfigString g_KaizoConfig_KaizoExecuteOnConnect;
+extern int g_KaizoConfig_KaizoAlwaysAllowDummy;
+extern int g_KaizoConfig_KaizoFastMapDownload;
+extern int g_KaizoConfig_KaizoFastMapDownloadWindow;
+extern CKZConfigString g_KaizoConfig_KaizoRunOnJoinConsole;
+extern int g_KaizoConfig_KaizoRunOnJoinConsoleDelay;
+extern int g_KaizoConfig_KaizoPredMarginInFreeze;
+extern int g_KaizoConfig_KaizoPredMarginInFreezeAmount;
+
 using namespace std::chrono_literals;
 
 static constexpr ColorRGBA CLIENT_NETWORK_PRINT_COLOR = ColorRGBA(0.7f, 1, 0.7f, 1.0f);
@@ -671,7 +683,7 @@ void CClient::Connect(const char *pAddress, const char *pPassword)
 		{
 			NextAddr.port = 8303;
 		}
-		if(Sixup || g_Config.m_KaizoPrefer07Protocol) //+KZ
+		if(Sixup || g_KaizoConfig_KaizoPrefer07Protocol) //+KZ
 			NextAddr.type |= NETTYPE_TW7;
 		else
 			OnlySixup = false;
@@ -708,7 +720,7 @@ void CClient::Connect(const char *pAddress, const char *pPassword)
 	if(!m_SendPassword)
 	{
 		m_pGameClient->SetConnectInfo(&aConnectAddrs[0]);
-		m_pConsole->ExecuteLine(g_Config.m_KaizoExecuteOnConnect, IConsole::CLIENT_ID_UNSPECIFIED);
+		m_pConsole->ExecuteLine(g_KaizoConfig_KaizoExecuteOnConnect.m_pStr, IConsole::CLIENT_ID_UNSPECIFIED);
 	}
 	m_pGameClient->SetConnectInfo(nullptr);
 
@@ -888,7 +900,7 @@ void CClient::DummyDisconnect(const char *pReason)
 
 bool CClient::DummyAllowed() const
 {
-	if(g_Config.m_KaizoAlwaysAllowDummy) //+KZ
+	if(g_KaizoConfig_KaizoAlwaysAllowDummy) //+KZ
 		return true;
 	return m_ServerCapabilities.m_AllowDummy;
 }
@@ -1777,7 +1789,7 @@ void CClient::ProcessServerPacket(CNetChunk *pPacket, int Conn, bool Dummy)
 			}
 
 			const unsigned char *pData = Unpacker.GetRaw(Size);
-			if(Unpacker.Error() || Size <= 0 || MapCRC != m_MapdownloadCrc || (g_Config.m_KaizoFastMapDownload ? false : Chunk != m_MapdownloadChunk))
+			if(Unpacker.Error() || Size <= 0 || MapCRC != m_MapdownloadCrc || (g_KaizoConfig_KaizoFastMapDownload ? false : Chunk != m_MapdownloadChunk))
 			{
 				return;
 			}
@@ -1805,9 +1817,9 @@ void CClient::ProcessServerPacket(CNetChunk *pPacket, int Conn, bool Dummy)
 
 				//+KZ
 				// 0.7 servers can crash: https://github.com/teeworlds/teeworlds/issues/3304
-				if(!IsSixup() && g_Config.m_KaizoFastMapDownload)
+				if(!IsSixup() && g_KaizoConfig_KaizoFastMapDownload)
 				{
-					int Limit = g_Config.m_KaizoFastMapDownloadWindow;
+					int Limit = g_KaizoConfig_KaizoFastMapDownloadWindow;
 					int i = m_MapdownloadChunk;
 					for(; (i < Limit); i++)
 					{
@@ -2306,9 +2318,9 @@ void CClient::ProcessServerPacket(CNetChunk *pPacket, int Conn, bool Dummy)
 						m_aDidPostConnect[Conn] = true;
 					}
 
-					if(g_Config.m_KaizoRunOnJoinConsole[0] && m_aReceivedSnapshots[Conn] > g_Config.m_KaizoRunOnJoinConsoleDelay && !m_aCodeRunAfterJoinConsole[Conn])
+					if(g_KaizoConfig_KaizoRunOnJoinConsole.m_pStr[0] && m_aReceivedSnapshots[Conn] > g_KaizoConfig_KaizoRunOnJoinConsoleDelay && !m_aCodeRunAfterJoinConsole[Conn])
 					{
-						m_pConsole->ExecuteLine(g_Config.m_KaizoRunOnJoinConsole, IConsole::CLIENT_ID_UNSPECIFIED);
+						m_pConsole->ExecuteLine(g_KaizoConfig_KaizoRunOnJoinConsole.m_pStr, IConsole::CLIENT_ID_UNSPECIFIED);
 						m_aCodeRunAfterJoinConsole[Conn] = true;
 					}
 
@@ -2925,7 +2937,7 @@ void CClient::Update()
 				}
 
 				//+KZ from Fast Input commit
-				if(g_Config.m_KaizoFastInput && GameClient()->CheckNewInput())
+				if(g_KaizoConfig_KaizoFastInput && GameClient()->CheckNewInput())
 				{
 					Repredict = true;
 				}
@@ -4386,6 +4398,10 @@ int CClient::HandleChecksum(int Conn, CUuid Uuid, CUnpacker *pUnpacker)
 #undef MACRO_CONFIG_INT
 #undef MACRO_CONFIG_COL
 #undef MACRO_CONFIG_STR
+
+//+KZ start
+//no wait, do i really need this? lets try....
+//+KZ end
 	}
 	if(End > (int)sizeof(m_Checksum.m_aBytes))
 	{
@@ -5333,7 +5349,7 @@ void CClient::GetSmoothTick(int *pSmoothTick, float *pSmoothIntraTick, float Mix
 	int64_t PredTime = m_PredictedTime.Get(time_get());
 	int64_t SmoothTime = std::clamp(GameTime + (int64_t)(MixAmount * (PredTime - GameTime)), GameTime, PredTime);
 
-	*pSmoothTick = (int)(SmoothTime * GameTickSpeed() / time_freq()) + 1 + g_Config.m_KaizoFastInput; //+KZ modified for Fast Input
+	*pSmoothTick = (int)(SmoothTime * GameTickSpeed() / time_freq()) + 1 + g_KaizoConfig_KaizoFastInput; //+KZ modified for Fast Input
 	*pSmoothIntraTick = (SmoothTime - (*pSmoothTick - 1) * time_freq() / GameTickSpeed()) / (float)(time_freq() / GameTickSpeed());
 }
 
@@ -5365,9 +5381,9 @@ int CClient::MaxLatencyTicks() const
 
 int CClient::PredictionMargin() const
 {
-	if(g_Config.m_KaizoPredMarginInFreeze && m_IsLocalFrozen)
+	if(g_KaizoConfig_KaizoPredMarginInFreeze && m_IsLocalFrozen)
 	{
-		return g_Config.m_KaizoPredMarginInFreezeAmount;
+		return g_KaizoConfig_KaizoPredMarginInFreezeAmount;
 	}
 	return m_ServerCapabilities.m_SyncWeaponInput ? g_Config.m_ClPredictionMargin : 10;
 }

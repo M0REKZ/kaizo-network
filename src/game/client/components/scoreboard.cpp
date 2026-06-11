@@ -23,6 +23,11 @@
 #include <game/client/ui.h>
 #include <game/localization.h>
 
+//+KZ
+extern int g_KaizoConfig_KaizoShowClientType;
+extern int g_KaizoConfig_KaizoScoreboardStyle;
+extern int g_KaizoConfig_KaizoScoreboardShorten;
+
 CScoreboard::CScoreboard()
 {
 	OnReset();
@@ -257,8 +262,8 @@ void CScoreboard::RenderTitleBar(CUIRect TitleBar, int Team, const char *pTitle)
 
 void CScoreboard::RenderGoals(CUIRect Goals)
 {
-	if (g_Config.m_KaizoScoreboardStyle >= 2)
-		Goals.Draw(ColorRGBA(0.0f, 0.0f, 0.0f, 0.6f), g_Config.m_KaizoScoreboardStyle == 2 ? IGraphics::CORNER_T : IGraphics::CORNER_ALL, 7.5f);
+	if (g_KaizoConfig_KaizoScoreboardStyle >= 2)
+		Goals.Draw(ColorRGBA(0.0f, 0.0f, 0.0f, 0.6f), g_KaizoConfig_KaizoScoreboardStyle == 2 ? IGraphics::CORNER_T : IGraphics::CORNER_ALL, 7.5f);
 	else	
 		Goals.Draw(ColorRGBA(0.0f, 0.0f, 0.0f, 0.5f), IGraphics::CORNER_ALL, 7.5f);
 	Goals.VMargin(5.0f, &Goals);
@@ -296,10 +301,10 @@ void CScoreboard::RenderSpectators(CUIRect Spectators)
 		pLinesUsedSpectatorKZ = &LinesUsed;
 
 	int MaxHeight = Spectators.h;
-	if (g_Config.m_KaizoScoreboardShorten >= 1)
+	if (g_KaizoConfig_KaizoScoreboardShorten >= 1)
 		Spectators.HSplitTop(LinesUsed*22.0f, &Spectators, nullptr);
 	const CNetObj_GameInfo *pGameInfoObj = GameClient()->m_Snap.m_pGameInfoObj;
-	if(g_Config.m_KaizoScoreboardStyle == 2 && pGameInfoObj && (pGameInfoObj->m_ScoreLimit || pGameInfoObj->m_TimeLimit || (pGameInfoObj->m_RoundNum && pGameInfoObj->m_RoundCurrent)))
+	if(g_KaizoConfig_KaizoScoreboardStyle == 2 && pGameInfoObj && (pGameInfoObj->m_ScoreLimit || pGameInfoObj->m_TimeLimit || (pGameInfoObj->m_RoundNum && pGameInfoObj->m_RoundCurrent)))
 		Spectators.Draw(ColorRGBA(0.0f, 0.0f, 0.0f, 0.5f), IGraphics::CORNER_B, 7.5f);
 	else
 		Spectators.Draw(ColorRGBA(0.0f, 0.0f, 0.0f, 0.5f), IGraphics::CORNER_ALL, 7.5f);
@@ -805,7 +810,7 @@ void CScoreboard::RenderScoreboard(CUIRect Scoreboard, int Team, int CountStart,
 				CountryOffset, Row.y + (Spacing + TeeSizeMod * 5.0f) / 2.0f, CountryLength, Row.h - Spacing - TeeSizeMod * 5.0f);
 
 			//+KZ
-			if(g_Config.m_KaizoShowClientType)
+			if(g_KaizoConfig_KaizoShowClientType)
 			{
 				int Type = GameClient()->m_aClients[pInfo->m_ClientId].m_CustomClient;
 
@@ -951,7 +956,7 @@ void CScoreboard::OnRender()
 	const float ScoreboardWidth = !Teams && NumPlayers <= 16 ? ScoreboardSmallWidth : 750.0f;
 	const float TitleHeight = 30.0f;
 
-	CUIRect Scoreboard = {(Screen.w  - ScoreboardWidth) / 2.0f, 75.0f, ScoreboardWidth, (g_Config.m_KaizoScoreboardShorten >= 2 && NumPlayers <= 8 ? 50.0f + 38.0f*NumPlayers : 355.0f) + TitleHeight};
+	CUIRect Scoreboard = {(Screen.w  - ScoreboardWidth) / 2.0f, 75.0f, ScoreboardWidth, (g_KaizoConfig_KaizoScoreboardShorten >= 2 && NumPlayers <= 8 ? 50.0f + 38.0f*NumPlayers : 355.0f) + TitleHeight};
 	CScoreboardRenderState RenderState{};
 
 	if(Teams)
@@ -1005,10 +1010,10 @@ void CScoreboard::OnRender()
 		RedScoreboard.HSplitTop(TitleHeight, &RedTitle, &RedScoreboard);
 		BlueScoreboard.HSplitTop(TitleHeight, &BlueTitle, &BlueScoreboard);
 
-		RedTitle.Draw(ColorRGBA(0.975f, 0.17f, 0.17f, 0.5f), g_Config.m_KaizoScoreboardStyle <= 2 ? IGraphics::CORNER_T : IGraphics::CORNER_ALL, 7.5f);
-		BlueTitle.Draw(ColorRGBA(0.17f, 0.46f, 0.975f, 0.5f), g_Config.m_KaizoScoreboardStyle <= 2 ? IGraphics::CORNER_T : IGraphics::CORNER_ALL, 7.5f);
-		RedScoreboard.Draw(ColorRGBA(0.0f, 0.0f, 0.0f, 0.5f), g_Config.m_KaizoScoreboardStyle <= 2 ? IGraphics::CORNER_B : IGraphics::CORNER_ALL, 7.5f);
-		BlueScoreboard.Draw(ColorRGBA(0.0f, 0.0f, 0.0f, 0.5f), g_Config.m_KaizoScoreboardStyle <= 2 ? IGraphics::CORNER_B : IGraphics::CORNER_ALL, 7.5f);
+		RedTitle.Draw(ColorRGBA(0.975f, 0.17f, 0.17f, 0.5f), g_KaizoConfig_KaizoScoreboardStyle <= 2 ? IGraphics::CORNER_T : IGraphics::CORNER_ALL, 7.5f);
+		BlueTitle.Draw(ColorRGBA(0.17f, 0.46f, 0.975f, 0.5f), g_KaizoConfig_KaizoScoreboardStyle <= 2 ? IGraphics::CORNER_T : IGraphics::CORNER_ALL, 7.5f);
+		RedScoreboard.Draw(ColorRGBA(0.0f, 0.0f, 0.0f, 0.5f), g_KaizoConfig_KaizoScoreboardStyle <= 2 ? IGraphics::CORNER_B : IGraphics::CORNER_ALL, 7.5f);
+		BlueScoreboard.Draw(ColorRGBA(0.0f, 0.0f, 0.0f, 0.5f), g_KaizoConfig_KaizoScoreboardStyle <= 2 ? IGraphics::CORNER_B : IGraphics::CORNER_ALL, 7.5f);
 
 		RenderTitleBar(RedTitle, TEAM_RED, pRedTeamName == nullptr ? Localize("Red team") : pRedTeamName);
 		RenderTitleBar(BlueTitle, TEAM_BLUE, pBlueTeamName == nullptr ? Localize("Blue team") : pBlueTeamName);
@@ -1017,7 +1022,7 @@ void CScoreboard::OnRender()
 	}
 	else
 	{
-		if(!g_Config.m_KaizoScoreboardStyle)		
+		if(!g_KaizoConfig_KaizoScoreboardStyle)		
 			Scoreboard.Draw(ColorRGBA(0.0f, 0.0f, 0.0f, 0.5f), IGraphics::CORNER_ALL, 7.5f);
 
 		const char *pTitle;
@@ -1032,10 +1037,10 @@ void CScoreboard::OnRender()
 
 		CUIRect Title;
 		Scoreboard.HSplitTop(TitleHeight, &Title, &Scoreboard);
-		if (g_Config.m_KaizoScoreboardStyle)
+		if (g_KaizoConfig_KaizoScoreboardStyle)
 		{
-			Title.Draw(ColorRGBA(0.0f, 0.0f, 0.0f, 0.6f), g_Config.m_KaizoScoreboardStyle <= 2 ? IGraphics::CORNER_T : IGraphics::CORNER_ALL, 7.5f);
-			Scoreboard.Draw(ColorRGBA(0.0f, 0.0f, 0.0f, 0.5f), g_Config.m_KaizoScoreboardStyle <= 2 ? IGraphics::CORNER_B : IGraphics::CORNER_ALL, 7.5f);
+			Title.Draw(ColorRGBA(0.0f, 0.0f, 0.0f, 0.6f), g_KaizoConfig_KaizoScoreboardStyle <= 2 ? IGraphics::CORNER_T : IGraphics::CORNER_ALL, 7.5f);
+			Scoreboard.Draw(ColorRGBA(0.0f, 0.0f, 0.0f, 0.5f), g_KaizoConfig_KaizoScoreboardStyle <= 2 ? IGraphics::CORNER_B : IGraphics::CORNER_ALL, 7.5f);
 		}
 		RenderTitleBar(Title, TEAM_GAME, pTitle);
 
@@ -1079,7 +1084,7 @@ void CScoreboard::OnRender()
 	{
 		CUIRect Goals;
 		Spectators.HSplitTop(25.0f, &Goals, &Spectators);
-		if(g_Config.m_KaizoScoreboardStyle <= 1)
+		if(g_KaizoConfig_KaizoScoreboardStyle <= 1)
 			Spectators.HSplitTop(5.0f, nullptr, &Spectators);
 		RenderGoals(Goals);
 	}

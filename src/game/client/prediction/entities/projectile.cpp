@@ -12,6 +12,11 @@
 #include <game/collision.h>
 #include <game/mapitems.h>
 
+//+KZ
+extern int g_KaizoConfig_SvGoresQuadsEnable;
+extern int g_KaizoConfig_KaizoPredictGoresGrenadeTele;
+extern int g_KaizoConfig_SvGoresGrenadeTele;
+
 CProjectile::CProjectile(
 	CGameWorld *pGameWorld,
 	int Type,
@@ -100,7 +105,7 @@ void CProjectile::Tick()
 	SKZQuadData * pQuadData = nullptr;
 	vec2 QuadColPos;
 
-	if(Collision()->m_IsKaizoServer && g_Config.m_SvGoresQuadsEnable) //Kaizo Network only
+	if(Collision()->m_IsKaizoServer && g_KaizoConfig_SvGoresQuadsEnable) //Kaizo Network only
 		pQuadData = Collision()->IntersectQuadTeleWeapon(&GameWorld()->m_Core, PrevPos, CurPos, &QuadColPos);
 	int Collide = Collision()->IntersectLine(PrevPos, CurPos, &ColPos, &NewPos, &ParamsKZ); //+KZ added ParamsKZ
 
@@ -261,7 +266,7 @@ CProjectile::CProjectile(CGameWorld *pGameWorld, int Id, const CProjectileData *
 	m_Layer = m_Number > 0 ? LAYER_SWITCH : LAYER_GAME;
 
 	//+KZ
-	m_GoresTeleportGrenade = g_Config.m_KaizoPredictGoresGrenadeTele && g_Config.m_SvGoresGrenadeTele == 1 && pProj->m_Type == WEAPON_GRENADE;
+	m_GoresTeleportGrenade = g_KaizoConfig_KaizoPredictGoresGrenadeTele && g_KaizoConfig_SvGoresGrenadeTele == 1 && pProj->m_Type == WEAPON_GRENADE;
 }
 
 CProjectileData CProjectile::GetData() const

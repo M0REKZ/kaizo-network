@@ -15,6 +15,9 @@
 #include <game/client/gameclient.h>
 #include <game/localization.h>
 
+//+KZ
+extern int g_KaizoConfig_KaizoKeepMenuAfterVoteInMods;
+
 void CVoting::ConCallvote(IConsole::IResult *pResult, void *pUserData)
 {
 	CVoting *pSelf = (CVoting *)pUserData;
@@ -49,7 +52,7 @@ void CVoting::Callvote(const char *pType, const char *pValue, const char *pReaso
 	Client()->SendPackMsgActive(&Msg, MSGFLAG_VITAL);
 
 	//+KZ
-	if(g_Config.m_KaizoKeepMenuAfterVoteInMods)
+	if(g_KaizoConfig_KaizoKeepMenuAfterVoteInMods)
 	{
 		if(pValue && pType && !str_comp(pType, "option"))
 		{

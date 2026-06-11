@@ -24,6 +24,13 @@ static constexpr const char *DEFAULT_SAVED_RCON_USER = "local-server";
 //+KZ
 #define KAIZO_CONFIG_FILE "settings_kaizo.cfg"
 
+//+KZ for custom config strings
+struct CKZConfigString
+{
+	char * m_pStr = nullptr;
+	const size_t m_Length = 0;
+};
+
 /**
  * Stores the current values of all client, server and game config variables.
  *

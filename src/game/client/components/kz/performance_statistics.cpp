@@ -18,6 +18,11 @@
 #include <algorithm>
 #include <cstdint>
 
+//+KZ
+extern int g_KaizoConfig_KaizoStatisticsShowFps;
+extern int g_KaizoConfig_KaizoStatisticsShowPing;
+extern int g_KaizoConfig_KaizoStatisticsShowSnapRate;
+
 void CPerformanceStatistics::UpdateServerStats()
 {
 	const int CurGameTick = Client()->GameTick(g_Config.m_ClDummy);
@@ -136,10 +141,10 @@ void CPerformanceStatistics::OnRender()
 	};
 
 	CUIRect CurRect = {-1, -1, -1, -1};
-	if(g_Config.m_KaizoStatisticsShowFps)
+	if(g_KaizoConfig_KaizoStatisticsShowFps)
 		RenderModule(CurRect, "FPS: ", m_CurrentFPS);
-	if(g_Config.m_KaizoStatisticsShowPing)
+	if(g_KaizoConfig_KaizoStatisticsShowPing)
 		RenderModule(CurRect, "Ping: ", Client()->GetPredictionTime());
-	if(g_Config.m_KaizoStatisticsShowSnapRate)
+	if(g_KaizoConfig_KaizoStatisticsShowSnapRate)
 		RenderModule(CurRect, "Snap Rate: ", m_SnapshotRate + 1);
 }

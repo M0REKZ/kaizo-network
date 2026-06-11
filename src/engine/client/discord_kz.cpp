@@ -5,16 +5,17 @@
 #include "discord_kz.h"
 
 //+KZ
-#include <engine/shared/config.h>
+extern int g_KaizoConfig_KaizoDiscordRpc;
+extern int g_KaizoConfig_KaizoDiscordLaunchSteam;
 
 CKaizoDiscordConfigAccess g_KaizoDiscordConfigAccess;
 
 bool CKaizoDiscordConfigAccess::KaizoDiscordRpcEnabled()
 {
-	return g_Config.m_KaizoDiscordRpc;
+	return g_KaizoConfig_KaizoDiscordRpc;
 }
 
 bool CKaizoDiscordConfigAccess::KaizoDiscordLaunchSteam()
 {
-	return g_Config.m_KaizoDiscordLaunchSteam;
+	return g_KaizoConfig_KaizoDiscordLaunchSteam;
 }

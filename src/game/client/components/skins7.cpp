@@ -24,6 +24,9 @@
 #include <game/client/gameclient.h>
 #include <game/localization.h>
 
+//+KZ
+extern int g_KaizoConfig_KaizoShowXSkinsInSettings;
+
 const char *const CSkins7::ms_apSkinPartNames[protocol7::NUM_SKINPARTS] = {"body", "marking", "decoration", "hands", "feet", "eyes"};
 const char *const CSkins7::ms_apSkinPartNamesLocalized[protocol7::NUM_SKINPARTS] = {Localizable("Body", "skins"), Localizable("Marking", "skins"), Localizable("Decoration", "skins"), Localizable("Hands", "skins"), Localizable("Feet", "skins"), Localizable("Eyes", "skins")};
 const char *const CSkins7::ms_apColorComponents[NUM_COLOR_COMPONENTS] = {"hue", "sat", "lgt", "alp"};
@@ -517,7 +520,7 @@ const CSkins7::CSkinPart *CSkins7::FindSkinPartOrNullptr(int Part, const char *p
 	}
 	if((FoundPart->m_Flags & SKINFLAG_SPECIAL) != 0 && !AllowSpecialPart)
 	{
-		if(!g_Config.m_KaizoShowXSkinsInSettings) //+KZ
+		if(!g_KaizoConfig_KaizoShowXSkinsInSettings) //+KZ
 			return nullptr;
 	}
 	return &*FoundPart;

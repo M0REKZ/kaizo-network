@@ -15,6 +15,14 @@
 #include <memory>
 #include <vector>
 
+//+KZ
+extern int g_KaizoConfig_KaizoPingCircles;
+extern int g_KaizoConfig_KaizoShowClientType;
+extern int g_KaizoConfig_KaizoShowCharFlags;
+extern int g_KaizoConfig_KaizoShowCharJumps;
+extern int g_KaizoConfig_KaizoShowCharFlagsSize;
+extern int g_KaizoConfig_KaizoShowCharJumpsSize;
+
 enum class EHookStrongWeakState
 {
 	WEAK,
@@ -682,8 +690,8 @@ void CNamePlates::RenderNamePlateGame(vec2 Position, const CNetObj_PlayerInfo *p
 	Data.m_FontSizeHookStrongWeak = 18.0f + 20.0f * g_Config.m_ClNamePlatesStrongSize / 100.0f;
 	Data.m_FontSizeDirection = 18.0f + 20.0f * g_Config.m_ClDirectionSize / 100.0f;
 
-	Data.m_FontSizeFlags = 18.0f + 20.0f * g_Config.m_KaizoShowCharFlagsSize / 100.0f; //DuckDDNet
-	Data.m_FontSizeJumps = 18.0f + 20.0f * g_Config.m_KaizoShowCharJumpsSize / 100.0f; //DuckDDNet
+	Data.m_FontSizeFlags = 18.0f + 20.0f * g_KaizoConfig_KaizoShowCharFlagsSize / 100.0f; //DuckDDNet
+	Data.m_FontSizeJumps = 18.0f + 20.0f * g_KaizoConfig_KaizoShowCharJumpsSize / 100.0f; //DuckDDNet
 
 	if(g_Config.m_ClNamePlatesAlways == 0)
 		Alpha *= std::clamp(1.0f - std::pow(distance(GameClient()->m_Controls.m_aTargetPos[g_Config.m_ClDummy], Position) / 200.0f, 16.0f), 0.0f, 1.0f);
@@ -824,8 +832,8 @@ void CNamePlates::RenderNamePlatePreview(vec2 Position, int Dummy)
 	const float FontSizeDirection = 18.0f + 20.0f * g_Config.m_ClDirectionSize / 100.0f;
 	const float FontSizeHookStrongWeak = 18.0f + 20.0f * g_Config.m_ClNamePlatesStrongSize / 100.0f;
 
-	const float FontSizeFlags = 18.0f + 20.0f * g_Config.m_KaizoShowCharFlagsSize / 100.0f; //DuckDDNet
-	const float FontSizeJumps = 18.0f + 20.0f * g_Config.m_KaizoShowCharJumpsSize / 100.0f; //DuckDDNet
+	const float FontSizeFlags = 18.0f + 20.0f * g_KaizoConfig_KaizoShowCharFlagsSize / 100.0f; //DuckDDNet
+	const float FontSizeJumps = 18.0f + 20.0f * g_KaizoConfig_KaizoShowCharJumpsSize / 100.0f; //DuckDDNet
 
 	CNamePlateData Data;
 

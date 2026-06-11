@@ -31,6 +31,9 @@
 
 #include <vector>
 
+//+KZ
+extern int g_KaizoConfig_KaizoShowXSkinsInSettings;
+
 void CMenus::RenderSettingsTee7(CUIRect MainView)
 {
 	CUIRect SkinPreview, NormalSkinPreview, RedTeamSkinPreview, BlueTeamSkinPreview, Buttons, QuickSearch, DirectoryButton, RefreshButton, SaveDeleteButton, TabBars, TabBar, LeftTab, RightTab;
@@ -314,7 +317,7 @@ void CMenus::RenderSkinSelection7(CUIRect MainView)
 		s_vpSkinList.clear();
 		for(const CSkins7::CSkin &Skin : GameClient()->m_Skins7.GetSkins())
 		{
-			if(!g_Config.m_KaizoShowXSkinsInSettings && (Skin.m_Flags & CSkins7::SKINFLAG_SPECIAL) != 0) //+KZ modified
+			if(!g_KaizoConfig_KaizoShowXSkinsInSettings && (Skin.m_Flags & CSkins7::SKINFLAG_SPECIAL) != 0) //+KZ modified
 				continue;
 			if(g_Config.m_ClSkinFilterString[0] != '\0' && !str_utf8_find_nocase(Skin.m_aName, g_Config.m_ClSkinFilterString))
 				continue;
@@ -394,7 +397,7 @@ void CMenus::RenderSkinPartSelection7(CUIRect MainView)
 			s_avpList[Part].clear();
 			for(const CSkins7::CSkinPart &SkinPart : GameClient()->m_Skins7.GetSkinParts(Part))
 			{
-				if(!g_Config.m_KaizoShowXSkinsInSettings && (SkinPart.m_Flags & CSkins7::SKINFLAG_SPECIAL) != 0) //+KZ modified
+				if(!g_KaizoConfig_KaizoShowXSkinsInSettings && (SkinPart.m_Flags & CSkins7::SKINFLAG_SPECIAL) != 0) //+KZ modified
 					continue;
 
 				if(g_Config.m_ClSkinFilterString[0] != '\0' && !str_utf8_find_nocase(SkinPart.m_aName, g_Config.m_ClSkinFilterString))

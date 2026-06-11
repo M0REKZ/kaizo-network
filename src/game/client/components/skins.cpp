@@ -21,6 +21,9 @@
 #include <game/client/gameclient.h>
 #include <game/localization.h>
 
+//+KZ
+extern int g_KaizoConfig_KaizoShowXSkinsInSettings;
+
 using namespace std::chrono_literals;
 
 CSkins::CAbstractSkinLoadJob::CAbstractSkinLoadJob(CSkins *pSkins, const char *pName) :
@@ -756,7 +759,7 @@ CSkins::CSkinList &CSkins::SkinList()
 	{
 		if(pSkinContainer->IsSpecial())
 		{
-			if(!g_Config.m_KaizoShowXSkinsInSettings) //+KZ
+			if(!g_KaizoConfig_KaizoShowXSkinsInSettings) //+KZ
 				continue;
 		}
 
