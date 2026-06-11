@@ -22,6 +22,9 @@
 #include "collision.h"
 #include <game/kz/envelopeaccess.h>
 
+//+KZ configs used in this file
+extern int g_KaizoConfig_SvPortalMode;
+
 int CCollision::GetCollisionAt(float x, float y, SKZColCharCoreParams *pCharCoreParams) const
 {
     int i = GetTile(round_to_int(x), round_to_int(y));
@@ -620,7 +623,7 @@ int CCollision::FastIntersectLinePortalLaser(vec2 Pos0, vec2 Pos1, vec2 *pOutCol
                 kzid = 0;
         }
 
-        if(pKZTile && !(g_Config.m_SvPortalMode == 2))
+        if(pKZTile && !(g_KaizoConfig_SvPortalMode == 2))
         {
             pKZTilelocal = GetKZGameTile(vec2(CurTileX*32,CurTileY*32));
             if(!pKZTilelocal || !(pKZTilelocal->m_Index == KZ_TILE_PORTAL_DISALLOW || pKZTilelocal->m_Index == KZ_TILE_PORTAL_RESET))
@@ -638,7 +641,7 @@ int CCollision::FastIntersectLinePortalLaser(vec2 Pos0, vec2 Pos1, vec2 *pOutCol
                 }
             }
         }
-        else if(g_Config.m_SvPortalMode == 2)
+        else if(g_KaizoConfig_SvPortalMode == 2)
         {
             kzid = GetTileIndex(Index);
             if(!kzid || !(kzid == TILE_LFREEZE || kzid == TILE_LUNFREEZE))

@@ -39,6 +39,9 @@
 
 #include <chrono>
 
+//+KZ
+extern int g_KaizoConfig_KaizoKeepMenuAfterVoteInMods;
+
 using namespace std::chrono_literals;
 
 void CMenus::RenderGame(CUIRect MainView)
@@ -1028,7 +1031,7 @@ void CMenus::RenderServerControl(CUIRect MainView)
 			if(0 <= m_CallvoteSelectedOption && m_CallvoteSelectedOption < GameClient()->m_Voting.NumOptions())
 			{
 				GameClient()->m_Voting.CallvoteOption(m_CallvoteSelectedOption, m_CallvoteReasonInput.GetString());
-				if(g_Config.m_UiCloseWindowAfterChangingSetting && !g_Config.m_KaizoKeepMenuAfterVoteInMods) //+KZ modified
+				if(g_Config.m_UiCloseWindowAfterChangingSetting && !g_KaizoConfig_KaizoKeepMenuAfterVoteInMods) //+KZ modified
 					SetActive(false);
 			}
 		}

@@ -9,6 +9,24 @@
 #include <engine/shared/linereader.h>
 #include <base/io.h>
 
+//+KZ
+extern int g_KaizoConfig_KaizoPredictDeathTiles;
+extern int g_KaizoConfig_KaizoReplyTabbedOut;
+extern CKZConfigString g_KaizoConfig_KaizoReplyTabbedOutMsg;
+extern int g_KaizoConfig_KaizoSleepingInMenuPlayers;
+extern int g_KaizoConfig_KaizoPredictPointerTWPlus;
+extern int g_KaizoConfig_KaizoOldModsZooming;
+extern int g_KaizoConfig_KaizoAlwaysAllowXSkins;
+extern int g_KaizoConfig_KaizoAlwaysAllowShowHookColl;
+extern int g_KaizoConfig_KaizoForceDDNetHUD;
+extern int g_KaizoConfig_KaizoForceBugDDRaceInput;
+extern int g_KaizoConfig_KaizoFastInputAmount;
+extern int g_KaizoConfig_KaizoUnfreezeLagDelayTicks;
+extern int g_KaizoConfig_KaizoRemoveAnti;
+extern int g_KaizoConfig_KaizoFastInput;
+extern int g_KaizoConfig_KaizoFastInputOthers;
+extern int g_KaizoConfig_SvGoresQuadsEnable;
+
 void CGameClient::OnKaizoConnected()
 {
     m_Collision.m_pTeamsCore = m_GameWorld.Teams();
@@ -32,7 +50,7 @@ void CGameClient::DoKaizoPredictionEffects(CCharacter *pCharacter)
     {
         if(!m_aClients[pCharacter->GetCid()].m_DidDeathEffect)
         {
-            if((g_Config.m_KaizoPredictDeathTiles && pCharacter->m_IsInDeathTile) || pCharacter->m_IsDead)
+            if((g_KaizoConfig_KaizoPredictDeathTiles && pCharacter->m_IsInDeathTile) || pCharacter->m_IsDead)
             {
                 m_Effects.PlayerDeath(pCharacter->m_Pos, pCharacter->GetCid(), 1.0f);
                 m_aClients[pCharacter->GetCid()].m_DidDeathEffect = true;
@@ -50,7 +68,7 @@ void CGameClient::UpdateKaizoPrediction()
     int Tick = (g_Config.m_ClPredict && m_PredictedTick >= MIN_TICK) ? m_PredictedTick : m_GameWorld.GameTick();
     m_GameWorld.m_Core.m_WorldTickKZ = Tick;
 	m_GameWorld.m_Core.SetTime(static_cast<double>(Tick - m_LastRoundStartTick) / m_GameWorld.GameTickSpeed());
-	if(g_Config.m_SvGoresQuadsEnable)
+	if(g_KaizoConfig_SvGoresQuadsEnable)
 		m_Collision.UpdateQuadCache(&m_GameWorld.m_Core);
 }
 
@@ -96,7 +114,7 @@ void CGameClient::HandleKaizoMessage(int MsgId, CUnpacker *pUnpacker, int Conn, 
         }
         else if(pMsg->m_ClientId < MAX_CLIENTS)
         {
-            if(g_Config.m_KaizoReplyTabbedOut)
+            if(g_KaizoConfig_KaizoReplyTabbedOut)
             {
                 IEngineGraphics *pGraphics = ((IEngineGraphics *)Kernel()->RequestInterface<IEngineGraphics>());
 		        if(pGraphics && !pGraphics->WindowActive() && Graphics())
@@ -108,7 +126,7 @@ void CGameClient::HandleKaizoMessage(int MsgId, CUnpacker *pUnpacker, int Conn, 
                         char aBuf[256];
                         aBuf[0] = '\0';
 
-                        str_format(aBuf, sizeof(aBuf), "/w %s %s", m_aClients[pMsg->m_ClientId].m_aName, g_Config.m_KaizoReplyTabbedOutMsg);
+                        str_format(aBuf, sizeof(aBuf), "/w %s %s", m_aClients[pMsg->m_ClientId].m_aName, g_KaizoConfig_KaizoReplyTabbedOutMsg.m_pStr);
                         m_Chat.SendChat(0, aBuf);
                     }
                 }
@@ -268,7 +286,7 @@ void CGameClient::PostSnapshotKaizo()
             Client.m_CustomClient = 0; //reset custom client if not received
         }
 
-        if(g_Config.m_KaizoSleepingInMenuPlayers && !Client.m_ReceivedDDNetPlayerInfoInLastSnapshot && !(m_Snap.m_aCharacters[Client.m_ClientId].m_Cur.m_PlayerFlags & PLAYERFLAG_IN_MENU)) //reset afk if not receiving ddnet player
+        if(g_KaizoConfig_KaizoSleepingInMenuPlayers && !Client.m_ReceivedDDNetPlayerInfoInLastSnapshot && !(m_Snap.m_aCharacters[Client.m_ClientId].m_Cur.m_PlayerFlags & PLAYERFLAG_IN_MENU)) //reset afk if not receiving ddnet player
         {
             Client.m_Afk = false;
         }
@@ -324,7 +342,7 @@ void CGameClient::GetKaizoInfo(CServerInfo *pServerInfo)
     m_InstaShield = pServerInfo->m_aGameType[0] == 'i' && pServerInfo->m_aGameType[str_length(pServerInfo->m_aGameType) - 1] == ')';
 
     //Pointer's TW+ (0.6 version)
-    if(g_Config.m_KaizoPredictPointerTWPlus && !m_WaitingForPointerTWPlusInfo)
+    if(g_KaizoConfig_KaizoPredictPointerTWPlus && !m_WaitingForPointerTWPlusInfo)
     {
         //First verify flags that Pointer TW+ would and would not send
         if(m_GameInfo.m_GameInfoFlagsKZ & 
@@ -371,13 +389,13 @@ void CGameClient::GetKaizoInfo(CServerInfo *pServerInfo)
                         );
 
     //Danger setting: allow zooming, but only do it if it is not 100000% prohibited
-    if(IsZoomAllowed && m_GameInfo.m_GameInfoVersionKZ < 0 && g_Config.m_KaizoOldModsZooming)
+    if(IsZoomAllowed && m_GameInfo.m_GameInfoVersionKZ < 0 && g_KaizoConfig_KaizoOldModsZooming)
         m_GameInfo.m_AllowZoom = true;
 
-    m_GameInfo.m_AllowXSkins |= (bool)g_Config.m_KaizoAlwaysAllowXSkins;
-    m_GameInfo.m_AllowHookColl |= (bool)g_Config.m_KaizoAlwaysAllowShowHookColl;
-    m_GameInfo.m_HudDDRace |= (bool)g_Config.m_KaizoForceDDNetHUD;
-    m_GameInfo.m_BugDDRaceInput |= (bool)g_Config.m_KaizoForceBugDDRaceInput;
+    m_GameInfo.m_AllowXSkins |= (bool)g_KaizoConfig_KaizoAlwaysAllowXSkins;
+    m_GameInfo.m_AllowHookColl |= (bool)g_KaizoConfig_KaizoAlwaysAllowShowHookColl;
+    m_GameInfo.m_HudDDRace |= (bool)g_KaizoConfig_KaizoForceDDNetHUD;
+    m_GameInfo.m_BugDDRaceInput |= (bool)g_KaizoConfig_KaizoForceBugDDRaceInput;
 
     //save gametype name
     m_PredControllerKZ.SetGameType(pServerInfo->m_aGameType);
@@ -466,8 +484,8 @@ vec2 CGameClient::GetFastInputPos(int ClientId)
 
 	vec2 Pos = mix(m_aClients[ClientId].m_PrevPredicted.m_Pos, m_aClients[ClientId].m_Predicted.m_Pos, PredIntraTick);
 
-	float FastInputIntra = (g_Config.m_KaizoFastInputAmount % 20) / 20.0f;
-	int FastInputTicks = g_Config.m_KaizoFastInputAmount / 20;
+	float FastInputIntra = (g_KaizoConfig_KaizoFastInputAmount % 20) / 20.0f;
+	int FastInputTicks = g_KaizoConfig_KaizoFastInputAmount / 20;
 
 	float CombinedIntra = PredIntraTick + FastInputIntra;
 
@@ -564,7 +582,7 @@ vec2 CGameClient::GetFreezePos(int ClientId)
 	float SmoothIntra;
 
 	int AdjustTicks = 0;
-	int DelayTicks = g_Config.m_KaizoUnfreezeLagDelayTicks;
+	int DelayTicks = g_KaizoConfig_KaizoUnfreezeLagDelayTicks;
 	int FreezeTime = 0;
 	if(pExtraChar && pChar)
 	{
@@ -577,7 +595,7 @@ vec2 CGameClient::GetFreezePos(int ClientId)
 
 		AdjustTicks = std::min(FreezeTime, AdjustTicks);
 	}
-	if(g_Config.m_KaizoRemoveAnti && pChar && AdjustTicks > 0 && FreezeTime > 0)
+	if(g_KaizoConfig_KaizoRemoveAnti && pChar && AdjustTicks > 0 && FreezeTime > 0)
 		MixAmount = mix(0.0f, 1.0f, 1.0f - AdjustTicks / (float)DelayTicks);
 	// else if(AdjustTicks == 0 && ClientId != m_Snap.m_LocalClientId)
 	//	MixAmount = 1.f - std::pow(1.f - TimePassed / (float)Len, 1.2f);
@@ -589,8 +607,8 @@ vec2 CGameClient::GetFreezePos(int ClientId)
 	m_SmoothTick = SmoothTick;
 	m_SmoothIntraTick = SmoothIntra;
 
-	float FastInputIntra = (g_Config.m_KaizoFastInputAmount % 20) / 20.0f;
-	int FastInputTicks = g_Config.m_KaizoFastInputAmount / 20;
+	float FastInputIntra = (g_KaizoConfig_KaizoFastInputAmount % 20) / 20.0f;
+	int FastInputTicks = g_KaizoConfig_KaizoFastInputAmount / 20;
 
 	float CombinedIntra = SmoothIntra + FastInputIntra;
 
@@ -601,12 +619,12 @@ vec2 CGameClient::GetFreezePos(int ClientId)
 	FastInputTicks += CarryOverTicks;
 
 	const bool IsLocal = ClientId == m_Snap.m_LocalClientId || (PredictDummy() && ClientId == m_aLocalIds[!g_Config.m_ClDummy]);
-	if(IsLocal && g_Config.m_KaizoFastInput)
+	if(IsLocal && g_KaizoConfig_KaizoFastInput)
 	{
 		SmoothTick += FastInputTicks;
 		SmoothIntra = FinalIntra;
 	}
-	else if(!IsLocal && g_Config.m_KaizoFastInputOthers && g_Config.m_KaizoFastInput)
+	else if(!IsLocal && g_KaizoConfig_KaizoFastInputOthers && g_KaizoConfig_KaizoFastInput)
 	{
 		SmoothTick += FastInputTicks;
 		SmoothIntra = FinalIntra;

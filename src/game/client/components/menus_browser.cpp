@@ -24,6 +24,10 @@
 #include <game/localization.h>
 #include <generated/client_data.h>
 
+//+KZ
+extern int g_KaizoConfig_KaizoPrefer07Protocol;
+extern int g_KaizoConfig_KaizoShowClientType;
+
 static constexpr ColorRGBA HIGHLIGHTED_TEXT_COLOR = ColorRGBA(0.4f, 0.4f, 1.0f, 1.0f);
 
 //+KZ removed static, added to header
@@ -627,9 +631,9 @@ void CMenus::RenderServerbrowserStatusBox(CUIRect StatusBox, bool WasListboxItem
 		Use07.y -= 2.f;
 		Use07.h += 4.f;
 
-		if(DoButton_CheckBox(&g_Config.m_KaizoPrefer07Protocol, Localize("Use 0.7 connection"), g_Config.m_KaizoPrefer07Protocol, &Use07))
+		if(DoButton_CheckBox(&g_KaizoConfig_KaizoPrefer07Protocol, Localize("Use 0.7 connection"), g_KaizoConfig_KaizoPrefer07Protocol, &Use07))
 		{
-			g_Config.m_KaizoPrefer07Protocol ^= 1;
+			g_KaizoConfig_KaizoPrefer07Protocol ^= 1;
 		}
 	}
 
@@ -1374,7 +1378,7 @@ void CMenus::RenderServerbrowserInfoScoreboard(CUIRect View, const CServerInfo *
 
 			//+KZ
 
-			if(g_Config.m_KaizoShowClientType)
+			if(g_KaizoConfig_KaizoShowClientType)
 			{
 				int Sprite = -1;
 				int Image = -1;
@@ -1436,7 +1440,7 @@ void CMenus::RenderServerbrowserInfoScoreboard(CUIRect View, const CServerInfo *
 			RenderTools()->RenderTee(pIdleState, &TeeInfo, CurrentClient.m_Afk ? EMOTE_BLINK : EMOTE_NORMAL, vec2(1.0f, 0.0f), TeeRenderPos);
 
 			//+KZ
-			if(g_Config.m_KaizoShowClientType)
+			if(g_KaizoConfig_KaizoShowClientType)
 			{
 				bool Found = false;
 				int OutId = 0;

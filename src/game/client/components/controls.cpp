@@ -18,6 +18,10 @@
 #include <game/client/gameclient.h>
 #include <game/collision.h>
 
+//+KZ
+extern int g_KaizoConfig_KaizoHideAiming;
+extern int g_KaizoConfig_KaizoFreeMouse;
+
 CControls::CControls()
 {
 	mem_zero(&m_aLastData, sizeof(m_aLastData));
@@ -327,7 +331,7 @@ int CControls::SnapInput(int *pData)
 		Send = Send || (GameClient()->m_Snap.m_pLocalCharacter && GameClient()->m_Snap.m_pLocalCharacter->m_Weapon == WEAPON_NINJA && (m_aInputData[g_Config.m_ClDummy].m_Direction || m_aInputData[g_Config.m_ClDummy].m_Jump || m_aInputData[g_Config.m_ClDummy].m_Hook));
 	}
 
-	Send |= g_Config.m_KaizoHideAiming != 0; //always send input so we always get snapshots
+	Send |= g_KaizoConfig_KaizoHideAiming != 0; //always send input so we always get snapshots
 
 	HandleKaizoInput(&m_aInputData[g_Config.m_ClDummy], &m_aInputData[!g_Config.m_ClDummy]);
 
@@ -435,7 +439,7 @@ bool CControls::OnCursorMove(float x, float y, IInput::ECursorType CursorType)
 
 void CControls::ClampMousePos()
 {
-	if(g_Config.m_KaizoFreeMouse)
+	if(g_KaizoConfig_KaizoFreeMouse)
 		return;
 
 	if(GameClient()->m_Snap.m_SpecInfo.m_Active && GameClient()->m_Snap.m_SpecInfo.m_SpectatorId < 0)

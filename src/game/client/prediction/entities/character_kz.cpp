@@ -9,17 +9,24 @@
 #include <generated/client_data.h>
 #include "projectile.h"
 
+//+KZ
+extern int g_KaizoConfig_KaizoPredictDDNetTeleport;
+extern int g_KaizoConfig_KaizoPredictTeleToDeath;
+extern int g_KaizoConfig_KaizoPredictPointerTWPlus;
+extern int g_KaizoConfig_KaizoPredictGoresGrenadeTele;
+extern int g_KaizoConfig_SvGoresGrenadeTele;
+
 void CCharacter::KaizoPredictNormalTiles(int Index)
 {
     int MapIndex = Index;
 
-    if(g_Config.m_KaizoPredictDDNetTeleport && GameWorld()->m_WorldConfig.m_IsDDRace)
+    if(g_KaizoConfig_KaizoPredictDDNetTeleport && GameWorld()->m_WorldConfig.m_IsDDRace)
     {
         int z = Collision()->IsTeleport(MapIndex);
 
         if(!g_Config.m_SvOldTeleportHook && !g_Config.m_SvOldTeleportWeapons)
         {
-            if(g_Config.m_KaizoPredictTeleToDeath && z)
+            if(g_KaizoConfig_KaizoPredictTeleToDeath && z)
             {
                 //check if all tele-outs lead to death tiles
                 bool AllLeadToDeath = true;
@@ -59,7 +66,7 @@ void CCharacter::KaizoPredictNormalTiles(int Index)
             }
         }
         int evilz = Collision()->IsEvilTeleport(MapIndex);
-        if(g_Config.m_KaizoPredictTeleToDeath && evilz)
+        if(g_KaizoConfig_KaizoPredictTeleToDeath && evilz)
         {
             // check if all tele-outs lead to death tiles
             bool AllLeadToDeath = true;
@@ -117,7 +124,7 @@ void CCharacter::KaizoPredictNormalTiles(int Index)
                     int TeleOut = GameWorld()->m_Core.RandomOr0(Collision()->TeleCheckOuts(k).size());
 
                     vec2 TeleOutPos = Collision()->TeleCheckOuts(k)[TeleOut];
-                    if(g_Config.m_KaizoPredictTeleToDeath && (Collision()->GetTile(round_to_int(TeleOutPos.x),round_to_int(TeleOutPos.y)) == TILE_DEATH ||
+                    if(g_KaizoConfig_KaizoPredictTeleToDeath && (Collision()->GetTile(round_to_int(TeleOutPos.x),round_to_int(TeleOutPos.y)) == TILE_DEATH ||
                         Collision()->GetFrontTile(round_to_int(TeleOutPos.x),round_to_int(TeleOutPos.y)) == TILE_DEATH))
                     {
                         m_IsInDeathTile = true;
@@ -152,7 +159,7 @@ void CCharacter::KaizoPredictNormalTiles(int Index)
                     int TeleOut = GameWorld()->m_Core.RandomOr0(Collision()->TeleCheckOuts(k).size());
 
                     vec2 TeleOutPos = Collision()->TeleCheckOuts(k)[TeleOut];
-                    if(g_Config.m_KaizoPredictTeleToDeath && (Collision()->GetTile(round_to_int(TeleOutPos.x),round_to_int(TeleOutPos.y)) == TILE_DEATH ||
+                    if(g_KaizoConfig_KaizoPredictTeleToDeath && (Collision()->GetTile(round_to_int(TeleOutPos.x),round_to_int(TeleOutPos.y)) == TILE_DEATH ||
                         Collision()->GetFrontTile(round_to_int(TeleOutPos.x),round_to_int(TeleOutPos.y)) == TILE_DEATH))
                     {
                         m_IsInDeathTile = true;
@@ -175,7 +182,7 @@ void CCharacter::KaizoPredictNormalTiles(int Index)
         }
     }
     // From Pointer's TW+
-    if(g_Config.m_KaizoPredictPointerTWPlus)
+    if(g_KaizoConfig_KaizoPredictPointerTWPlus)
     {
         if(GameWorld()->m_WorldConfig.m_IsPointerTWPlus)
         {
@@ -365,7 +372,7 @@ bool CCharacter::KaizoPredictFireWeapon()
     bool Fired = false;
 
     // From Pointer's TW+
-    if(g_Config.m_KaizoPredictPointerTWPlus && GameWorld()->m_WorldConfig.m_IsPointerTWPlus)
+    if(g_KaizoConfig_KaizoPredictPointerTWPlus && GameWorld()->m_WorldConfig.m_IsPointerTWPlus)
     {
         switch(m_Core.m_ActiveWeapon)
         {
@@ -383,7 +390,7 @@ bool CCharacter::KaizoPredictFireWeapon()
             break;
         }
     }
-    else if(g_Config.m_KaizoPredictGoresGrenadeTele && g_Config.m_SvGoresGrenadeTele == 1)
+    else if(g_KaizoConfig_KaizoPredictGoresGrenadeTele && g_KaizoConfig_SvGoresGrenadeTele == 1)
     {
         switch (m_Core.m_ActiveWeapon)
         {
