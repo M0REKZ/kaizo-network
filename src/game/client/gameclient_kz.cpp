@@ -103,7 +103,7 @@ void CGameClient::HandleKaizoMessage(int MsgId, CUnpacker *pUnpacker, int Conn, 
                 {
                     const char *pPname = m_aClients[m_aLocalIds[0]].m_aName;
                     const char *pDname = m_aClients[m_aLocalIds[1]].m_aName;
-                    if(m_aClients[pMsg->m_ClientId].m_Active && ((pPname[0] ? str_find(pMsg->m_pMessage, pPname) : nullptr) || (pDname[0] ? str_find(pMsg->m_pMessage, pDname) : nullptr)))
+                    if(m_aClients[pMsg->m_ClientId].m_Active && ((bool)(pPname[0] ? str_find(pMsg->m_pMessage, pPname) : nullptr) || (bool)(pDname[0] ? str_find(pMsg->m_pMessage, pDname) : nullptr)))
                     {
                         char aBuf[256];
                         aBuf[0] = '\0';
@@ -442,7 +442,7 @@ void CGameClient::KaizoPostUpdate()
 
 bool CGameClient::IsCustomClientId(int Country)
 {
-	return Country > m_CountryFlags.Num();
+	return (size_t)Country > m_CountryFlags.Num();
 }
 
 bool CGameClient::IsSkinPartDefault(int Dummy, int Part)
