@@ -8,6 +8,11 @@
 #include <base/str.h>
 #include <base/dbg.h>
 
+//+KZ
+extern CKZConfigString g_KaizoConfig_KaizoResourcesDownloadUrl;
+extern int g_KaizoConfig_KaizoResourcesEnable;
+extern int g_KaizoConfig_KaizoResourcesDownload;
+
 int CResources::FileScan(const char *pName, int IsDir, int DirType, void *pUser)
 {
 	if(IsDir || !str_endswith(pName, ".png"))
@@ -70,7 +75,7 @@ void CResources::OnInit()
 		str_copy(ResourceMapping[index], "\0", 64);
 	}
 
-	str_copy(m_DownloadBaseUrl, g_Config.m_KaizoResourcesDownloadUrl, 64);
+	str_copy(m_DownloadBaseUrl, g_KaizoConfig_KaizoResourcesDownloadUrl.m_pStr, sizeof(m_DownloadBaseUrl));
 
 	m_aResources.clear();
 	Storage()->ListDirectory(IStorage::TYPE_ALL, "resources", FileScan, this);
@@ -109,7 +114,7 @@ void CResources::OnStateChange(int NewState, int OldState)
 			str_copy(ResourceMapping[index], "\0", 64);
 		}
 
-		str_copy(m_DownloadBaseUrl, g_Config.m_KaizoResourcesDownloadUrl, 64);
+		str_copy(m_DownloadBaseUrl, g_KaizoConfig_KaizoResourcesDownloadUrl.m_pStr, sizeof(m_DownloadBaseUrl));
 	}
 }
 
@@ -135,7 +140,7 @@ int CResources::Find(const char *pName)
 
 void CResources::OnResourceMessage(CNetMsg_Sv_ImageResourceTWPlus* msg)
 {
-	if (!g_Config.m_KaizoResourcesEnable)
+	if (!g_KaizoConfig_KaizoResourcesEnable)
 		return;
 
 	char aBuf[IO_MAX_PATH_LENGTH];
@@ -164,7 +169,7 @@ void CResources::OnResourceMessage(CNetMsg_Sv_ImageResourceTWPlus* msg)
 		MsgIHaveResource.m_Id = Id;
 		Client()->SendPackMsgActive(&MsgIHaveResource, MSGFLAG_VITAL);
 	}
-	else if (g_Config.m_KaizoResourcesDownload >= 1)
+	else if (g_KaizoConfig_KaizoResourcesDownload >= 1 && m_DownloadBaseUrl[0])
 	{
 		char downloadUrl [256];
 		char saveUrl [256];
@@ -193,6 +198,6 @@ void CResources::OnResourceMessage(CNetMsg_Sv_ImageResourceTWPlus* msg)
 
 void CResources::OnResourceDownloadUrlMessage(CNetMsg_Sv_ResourceDownloadBaseUrlTWPlus* msg)
 {
-	if (g_Config.m_KaizoResourcesDownload == 2)
+	if (g_KaizoConfig_KaizoResourcesDownload == 2)
 		str_copy(m_DownloadBaseUrl, msg->m_pUrl);
 }
