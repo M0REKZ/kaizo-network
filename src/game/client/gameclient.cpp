@@ -189,6 +189,7 @@ void CGameClient::OnConsoleInit()
 					      &m_Menus,
 					      &m_Tooltips,
 						  &m_Scripting, // +KZ From E-Client... or T-Client
+						  &m_PasswordManager, //+KZ
 					      &m_KeyBinder,
 					      &m_GameConsole,
 					      &m_MenuBackground});

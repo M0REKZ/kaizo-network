@@ -91,7 +91,7 @@ void CMenus::RenderKaizoClientUsers(CUIRect &View, CUIRect &List, CScrollRegion 
 	TextRender()->TextColor(TextRender()->DefaultTextColor());
 	TextRender()->SetFontPreset(EFontPreset::DEFAULT_FONT);
 
-	str_format(aBuf, sizeof(aBuf), "Kaizo Client Users (%d)", m_vKaizoUsersCache.size());
+	str_format(aBuf, sizeof(aBuf), "Kaizo Client Users (%zu)", m_vKaizoUsersCache.size());
 	Ui()->DoLabel(&Label, aBuf, FontSize, TEXTALIGN_ML);
 
 	// Toggle on click

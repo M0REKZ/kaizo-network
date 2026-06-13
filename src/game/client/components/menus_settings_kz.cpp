@@ -8,6 +8,7 @@
 #include <engine/shared/localization.h>
 #include <game/client/gameclient.h>
 #include <generated/client_data.h>
+#include <base/helper_kz.h>
 
 //+KZ im not writing all of the configs one by one here :P
 //+KZ start
@@ -30,6 +31,7 @@ enum
 	KAIZO_SETTINGS_TAB_KAIZO = 0,
 	KAIZO_SETTINGS_TAB_TCLIENT_BINDWHEEL,
 	KAIZO_SETTINGS_TAB_SPLITS,
+	KAIZO_SETTINGS_TAB_PASSWORDS,
 	KAIZO_SETTINGS_TAB_INFO,
 	NUM_KAIZO_SETTINGS_TABS,
 };
@@ -72,6 +74,7 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 		Localize("Kaizo"),
 		Localize("Bind Wheel"),
 		Localize("Splits", "Kaizo Client Settings"),
+		Localize("Passwords"),
 		Localize("Info"),
 		};
 
@@ -104,6 +107,15 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 		break;
 	case KAIZO_SETTINGS_TAB_TCLIENT_BINDWHEEL:
 		ScrollHeight = SettingsBoxContainer.h;
+		break;
+	case KAIZO_SETTINGS_TAB_PASSWORDS:
+		{
+			float Calc = 24.f;
+
+			Calc += 24.f * GameClient()->m_PasswordManager.GetPasswordAmount();
+
+			ScrollHeight = Calc;
+		}
 		break;
 	default:
 		ScrollHeight = 0.f;
@@ -854,6 +866,137 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 				{
 					GameClient()->m_Hud.RenderSplits();
 				}*/
+			}
+
+			break;
+		}
+		case KAIZO_SETTINGS_TAB_PASSWORDS:
+		{
+			//text row
+			CUIRect Row;
+			Row.x = SettingsBox.x;
+			Row.w = SettingsBox.w;
+			Row.y = SettingsBox.y;
+			Row.h = 22.f;
+
+			//text to write
+			CUIRect Account;
+			CUIRect Password;
+			CUIRect ServerIp;
+
+			//type button
+			CUIRect TypeButton;
+			
+			//save button
+			CUIRect SaveButton;
+
+			//split text boxes and button
+			Row.VSplitRight(22.f, &Row, &SaveButton);
+			Row.w -= 2.f;
+			Row.VSplitRight(50.f, &Row, &TypeButton);
+			Row.w -= 2.f;
+
+			//Add password save thing
+			{
+				static CLineInput s_AccountInput;
+				static char s_aAccount[128] = {'\0'};
+				static CLineInput s_PasswordInput;
+				static char s_aPassword[128] = {'\0'};
+				static CLineInput s_ServerIpInput;
+				static char s_aServerIp[256] = {'\0'};
+				s_AccountInput.SetBuffer(s_aAccount, sizeof(s_aAccount));
+				s_PasswordInput.SetBuffer(s_aPassword, sizeof(s_aPassword));
+				s_ServerIpInput.SetBuffer(s_aServerIp, sizeof(s_aServerIp));
+				s_AccountInput.SetEmptyText("Account");
+				s_PasswordInput.SetEmptyText("Password");
+				s_ServerIpInput.SetEmptyText("Server Ip");
+
+				/*Left.HSplitTop(2.0f, nullptr, &Left);
+				Left.HSplitTop(10.0f, &Label, &Left);
+				Ui()->DoLabel(&Label, Localize("Message to send:"), 10.0f, TEXTALIGN_ML);*/
+
+				Account = Row;
+				Account.w /= 3;
+				Password = Account;
+				Password.x += Password.w;
+				ServerIp = Password;
+				ServerIp.x += ServerIp.w;
+
+				Account.w -= 1.f;
+				Password.x += 1.f;
+				Password.w -= 2.f;
+				ServerIp.x += 1.f;
+				ServerIp.w -= 1.f;
+
+				Ui()->DoEditBox(&s_AccountInput, &Account, 14.0f);
+				Ui()->DoEditBox(&s_PasswordInput, &Password, 14.0f);
+				Ui()->DoEditBox(&s_ServerIpInput, &ServerIp, 14.0f);
+
+				CButtonContainer TypeButtonContainer;
+				static CPasswordManagerKZ::EPasswordType CurrentType = CPasswordManagerKZ::EPasswordType::CHAT;
+
+				if(DoButton_Menu(&TypeButtonContainer,
+					CurrentType == CPasswordManagerKZ::EPasswordType::CHAT ? "Chat" : (
+							CurrentType == CPasswordManagerKZ::EPasswordType::RCON ? "Rcon" : (
+								"Server"
+							)
+						)
+					, false, &TypeButton))
+				{
+					CurrentType =
+						CurrentType == CPasswordManagerKZ::EPasswordType::CHAT ? CPasswordManagerKZ::EPasswordType::RCON : (
+							CurrentType == CPasswordManagerKZ::EPasswordType::RCON ? CPasswordManagerKZ::EPasswordType::SERVER_CONNECT : (
+								CPasswordManagerKZ::EPasswordType::CHAT
+							)
+						)
+					;
+				}
+
+				CButtonContainer SaveButtonContainer;
+
+				if(DoButton_Menu(&SaveButtonContainer, "💾", false, &SaveButton))
+				{
+					GameClient()->m_PasswordManager.AddPassword(s_aAccount, s_aPassword, s_aServerIp, CurrentType);
+				}
+			}
+
+			Row.h = 24.f;
+
+			//Add saved passwords
+			{
+				size_t Amount = GameClient()->m_PasswordManager.GetPasswordAmount();
+				for(size_t i = 0; i < Amount; i++)
+				{
+					CPasswordManagerKZ::SPasswordKZ * SavedPassword = GameClient()->m_PasswordManager.GetPassword(i);
+					Row.y += Row.h;
+					Account.y += Row.h;
+					Password.y += Row.h;
+					ServerIp.y += Row.h;
+					TypeButton.y += Row.h;
+					SaveButton.y += Row.h;
+
+					char aBuf[256] = {'\0'};
+
+					Ui()->DoLabel(&Account, SavedPassword->m_AccountName.c_str(), Account.h * CUi::ms_FontmodHeight * 0.8f, TEXTALIGN_ML);
+					Ui()->DoLabel(&Password, get_censored_str(SavedPassword->m_Password.c_str(), aBuf, sizeof(aBuf)), Password.h * CUi::ms_FontmodHeight * 0.8f, TEXTALIGN_ML);
+					Ui()->DoLabel(&ServerIp, SavedPassword->m_ServerIp.c_str(), ServerIp.h * CUi::ms_FontmodHeight * 0.8f, TEXTALIGN_ML);
+
+					Ui()->DoLabel(&TypeButton, 
+						SavedPassword->m_Type == CPasswordManagerKZ::EPasswordType::CHAT ? "Chat" : (
+							SavedPassword->m_Type == CPasswordManagerKZ::EPasswordType::RCON ? "Rcon" : (
+								"Server"
+							)
+						)
+						, TypeButton.h * CUi::ms_FontmodHeight * 0.8f, TEXTALIGN_ML);
+
+					{
+						static_assert(sizeof(CButtonContainer) == 1);
+						if(DoButton_Menu((CButtonContainer *)SavedPassword, "🗑️", false, &SaveButton))
+						{
+							GameClient()->m_PasswordManager.RemovePassword(SavedPassword->m_AccountName.c_str(), SavedPassword->m_ServerIp.c_str(), SavedPassword->m_Type);
+						}
+					}
+				}
 			}
 
 			break;

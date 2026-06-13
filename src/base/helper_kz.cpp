@@ -93,6 +93,26 @@ int not_builtin_popcount(int v)
 #endif
 }
 
+const char * get_censored_str(const char *pStr, char * pOutStr, size_t OutStrSize)
+{
+	for(size_t i = 0; i < OutStrSize; ++i)
+	{
+		if(i[pStr])
+		{
+			i[pOutStr] = '*';
+			continue;
+		}
+		else
+		{
+			i[pOutStr] = '\0';
+			break;
+		}
+	}
+
+	(OutStrSize - 1)[pOutStr] = '\0';
+	return &(0[pOutStr]);
+}
+
 //From FoxNet
 const char *GetParsedArgument(const char *pStr, int Index, bool Rest)
 {

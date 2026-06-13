@@ -300,6 +300,11 @@ public:
 	{
 		return false;
 	}
+
+	//+KZ
+	virtual void OnKaizoSetConnectPassword(const NETADDR *pAddresses, int NumAddresses, char *pOutPassword, int OutPasswordSize)
+	{
+	}
 };
 
 #endif

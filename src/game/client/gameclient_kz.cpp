@@ -471,6 +471,13 @@ bool CGameClient::IsSkinPartDefault(int Dummy, int Part)
 	return !str_comp(CSkins7::ms_apSkinVariables[Dummy][Part], pDefault);
 }
 
+void CGameClient::OnKaizoSetConnectPassword(const NETADDR *pAddresses, int NumAddresses, char *pOutPassword, int OutPasswordSize)
+{
+    //+KZ
+    for(auto &pComponent : m_vpAll)
+		pComponent->OnKaizoSetConnectPassword(pAddresses, NumAddresses, pOutPassword, OutPasswordSize);
+}
+
 void CGameClient::OnKaizoConsoleInit()
 {
     

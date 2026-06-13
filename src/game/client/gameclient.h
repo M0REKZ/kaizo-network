@@ -74,6 +74,7 @@
 #include "components/kz/resources.h" // +KZ from Duck/Infclass Client
 #include "components/kz/scripting.h" // +KZ from E-Client/T-Client
 #include "components/kz/splits.h" // +KZ from CMClient
+#include "components/kz/password_manager.h" // +KZ
 #include "components/kz/performance_statistics.h" // +KZ from E-Client
 
 #include <memory>
@@ -1007,6 +1008,7 @@ private:
 	void StoreSave(const char *pTeamMembers, const char *pGeneratedCode) const;
 
 	//+KZ
+	virtual void OnKaizoSetConnectPassword(const NETADDR *pAddresses, int NumAddresses, char *pOutPassword, int OutPasswordSize) override;
 	void OnKaizoConsoleInit();
 	void OnKaizoConnected();
 	void DoKaizoPredictionEffects(CCharacter *pCharacter);
@@ -1024,6 +1026,7 @@ private:
 	CSplits m_Splits; //+KZ from CMClient
 	CPerformanceStatistics m_PerformanceStatistics; //+KZ from E-Client
 	CResources m_Resources; //+KZ from Duck/Infclass Client
+	CPasswordManagerKZ m_PasswordManager; //+KZ
 
 	void GetKaizoInfo(CServerInfo *pServerInfo);
 	bool m_InstaShield = false;

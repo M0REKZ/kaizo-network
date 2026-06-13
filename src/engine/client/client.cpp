@@ -734,6 +734,8 @@ void CClient::Connect(const char *pAddress, const char *pPassword)
 	else
 		str_copy(m_aPassword, pPassword);
 
+	m_pGameClient->OnKaizoSetConnectPassword(aConnectAddrs, NumConnectAddrs, m_aPassword, sizeof(m_aPassword));
+
 	m_CanReceiveServerCapabilities = true;
 
 	m_Sixup = OnlySixup;
