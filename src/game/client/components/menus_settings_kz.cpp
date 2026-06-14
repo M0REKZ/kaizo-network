@@ -397,26 +397,6 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 				}
 			}
 
-			Left.HSplitTop(40.0f, &Label, &SettingsBox);
-			Ui()->DoLabel(&Label, Localize("Discord Settings"), 20.0f, TEXTALIGN_ML);
-			Left.HSplitTop(40.0f, &Label, &Left);
-
-			Left.HSplitTop(2.0f, nullptr, &Left);
-
-			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoDiscordRpc, Localize("Enable Discord Rich Presence (Requires restart)"), g_KaizoConfig_KaizoDiscordRpc, &Button))
-			{
-				g_KaizoConfig_KaizoDiscordRpc ^= 1;
-			}
-
-			Left.HSplitTop(2.0f, nullptr, &Left);
-
-			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoDiscordLaunchSteam, Localize("Open Steam when joining through Discord (requires restarting Discord and Client)"), g_KaizoConfig_KaizoDiscordLaunchSteam, &Button))
-			{
-				g_KaizoConfig_KaizoDiscordLaunchSteam ^= 1;
-			}
-
 			// Prediction
 			Right.HSplitTop(20.0f, &Label, &SettingsBox);
 			Ui()->DoLabel(&Label, Localize("Prediction"), 20.0f, TEXTALIGN_ML);
@@ -562,6 +542,27 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 				Ui()->DoScrollbarOption(&g_KaizoConfig_KaizoPredMarginInFreezeAmount, &g_KaizoConfig_KaizoPredMarginInFreezeAmount, &Button, Localize("Margin while frozen"), 1, 100, &CUi::ms_LogarithmicScrollbarScale, 0u, "");
 			}
 
+			//Discord
+			Right.HSplitTop(40.0f, &Label, &SettingsBox);
+			Ui()->DoLabel(&Label, Localize("Discord Settings"), 20.0f, TEXTALIGN_ML);
+			Right.HSplitTop(40.0f, &Label, &Right);
+
+			Right.HSplitTop(2.0f, nullptr, &Right);
+
+			Right.HSplitTop(20.0f, &Button, &Right);
+			if(DoButton_CheckBox(&g_KaizoConfig_KaizoDiscordRpc, Localize("Enable Discord Rich Presence (Requires restart)"), g_KaizoConfig_KaizoDiscordRpc, &Button))
+			{
+				g_KaizoConfig_KaizoDiscordRpc ^= 1;
+			}
+
+			Right.HSplitTop(2.0f, nullptr, &Right);
+
+			Right.HSplitTop(20.0f, &Button, &Right);
+			if(DoButton_CheckBox(&g_KaizoConfig_KaizoDiscordLaunchSteam, Localize("Open Steam when joining through Discord (requires restarting Discord and Client)"), g_KaizoConfig_KaizoDiscordLaunchSteam, &Button))
+			{
+				g_KaizoConfig_KaizoDiscordLaunchSteam ^= 1;
+			}
+
 			break;
 		}
 		case KAIZO_SETTINGS_TAB_TCLIENT_BINDWHEEL:
@@ -571,7 +572,8 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 		}
 		case KAIZO_SETTINGS_TAB_SPLITS:
 		{
-			SettingsBox.VSplitMid(&Left, &Right, 20.0f);
+			//SettingsBox.VSplitMid(&Left, &Right, 20.0f);
+			Left = SettingsBox;
 
 			Left.HSplitTop(20.0f, &Label, &SettingsBox);
 			Ui()->DoLabel(&Label, Localize("Splits Settings"), 20.0f, TEXTALIGN_ML);
@@ -926,7 +928,7 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 			}
 
 			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoFastRespawn, Localize("Fast respawn"), g_KaizoConfig_KaizoFastRespawn, &Button))
+			if(DoButton_CheckBox(&g_KaizoConfig_KaizoFastRespawn, Localize("Fast respawn (Broken?)"), g_KaizoConfig_KaizoFastRespawn, &Button))
 			{
 				g_KaizoConfig_KaizoFastRespawn ^= 1;
 			}
