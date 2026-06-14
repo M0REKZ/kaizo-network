@@ -116,13 +116,31 @@ void CPasswordManagerKZ::OnConsoleInit()
 
 void CPasswordManagerKZ::OnNewSnapshot()
 {
-    if(!m_NeedToSendSnapshotPass)
+    //only ingame
+    if(Client()->State() != IClient::STATE_ONLINE)
         return;
-    else
-        m_NeedToSendSnapshotPass = true;
 
     CServerInfo CurrentServerInfo;
 	Client()->GetServerInfo(&CurrentServerInfo);
+
+    //on first snapshot there is still no address here????
+    if(CurrentServerInfo.m_aAddress[0] == '\0')
+        return;
+
+    //things does not seem to work correctly if we are TOO fast... check OnStateChange()
+    if(m_PassSnapshotDelay == 0)
+    {
+        m_PassSnapshotDelay = -1;
+    }
+    else if(m_PassSnapshotDelay > 0)
+    {
+        m_PassSnapshotDelay--;
+        return;
+    }
+    else
+    {
+        return;
+    }
 
     for(auto &SavedPassword : m_aPasswords)
     {
@@ -150,7 +168,7 @@ void CPasswordManagerKZ::OnStateChange(int NewState, int OldState)
 {
     if(NewState != CClient::STATE_ONLINE)
     {
-        m_NeedToSendSnapshotPass = true;
+        m_PassSnapshotDelay = (int)(SERVER_TICK_SPEED * 1.5f);
     }
 }
 

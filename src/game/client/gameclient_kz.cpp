@@ -344,8 +344,15 @@ void CGameClient::GetKaizoInfo(CServerInfo *pServerInfo)
     //Pointer's TW+ (0.6 version)
     if(g_KaizoConfig_KaizoPredictPointerTWPlus && !m_WaitingForPointerTWPlusInfo)
     {
-        //First verify flags that Pointer TW+ would and would not send
-        if(m_GameInfo.m_GameInfoFlagsKZ & 
+        int PointerInfoFlags = m_GameInfo.m_GameInfoFlagsKZ;
+
+        //some config options could be enabled;
+        PointerInfoFlags &= ~(GAMEINFOFLAG_ALLOW_ZOOM);
+        PointerInfoFlags &= ~(GAMEINFOFLAG_UNLIMITED_AMMO);
+
+        if(
+        //Verify flags that Pointer TW+ would and would not send
+        m_GameInfo.m_GameInfoFlagsKZ == 
         (
         GAMEINFOFLAG_GAMETYPE_PLUS |
 		GAMEINFOFLAG_ALLOW_EYE_WHEEL |
@@ -354,25 +361,8 @@ void CGameClient::GetKaizoInfo(CServerInfo *pServerInfo)
 		GAMEINFOFLAG_ENTITIES_DDNET |
 		GAMEINFOFLAG_ENTITIES_DDRACE |
 		GAMEINFOFLAG_ENTITIES_RACE
-        ) && !(m_GameInfo.m_GameInfoFlagsKZ & 
-        (
-        GAMEINFOFLAG_GAMETYPE_FASTCAP |
-        GAMEINFOFLAG_GAMETYPE_FNG |
-        GAMEINFOFLAG_GAMETYPE_BLOCK_WORLDS |
-        GAMEINFOFLAG_TIMESCORE |
-        GAMEINFOFLAG_FLAG_STARTS_RACE |
-        GAMEINFOFLAG_RACE |
-        GAMEINFOFLAG_GAMETYPE_RACE |
-        GAMEINFOFLAG_GAMETYPE_DDRACE |
-        GAMEINFOFLAG_GAMETYPE_DDNET |
-        GAMEINFOFLAG_GAMETYPE_BLOCK_WORLDS |
-        GAMEINFOFLAG_GAMETYPE_VANILLA |
-        GAMEINFOFLAG_DDRACE_RECORD_MESSAGE |
-        GAMEINFOFLAG_RACE_RECORD_MESSAGE |
-        GAMEINFOFLAG_PREDICT_FNG |
-        GAMEINFOFLAG_BUG_VANILLA_BOUNCE |
-        GAMEINFOFLAG_BUG_FNG_LASER_RANGE
-        )))
+        )
+        )
         {
             //Very possibly this is Pointer's TW+, but to make extremely sure we will send a command that will say us if this is really the Pointer's mod
             m_Chat.SendChat(0, "/info");

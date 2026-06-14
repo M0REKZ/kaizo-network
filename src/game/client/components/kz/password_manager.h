@@ -41,7 +41,7 @@ public:
 private:
     std::vector<SPasswordKZ> m_aPasswords;
 
-    bool m_NeedToSendSnapshotPass = true;
+    int m_PassSnapshotDelay = SERVER_TICK_SPEED;
 };
 
 #endif

@@ -9,6 +9,7 @@
 #include <game/client/gameclient.h>
 #include <generated/client_data.h>
 #include <base/helper_kz.h>
+#include <game/version.h>
 
 //+KZ im not writing all of the configs one by one here :P
 //+KZ start
@@ -1021,6 +1022,13 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 			Ui()->DoLabel(&Label, Localize("Kaizo Client By +KZ"), 30.0f, TEXTALIGN_MC);
 
 			SettingsBox.HSplitTop(30.0f, nullptr, &SettingsBox);
+
+			//added version
+			Label.h = 20.f;
+			Label.y = SettingsBox.y - Label.h;
+
+			Ui()->DoLabel(&Label, Localize("V" KAIZO_CLIENT_VERSION_LATEST_STR), 20.0f, TEXTALIGN_MC);
+
 			SettingsBox.HSplitTop(20.0f, &Label, &SettingsBox);
 			Ui()->DoLabel(&Label, Localize("Based on Kaizo Network and DDNet, with some code from other DDNet mods"), 15.0f, TEXTALIGN_MC);
 
@@ -1056,7 +1064,7 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 
 			if(DoButton_Menu(&SourceCodeButton, Localize("Source Code"), false, &SourceCodeRect))
 			{
-				Client()->ViewLink(Localize("https://www.github.com/m0rekz/kaizo-ddnet"));
+				Client()->ViewLink(Localize("https://www.github.com/m0rekz/kaizo-client"));
 			}
 
 			if(DoButton_Menu(&WebsiteButton, Localize("+KZ Website"), false, &WebsiteRect))
