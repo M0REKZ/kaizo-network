@@ -69,6 +69,7 @@
 #include "components/touch_controls.h"
 #include "components/voting.h"
 
+#include "components/kz/bindwheel.h" // +KZ from T-Client
 #include "components/kz/custom_communities.h" // +KZ from T-Client
 #include "components/kz/rechargebars.h" // +KZ
 #include "components/kz/resources.h" // +KZ from Duck/Infclass Client
@@ -77,10 +78,10 @@
 #include "components/kz/password_manager.h" // +KZ
 #include "components/kz/performance_statistics.h" // +KZ from E-Client
 
+#include "prediction/predcontroller_kz.h" // +KZ
+
 #include <memory>
 #include <vector>
-#include "prediction/predcontroller_kz.h"
-#include "components/kz/bindwheel.h"
 
 class IMap;
 
