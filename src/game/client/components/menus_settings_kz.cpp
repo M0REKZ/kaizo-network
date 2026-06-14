@@ -125,6 +125,9 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 			ScrollHeight = Calc;
 		}
 		break;
+	case KAIZO_SETTINGS_TAB_DANGEROUS:
+		ScrollHeight = 700.f;
+		break;
 	default:
 		ScrollHeight = 0.f;
 		break;
