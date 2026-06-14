@@ -32,6 +32,7 @@ class CPredControllerKZ
         CPredControllerKZ * m_pPredController = nullptr;
         public:
         CGameController(CPredControllerKZ * pPredController);
+        virtual ~CGameController() {}
 
         CPredControllerKZ * PredController() { return m_pPredController; }
 
