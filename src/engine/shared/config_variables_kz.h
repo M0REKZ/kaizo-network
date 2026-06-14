@@ -74,7 +74,7 @@ MACRO_CONFIG_INT(KaizoPredictDeathTiles, kaizo_predict_death_tiles, 1, 0, 1, CFG
 MACRO_CONFIG_INT(KaizoPredictPointerTWPlus, kaizo_predict_pointer_twplus, 1, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Try to detect and predict Pointer's TW+")
 MACRO_CONFIG_INT(KaizoPredictVanillaHammerFix, kaizo_predict_vanilla_hammer_fix, 1, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Fix hammer prediction in vanilla when hitting other players through walls")
 MACRO_CONFIG_INT(KaizoPredictGoresGrenadeTele, kaizo_predict_grenade_gores_tele, 1, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Predict Gores grenade teleport")
-MACRO_CONFIG_INT(KaizoApplyGuessedInput, kaizo_apply_guessed_input, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Apply guessed input to predicted characters (kinda useless honestly i should remove this)")
+//MACRO_CONFIG_INT(KaizoApplyGuessedInput, kaizo_apply_guessed_input, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Apply guessed input to predicted characters (kinda useless honestly i should remove this)")
 MACRO_CONFIG_INT(KaizoPredictGameTypes, kaizo_predict_gametypes, 1, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Predict game type specific logic")
 MACRO_CONFIG_INT(KaizoPredictOthersEffects, kaizo_predict_others_effects, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Also predict effects for others (like death)")
 

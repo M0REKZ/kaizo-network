@@ -458,6 +458,7 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 				g_KaizoConfig_KaizoAntiPingNegativeBuffer ^= 1;
 			}
 
+			/*
 			Right.HSplitTop(2.0f, nullptr, &Right);
 
 			Right.HSplitTop(20.0f, &Button, &Right);
@@ -465,6 +466,7 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 			{
 				g_KaizoConfig_KaizoApplyGuessedInput ^= 1;
 			}
+			*/
 
 			Right.HSplitTop(2.0f, nullptr, &Right);
 

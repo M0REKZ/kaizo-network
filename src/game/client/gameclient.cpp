@@ -91,7 +91,7 @@ extern int g_KaizoConfig_KaizoFakeMaxZoom;
 extern int g_KaizoConfig_KaizoFastInput;
 extern int g_KaizoConfig_KaizoFastInputAmount;
 extern int g_KaizoConfig_KaizoFastInputOthers;
-extern int g_KaizoConfig_KaizoApplyGuessedInput;
+//extern int g_KaizoConfig_KaizoApplyGuessedInput;
 extern int g_KaizoConfig_SvGoresQuadsEnable;
 extern int g_KaizoConfig_KaizoPredictGameTypes;
 extern int g_KaizoConfig_KaizoPredictOthersEffects;
@@ -2839,29 +2839,6 @@ void CGameClient::OnPredict()
 		if(pDummyInputData && !DummyFirst)
 			pDummyChar->OnDirectInput(pDummyInputData);
 
-		//+KZ guessed input
-		if(g_KaizoConfig_KaizoApplyGuessedInput)
-		{
-			for(auto &PlayerClient : m_aClients)
-			{
-				if(PlayerClient.m_ClientId == m_Snap.m_LocalClientId)
-					continue;
-
-				if(Client()->DummyConnected() && PlayerClient.m_ClientId == m_aLocalIds[!g_Config.m_ClDummy])
-					continue;
-
-				if(PlayerClient.m_ReceivedPreInputs && Tick != Client()->GameTick(g_Config.m_ClDummy) + 1)
-					continue;
-				
-				CCharacter * pChar = m_PredictedWorld.GetCharacterById(PlayerClient.m_ClientId);
-
-				if(!pChar)
-					continue;
-
-				pChar->OnDirectInput(&PlayerClient.m_GuessedInputKZ);
-			}
-		}
-
 		ApplyPreInputs(Tick, true, m_PredictedWorld);
 
 		m_PredictedWorld.m_GameTick = Tick;
@@ -2869,29 +2846,6 @@ void CGameClient::OnPredict()
 			pLocalChar->OnPredictedInput(pInputData);
 		if(pDummyInputData)
 			pDummyChar->OnPredictedInput(pDummyInputData);
-
-		//+KZ guessed input
-		if(g_KaizoConfig_KaizoApplyGuessedInput)
-		{
-			for(auto &PlayerClient : m_aClients)
-			{
-				if(PlayerClient.m_ClientId == m_Snap.m_LocalClientId)
-					continue;
-
-				if(Client()->DummyConnected() && PlayerClient.m_ClientId == m_aLocalIds[!g_Config.m_ClDummy])
-					continue;
-
-				if(PlayerClient.m_ReceivedPreInputs && Tick != Client()->GameTick(g_Config.m_ClDummy) + 1)
-					continue;
-				
-				CCharacter * pChar = m_PredictedWorld.GetCharacterById(PlayerClient.m_ClientId);
-
-				if(!pChar)
-					continue;
-
-				pChar->OnPredictedInput(&PlayerClient.m_GuessedInputKZ);
-			}
-		}
 
 		ApplyPreInputs(Tick, false, m_PredictedWorld);
 
