@@ -33,6 +33,7 @@ enum
 	KAIZO_SETTINGS_TAB_TCLIENT_BINDWHEEL,
 	KAIZO_SETTINGS_TAB_SPLITS,
 	KAIZO_SETTINGS_TAB_PASSWORDS,
+	KAIZO_SETTINGS_TAB_DANGEROUS, //toggled by kaizo_show_dangerous_settings
 	KAIZO_SETTINGS_TAB_INFO,
 	NUM_KAIZO_SETTINGS_TABS,
 };
@@ -68,22 +69,28 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 
 	CUIRect Left, Right;
 
+	int NumTabsToShow = g_KaizoConfig_KaizoShowDangerousSettings ? NUM_KAIZO_SETTINGS_TABS : (NUM_KAIZO_SETTINGS_TABS - 1);
+
 	MainView.HSplitTop(20.0f, &TabBar, &MainView);
-	const float TabWidth = TabBar.w / NUM_KAIZO_SETTINGS_TABS;
+	const float TabWidth = TabBar.w / NumTabsToShow;
 	static CButtonContainer s_aPageTabs[NUM_KAIZO_SETTINGS_TABS] = {};
 	const char *apTabNames[NUM_KAIZO_SETTINGS_TABS] = {
 		Localize("Kaizo"),
 		Localize("Bind Wheel"),
 		Localize("Splits", "Kaizo Client Settings"),
 		Localize("Passwords"),
+		Localize("Dangerous", "Kaizo Client Settings"),
 		Localize("Info"),
 		};
 
 	for(int Tab = KAIZO_SETTINGS_TAB_KAIZO; Tab < NUM_KAIZO_SETTINGS_TABS; ++Tab)
 	{
+		if(!g_KaizoConfig_KaizoShowDangerousSettings && Tab == KAIZO_SETTINGS_TAB_DANGEROUS)
+			continue;
+
 		CUIRect PageButton;
 		TabBar.VSplitLeft(TabWidth, &PageButton, &TabBar);
-		const int Corners = Tab == KAIZO_SETTINGS_TAB_KAIZO ? IGraphics::CORNER_L : Tab == NUM_KAIZO_SETTINGS_TABS - 1 ? IGraphics::CORNER_R : IGraphics::CORNER_NONE;
+		const int Corners = Tab == KAIZO_SETTINGS_TAB_KAIZO ? IGraphics::CORNER_L : Tab == NumTabsToShow - 1 ? IGraphics::CORNER_R : IGraphics::CORNER_NONE;
 		if(DoButton_MenuTab(&s_aPageTabs[Tab], apTabNames[Tab], s_CurCustomTab == Tab, &PageButton, Corners, nullptr, nullptr, nullptr, nullptr, 4.0f))
 		{
 			s_CurCustomTab = Tab;
@@ -555,145 +562,6 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 				Ui()->DoScrollbarOption(&g_KaizoConfig_KaizoPredMarginInFreezeAmount, &g_KaizoConfig_KaizoPredMarginInFreezeAmount, &Button, Localize("Margin while frozen"), 1, 100, &CUi::ms_LogarithmicScrollbarScale, 0u, "");
 			}
 
-			// dangerous settings, some communities may consider it a cheat, chill communities may not, use at your own risk!
-			Right.HSplitTop(40.0f, &Label, &SettingsBox);
-			Ui()->DoLabel(&Label, Localize("Dangerous Settings!"), 20.0f, TEXTALIGN_ML);
-			Right.HSplitTop(45.0f, &Label, &Right);
-			Right.HSplitTop(20.0f, &Label, &SettingsBox);
-
-			SLabelProperties DangerLabelProps;
-			DangerLabelProps.SetColor(ColorRGBA(1.f,0.f,0.f));
-			Ui()->DoLabel(&Label, Localize("Some communities may consider these features as cheats while others may not.\nUSE AT YOUR OWN RISK! (Some wont work in some servers and it is NOT a bug)\nAlso note that they may cause bugs in the game, try disabling them if something is wrong"), 10.0f, TEXTALIGN_ML, DangerLabelProps);
-			Right.HSplitTop(25.0f, &Label, &Right);
-
-			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoOldModsZooming, Localize("Zooming in Old non-DDNet mods (only if zoom is not prohibited)"), g_KaizoConfig_KaizoOldModsZooming, &Button))
-			{
-				g_KaizoConfig_KaizoOldModsZooming ^= 1;
-			}
-
-			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoShowRechargeBar, Localize("Show weapon recharge bar"), g_KaizoConfig_KaizoShowRechargeBar, &Button))
-			{
-				g_KaizoConfig_KaizoShowRechargeBar ^= 1;
-			}
-
-			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoHideChatBubble, Localize("Dont send chat bubble"), g_KaizoConfig_KaizoHideChatBubble, &Button))
-			{
-				g_KaizoConfig_KaizoHideChatBubble ^= 1;
-			}
-
-			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoHideInMenuStatus, Localize("Dont send in-menu status"), g_KaizoConfig_KaizoHideInMenuStatus, &Button))
-			{
-				g_KaizoConfig_KaizoHideInMenuStatus ^= 1;
-			}
-
-			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoForceChatBubble, Localize("Always send chat bubble"), g_KaizoConfig_KaizoForceChatBubble, &Button))
-			{
-				g_KaizoConfig_KaizoForceChatBubble ^= 1;
-			}
-
-			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoForceInMenuStatus, Localize("Always send in-menu status"), g_KaizoConfig_KaizoForceInMenuStatus, &Button))
-			{
-				g_KaizoConfig_KaizoForceInMenuStatus ^= 1;
-			}
-
-			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoFastRespawn, Localize("Fast respawn"), g_KaizoConfig_KaizoFastRespawn, &Button))
-			{
-				g_KaizoConfig_KaizoFastRespawn ^= 1;
-			}
-
-			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoAlwaysAllowDummy, Localize("Always be able to connect dummy"), g_KaizoConfig_KaizoAlwaysAllowDummy, &Button))
-			{
-				g_KaizoConfig_KaizoAlwaysAllowDummy ^= 1;
-			}
-
-			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoAlwaysAllowShowHookColl, Localize("Always be able to use \"Show Hook Collisions\""), g_KaizoConfig_KaizoAlwaysAllowShowHookColl, &Button))
-			{
-				g_KaizoConfig_KaizoAlwaysAllowShowHookColl ^= 1;
-			}
-
-			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoShowXSkinsInSettings, Localize("Show \"x_\" prefixed skins in Skin settings"), g_KaizoConfig_KaizoShowXSkinsInSettings, &Button))
-			{
-				g_KaizoConfig_KaizoShowXSkinsInSettings ^= 1;
-			}
-
-			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoForceDDNetHUD, Localize("Always try to show DDNet HUD"), g_KaizoConfig_KaizoForceDDNetHUD, &Button))
-			{
-				g_KaizoConfig_KaizoForceDDNetHUD ^= 1;
-			}
-
-			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoForceBugDDRaceInput, Localize("Act as if \'Bug DDRace Input\' is enabled"), g_KaizoConfig_KaizoForceBugDDRaceInput, &Button))
-			{
-				g_KaizoConfig_KaizoForceBugDDRaceInput ^= 1;
-			}
-
-			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoShowCharFlags, Localize("Show Character Flags in nameplate"), g_KaizoConfig_KaizoShowCharFlags, &Button))
-			{
-				g_KaizoConfig_KaizoShowCharFlags ^= 1;
-			}
-
-			if(g_KaizoConfig_KaizoShowCharFlags)
-			{
-				Right.HSplitTop(2.0f, nullptr, &Right);
-				Right.HSplitTop(20.0f, &Button, &Right);
-				Ui()->DoScrollbarOption(&g_KaizoConfig_KaizoShowCharFlagsSize, &g_KaizoConfig_KaizoShowCharFlagsSize, &Button, Localize("Size of Characer Flags indicators"), 25, 100, &CUi::ms_LogarithmicScrollbarScale, 0u);
-			}
-
-			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoShowCharJumps, Localize("Show Character Jumps in nameplate"), g_KaizoConfig_KaizoShowCharJumps, &Button))
-			{
-				g_KaizoConfig_KaizoShowCharJumps ^= 1;
-			}
-
-			if(g_KaizoConfig_KaizoShowCharJumps)
-			{
-				Right.HSplitTop(2.0f, nullptr, &Right);
-				Right.HSplitTop(20.0f, &Button, &Right);
-				Ui()->DoScrollbarOption(&g_KaizoConfig_KaizoShowCharJumpsSize, &g_KaizoConfig_KaizoShowCharJumpsSize, &Button, Localize("Size of Characer Jumps indicator"), 25, 100, &CUi::ms_LogarithmicScrollbarScale, 0u);
-			}
-
-			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoGrenadePath, Localize("Show Grenade and Gun collisions"), g_KaizoConfig_KaizoGrenadePath, &Button))
-			{
-				g_KaizoConfig_KaizoGrenadePath ^= 1;
-			}
-
-			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoLaserPath, Localize("Show Laser collisions"), g_KaizoConfig_KaizoLaserPath, &Button))
-			{
-				g_KaizoConfig_KaizoLaserPath ^= 1;
-			}
-
-			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoFreeMouse, Localize("Free mouse"), g_KaizoConfig_KaizoFreeMouse, &Button))
-			{
-				g_KaizoConfig_KaizoFreeMouse ^= 1;
-			}
-			
-			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoHideAiming, Localize("Hide aiming (may break /pause and /spec)"), g_KaizoConfig_KaizoHideAiming, &Button))
-			{
-				g_KaizoConfig_KaizoHideAiming ^= 1;
-			}
-
-			Right.HSplitTop(20.0f, &Button, &Right);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoFakeMaxZoom, Localize("Send fake max zoom (may improve prediction)"), g_KaizoConfig_KaizoFakeMaxZoom, &Button))
-			{
-				g_KaizoConfig_KaizoFakeMaxZoom ^= 1;
-			}
-
 			break;
 		}
 		case KAIZO_SETTINGS_TAB_TCLIENT_BINDWHEEL:
@@ -1000,6 +868,153 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 						}
 					}
 				}
+			}
+
+			break;
+		}
+		case KAIZO_SETTINGS_TAB_DANGEROUS:
+		{
+			//SettingsBox.VSplitMid(&Left, &Right, 20.0f);
+
+			Left = SettingsBox;
+
+			// dangerous settings, some communities may consider it a cheat, chill communities may not, use at your own risk!
+			Left.HSplitTop(40.0f, &Label, &SettingsBox);
+			Ui()->DoLabel(&Label, Localize("Dangerous Settings!"), 20.0f, TEXTALIGN_ML);
+			Left.HSplitTop(45.0f, &Label, &Left);
+			Left.HSplitTop(20.0f, &Label, &SettingsBox);
+
+			SLabelProperties DangerLabelProps;
+			DangerLabelProps.SetColor(ColorRGBA(1.f,0.f,0.f));
+			Ui()->DoLabel(&Label, Localize("Some communities may consider these features as cheats while others may not.\nUSE AT YOUR OWN RISK! (Some wont work in some servers and it is NOT a bug)\nAlso note that they may cause bugs in the game, try disabling them if something is wrong"), 10.0f, TEXTALIGN_ML, DangerLabelProps);
+			Left.HSplitTop(25.0f, &Label, &Left);
+
+			Left.HSplitTop(20.0f, &Button, &Left);
+			if(DoButton_CheckBox(&g_KaizoConfig_KaizoOldModsZooming, Localize("Zooming in Old non-DDNet mods (only if zoom is not prohibited)"), g_KaizoConfig_KaizoOldModsZooming, &Button))
+			{
+				g_KaizoConfig_KaizoOldModsZooming ^= 1;
+			}
+
+			Left.HSplitTop(20.0f, &Button, &Left);
+			if(DoButton_CheckBox(&g_KaizoConfig_KaizoShowRechargeBar, Localize("Show weapon recharge bar"), g_KaizoConfig_KaizoShowRechargeBar, &Button))
+			{
+				g_KaizoConfig_KaizoShowRechargeBar ^= 1;
+			}
+
+			Left.HSplitTop(20.0f, &Button, &Left);
+			if(DoButton_CheckBox(&g_KaizoConfig_KaizoHideChatBubble, Localize("Dont send chat bubble"), g_KaizoConfig_KaizoHideChatBubble, &Button))
+			{
+				g_KaizoConfig_KaizoHideChatBubble ^= 1;
+			}
+
+			Left.HSplitTop(20.0f, &Button, &Left);
+			if(DoButton_CheckBox(&g_KaizoConfig_KaizoHideInMenuStatus, Localize("Dont send in-menu status"), g_KaizoConfig_KaizoHideInMenuStatus, &Button))
+			{
+				g_KaizoConfig_KaizoHideInMenuStatus ^= 1;
+			}
+
+			Left.HSplitTop(20.0f, &Button, &Left);
+			if(DoButton_CheckBox(&g_KaizoConfig_KaizoForceChatBubble, Localize("Always send chat bubble"), g_KaizoConfig_KaizoForceChatBubble, &Button))
+			{
+				g_KaizoConfig_KaizoForceChatBubble ^= 1;
+			}
+
+			Left.HSplitTop(20.0f, &Button, &Left);
+			if(DoButton_CheckBox(&g_KaizoConfig_KaizoForceInMenuStatus, Localize("Always send in-menu status"), g_KaizoConfig_KaizoForceInMenuStatus, &Button))
+			{
+				g_KaizoConfig_KaizoForceInMenuStatus ^= 1;
+			}
+
+			Left.HSplitTop(20.0f, &Button, &Left);
+			if(DoButton_CheckBox(&g_KaizoConfig_KaizoFastRespawn, Localize("Fast respawn"), g_KaizoConfig_KaizoFastRespawn, &Button))
+			{
+				g_KaizoConfig_KaizoFastRespawn ^= 1;
+			}
+
+			Left.HSplitTop(20.0f, &Button, &Left);
+			if(DoButton_CheckBox(&g_KaizoConfig_KaizoAlwaysAllowDummy, Localize("Always be able to connect dummy"), g_KaizoConfig_KaizoAlwaysAllowDummy, &Button))
+			{
+				g_KaizoConfig_KaizoAlwaysAllowDummy ^= 1;
+			}
+
+			Left.HSplitTop(20.0f, &Button, &Left);
+			if(DoButton_CheckBox(&g_KaizoConfig_KaizoAlwaysAllowShowHookColl, Localize("Always be able to use \"Show Hook Collisions\""), g_KaizoConfig_KaizoAlwaysAllowShowHookColl, &Button))
+			{
+				g_KaizoConfig_KaizoAlwaysAllowShowHookColl ^= 1;
+			}
+
+			Left.HSplitTop(20.0f, &Button, &Left);
+			if(DoButton_CheckBox(&g_KaizoConfig_KaizoShowXSkinsInSettings, Localize("Show \"x_\" prefixed skins in Skin settings"), g_KaizoConfig_KaizoShowXSkinsInSettings, &Button))
+			{
+				g_KaizoConfig_KaizoShowXSkinsInSettings ^= 1;
+			}
+
+			Left.HSplitTop(20.0f, &Button, &Left);
+			if(DoButton_CheckBox(&g_KaizoConfig_KaizoForceDDNetHUD, Localize("Always try to show DDNet HUD"), g_KaizoConfig_KaizoForceDDNetHUD, &Button))
+			{
+				g_KaizoConfig_KaizoForceDDNetHUD ^= 1;
+			}
+
+			Left.HSplitTop(20.0f, &Button, &Left);
+			if(DoButton_CheckBox(&g_KaizoConfig_KaizoForceBugDDRaceInput, Localize("Act as if \'Bug DDRace Input\' is enabled"), g_KaizoConfig_KaizoForceBugDDRaceInput, &Button))
+			{
+				g_KaizoConfig_KaizoForceBugDDRaceInput ^= 1;
+			}
+
+			Left.HSplitTop(20.0f, &Button, &Left);
+			if(DoButton_CheckBox(&g_KaizoConfig_KaizoShowCharFlags, Localize("Show Character Flags in nameplate"), g_KaizoConfig_KaizoShowCharFlags, &Button))
+			{
+				g_KaizoConfig_KaizoShowCharFlags ^= 1;
+			}
+
+			if(g_KaizoConfig_KaizoShowCharFlags)
+			{
+				Left.HSplitTop(2.0f, nullptr, &Left);
+				Left.HSplitTop(20.0f, &Button, &Left);
+				Ui()->DoScrollbarOption(&g_KaizoConfig_KaizoShowCharFlagsSize, &g_KaizoConfig_KaizoShowCharFlagsSize, &Button, Localize("Size of Characer Flags indicators"), 25, 100, &CUi::ms_LogarithmicScrollbarScale, 0u);
+			}
+
+			Left.HSplitTop(20.0f, &Button, &Left);
+			if(DoButton_CheckBox(&g_KaizoConfig_KaizoShowCharJumps, Localize("Show Character Jumps in nameplate"), g_KaizoConfig_KaizoShowCharJumps, &Button))
+			{
+				g_KaizoConfig_KaizoShowCharJumps ^= 1;
+			}
+
+			if(g_KaizoConfig_KaizoShowCharJumps)
+			{
+				Left.HSplitTop(2.0f, nullptr, &Left);
+				Left.HSplitTop(20.0f, &Button, &Left);
+				Ui()->DoScrollbarOption(&g_KaizoConfig_KaizoShowCharJumpsSize, &g_KaizoConfig_KaizoShowCharJumpsSize, &Button, Localize("Size of Characer Jumps indicator"), 25, 100, &CUi::ms_LogarithmicScrollbarScale, 0u);
+			}
+
+			Left.HSplitTop(20.0f, &Button, &Left);
+			if(DoButton_CheckBox(&g_KaizoConfig_KaizoGrenadePath, Localize("Show Grenade and Gun collisions"), g_KaizoConfig_KaizoGrenadePath, &Button))
+			{
+				g_KaizoConfig_KaizoGrenadePath ^= 1;
+			}
+
+			Left.HSplitTop(20.0f, &Button, &Left);
+			if(DoButton_CheckBox(&g_KaizoConfig_KaizoLaserPath, Localize("Show Laser collisions"), g_KaizoConfig_KaizoLaserPath, &Button))
+			{
+				g_KaizoConfig_KaizoLaserPath ^= 1;
+			}
+
+			Left.HSplitTop(20.0f, &Button, &Left);
+			if(DoButton_CheckBox(&g_KaizoConfig_KaizoFreeMouse, Localize("Free mouse"), g_KaizoConfig_KaizoFreeMouse, &Button))
+			{
+				g_KaizoConfig_KaizoFreeMouse ^= 1;
+			}
+			
+			Left.HSplitTop(20.0f, &Button, &Left);
+			if(DoButton_CheckBox(&g_KaizoConfig_KaizoHideAiming, Localize("Hide aiming (may break /pause and /spec)"), g_KaizoConfig_KaizoHideAiming, &Button))
+			{
+				g_KaizoConfig_KaizoHideAiming ^= 1;
+			}
+
+			Left.HSplitTop(20.0f, &Button, &Left);
+			if(DoButton_CheckBox(&g_KaizoConfig_KaizoFakeMaxZoom, Localize("Send fake max zoom (may improve prediction)"), g_KaizoConfig_KaizoFakeMaxZoom, &Button))
+			{
+				g_KaizoConfig_KaizoFakeMaxZoom ^= 1;
 			}
 
 			break;

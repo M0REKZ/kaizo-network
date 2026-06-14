@@ -176,6 +176,10 @@ MACRO_CONFIG_STR(KaizoResourcesDownloadUrl, kaizo_resources_download_url, 128, "
 //*=========================================*
 //DANGEROUS
 //*=========================================*
+
+//User must enable this by himself
+MACRO_CONFIG_INT(KaizoShowDangerousSettings, kaizo_show_dangerous_settings, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Show 'Dangerous' tab in settings")
+
 MACRO_CONFIG_INT(KaizoOldModsZooming, kaizo_old_mods_zooming, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Allow to zoom in some old non-DDNet mods (not all) (WARNING: can be considered as a cheat, use at your own risk!)")
 MACRO_CONFIG_INT(KaizoShowRechargeBar, kaizo_show_recharge_bar, 1, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Show weapon recharge bar (WARNING: can be considered as a cheat, use at your own risk!)")
 MACRO_CONFIG_INT(KaizoHideChatBubble, kaizo_hide_chat_bubble, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Dont send chat bubble")
