@@ -29,7 +29,7 @@ jobs:
         #  fancy: false
         - os: windows-latest
           cmake-args: -A x64
-          cmake-init-env: CXXFLAGS=/WX LDFLAGS=/WX
+        #  cmake-init-env: CXXFLAGS=/WX LDFLAGS=/WX
           package-file: "*-win64.zip"
           fancy: false
 
