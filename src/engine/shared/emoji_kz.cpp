@@ -74,8 +74,8 @@ std::string CEmojiKZ::Emojize(std::string emoticontext) //this could be better
             size_t end = 0;
             for(size_t j = start + 1; j < emoticontext.size(); j++)
             {
-                if(emoticontext[j] == ' ') //no spaces allowed
-                    break;
+                //if(emoticontext[j] == ' ') //no spaces allowed
+                //    break;
 
                 if(emoticontext[j] == ':') //emoticon end
                 {
@@ -92,6 +92,11 @@ std::string CEmojiKZ::Emojize(std::string emoticontext) //this could be better
                 if(m_EmojiList.find(rest) != m_EmojiList.end())
                 {
                     emoticontext.replace(start, (end - start) + 1, m_EmojiList[rest]);
+                }
+                else
+                {
+                    //Start from the last ':', fixes detection issues for messages like "+KZ: :thumbsup:" where "thumbsup" would be ignored otherwise
+                    i = end - 1;
                 }
                 continue;
             }
