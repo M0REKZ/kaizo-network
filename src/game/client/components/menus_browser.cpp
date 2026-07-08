@@ -2,6 +2,7 @@
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
 #include "menus.h"
 
+#include <base/dbg.h>
 #include <base/log.h>
 #include <base/time.h>
 
@@ -498,7 +499,7 @@ void CMenus::RenderServerbrowserStatusBox(CUIRect StatusBox, bool WasListboxItem
 	const float LoadingProgressionTimeDiff = s_LoadingProgressionFadeEnd - Client()->GlobalTime();
 	if(LoadingProgressionTimeDiff > 0.0f)
 	{
-		const float RefreshBarAlpha = minimum(LoadingProgressionTimeDiff, 0.8f);
+		const float RefreshBarAlpha = std::min(LoadingProgressionTimeDiff, 0.8f);
 		RefreshBar.h = 2.0f;
 		RefreshBar.w *= ServerBrowser()->LoadingProgression() / 100.0f;
 		RefreshBar.Draw(ColorRGBA(1.0f, 1.0f, 1.0f, RefreshBarAlpha), IGraphics::CORNER_NONE, 0.0f);
@@ -509,7 +510,7 @@ void CMenus::RenderServerbrowserStatusBox(CUIRect StatusBox, bool WasListboxItem
 	const float SearchExcludeAddrStrMax = 130.0f;
 	const float SearchIconWidth = TextRender()->TextWidth(16.0f, FontIcon::MAGNIFYING_GLASS);
 	const float ExcludeIconWidth = TextRender()->TextWidth(16.0f, FontIcon::BAN);
-	const float ExcludeSearchIconMax = maximum(SearchIconWidth, ExcludeIconWidth);
+	const float ExcludeSearchIconMax = std::max(SearchIconWidth, ExcludeIconWidth);
 	TextRender()->SetRenderFlags(0);
 	TextRender()->SetFontPreset(EFontPreset::DEFAULT_FONT);
 
@@ -689,7 +690,9 @@ void CMenus::Connect(const char *pAddress)
 		PopupConfirm(Localize("Disconnect"), Localize("Are you sure that you want to disconnect and switch to a different server?"), Localize("Yes"), Localize("No"), &CMenus::PopupConfirmSwitchServer);
 	}
 	else
+	{
 		Client()->Connect(pAddress);
+	}
 }
 
 void CMenus::PopupConfirmSwitchServer()
@@ -817,7 +820,7 @@ void CMenus::RenderServerbrowserFilters(CUIRect View)
 		CUIRect TabContents, CountriesTab, TypesTab;
 		View.HSplitTop(6.0f, nullptr, &View);
 		View.HSplitTop(19.0f, &Button, &View);
-		View.HSplitTop(minimum(4.0f * 22.0f + CScrollRegion::HEIGHT_MAGIC_FIX, View.h), &TabContents, &View);
+		View.HSplitTop(std::min(4.0f * 22.0f, View.h), &TabContents, &View);
 		Button.VSplitMid(&CountriesTab, &TypesTab);
 		TabContents.Draw(ColorActive, IGraphics::CORNER_B, 4.0f);
 
@@ -866,7 +869,7 @@ void CMenus::ResetServerbrowserFilters()
 	g_Config.m_BrFilterSpectators = 0;
 	g_Config.m_BrFilterFriends = 0;
 	g_Config.m_BrFilterCountry = 0;
-	g_Config.m_BrFilterCountryIndex = -1;
+	g_Config.m_BrFilterCountryIndex = DefaultConfig::BrFilterCountryIndex;
 	g_Config.m_BrFilterPw = 0;
 	g_Config.m_BrFilterGametype[0] = '\0';
 	g_Config.m_BrFilterGametypeStrict = 0;
@@ -903,7 +906,7 @@ void CMenus::RenderServerbrowserDDNetFilter(CUIRect View,
 	vItemIds.resize(MaxItems);
 
 	CScrollRegionParams ScrollParams;
-	ScrollParams.m_ScrollbarWidth = 10.0f;
+	ScrollParams.m_ScrollbarThickness = 10.0f;
 	ScrollParams.m_ScrollbarMargin = 3.0f;
 	ScrollParams.m_ScrollUnit = 2.0f * ItemHeight;
 	ScrollRegion.Begin(&View, &ScrollParams);
@@ -1176,7 +1179,7 @@ CUi::EPopupMenuFunctionResult CMenus::PopupCountrySelection(void *pContext, CUIR
 	}
 
 	const int NewSelected = s_ListBox.DoEnd();
-	pPopupContext->m_Selection = NewSelected >= 0 ? pMenus->GameClient()->m_CountryFlags.GetByIndex(NewSelected).m_CountryCode : -1;
+	pPopupContext->m_Selection = NewSelected >= 0 ? pMenus->GameClient()->m_CountryFlags.GetByIndex(NewSelected).m_CountryCode : CountryCode::DEFAULT;
 	if(s_ListBox.WasItemSelected() || s_ListBox.WasItemActivated())
 	{
 		g_Config.m_BrFilterCountry = 1;
@@ -1427,7 +1430,7 @@ void CMenus::RenderServerbrowserInfoScoreboard(CUIRect View, const CServerInfo *
 		else if(CurrentClient.m_aaSkin7[protocol7::SKINPART_BODY][0] != '\0')
 		{
 			CTeeRenderInfo TeeInfo;
-			TeeInfo.m_Size = minimum(Skin.w, Skin.h);
+			TeeInfo.m_Size = std::min(Skin.w, Skin.h);
 			for(int Part = 0; Part < protocol7::NUM_SKINPARTS; Part++)
 			{
 				GameClient()->m_Skins7.FindSkinPart(Part, CurrentClient.m_aaSkin7[Part], true)->ApplyTo(TeeInfo.m_aSixup[g_Config.m_ClDummy]);
@@ -1634,10 +1637,10 @@ void CMenus::RenderServerbrowserFriends(CUIRect View)
 	// friends list
 	static CScrollRegion s_ScrollRegion;
 	CScrollRegionParams ScrollParams;
-	ScrollParams.m_ScrollbarWidth = 16.0f;
+	ScrollParams.m_ScrollbarThickness = 16.0f;
 	ScrollParams.m_ScrollbarMargin = 5.0f;
 	ScrollParams.m_ScrollUnit = 80.0f;
-	ScrollParams.m_Flags = CScrollRegionParams::FLAG_CONTENT_STATIC_WIDTH;
+	ScrollParams.m_ForceShowScrollbar = true;
 	s_ScrollRegion.Begin(&List, &ScrollParams);
 
 	RenderKaizoClientUsers(View, List, s_ScrollRegion); // From EClient
@@ -1739,7 +1742,7 @@ void CMenus::RenderServerbrowserFriends(CUIRect View)
 				else if(Friend.Skin7(protocol7::SKINPART_BODY)[0] != '\0')
 				{
 					CTeeRenderInfo TeeInfo;
-					TeeInfo.m_Size = minimum(Skin.w, Skin.h);
+					TeeInfo.m_Size = std::min(Skin.w, Skin.h);
 					for(int Part = 0; Part < protocol7::NUM_SKINPARTS; Part++)
 					{
 						GameClient()->m_Skins7.FindSkinPart(Part, Friend.Skin7(Part), true)->ApplyTo(TeeInfo.m_aSixup[g_Config.m_ClDummy]);
@@ -2046,7 +2049,7 @@ void CMenus::RenderServerbrowser(CUIRect MainView)
 	if(g_Config.m_UiPage == PAGE_INTERNET || g_Config.m_UiPage == PAGE_FAVORITES)
 	{
 		CUIRect CommunityFilter;
-		ToolBox.HSplitTop(19.0f + 4.0f * 17.0f + CScrollRegion::HEIGHT_MAGIC_FIX, &CommunityFilter, &ToolBox);
+		ToolBox.HSplitTop(19.0f + 4.0f * 17.0f, &CommunityFilter, &ToolBox);
 		ToolBox.HSplitTop(8.0f, nullptr, &ToolBox);
 		RenderServerbrowserCommunitiesFilter(CommunityFilter);
 	}
@@ -2102,7 +2105,7 @@ CTeeRenderInfo CMenus::GetTeeRenderInfo(vec2 Size, const char *pSkinName, bool C
 	CTeeRenderInfo TeeInfo;
 	TeeInfo.Apply(GameClient()->m_Skins.Find(pSkinName));
 	TeeInfo.ApplyColors(CustomSkinColors, CustomSkinColorBody, CustomSkinColorFeet);
-	TeeInfo.m_Size = minimum(Size.x, Size.y);
+	TeeInfo.m_Size = std::min(Size.x, Size.y);
 	return TeeInfo;
 }
 

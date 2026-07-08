@@ -2,7 +2,6 @@
 
 #include <base/dbg.h>
 #include <base/log.h>
-#include <base/math.h>
 #include <base/mem.h>
 #include <base/str.h>
 #include <base/time.h>
@@ -50,15 +49,12 @@ using namespace std::chrono_literals;
 
 class CCommandProcessorFragment_Vulkan : public CCommandProcessorFragment_GLBase
 {
-	enum EMemoryBlockUsage
+	enum class EMemoryBlockUsage
 	{
-		MEMORY_BLOCK_USAGE_TEXTURE = 0,
-		MEMORY_BLOCK_USAGE_BUFFER,
-		MEMORY_BLOCK_USAGE_STREAM,
-		MEMORY_BLOCK_USAGE_STAGING,
-
-		// whenever dummy is used, make sure to deallocate all memory
-		MEMORY_BLOCK_USAGE_DUMMY,
+		TEXTURE,
+		BUFFER,
+		STREAM,
+		STAGING,
 	};
 
 	[[nodiscard]] bool IsVerbose()
@@ -70,13 +66,13 @@ class CCommandProcessorFragment_Vulkan : public CCommandProcessorFragment_GLBase
 	{
 		switch(MemUsage)
 		{
-		case MEMORY_BLOCK_USAGE_TEXTURE:
+		case EMemoryBlockUsage::TEXTURE:
 			return "texture";
-		case MEMORY_BLOCK_USAGE_BUFFER:
+		case EMemoryBlockUsage::BUFFER:
 			return "buffer";
-		case MEMORY_BLOCK_USAGE_STREAM:
+		case EMemoryBlockUsage::STREAM:
 			return "stream";
-		case MEMORY_BLOCK_USAGE_STAGING:
+		case EMemoryBlockUsage::STAGING:
 			return "staging buffer";
 		default:
 			dbg_assert_failed("Invalid MemUsage: %d", (int)MemUsage);
@@ -432,7 +428,9 @@ class CCommandProcessorFragment_Vulkan : public CCommandProcessorFragment_GLBase
 								break;
 						}
 						else
+						{
 							++HeapIterator;
+						}
 					}
 				}
 			}
@@ -1479,7 +1477,7 @@ protected:
 			MemRange.size = VK_WHOLE_SIZE;
 			vkInvalidateMappedMemoryRanges(m_VKDevice, 1, &MemRange);
 
-			size_t RealFullImageSize = maximum(ImageTotalSize, (size_t)(Height * m_GetPresentedImgDataHelperMappedLayoutPitch));
+			size_t RealFullImageSize = std::max(ImageTotalSize, (size_t)(Height * m_GetPresentedImgDataHelperMappedLayoutPitch));
 			size_t ExtraRowSize = Width * 4;
 			if(vDstData.size() < RealFullImageSize + ExtraRowSize)
 				vDstData.resize(RealFullImageSize + ExtraRowSize);
@@ -1597,10 +1595,10 @@ protected:
 			}
 			if(!FoundAllocation)
 			{
-				typename SMemoryBlockCache<Id>::SMemoryCacheType::SMemoryCacheHeap *pNewHeap = new typename SMemoryBlockCache<Id>::SMemoryCacheType::SMemoryCacheHeap();
+				typename SMemoryBlockCache<Id>::SMemoryCacheType::SMemoryCacheHeap *pNewHeap = new SMemoryBlockCache<Id>::SMemoryCacheType::SMemoryCacheHeap();
 
 				VkBuffer TmpBuffer;
-				if(!GetBufferImpl(MemoryBlockSize * BlockCount, RequiresMapping ? MEMORY_BLOCK_USAGE_STAGING : MEMORY_BLOCK_USAGE_BUFFER, TmpBuffer, TmpBufferMemory, BufferUsage, BufferProperties))
+				if(!GetBufferImpl(MemoryBlockSize * BlockCount, RequiresMapping ? EMemoryBlockUsage::STAGING : EMemoryBlockUsage::BUFFER, TmpBuffer, TmpBufferMemory, BufferUsage, BufferProperties))
 				{
 					delete pNewHeap;
 					return false;
@@ -1658,7 +1656,7 @@ protected:
 		{
 			VkBuffer TmpBuffer;
 			SDeviceMemoryBlock TmpBufferMemory;
-			if(!GetBufferImpl(RequiredSize, RequiresMapping ? MEMORY_BLOCK_USAGE_STAGING : MEMORY_BLOCK_USAGE_BUFFER, TmpBuffer, TmpBufferMemory, BufferUsage, BufferProperties))
+			if(!GetBufferImpl(RequiredSize, RequiresMapping ? EMemoryBlockUsage::STAGING : EMemoryBlockUsage::BUFFER, TmpBuffer, TmpBufferMemory, BufferUsage, BufferProperties))
 				return false;
 
 			void *pMapData = nullptr;
@@ -1684,12 +1682,12 @@ protected:
 
 	[[nodiscard]] bool GetStagingBuffer(SMemoryBlock<STAGING_BUFFER_CACHE_ID> &ResBlock, const void *pBufferData, VkDeviceSize RequiredSize)
 	{
-		return GetBufferBlockImpl<STAGING_BUFFER_CACHE_ID, 8 * 1024 * 1024, 3, true>(ResBlock, m_StagingBufferCache, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT, pBufferData, RequiredSize, maximum<VkDeviceSize>(m_NonCoherentMemAlignment, 16));
+		return GetBufferBlockImpl<STAGING_BUFFER_CACHE_ID, 8 * 1024 * 1024, 3, true>(ResBlock, m_StagingBufferCache, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT, pBufferData, RequiredSize, std::max(m_NonCoherentMemAlignment, (VkDeviceSize)16));
 	}
 
 	[[nodiscard]] bool GetStagingBufferImage(SMemoryBlock<STAGING_BUFFER_IMAGE_CACHE_ID> &ResBlock, const void *pBufferData, VkDeviceSize RequiredSize)
 	{
-		return GetBufferBlockImpl<STAGING_BUFFER_IMAGE_CACHE_ID, 8 * 1024 * 1024, 3, true>(ResBlock, m_StagingBufferCacheImage, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT, pBufferData, RequiredSize, maximum<VkDeviceSize>(m_OptimalImageCopyMemAlignment, maximum<VkDeviceSize>(m_NonCoherentMemAlignment, 16)));
+		return GetBufferBlockImpl<STAGING_BUFFER_IMAGE_CACHE_ID, 8 * 1024 * 1024, 3, true>(ResBlock, m_StagingBufferCacheImage, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT, pBufferData, RequiredSize, std::max({m_OptimalImageCopyMemAlignment, m_NonCoherentMemAlignment, (VkDeviceSize)16}));
 	}
 
 	template<size_t Id>
@@ -1757,7 +1755,7 @@ protected:
 
 	static size_t ImageMipLevelCount(size_t Width, size_t Height, size_t Depth)
 	{
-		return std::floor(std::log2(maximum(Width, maximum(Height, Depth)))) + 1;
+		return std::floor(std::log2(std::max({Width, Height, Depth}))) + 1;
 	}
 
 	static size_t ImageMipLevelCount(const VkExtent3D &ImgExtent)
@@ -1780,7 +1778,7 @@ protected:
 
 		if(IsVerbose())
 		{
-			VerboseAllocatedMemory(RequiredSize, m_CurImageIndex, MEMORY_BLOCK_USAGE_TEXTURE);
+			VerboseAllocatedMemory(RequiredSize, m_CurImageIndex, EMemoryBlockUsage::TEXTURE);
 		}
 
 		if(!AllocateVulkanMemory(&MemAllocInfo, &BufferMemory.m_Mem))
@@ -1789,7 +1787,7 @@ protected:
 			return false;
 		}
 
-		BufferMemory.m_UsageType = MEMORY_BLOCK_USAGE_TEXTURE;
+		BufferMemory.m_UsageType = EMemoryBlockUsage::TEXTURE;
 
 		return true;
 	}
@@ -1816,7 +1814,7 @@ protected:
 			}
 			if(!FoundAllocation)
 			{
-				typename SMemoryBlockCache<Id>::SMemoryCacheType::SMemoryCacheHeap *pNewHeap = new typename SMemoryBlockCache<Id>::SMemoryCacheType::SMemoryCacheHeap();
+				typename SMemoryBlockCache<Id>::SMemoryCacheType::SMemoryCacheHeap *pNewHeap = new SMemoryBlockCache<Id>::SMemoryCacheType::SMemoryCacheHeap();
 
 				if(!GetImageMemoryImpl(MemoryBlockSize * BlockCount, RequiredMemoryTypeBits, TmpBufferMemory, BufferProperties))
 				{
@@ -1944,13 +1942,13 @@ protected:
 		if(BufferMem.m_Mem != VK_NULL_HANDLE)
 		{
 			vkFreeMemory(m_VKDevice, BufferMem.m_Mem, nullptr);
-			if(BufferMem.m_UsageType == MEMORY_BLOCK_USAGE_BUFFER)
+			if(BufferMem.m_UsageType == EMemoryBlockUsage::BUFFER)
 				m_pBufferMemoryUsage->store(m_pBufferMemoryUsage->load(std::memory_order_relaxed) - BufferMem.m_Size, std::memory_order_relaxed);
-			else if(BufferMem.m_UsageType == MEMORY_BLOCK_USAGE_TEXTURE)
+			else if(BufferMem.m_UsageType == EMemoryBlockUsage::TEXTURE)
 				m_pTextureMemoryUsage->store(m_pTextureMemoryUsage->load(std::memory_order_relaxed) - BufferMem.m_Size, std::memory_order_relaxed);
-			else if(BufferMem.m_UsageType == MEMORY_BLOCK_USAGE_STREAM)
+			else if(BufferMem.m_UsageType == EMemoryBlockUsage::STREAM)
 				m_pStreamMemoryUsage->store(m_pStreamMemoryUsage->load(std::memory_order_relaxed) - BufferMem.m_Size, std::memory_order_relaxed);
-			else if(BufferMem.m_UsageType == MEMORY_BLOCK_USAGE_STAGING)
+			else if(BufferMem.m_UsageType == EMemoryBlockUsage::STAGING)
 				m_pStagingMemoryUsage->store(m_pStagingMemoryUsage->load(std::memory_order_relaxed) - BufferMem.m_Size, std::memory_order_relaxed);
 
 			if(IsVerbose())
@@ -2600,16 +2598,13 @@ protected:
 
 		if(Requires2DTextureArray)
 		{
-			int Image3DWidth = Width;
-			int Image3DHeight = Height;
-
 			int ConvertWidth = Width;
 			int ConvertHeight = Height;
 
 			if(ConvertWidth == 0 || (ConvertWidth % 16) != 0 || ConvertHeight == 0 || (ConvertHeight % 16) != 0)
 			{
-				int NewWidth = maximum<int>(HighestBit(ConvertWidth), 16);
-				int NewHeight = maximum<int>(HighestBit(ConvertHeight), 16);
+				int NewWidth = std::max(HighestBit(ConvertWidth), 16);
+				int NewHeight = std::max(HighestBit(ConvertHeight), 16);
 				uint8_t *pNewTexData = ResizeImage(pData, ConvertWidth, ConvertHeight, NewWidth, NewHeight, PixelSize);
 				if(IsVerbose())
 				{
@@ -2623,40 +2618,31 @@ protected:
 				pData = pNewTexData;
 			}
 
-			bool Needs3DTexDel = false;
+			int Image3DWidth, Image3DHeight;
 			uint8_t *pTexData3D = static_cast<uint8_t *>(malloc((size_t)PixelSize * ConvertWidth * ConvertHeight));
-			if(!Texture2DTo3D(pData, ConvertWidth, ConvertHeight, PixelSize, 16, 16, pTexData3D, Image3DWidth, Image3DHeight))
+			Texture2DTo3D(pData, ConvertWidth, ConvertHeight, PixelSize, 16, 16, pTexData3D, Image3DWidth, Image3DHeight);
+
+			const size_t ImageDepth2DArray = (size_t)16 * 16;
+			VkExtent3D ImgSize{(uint32_t)Image3DWidth, (uint32_t)Image3DHeight, 1};
+			if(RequiresMipMaps)
 			{
-				free(pTexData3D);
-				pTexData3D = nullptr;
+				MipMapLevelCount = ImageMipLevelCount(ImgSize);
+				if(!m_OptimalRGBAImageBlitting)
+					MipMapLevelCount = 1;
 			}
-			Needs3DTexDel = true;
 
-			if(pTexData3D != nullptr)
-			{
-				const size_t ImageDepth2DArray = (size_t)16 * 16;
-				VkExtent3D ImgSize{(uint32_t)Image3DWidth, (uint32_t)Image3DHeight, 1};
-				if(RequiresMipMaps)
-				{
-					MipMapLevelCount = ImageMipLevelCount(ImgSize);
-					if(!m_OptimalRGBAImageBlitting)
-						MipMapLevelCount = 1;
-				}
+			if(!CreateTextureImage(ImageIndex, Texture.m_Img3D, Texture.m_Img3DMem, pTexData3D, Format, Image3DWidth, Image3DHeight, ImageDepth2DArray, PixelSize, MipMapLevelCount))
+				return false;
+			VkFormat ImgFormat = Format;
+			VkImageView ImgView = CreateTextureImageView(Texture.m_Img3D, ImgFormat, VK_IMAGE_VIEW_TYPE_2D_ARRAY, ImageDepth2DArray, MipMapLevelCount);
+			Texture.m_Img3DView = ImgView;
+			VkSampler ImgSampler = GetTextureSampler(SUPPORTED_SAMPLER_TYPE_2D_TEXTURE_ARRAY);
+			Texture.m_Sampler3D = ImgSampler;
 
-				if(!CreateTextureImage(ImageIndex, Texture.m_Img3D, Texture.m_Img3DMem, pTexData3D, Format, Image3DWidth, Image3DHeight, ImageDepth2DArray, PixelSize, MipMapLevelCount))
-					return false;
-				VkFormat ImgFormat = Format;
-				VkImageView ImgView = CreateTextureImageView(Texture.m_Img3D, ImgFormat, VK_IMAGE_VIEW_TYPE_2D_ARRAY, ImageDepth2DArray, MipMapLevelCount);
-				Texture.m_Img3DView = ImgView;
-				VkSampler ImgSampler = GetTextureSampler(SUPPORTED_SAMPLER_TYPE_2D_TEXTURE_ARRAY);
-				Texture.m_Sampler3D = ImgSampler;
+			if(!CreateNew3DTexturedStandardDescriptorSets(ImageIndex))
+				return false;
 
-				if(!CreateNew3DTexturedStandardDescriptorSets(ImageIndex))
-					return false;
-
-				if(Needs3DTexDel)
-					free(pTexData3D);
-			}
+			free(pTexData3D);
 		}
 		return true;
 	}
@@ -3530,7 +3516,7 @@ public:
 	[[nodiscard]] bool GetVulkanLayers(std::vector<std::string> &vVKLayers)
 	{
 		uint32_t LayerCount = 0;
-		VkResult Res = vkEnumerateInstanceLayerProperties(&LayerCount, NULL);
+		VkResult Res = vkEnumerateInstanceLayerProperties(&LayerCount, nullptr);
 		if(Res != VK_SUCCESS)
 		{
 			SetError(EGfxErrorType::GFX_ERROR_TYPE_INIT, "Could not get Vulkan layers.");
@@ -3596,7 +3582,7 @@ public:
 
 		VkApplicationInfo VKAppInfo = {};
 		VKAppInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-		VKAppInfo.pNext = NULL;
+		VKAppInfo.pNext = nullptr;
 		VKAppInfo.pApplicationName = "DDNet";
 		VKAppInfo.applicationVersion = 1;
 		VKAppInfo.pEngineName = "DDNet-Vulkan";
@@ -3629,7 +3615,7 @@ public:
 
 		bool TryAgain = false;
 
-		VkResult Res = vkCreateInstance(&VKInstanceInfo, NULL, &m_VKInstance);
+		VkResult Res = vkCreateInstance(&VKInstanceInfo, nullptr, &m_VKInstance);
 		const char *pCritErrorMsg = CheckVulkanCriticalError(Res);
 		if(pCritErrorMsg != nullptr)
 		{
@@ -3637,7 +3623,9 @@ public:
 			return false;
 		}
 		else if(Res == VK_ERROR_LAYER_NOT_PRESENT || Res == VK_ERROR_EXTENSION_NOT_PRESENT)
+		{
 			TryAgain = true;
+		}
 
 		if(TryAgain && TryDebugExtensions)
 			return CreateVulkanInstance(vVKLayers, vVKExtensions, false);
@@ -3895,14 +3883,14 @@ public:
 			vLayerCNames.emplace_back(Layer.c_str());
 
 		uint32_t DevPropCount = 0;
-		if(vkEnumerateDeviceExtensionProperties(m_VKGPU, NULL, &DevPropCount, NULL) != VK_SUCCESS)
+		if(vkEnumerateDeviceExtensionProperties(m_VKGPU, nullptr, &DevPropCount, nullptr) != VK_SUCCESS)
 		{
 			SetError(EGfxErrorType::GFX_ERROR_TYPE_INIT, "Querying logical device extension properties failed.");
 			return false;
 		}
 
 		std::vector<VkExtensionProperties> vDevPropList(DevPropCount);
-		if(vkEnumerateDeviceExtensionProperties(m_VKGPU, NULL, &DevPropCount, vDevPropList.data()) != VK_SUCCESS)
+		if(vkEnumerateDeviceExtensionProperties(m_VKGPU, nullptr, &DevPropCount, vDevPropList.data()) != VK_SUCCESS)
 		{
 			SetError(EGfxErrorType::GFX_ERROR_TYPE_INIT, "Querying logical device extension properties failed.");
 			return false;
@@ -3925,7 +3913,7 @@ public:
 		VKQueueCreateInfo.queueCount = 1;
 		float QueuePrio = 1.0f;
 		VKQueueCreateInfo.pQueuePriorities = &QueuePrio;
-		VKQueueCreateInfo.pNext = NULL;
+		VKQueueCreateInfo.pNext = nullptr;
 		VKQueueCreateInfo.flags = 0;
 
 		VkDeviceCreateInfo VKCreateInfo;
@@ -3936,8 +3924,8 @@ public:
 		VKCreateInfo.enabledLayerCount = static_cast<uint32_t>(vLayerCNames.size());
 		VKCreateInfo.ppEnabledExtensionNames = vDevPropCNames.data();
 		VKCreateInfo.enabledExtensionCount = static_cast<uint32_t>(vDevPropCNames.size());
-		VKCreateInfo.pNext = NULL;
-		VKCreateInfo.pEnabledFeatures = NULL;
+		VKCreateInfo.pNext = nullptr;
+		VKCreateInfo.pEnabledFeatures = nullptr;
 		VKCreateInfo.flags = 0;
 
 		if(vkCreateDevice(m_VKGPU, &VKCreateInfo, nullptr, &m_VKDevice) != VK_SUCCESS)
@@ -3977,7 +3965,7 @@ public:
 	[[nodiscard]] bool GetPresentationMode(VkPresentModeKHR &VKIOMode)
 	{
 		uint32_t PresentModeCount = 0;
-		if(vkGetPhysicalDeviceSurfacePresentModesKHR(m_VKGPU, m_VKPresentSurface, &PresentModeCount, NULL) != VK_SUCCESS)
+		if(vkGetPhysicalDeviceSurfacePresentModesKHR(m_VKGPU, m_VKPresentSurface, &PresentModeCount, nullptr) != VK_SUCCESS)
 		{
 			SetError(EGfxErrorType::GFX_ERROR_TYPE_INIT, "The device surface presentation modes could not be fetched.");
 			return false;
@@ -4200,7 +4188,9 @@ public:
 			return false;
 		}
 		else if(SwapchainCreateRes == VK_ERROR_NATIVE_WINDOW_IN_USE_KHR)
+		{
 			return false;
+		}
 
 		return true;
 	}
@@ -5668,11 +5658,11 @@ public:
 
 		VKBufferMemory.m_Size = MemRequirements.size;
 
-		if(MemUsage == MEMORY_BLOCK_USAGE_BUFFER)
+		if(MemUsage == EMemoryBlockUsage::BUFFER)
 			m_pBufferMemoryUsage->store(m_pBufferMemoryUsage->load(std::memory_order_relaxed) + MemRequirements.size, std::memory_order_relaxed);
-		else if(MemUsage == MEMORY_BLOCK_USAGE_STAGING)
+		else if(MemUsage == EMemoryBlockUsage::STAGING)
 			m_pStagingMemoryUsage->store(m_pStagingMemoryUsage->load(std::memory_order_relaxed) + MemRequirements.size, std::memory_order_relaxed);
-		else if(MemUsage == MEMORY_BLOCK_USAGE_STREAM)
+		else if(MemUsage == EMemoryBlockUsage::STREAM)
 			m_pStreamMemoryUsage->store(m_pStreamMemoryUsage->load(std::memory_order_relaxed) + MemRequirements.size, std::memory_order_relaxed);
 
 		if(IsVerbose())
@@ -5815,7 +5805,7 @@ public:
 				if(!AllocateDescriptorPool(DescriptorPools, DescriptorPools.m_DefaultAllocSize))
 					return false;
 
-				AllocatedInThisRun = minimum((size_t)DescriptorPools.m_DefaultAllocSize, CurAllocNum);
+				AllocatedInThisRun = std::min((size_t)DescriptorPools.m_DefaultAllocSize, CurAllocNum);
 
 				auto &Pool = DescriptorPools.m_vPools.back();
 				Pool.m_CurSize += AllocatedInThisRun;
@@ -6317,7 +6307,7 @@ public:
 			SDeviceMemoryBlock StreamBufferMemory;
 			const VkDeviceSize NewBufferSingleSize = sizeof(TInstanceTypeName) * InstanceTypeCount;
 			const VkDeviceSize NewBufferSize = NewBufferSingleSize * BufferCreateCount;
-			if(!CreateBuffer(NewBufferSize, MEMORY_BLOCK_USAGE_STREAM, Usage, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT, StreamBuffer, StreamBufferMemory))
+			if(!CreateBuffer(NewBufferSize, EMemoryBlockUsage::STREAM, Usage, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT, StreamBuffer, StreamBufferMemory))
 				return false;
 
 			void *pMappedData = nullptr;
@@ -6408,7 +6398,7 @@ public:
 
 		SDeviceMemoryBlock VertexBufferMemory;
 		VkBuffer VertexBuffer;
-		if(!CreateBuffer(BufferDataSize, MEMORY_BLOCK_USAGE_BUFFER, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VertexBuffer, VertexBufferMemory))
+		if(!CreateBuffer(BufferDataSize, EMemoryBlockUsage::BUFFER, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VertexBuffer, VertexBufferMemory))
 			return false;
 
 		if(!MemoryBarrier(VertexBuffer, 0, BufferDataSize, VK_ACCESS_INDEX_READ_BIT, true))
@@ -7536,10 +7526,12 @@ public:
 
 		m_ThreadCount = g_Config.m_GfxRenderThreadCount;
 		if(m_ThreadCount <= 1)
+		{
 			m_ThreadCount = 1;
+		}
 		else
 		{
-			m_ThreadCount = std::clamp<decltype(m_ThreadCount)>(m_ThreadCount, 3, std::max<decltype(m_ThreadCount)>(3, std::thread::hardware_concurrency()));
+			m_ThreadCount = std::clamp(m_ThreadCount, (size_t)3, std::max((size_t)3, (size_t)std::thread::hardware_concurrency()));
 		}
 
 		// start threads

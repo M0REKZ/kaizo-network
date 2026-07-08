@@ -2012,19 +2012,19 @@ bool CCollision::OutOfRange(double value, double q0, double q1, double q2, doubl
 	{
 		if(q2 > q3)
 		{
-			const double Min = minimum(q1, q3);
+			const double Min = std::min(q1, q3);
 			if(value < Min)
 				return true;
-			const double Max = maximum(q0, q2);
+			const double Max = std::max(q0, q2);
 			if(value > Max)
 				return true;
 		}
 		else
 		{
-			const double Min = minimum(q1, q2);
+			const double Min = std::min(q1, q2);
 			if(value < Min)
 				return true;
-			const double Max = maximum(q0, q3);
+			const double Max = std::max(q0, q3);
 			if(value > Max)
 				return true;
 		}
@@ -2034,20 +2034,20 @@ bool CCollision::OutOfRange(double value, double q0, double q1, double q2, doubl
 		// q1 is bigger than q0
 		if(q2 > q3)
 		{
-			const double Min = minimum(q0, q3);
+			const double Min = std::min(q0, q3);
 			if(value < Min)
 				return true;
-			const double Max = maximum(q1, q2);
+			const double Max = std::max(q1, q2);
 			if(value > Max)
 				return true;
 		}
 		else
 		{
 			// q3 is bigger than q2
-			const double Min = minimum(q0, q2);
+			const double Min = std::min(q0, q2);
 			if(value < Min)
 				return true;
-			const double Max = maximum(q1, q3);
+			const double Max = std::max(q1, q3);
 			if(value > Max)
 				return true;
 		}

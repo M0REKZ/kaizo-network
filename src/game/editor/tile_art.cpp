@@ -1,6 +1,9 @@
 #include "editor.h"
 #include "editor_actions.h"
 
+#include <base/fs.h>
+#include <base/str.h>
+
 #include <game/editor/mapitems/image.h>
 
 #include <array>
@@ -55,7 +58,7 @@ static std::vector<std::array<ColorRGBA, NumTiles>> GroupColors(const std::vecto
 	for(size_t i = 0; i < vColors.size(); i += NumTiles - 1)
 	{
 		auto &Group = vaColorGroups.emplace_back();
-		std::copy_n(vColors.begin() + i, std::min<size_t>(NumTiles - 1, vColors.size() - i), Group.begin() + 1);
+		std::copy_n(vColors.begin() + i, std::min((size_t)NumTiles - 1, vColors.size() - i), Group.begin() + 1);
 	}
 
 	return vaColorGroups;
@@ -137,7 +140,7 @@ static void SetTilelayerIndices(const std::shared_ptr<CLayerTiles> &pLayer, cons
 void CEditorMap::AddTileArt(CImageInfo &&Image, const char *pFilename, bool IgnoreHistory)
 {
 	char aTileArtFilename[IO_MAX_PATH_LENGTH];
-	IStorage::StripPathAndExtension(pFilename, aTileArtFilename, sizeof(aTileArtFilename));
+	fs_split_file_extension(fs_filename(pFilename), aTileArtFilename, sizeof(aTileArtFilename));
 
 	std::shared_ptr<CLayerGroup> pGroup = NewGroup();
 	str_copy(pGroup->m_aName, aTileArtFilename);

@@ -32,7 +32,7 @@ int CResources::FileScan(const char *pName, int IsDir, int DirType, void *pUser)
 	}
 
 	CResource Res;
-	str_copy(Res.m_aName, pName, minimum<int>(ResourceNameSize + 1, sizeof(Res.m_aName)));
+	str_copy(Res.m_aName, pName, std::min<int>(ResourceNameSize + 1, sizeof(Res.m_aName)));
 
 	char aBuf[IO_MAX_PATH_LENGTH];
 	str_format(aBuf, sizeof(aBuf), "resources/%s", pName);

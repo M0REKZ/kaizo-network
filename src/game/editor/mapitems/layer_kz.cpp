@@ -38,8 +38,8 @@ void CLayerKZGame::Resize(int NewW, int NewH)
 	mem_zero(pNewSwitchData, (size_t)NewW * NewH * sizeof(CKZTile));
 
 	// copy old data
-	for(int y = 0; y < minimum(NewH, m_Height); y++)
-		mem_copy(&pNewSwitchData[y * NewW], &m_pKZTile[y * m_Width], minimum(m_Width, NewW) * sizeof(CKZTile));
+	for(int y = 0; y < std::min(NewH, m_Height); y++)
+		mem_copy(&pNewSwitchData[y * NewW], &m_pKZTile[y * m_Width], std::min(m_Width, NewW) * sizeof(CKZTile));
 
 	// replace old
 	delete[] m_pKZTile;

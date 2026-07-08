@@ -2172,9 +2172,6 @@ Dragger Outline Color
 Dragger Inner Color
 == Vnútorná Farba Ťahače
 
-AntiPing: prediction margin
-== AntiPing: marža predikcie
-
 Server could not be started. Make sure to grant the notification permission in the app settings so the server can run in the background.
 == Server sa nepodarilo spustiť. Uistite sa, že ste v nastavení aplikácie povolili oznámenie, aby server mohol bežať na pozadí.
 
@@ -2462,32 +2459,32 @@ Team successfully saved by %s. The database connection failed, using generated s
 == 
 
 Save failed!
-== 
+== Uloženie zlyhalo!
 
 [Important alert message]
 Press Esc or Tab to dismiss…
-== 
+== Stlačte Esc alebo Tab pre odmietnutie…
 
 Server alert
-== 
+== Upozornenie servera
 
 Moderator alert
-== 
+== Upozornenie moderátora
 
 Joining Tutorial server
-== 
+== Prípajanie na Tutoriálny server
 
 There's an unsaved change in the touch controls editor, you might want to save it.
 == 
 
 You will be disconnected from the server.
-== 
+== Budete odpojený zo servera
 
 There are no Tutorial servers available
 == 
 
 Retrying…
-== 
+== Skúšanie znova…
 
 Error joining Tutorial server
 == 
@@ -2508,7 +2505,7 @@ Waiting for local server to start…
 == 
 
 Start and connect to local server
-== 
+== Začat a pripojiť sa k lokálnemu serveru
 
 Error loading communities
 == 
@@ -2525,7 +2522,16 @@ Add clan
 Add friend
 == 
 
+Refresh the demo list
+== 
+
 Are you sure that you want to disconnect and play this demo?
+== 
+
+Open the selected folder
+== 
+
+Play the selected demo
 == 
 
 Info
@@ -2635,6 +2641,12 @@ Hook collision line tip
 == 
 
 Show background quads
+== 
+
+Prediction margin
+== 
+
+Predict events (experimental)
 == 
 
 Scoreboard cursor

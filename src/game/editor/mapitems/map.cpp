@@ -92,10 +92,10 @@ void CEditorMap::Clean()
 
 	m_ShiftBy = 1;
 
-	m_QuadKnife.m_Active = false;
-	m_QuadKnife.m_Count = 0;
-	m_QuadKnife.m_SelectedQuadIndex = -1;
-	std::fill(std::begin(m_QuadKnife.m_aPoints), std::end(m_QuadKnife.m_aPoints), vec2(0.0f, 0.0f));
+	m_MapViewState.Reset(Editor());
+	m_MapGridState.Reset();
+	m_ProofModeState.Reset();
+	m_QuadKnifeState.Reset();
 }
 
 void CEditorMap::CreateDefault()
@@ -337,14 +337,14 @@ void CEditorMap::SelectLayer(int LayerIndex, int GroupIndex)
 void CEditorMap::AddSelectedLayer(int LayerIndex)
 {
 	m_vSelectedLayers.push_back(LayerIndex);
-	m_QuadKnife.m_Active = false;
+	m_QuadKnifeState.Reset();
 }
 
 void CEditorMap::SelectNextLayer()
 {
 	int CurrentLayer = 0;
 	for(const auto &Selected : m_vSelectedLayers)
-		CurrentLayer = maximum(Selected, CurrentLayer);
+		CurrentLayer = std::max(Selected, CurrentLayer);
 	SelectLayer(CurrentLayer);
 
 	if(m_vSelectedLayers[0] < (int)m_vpGroups[m_SelectedGroup]->m_vpLayers.size() - 1)
@@ -368,7 +368,7 @@ void CEditorMap::SelectPreviousLayer()
 {
 	int CurrentLayer = std::numeric_limits<int>::max();
 	for(const auto &Selected : m_vSelectedLayers)
-		CurrentLayer = minimum(Selected, CurrentLayer);
+		CurrentLayer = std::min(Selected, CurrentLayer);
 	SelectLayer(CurrentLayer);
 
 	if(m_vSelectedLayers[0] > 0)

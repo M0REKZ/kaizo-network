@@ -98,7 +98,6 @@ void CEditorBrushDrawAction::SetInfos()
 
 		if(pLayer->m_Type == LAYERTYPE_TILES)
 		{
-			std::shared_ptr<CLayerTiles> pLayerTiles = std::static_pointer_cast<CLayerTiles>(pLayer);
 			auto Changes = Pair.second;
 			for(auto &Change : Changes)
 			{
@@ -770,7 +769,7 @@ CEditorActionGroup::CEditorActionGroup(CEditorMap *pMap, int GroupIndex, bool De
 	if(m_Delete)
 		str_format(m_aDisplayText, sizeof(m_aDisplayText), "Delete group %d", m_GroupIndex);
 	else
-		str_copy(m_aDisplayText, "New group", sizeof(m_aDisplayText));
+		str_copy(m_aDisplayText, "New group");
 }
 
 void CEditorActionGroup::Undo()
@@ -786,7 +785,7 @@ void CEditorActionGroup::Undo()
 	{
 		// Undo: delete the group
 		Map()->DeleteGroup(m_GroupIndex);
-		Map()->m_SelectedGroup = maximum(0, m_GroupIndex - 1);
+		Map()->m_SelectedGroup = std::max(0, m_GroupIndex - 1);
 	}
 
 	Map()->OnModify();
@@ -804,7 +803,7 @@ void CEditorActionGroup::Redo()
 	{
 		// Redo: delete the group
 		Map()->DeleteGroup(m_GroupIndex);
-		Map()->m_SelectedGroup = maximum(0, m_GroupIndex - 1);
+		Map()->m_SelectedGroup = std::max(0, m_GroupIndex - 1);
 	}
 
 	Map()->OnModify();
@@ -831,8 +830,6 @@ CEditorActionEditGroupProp::CEditorActionEditGroupProp(CEditorMap *pMap, int Gro
 
 void CEditorActionEditGroupProp::Undo()
 {
-	auto pGroup = Map()->m_vpGroups[m_GroupIndex];
-
 	if(m_Prop == EGroupProp::ORDER)
 	{
 		Map()->m_SelectedGroup = Map()->MoveGroup(m_Current, m_Previous);
@@ -843,8 +840,6 @@ void CEditorActionEditGroupProp::Undo()
 
 void CEditorActionEditGroupProp::Redo()
 {
-	auto pGroup = Map()->m_vpGroups[m_GroupIndex];
-
 	if(m_Prop == EGroupProp::ORDER)
 	{
 		Map()->m_SelectedGroup = Map()->MoveGroup(m_Previous, m_Current);
@@ -1345,6 +1340,8 @@ void CEditorActionAppendMap::Undo()
 	{
 		Map()->m_vpImages.pop_back();
 	}
+
+	Map()->OnModify();
 }
 
 void CEditorActionAppendMap::Redo()
@@ -1818,7 +1815,7 @@ void CEditorActionDeleteEnvelopePoint::Redo()
 	std::shared_ptr<CEnvelope> pEnvelope = Map()->m_vpEnvelopes[m_EnvelopeIndex];
 	pEnvelope->m_vPoints.erase(pEnvelope->m_vPoints.begin() + m_PointIndex);
 
-	auto pSelectedPointIt = std::find_if(Map()->m_vSelectedEnvelopePoints.begin(), Map()->m_vSelectedEnvelopePoints.end(), [this](const std::pair<int, int> Pair) {
+	auto pSelectedPointIt = std::find_if(Map()->m_vSelectedEnvelopePoints.begin(), Map()->m_vSelectedEnvelopePoints.end(), [this](const std::pair<int, int> &Pair) {
 		return Pair.first == m_PointIndex;
 	});
 

@@ -1168,7 +1168,7 @@ void CMenus::RenderSettingsTClientBindWheel(CUIRect MainView)
 	CUIRect LeftView, RightView, Label, Button;
 	MainView.VSplitLeft(MainView.w / 2.1f, &LeftView, &RightView);
 
-	const float Radius = minimum(RightView.w, RightView.h) / 2.0f;
+	const float Radius = std::min(RightView.w, RightView.h) / 2.0f;
 	vec2 Center = RightView.Center();
 	// Draw Circle
 	Graphics()->TextureClear();

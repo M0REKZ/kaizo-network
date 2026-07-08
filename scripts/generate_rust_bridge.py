@@ -7,6 +7,7 @@ import argparse
 
 os.chdir(os.path.dirname(__file__) + "/..")
 
+
 def find_cxxbridge(version):
 	for binary in ["cxxbridge"]:
 		try:
@@ -18,16 +19,18 @@ def find_cxxbridge(version):
 	print(f"Found no cxxbridge {version}")
 	sys.exit(-1)
 
+
 FILES = {
 	"src/engine/shared/rust_version.rs": "src/rust-bridge/engine/shared/rust_version",
 	"src/engine/console.rs": "src/rust-bridge/cpp/console",
 }
 
+
 def main():
 	p = argparse.ArgumentParser(description="Generate src/rust-bridge")
 	_args = p.parse_args()
 
-	cxxbridge = find_cxxbridge(version="1.0.71")
+	cxxbridge = find_cxxbridge(version="1.0.194")
 	for input_, output_prefix in FILES.items():
 		subprocess.check_call([
 			cxxbridge,

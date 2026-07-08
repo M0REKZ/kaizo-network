@@ -20,7 +20,7 @@ void CMenus::UpdateOnlinePlayerCache()
 	for(int ServerIdx = 0; ServerIdx < ServerBrowser()->NumSortedServers(); ++ServerIdx)
 	{
 		const CServerInfo *pCurServer = ServerBrowser()->SortedGet(ServerIdx);
-		for(int ClientIdx = 0; ClientIdx < minimum(pCurServer->m_NumClients, (int)SERVERINFO_MAX_CLIENTS); ++ClientIdx)
+		for(int ClientIdx = 0; ClientIdx < std::min(pCurServer->m_NumClients, (int)SERVERINFO_MAX_CLIENTS); ++ClientIdx)
 		{
 			const CServerInfo::CClient *pClient = &pCurServer->m_aClients[ClientIdx];
 
@@ -168,7 +168,7 @@ void CMenus::RenderKaizoClientUsers(CUIRect &View, CUIRect &List, CScrollRegion 
         else if(Entry.m_aaSkin7[protocol7::SKINPART_BODY][0] != '\0')
 		{
 			CTeeRenderInfo TeeInfo;
-			TeeInfo.m_Size = minimum(Skin.w, Skin.h);
+			TeeInfo.m_Size = std::min(Skin.w, Skin.h);
 			for(int Part = 0; Part < protocol7::NUM_SKINPARTS; Part++)
 			{
 				GameClient()->m_Skins7.FindSkinPart(Part, Entry.m_aaSkin7[Part], true)->ApplyTo(TeeInfo.m_aSixup[g_Config.m_ClDummy]);

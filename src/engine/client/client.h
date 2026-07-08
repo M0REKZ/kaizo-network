@@ -68,6 +68,7 @@ class CClient : public IClient, public CDemoPlayer::IListener
 	IFavorites *m_pFavorites = nullptr;
 	IGameClient *m_pGameClient = nullptr;
 	IEngineGraphics *m_pGraphics = nullptr;
+	IEngineHttp *m_pHttp = nullptr;
 	IEngineInput *m_pInput = nullptr;
 	IEngineSound *m_pSound = nullptr;
 	ISteam *m_pSteam = nullptr;
@@ -75,7 +76,6 @@ class CClient : public IClient, public CDemoPlayer::IListener
 	IStorage *m_pStorage = nullptr;
 	IEngineTextRender *m_pTextRender = nullptr;
 	IUpdater *m_pUpdater = nullptr;
-	CHttp m_Http;
 
 	CNetClient m_aNetClient[NUM_CONNS];
 	CDemoPlayer m_DemoPlayer;
@@ -190,7 +190,7 @@ class CClient : public IClient, public CDemoPlayer::IListener
 	bool m_DummyDeactivateOnReconnect = false;
 
 	// graphs
-	CGraph m_InputtimeMarginGraph;
+	CGraph m_aInputtimeMarginGraphs[NUM_DUMMIES];
 	CGraph m_aGametimeMarginGraphs[NUM_DUMMIES];
 	CGraph m_FpsGraph;
 
@@ -290,7 +290,7 @@ public:
 	IStorage *Storage() { return m_pStorage; }
 	IEngineTextRender *TextRender() { return m_pTextRender; }
 	IUpdater *Updater() { return m_pUpdater; }
-	IHttp *Http() { return &m_Http; }
+	IHttp *Http() { return m_pHttp; }
 
 	CClient();
 

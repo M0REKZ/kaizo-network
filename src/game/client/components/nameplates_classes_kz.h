@@ -28,7 +28,7 @@ protected:
 		m_Visible = true;
 
 		m_Size = vec2(20 + DEFAULT_PADDING, 20 + DEFAULT_PADDING);
-		m_Color = ColorRGBA(minimum(This.m_aClients[Data.m_ClientId].m_ReceivedPing, 350) / 350.f, 1.0f - minimum(This.m_aClients[Data.m_ClientId].m_ReceivedPing, 350) / 350.f, 0.0f, Data.m_Color.a);
+		m_Color = ColorRGBA(std::min(This.m_aClients[Data.m_ClientId].m_ReceivedPing, 350) / 350.f, 1.0f - std::min(This.m_aClients[Data.m_ClientId].m_ReceivedPing, 350) / 350.f, 0.0f, Data.m_Color.a);
 	}
 
 public:

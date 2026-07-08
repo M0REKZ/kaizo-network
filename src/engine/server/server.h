@@ -36,6 +36,7 @@ class CLogMessage;
 class CMsgPacker;
 class CPacker;
 class IEngine;
+class IEngineHttp;
 class ILogger;
 
 class CServerBan : public CNetBan
@@ -65,6 +66,7 @@ class CServer : public IServer
 	class IGameServer *m_pGameServer;
 	class CConfig *m_pConfig;
 	class IConsole *m_pConsole;
+	IEngineHttp *m_pHttp;
 	class IStorage *m_pStorage;
 	class IEngineAntibot *m_pAntibot;
 	class IRegister *m_pRegister;
@@ -157,6 +159,9 @@ public:
 
 		char m_aName[MAX_NAME_LENGTH];
 		char m_aClan[MAX_CLAN_LENGTH];
+		/**
+		 * Country code in ISO 3166-1 numeric.
+		 */
 		int m_Country;
 		std::optional<int> m_Score;
 		int m_AuthKey;
@@ -219,7 +224,6 @@ public:
 	CEcon m_Econ;
 	CFifo m_Fifo;
 	CServerBan m_ServerBan;
-	CHttp m_Http;
 
 	int64_t m_GameStartTime;
 
@@ -303,7 +307,7 @@ public:
 
 	int Init();
 
-	static bool StrHideIps(const char *pInput, char *pOutputWithIps, int OutputWithIpsSize, char *pOutputWithoutIps, int OutputWithoutIpsSize);
+	static bool StrHideIps(const char *pInput, char *pOutputWithIps, size_t OutputWithIpsSize, char *pOutputWithoutIps, size_t OutputWithoutIpsSize);
 	void SendLogLine(const CLogMessage *pMessage);
 	void SetRconCid(int ClientId) override;
 	int GetAuthedState(int ClientId) const override;
@@ -479,7 +483,7 @@ public:
 
 	void RegisterCommands();
 
-	int SnapNewId() override;
+	std::optional<int> SnapNewId() override;
 	void SnapFreeId(int Id) override;
 	bool SnapNewItem(int Type, int Id, const void *pData, int Size) override;
 	void SnapSetStaticsize(int ItemType, int Size) override;

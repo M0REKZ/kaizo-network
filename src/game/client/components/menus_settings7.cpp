@@ -3,7 +3,7 @@
 #include "menus.h"
 #include "skins7.h"
 
-#include <base/math.h>
+#include <base/dbg.h>
 #include <base/str.h>
 
 #include <engine/font_icons.h>
@@ -29,6 +29,7 @@
 #include <game/client/ui_scrollregion.h>
 #include <game/localization.h>
 
+#include <algorithm>
 #include <vector>
 
 //+KZ
@@ -133,7 +134,7 @@ void CMenus::RenderSettingsTee7(CUIRect MainView)
 		const vec2 DeltaPosition = Ui()->MousePos() - TeePosition;
 		const float Distance = length(DeltaPosition);
 		const float InteractionDistance = 20.0f;
-		const vec2 TeeDirection = Distance < InteractionDistance ? normalize(vec2(DeltaPosition.x, maximum(DeltaPosition.y, 0.5f))) : normalize(DeltaPosition);
+		const vec2 TeeDirection = Distance < InteractionDistance ? normalize(vec2(DeltaPosition.x, std::max(DeltaPosition.y, 0.5f))) : normalize(DeltaPosition);
 		const int TeeEmote = Distance < InteractionDistance ? EMOTE_HAPPY : EMOTE_NORMAL;
 		RenderTools()->RenderTee(CAnimState::GetIdle(), &OwnSkinInfo, TeeEmote, TeeDirection, TeePosition);
 		static char s_InteractiveTeeButtonId;

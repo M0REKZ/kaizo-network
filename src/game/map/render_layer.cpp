@@ -16,7 +16,7 @@
 #include <game/gamecore.h>
 
 #include <array>
-#include <chrono>
+#include <cmath>
 
 //+KZ
 extern int g_KaizoConfig_SvGoresQuadsEnable;
@@ -276,7 +276,7 @@ bool CRenderLayerGroup::DoRender(const CRenderLayerParams &Params)
 
 void CRenderLayerGroup::Render(const CRenderLayerParams &Params)
 {
-	int ParallaxZoom = std::clamp((maximum(m_pGroup->m_ParallaxX, m_pGroup->m_ParallaxY)), 0, 100);
+	int ParallaxZoom = std::clamp(std::max(m_pGroup->m_ParallaxX, m_pGroup->m_ParallaxY), 0, 100);
 	float aPoints[4];
 	Graphics()->MapScreenToWorld(Params.m_Center.x, Params.m_Center.y, m_pGroup->m_ParallaxX, m_pGroup->m_ParallaxY, (float)ParallaxZoom,
 		m_pGroup->m_OffsetX, m_pGroup->m_OffsetY, Graphics()->ScreenAspect(), Params.m_Zoom, aPoints);
@@ -311,38 +311,61 @@ void CRenderLayerTile::RenderTileLayer(const ColorRGBA &Color, const CRenderLaye
 
 	if(IsVisibleInClipRegion(m_LayerClip))
 	{
-		// create the indice buffers we want to draw -- reuse them
-		std::vector<char *> vpIndexOffsets;
-		std::vector<unsigned int> vDrawCounts;
+		size_t X0 = std::max(ScreenRectX0, 0);
+		size_t X1 = std::clamp(ScreenRectX1, 0, (int)Visuals.m_Width);
 
-		int X0 = std::max(ScreenRectX0, 0);
-		int X1 = std::min(ScreenRectX1, (int)Visuals.m_Width);
-		int XR = X1 == std::numeric_limits<int>::min() ? X1 : X1 - 1;
-		if(X0 <= XR)
+		size_t Y0 = std::max(ScreenRectY0, 0);
+		size_t Y1 = std::clamp(ScreenRectY1, 0, (int)Visuals.m_Height);
+
+		// make sure we have any width and height
+		if(X0 < X1 && Y0 < Y1)
 		{
-			int Y0 = std::max(ScreenRectY0, 0);
-			int Y1 = std::min(ScreenRectY1, (int)Visuals.m_Height);
-
-			unsigned long long Reserve = absolute(Y1 - Y0) + 1;
-			vpIndexOffsets.reserve(Reserve);
-			vDrawCounts.reserve(Reserve);
-
-			for(int y = Y0; y < Y1; ++y)
+			// render all visible rows directly, because their start and end are are not offscreen
+			if(X0 == 0 && X1 == (size_t)Visuals.m_Width)
 			{
-				dbg_assert(Visuals.m_vTilesOfLayer[y * Visuals.m_Width + XR].IndexBufferByteOffset() >= Visuals.m_vTilesOfLayer[y * Visuals.m_Width + X0].IndexBufferByteOffset(), "Tile offsets are not monotone.");
-				unsigned int NumVertices = ((Visuals.m_vTilesOfLayer[y * Visuals.m_Width + XR].IndexBufferByteOffset() - Visuals.m_vTilesOfLayer[y * Visuals.m_Width + X0].IndexBufferByteOffset()) / sizeof(unsigned int)) + (Visuals.m_vTilesOfLayer[y * Visuals.m_Width + XR].DoDraw() ? 6lu : 0lu);
+				size_t StartIndex = Y0 * Visuals.m_Width;
+				size_t EndIndex = Y1 * Visuals.m_Width - 1;
+				const auto &Start = Visuals.m_vTilesOfLayer[StartIndex];
+				const auto &End = Visuals.m_vTilesOfLayer[EndIndex];
+				unsigned int NumVertices = ((End.IndexBufferByteOffset() - Start.IndexBufferByteOffset()) / sizeof(unsigned int)) + (End.DoDraw() ? 6lu : 0lu);
 
 				if(NumVertices)
 				{
-					vpIndexOffsets.push_back((offset_ptr_size)Visuals.m_vTilesOfLayer[y * Visuals.m_Width + X0].IndexBufferByteOffset());
-					vDrawCounts.push_back(NumVertices);
+					offset_ptr_size ByteOffset = (offset_ptr_size)Start.IndexBufferByteOffset();
+					Graphics()->RenderTileLayer(Visuals.m_BufferContainerIndex, Color, &ByteOffset, &NumVertices, 1);
 				}
 			}
-
-			int DrawCount = vpIndexOffsets.size();
-			if(DrawCount != 0)
+			// render slices of rows
+			else
 			{
-				Graphics()->RenderTileLayer(Visuals.m_BufferContainerIndex, Color, vpIndexOffsets.data(), vDrawCounts.data(), DrawCount);
+				// create the indice buffers we want to draw
+				std::vector<char *> vpIndexOffsets;
+				std::vector<unsigned int> vDrawCounts;
+
+				unsigned long long Reserve = Y1 - Y0 + 1;
+
+				vpIndexOffsets.reserve(Reserve);
+				vDrawCounts.reserve(Reserve);
+				for(size_t RowIndex = Y0; RowIndex < Y1; ++RowIndex)
+				{
+					size_t StartIndex = RowIndex * Visuals.m_Width + X0;
+					size_t EndIndex = RowIndex * Visuals.m_Width + (X1 - 1);
+					const auto &Start = Visuals.m_vTilesOfLayer[StartIndex];
+					const auto &End = Visuals.m_vTilesOfLayer[EndIndex];
+					dbg_assert(End.IndexBufferByteOffset() >= Start.IndexBufferByteOffset(), "Tile offsets are not monotone.");
+					unsigned int NumVertices = ((End.IndexBufferByteOffset() - Start.IndexBufferByteOffset()) / sizeof(unsigned int)) + (End.DoDraw() ? 6lu : 0lu);
+
+					if(NumVertices)
+					{
+						vpIndexOffsets.push_back((offset_ptr_size)Start.IndexBufferByteOffset());
+						vDrawCounts.push_back(NumVertices);
+					}
+				}
+
+				if(!vpIndexOffsets.empty())
+				{
+					Graphics()->RenderTileLayer(Visuals.m_BufferContainerIndex, Color, vpIndexOffsets.data(), vDrawCounts.data(), vpIndexOffsets.size());
+				}
 			}
 		}
 	}
@@ -907,7 +930,48 @@ void CRenderLayerTile::OnInit(IGraphics *pGraphics, ITextRender *pTextRender, CR
 {
 	CRenderLayer::OnInit(pGraphics, pTextRender, pRenderMap, pEnvelopeManager, pMap, pMapImages, FRenderUploadCallbackOptional);
 	InitTileData();
-	m_LayerClip = CClipRegion(0.0f, 0.0f, m_pLayerTilemap->m_Width * 32.0f, m_pLayerTilemap->m_Height * 32.0f);
+
+	// set clip region
+	if(!Graphics()->IsTileBufferingEnabled())
+	{
+		// shrink clip region, this is done in `UploadTileData` for buffered backends
+		int MinX = m_pLayerTilemap->m_Width;
+		int MaxX = 0;
+		int MinY = m_pLayerTilemap->m_Height;
+		int MaxY = 0;
+		for(int TileY = 0; TileY < m_pLayerTilemap->m_Height; ++TileY)
+		{
+			for(int TileX = 0; TileX < m_pLayerTilemap->m_Width; ++TileX)
+			{
+				unsigned char Index = 0;
+				unsigned char Flags = 0;
+				int Angle = 0;
+				GetTileData(&Index, &Flags, &Angle, static_cast<unsigned int>(TileX), static_cast<unsigned int>(TileY), 0);
+
+				if(Index > 0)
+				{
+					MinX = std::min(TileX, MinX);
+					MaxX = std::max(TileX, MaxX);
+					MinY = std::min(TileY, MinY);
+					MaxY = std::max(TileY, MaxY);
+				}
+			}
+		}
+
+		if(MinX > MaxX || MinY > MaxY)
+		{
+			// layer is empty
+			m_LayerClip = CClipRegion(0.0f, 0.0f, 0.0f, 0.0f);
+		}
+		else
+		{
+			m_LayerClip = CClipRegion(MinX * 32.0f, MinY * 32.0f, (MaxX - MinX + 1) * 32.0f, (MaxY - MinY + 1) * 32.0f);
+		}
+	}
+	else
+	{
+		m_LayerClip = CClipRegion(0.0f, 0.0f, m_pLayerTilemap->m_Width * 32.0f, m_pLayerTilemap->m_Height * 32.0f);
+	}
 }
 
 void CRenderLayerTile::InitTileData()
@@ -1728,10 +1792,30 @@ void CRenderLayerEntitySwitch::RenderTileLayerNoTileBuffer(const ColorRGBA &Colo
 CRenderLayerEntityTune::CRenderLayerEntityTune(int GroupId, int LayerId, int Flags, CMapItemLayerTilemap *pLayerTilemap) :
 	CRenderLayerEntityBase(GroupId, LayerId, Flags, pLayerTilemap) {}
 
+IGraphics::CTextureHandle CRenderLayerEntityTune::GetTexture() const
+{
+	return m_pMapImages->GetTuneColors();
+}
+
 void CRenderLayerEntityTune::GetTileData(unsigned char *pIndex, unsigned char *pFlags, int *pAngleRotate, unsigned int x, unsigned int y, int CurOverlay) const
 {
-	*pIndex = m_pTuneTiles[y * m_pLayerTilemap->m_Width + x].m_Type;
+	const unsigned char Number = m_pTuneTiles[y * m_pLayerTilemap->m_Width + x].m_Number;
+	unsigned char Index = 0;
+
+	if(Number != 0)
+	{
+		// assign color index instead of tune number for higher color distance
+		Index = m_TuneColorMapper.TuneNumberToColorIndex(Number);
+	}
+
+	*pIndex = Index;
 	*pFlags = 0;
+}
+
+void CRenderLayerEntityTune::Init()
+{
+	m_TuneColorMapper.Reset();
+	CRenderLayerTile::Init();
 }
 
 int CRenderLayerEntityTune::GetDataIndex(unsigned int &TileSize) const
@@ -1748,7 +1832,7 @@ void CRenderLayerEntityTune::InitTileData()
 void CRenderLayerEntityTune::RenderTileLayerNoTileBuffer(const ColorRGBA &Color, const CRenderLayerParams &Params)
 {
 	Graphics()->BlendNone();
-	RenderMap()->RenderTunemap(m_pTuneTiles, m_pLayerTilemap->m_Width, m_pLayerTilemap->m_Height, 32.0f, Color, (Params.m_RenderTileBorder ? TILERENDERFLAG_EXTEND : 0) | LAYERRENDERFLAG_OPAQUE);
+	RenderMap()->RenderTunemap(m_pTuneTiles, m_pLayerTilemap->m_Width, m_pLayerTilemap->m_Height, 32.0f, Color, (Params.m_RenderTileBorder ? TILERENDERFLAG_EXTEND : 0) | LAYERRENDERFLAG_OPAQUE, &m_TuneColorMapper);
 	Graphics()->BlendNormal();
-	RenderMap()->RenderTunemap(m_pTuneTiles, m_pLayerTilemap->m_Width, m_pLayerTilemap->m_Height, 32.0f, Color, (Params.m_RenderTileBorder ? TILERENDERFLAG_EXTEND : 0) | LAYERRENDERFLAG_TRANSPARENT);
+	RenderMap()->RenderTunemap(m_pTuneTiles, m_pLayerTilemap->m_Width, m_pLayerTilemap->m_Height, 32.0f, Color, (Params.m_RenderTileBorder ? TILERENDERFLAG_EXTEND : 0) | LAYERRENDERFLAG_TRANSPARENT, &m_TuneColorMapper);
 }

@@ -232,7 +232,10 @@ void fs_listdir_fileinfo(const char *dir, FS_LISTDIR_CALLBACK_FILEINFO cb, int t
 		}
 		str_copy(buffer + length, entry->d_name, sizeof(buffer) - length);
 		time_t created = -1, modified = -1;
-		fs_file_time(buffer, &created, &modified);
+		if(fs_file_time(buffer, &created, &modified) != 0)
+		{
+			log_warn("filesystem", "Failed to determine file time of '%s'", buffer);
+		}
 
 		CFsFileInfo info;
 		info.m_pName = entry->d_name;
@@ -586,6 +589,10 @@ int fs_remove(const char *filename)
 int fs_rename(const char *oldname, const char *newname)
 {
 #if defined(CONF_FAMILY_WINDOWS)
+	// Target file must be deleted first, else rename fails on Windows when the target file has open handles.
+	// Ignore the result and try to perform the rename anyway.
+	(void)fs_remove(newname);
+
 	const std::wstring wide_oldname = windows_utf8_to_wide(oldname);
 	const std::wstring wide_newname = windows_utf8_to_wide(newname);
 	if(MoveFileExW(wide_oldname.c_str(), wide_newname.c_str(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_COPY_ALLOWED | MOVEFILE_WRITE_THROUGH) != 0)

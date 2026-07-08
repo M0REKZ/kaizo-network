@@ -9,14 +9,23 @@
 TEST(Filesystem, Filename)
 {
 	EXPECT_STREQ(fs_filename(""), "");
+	EXPECT_STREQ(fs_filename("/"), "");
+	EXPECT_STREQ(fs_filename("\\"), "");
 	EXPECT_STREQ(fs_filename("a"), "a");
 	EXPECT_STREQ(fs_filename("abc"), "abc");
 	EXPECT_STREQ(fs_filename("a/b"), "b");
 	EXPECT_STREQ(fs_filename("a/b/c"), "c");
+	EXPECT_STREQ(fs_filename("/a/b/c"), "c");
 	EXPECT_STREQ(fs_filename("aaaaa/bbbb/ccc"), "ccc");
 	EXPECT_STREQ(fs_filename("aaaaa\\bbbb\\ccc"), "ccc");
 	EXPECT_STREQ(fs_filename("aaaaa/bbbb\\ccc"), "ccc");
 	EXPECT_STREQ(fs_filename("aaaaa\\bbbb/ccc"), "ccc");
+	EXPECT_STREQ(fs_filename("aa.aaa/bbbb/ccc"), "ccc");
+	EXPECT_STREQ(fs_filename("aaaaa/bb.bb/ccc"), "ccc");
+	EXPECT_STREQ(fs_filename("aa.aaa/bb.bb/ccc"), "ccc");
+	EXPECT_STREQ(fs_filename("aa.aaa\\bbbb\\ccc"), "ccc");
+	EXPECT_STREQ(fs_filename("aaaaa\\bb.bb\\ccc"), "ccc");
+	EXPECT_STREQ(fs_filename("aa.aaa\\bb.bb\\ccc"), "ccc");
 }
 
 TEST(Filesystem, SplitFileExtension)
@@ -65,7 +74,7 @@ TEST(Filesystem, SplitFileExtension)
 
 static void TestNormalizePath(const char *pInput, const char *pExpectedOutput)
 {
-	char aNormalized[256];
+	char aNormalized[IO_MAX_PATH_LENGTH];
 	str_copy(aNormalized, pInput);
 	fs_normalize_path(aNormalized);
 	EXPECT_STREQ(aNormalized, pExpectedOutput);
@@ -98,7 +107,7 @@ TEST(Filesystem, ExecutablePath)
 	char aExecutablePath[IO_MAX_PATH_LENGTH];
 	ASSERT_FALSE(fs_executable_path(aExecutablePath, sizeof(aExecutablePath)));
 	EXPECT_TRUE(fs_is_file(aExecutablePath));
-	fs_parent_dir(aExecutablePath);
+	EXPECT_FALSE(fs_parent_dir(aExecutablePath));
 	EXPECT_FALSE(fs_is_relative_path(aExecutablePath));
 }
 
@@ -338,8 +347,7 @@ TEST(Filesystem, RenameOpenFileDeleteTarget)
 
 	EXPECT_TRUE(fs_is_file(Info.m_aFilename));
 	EXPECT_TRUE(fs_is_file(aNewFilename));
-	EXPECT_FALSE(fs_remove(aNewFilename)); // Target file must be deleted else rename fails on Windows when target file has open handle.
-	EXPECT_FALSE(fs_rename(Info.m_aFilename, aNewFilename));
+	EXPECT_FALSE(fs_rename(Info.m_aFilename, aNewFilename)); // Renaming can overwrite the existing target file even if it has open handles.
 	EXPECT_FALSE(fs_is_file(Info.m_aFilename));
 	EXPECT_TRUE(fs_is_file(aNewFilename));
 

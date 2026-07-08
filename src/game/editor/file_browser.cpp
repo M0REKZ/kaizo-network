@@ -723,7 +723,7 @@ void CFileBrowser::FilelistPopulate(int StorageType, bool KeepSelection)
 				CFilelistItem Item;
 				str_copy(Item.m_aFilename, m_pCurrentPath);
 				Storage()->GetCompletePath(CheckStorageType, m_pCurrentPath, Item.m_aDisplayName, sizeof(Item.m_aDisplayName));
-				str_append(Item.m_aDisplayName, "/", sizeof(Item.m_aDisplayName));
+				str_append(Item.m_aDisplayName, "/");
 				Item.m_IsDir = true;
 				Item.m_IsLink = true;
 				Item.m_StorageType = CheckStorageType;
@@ -816,13 +816,13 @@ int CFileBrowser::DirectoryListingCallback(const CFsFileInfo *pInfo, int IsDir, 
 
 std::optional<bool> CFileBrowser::CompareCommon(const CFilelistItem *pLhs, const CFilelistItem *pRhs)
 {
-	if(str_comp(pLhs->m_aFilename, "..") == 0)
-	{
-		return true;
-	}
 	if(str_comp(pRhs->m_aFilename, "..") == 0)
 	{
 		return false;
+	}
+	if(str_comp(pLhs->m_aFilename, "..") == 0)
+	{
+		return true;
 	}
 	if(pLhs->m_IsLink != pRhs->m_IsLink)
 	{

@@ -182,7 +182,7 @@ void CUi::OnCursorMove(float X, float Y)
 	m_UpdatedMouseDelta += vec2(X, Y);
 }
 
-void CUi::Update(vec2 MouseWorldPos)
+void CUi::Update()
 {
 	const vec2 WindowSize = vec2(Graphics()->WindowWidth(), Graphics()->WindowHeight());
 	const CUIRect *pScreen = Screen();
@@ -216,7 +216,7 @@ void CUi::Update(vec2 MouseWorldPos)
 			{
 				if(m_pHotScrollRegion != nullptr)
 				{
-					m_pHotScrollRegion->ScrollRelativeDirect(-m_TouchState.m_ScrollAmount.y * pScreen->h);
+					m_pHotScrollRegion->ScrollRelativeDirect(-m_TouchState.m_ScrollAmount * pScreen->Size());
 				}
 				m_TouchState.m_ScrollAmount = vec2(0.0f, 0.0f);
 			}
@@ -237,7 +237,6 @@ void CUi::Update(vec2 MouseWorldPos)
 	m_MousePos = m_UpdatedMousePos * vec2(pScreen->w, pScreen->h) / WindowSize;
 	m_MouseDelta = m_UpdatedMouseDelta;
 	m_UpdatedMouseDelta = vec2(0.0f, 0.0f);
-	m_MouseWorldPos = MouseWorldPos;
 	m_LastMouseButtons = m_MouseButtons;
 	m_MouseButtons = m_UpdatedMouseButtons;
 	m_UpdatedMouseButtons = UpdatedMouseButtonsNext;
@@ -374,6 +373,13 @@ void CUi::UpdateTouchState(CTouchState &State) const
 				// Accumulate average delta of the two fingers
 				State.m_ScrollAmount.y += (Delta0.y + Delta1.y) / 2.0f;
 			}
+			else if(absolute(Delta0.x) > DirectionThreshold * absolute(Delta0.y) && // Horizontal scrolling (x-delta must be larger than y-delta)
+				absolute(Delta1.x) > DirectionThreshold * absolute(Delta1.y) &&
+				Delta0.x * Delta1.x > 0.0f) // Same x direction required
+			{
+				// Accumulate average delta of the two fingers
+				State.m_ScrollAmount.x += (Delta0.x + Delta1.x) / 2.0f;
+			}
 		}
 	}
 	else
@@ -501,7 +507,12 @@ void CUi::UpdateClipping()
 		const CUIRect *pRect = ClipArea();
 		const float XScale = Graphics()->ScreenWidth() / Screen()->w;
 		const float YScale = Graphics()->ScreenHeight() / Screen()->h;
-		Graphics()->ClipEnable((int)(pRect->x * XScale), (int)(pRect->y * YScale), (int)(pRect->w * XScale), (int)(pRect->h * YScale));
+
+		const float ScaledX = pRect->x * XScale;
+		const float ScaledY = pRect->y * YScale;
+		const float RoundX = std::round(ScaledX);
+		const float RoundY = std::round(ScaledY);
+		Graphics()->ClipEnable(RoundX, RoundY, std::round(pRect->w * XScale + (ScaledX - RoundX)), std::round(pRect->h * YScale + (ScaledY - RoundY)));
 	}
 	else
 	{
@@ -739,7 +750,7 @@ static SCursorAndBoundingBox CalcFontSizeCursorHeightAndBoundingBox(ITextRender 
 	float TextWidth;
 	do
 	{
-		Size = maximum(Size, LabelProps.m_MinimumFontSize);
+		Size = std::max(Size, LabelProps.m_MinimumFontSize);
 		// Only consider stop-at-end and ellipsis-at-end when minimum font size reached or font scaling disabled
 		if((Size == LabelProps.m_MinimumFontSize || !LabelProps.m_EnableWidthCheck) && Flags != FlagsWithoutStop)
 			TextWidth = pTextRender->TextWidth(Size, pText, -1, LabelProps.m_MaxWidth, Flags, TextSizeProps);
@@ -1529,7 +1540,7 @@ bool CUi::DoScrollbarOption(const void *pId, int *pOption, const CUIRect *pRect,
 	if(MultiLine)
 		pRect->HSplitMid(&Label, &ScrollBar);
 	else
-		pRect->VSplitMid(&Label, &ScrollBar, minimum(10.0f, pRect->w * 0.05f));
+		pRect->VSplitMid(&Label, &ScrollBar, std::min(10.0f, pRect->w * 0.05f));
 
 	const float FontSize = Label.h * CUi::ms_FontmodHeight * 0.8f;
 	DoLabel(&Label, aBuf, FontSize, TEXTALIGN_ML);
@@ -1561,9 +1572,9 @@ bool CUi::DoScrollbarOption(const void *pId, int *pOption, const CUIRect *pRect,
 
 void CUi::RenderProgressBar(CUIRect ProgressBar, float Progress)
 {
-	const float Rounding = minimum(5.0f, ProgressBar.h / 2.0f);
+	const float Rounding = std::min(5.0f, ProgressBar.h / 2.0f);
 	ProgressBar.Draw(ColorRGBA(1.0f, 1.0f, 1.0f, 0.25f), IGraphics::CORNER_ALL, Rounding);
-	ProgressBar.w = maximum(ProgressBar.w * Progress, 2 * Rounding);
+	ProgressBar.w = std::max(ProgressBar.w * Progress, 2 * Rounding);
 	ProgressBar.Draw(ColorRGBA(1.0f, 1.0f, 1.0f, 0.5f), IGraphics::CORNER_ALL, Rounding);
 }
 
@@ -1645,7 +1656,7 @@ void CUi::RenderProgressSpinner(vec2 Center, float OuterRadius, const SProgressS
 
 	const float FilledRatio = Props.m_Progress < 0.0f ? 0.333f : Props.m_Progress;
 	const int FilledSegmentOffset = Props.m_Progress < 0.0f ? round_to_int(m_ProgressSpinnerOffset * Props.m_Segments) : 0;
-	const int FilledNumSegments = minimum<int>(Props.m_Segments * FilledRatio + (Props.m_Progress < 0.0f ? 0 : 1), Props.m_Segments);
+	const int FilledNumSegments = std::min((int)(Props.m_Segments * FilledRatio) + (Props.m_Progress < 0.0f ? 0 : 1), Props.m_Segments);
 	Graphics()->SetColor(Props.m_Color);
 	for(int i = 0; i < FilledNumSegments; ++i)
 	{
@@ -1662,13 +1673,110 @@ void CUi::RenderProgressSpinner(vec2 Center, float OuterRadius, const SProgressS
 	Graphics()->QuadsEnd();
 }
 
+void CUi::DoBackButton()
+{
+	if(!g_Config.m_ClBackButton)
+		return;
+
+	MapScreen();
+	const CUIRect *pScreen = Screen();
+	const float Size = pScreen->h * 0.1f;
+	constexpr float PositionScale = 1000000.0f;
+	const auto ClampPos = [&](vec2 Pos) {
+		Pos.x = std::clamp(Pos.x, 0.0f, pScreen->w - Size);
+		Pos.y = std::clamp(Pos.y, 0.0f, pScreen->h - Size);
+		return Pos;
+	};
+
+	vec2 ButtonPos = ClampPos({g_Config.m_ClBackButtonX / PositionScale * pScreen->w, g_Config.m_ClBackButtonY / PositionScale * pScreen->h});
+	CUIRect ButtonRect{ButtonPos.x, ButtonPos.y, Size, Size};
+
+	bool Clicked = false;
+	bool Abrupted = false;
+	const int Result = DoDraggableButtonLogic(&m_BackButtonId, 0, &ButtonRect, &Clicked, &Abrupted);
+
+	// Detect the press transition. DoDraggableButtonLogic sets the active item on the
+	// press frame but returns 0 there, so check CheckActiveItem to catch it.
+	if(m_BackButtonOp == EBackButtonOp::NONE && CheckActiveItem(&m_BackButtonId))
+	{
+		m_BackButtonInitialMouse = MousePos();
+		m_BackButtonDragOffset = ButtonPos - MousePos();
+		m_BackButtonOp = EBackButtonOp::CLICKED;
+		if(m_OnBackButtonPressedFunction)
+			m_OnBackButtonPressedFunction();
+	}
+
+	if(m_BackButtonOp == EBackButtonOp::CLICKED && length(MousePos() - m_BackButtonInitialMouse) > 5.0f)
+	{
+		m_BackButtonOp = EBackButtonOp::DRAGGING;
+	}
+
+	if(m_BackButtonOp == EBackButtonOp::DRAGGING)
+	{
+		ButtonPos = ClampPos(MousePos() + m_BackButtonDragOffset);
+		g_Config.m_ClBackButtonX = round_to_int(ButtonPos.x / pScreen->w * PositionScale);
+		g_Config.m_ClBackButtonY = round_to_int(ButtonPos.y / pScreen->h * PositionScale);
+		ButtonRect.x = ButtonPos.x;
+		ButtonRect.y = ButtonPos.y;
+	}
+
+	if(Result && Clicked)
+	{
+		if(m_BackButtonOp == EBackButtonOp::CLICKED && m_DispatchInputFunction)
+		{
+			IInput::CEvent Event;
+			Event.m_Key = KEY_ESCAPE;
+			Event.m_InputCount = 0;
+			Event.m_aText[0] = '\0';
+			Event.m_Flags = IInput::FLAG_PRESS;
+			m_DispatchInputFunction(Event);
+			Event.m_Flags = IInput::FLAG_RELEASE;
+			m_DispatchInputFunction(Event);
+		}
+		m_BackButtonOp = EBackButtonOp::NONE;
+	}
+	else if(Result && Abrupted)
+	{
+		m_BackButtonOp = EBackButtonOp::NONE;
+	}
+
+	m_BackButtonRect = ButtonRect;
+}
+
+void CUi::RenderBackButton()
+{
+	if(!g_Config.m_ClBackButton)
+		return;
+
+	MapScreen();
+
+	// Override hot/active claims made by UI rendered between DoBackButton and RenderBackButton.
+	if(m_BackButtonOp != EBackButtonOp::NONE)
+		SetActiveItem(&m_BackButtonId);
+	else if(MouseHovered(&m_BackButtonRect) && !MouseButton(0) && !MouseButton(1) && !MouseButton(2))
+		SetHotItem(&m_BackButtonId);
+
+	const bool Pressed = m_BackButtonOp != EBackButtonOp::NONE;
+	const bool Hovered = !Pressed && HotItem() == &m_BackButtonId;
+	const float Alpha = Pressed ? 0.9f : (Hovered ? 0.35f : 0.5f);
+	m_BackButtonRect.Draw({0.0f, 0.0f, 0.0f, Alpha}, IGraphics::CORNER_ALL, 12.0f);
+
+	TextRender()->SetFontPreset(EFontPreset::ICON_FONT);
+	TextRender()->SetRenderFlags(ETextRenderFlags::TEXT_RENDER_FLAG_ONLY_ADVANCE_WIDTH |
+				     ETextRenderFlags::TEXT_RENDER_FLAG_NO_X_BEARING |
+				     ETextRenderFlags::TEXT_RENDER_FLAG_NO_Y_BEARING);
+	DoLabel(&m_BackButtonRect, FontIcon::CHEVRON_LEFT, m_BackButtonRect.w * 0.5f, TEXTALIGN_MC);
+	TextRender()->SetRenderFlags(0);
+	TextRender()->SetFontPreset(EFontPreset::DEFAULT_FONT);
+}
+
 void CUi::DoPopupMenu(const SPopupMenuId *pId, float X, float Y, float Width, float Height, void *pContext, FPopupMenuFunction pfnFunc, const SPopupMenuProperties &Props)
 {
 	constexpr float Margin = SPopupMenu::POPUP_BORDER + SPopupMenu::POPUP_MARGIN;
 	if(X + Width > Screen()->w - Margin)
-		X = maximum<float>(X - Width, Margin);
+		X = std::max(X - Width, Margin);
 	if(Y + Height > Screen()->h - Margin)
-		Y = maximum<float>(Y - Height, Margin);
+		Y = std::max(Y - Height, Margin);
 
 	m_vPopupMenus.emplace_back();
 	SPopupMenu *pNewMenu = &m_vPopupMenus.back();
@@ -1738,7 +1846,7 @@ void CUi::RenderPopupMenus()
 
 void CUi::ClosePopupMenu(const SPopupMenuId *pId, bool IncludeDescendants)
 {
-	auto PopupMenuToClose = std::find_if(m_vPopupMenus.begin(), m_vPopupMenus.end(), [pId](const SPopupMenu PopupMenu) { return PopupMenu.m_pId == pId; });
+	auto PopupMenuToClose = std::find_if(m_vPopupMenus.begin(), m_vPopupMenus.end(), [pId](const SPopupMenu &PopupMenu) { return PopupMenu.m_pId == pId; });
 	if(PopupMenuToClose != m_vPopupMenus.end())
 	{
 		if(IncludeDescendants)
@@ -1806,7 +1914,7 @@ CUi::EPopupMenuFunctionResult CUi::PopupMessage(void *pContext, CUIRect View, bo
 
 void CUi::ShowPopupMessage(float X, float Y, SMessagePopupContext *pContext)
 {
-	const float TextWidth = minimum(std::ceil(TextRender()->TextWidth(SMessagePopupContext::POPUP_FONT_SIZE, pContext->m_aMessage, -1, -1.0f) + 0.5f), SMessagePopupContext::POPUP_MAX_WIDTH);
+	const float TextWidth = std::min(std::ceil(TextRender()->TextWidth(SMessagePopupContext::POPUP_FONT_SIZE, pContext->m_aMessage, -1, -1.0f) + 0.5f), SMessagePopupContext::POPUP_MAX_WIDTH);
 	float TextHeight = 0.0f;
 	STextSizeProperties TextSizeProps{};
 	TextSizeProps.m_pHeight = &TextHeight;
@@ -1833,7 +1941,7 @@ void CUi::SConfirmPopupContext::YesNoButtons()
 
 void CUi::ShowPopupConfirm(float X, float Y, SConfirmPopupContext *pContext)
 {
-	const float TextWidth = minimum(std::ceil(TextRender()->TextWidth(SConfirmPopupContext::POPUP_FONT_SIZE, pContext->m_aMessage, -1, -1.0f) + 0.5f), SConfirmPopupContext::POPUP_MAX_WIDTH);
+	const float TextWidth = std::min(std::ceil(TextRender()->TextWidth(SConfirmPopupContext::POPUP_FONT_SIZE, pContext->m_aMessage, -1, -1.0f) + 0.5f), SConfirmPopupContext::POPUP_MAX_WIDTH);
 	float TextHeight = 0.0f;
 	STextSizeProperties TextSizeProps{};
 	TextSizeProps.m_pHeight = &TextHeight;
@@ -1899,9 +2007,9 @@ CUi::EPopupMenuFunctionResult CUi::PopupSelection(void *pContext, CUIRect View, 
 	CScrollRegion *pScrollRegion = pSelectionPopup->m_pScrollRegion;
 
 	CScrollRegionParams ScrollParams;
-	ScrollParams.m_ScrollbarWidth = 10.0f;
+	ScrollParams.m_ScrollbarThickness = 10.0f;
 	ScrollParams.m_ScrollbarMargin = SPopupMenu::POPUP_MARGIN;
-	ScrollParams.m_ScrollbarNoMarginRight = true;
+	ScrollParams.m_ScrollbarNoOuterMargin = true;
 	ScrollParams.m_ScrollUnit = 3 * (pSelectionPopup->m_EntryHeight + pSelectionPopup->m_EntrySpacing);
 	pScrollRegion->Begin(&View, &ScrollParams);
 
@@ -1943,7 +2051,7 @@ CUi::EPopupMenuFunctionResult CUi::PopupSelection(void *pContext, CUIRect View, 
 void CUi::ShowPopupSelection(float X, float Y, SSelectionPopupContext *pContext)
 {
 	const STextBoundingBox TextBoundingBox = TextRender()->TextBoundingBox(pContext->m_FontSize, pContext->m_aMessage, -1, pContext->m_Width);
-	const float PopupHeight = minimum((pContext->m_aMessage[0] == '\0' ? -pContext->m_EntrySpacing : TextBoundingBox.m_H) + pContext->m_vEntries.size() * (pContext->m_EntryHeight + pContext->m_EntrySpacing) + (SPopupMenu::POPUP_BORDER + SPopupMenu::POPUP_MARGIN) * 2 + CScrollRegion::HEIGHT_MAGIC_FIX, Screen()->h * 0.4f);
+	const float PopupHeight = std::min((pContext->m_aMessage[0] == '\0' ? -pContext->m_EntrySpacing : TextBoundingBox.m_H) + pContext->m_vEntries.size() * (pContext->m_EntryHeight + pContext->m_EntrySpacing) + (SPopupMenu::POPUP_BORDER + SPopupMenu::POPUP_MARGIN) * 2, Screen()->h * 0.4f);
 	pContext->m_pUI = this;
 	pContext->m_pSelection = nullptr;
 	pContext->m_SelectionIndex = -1;
@@ -1953,7 +2061,7 @@ void CUi::ShowPopupSelection(float X, float Y, SSelectionPopupContext *pContext)
 		constexpr float Margin = SPopupMenu::POPUP_BORDER + SPopupMenu::POPUP_MARGIN;
 		if(X + pContext->m_Width > Screen()->w - Margin)
 		{
-			X = maximum<float>(X - pContext->m_Width, Margin);
+			X = std::max(X - pContext->m_Width, Margin);
 		}
 		if(Y + pContext->m_AlignmentHeight + PopupHeight > Screen()->h - Margin)
 		{

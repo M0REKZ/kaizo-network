@@ -71,7 +71,7 @@ struct CSnapContext
 
 	int GetClientVersion() const { return m_ClientVersion; }
 	bool IsSixup() const { return m_Sixup; }
-	bool ClientId() const { return m_ClientId; }
+	int ClientId() const { return m_ClientId; }
 
 private:
 	int m_ClientVersion;
@@ -135,6 +135,7 @@ class CGameContext : public IGameServer
 
 	bool m_Resetting;
 
+	static std::optional<std::vector<int>> ClientsForVictim(int ClientId, const char *pVictim, void *pUser);
 	static void CommandCallback(int ClientId, int FlagMask, const char *pCmd, IConsole::IResult *pResult, void *pUser);
 	static void TeeHistorianWrite(const void *pData, int DataSize, void *pUser);
 
@@ -180,13 +181,15 @@ class CGameContext : public IGameServer
 	void AddVote(const char *pDescription, const char *pCommand);
 	static int MapScan(const char *pName, int IsDir, int DirType, void *pUserData);
 
-	struct CPersistentData
+	class CPersistentData
 	{
+	public:
 		CUuid m_PrevGameUuid;
 	};
 
-	struct CPersistentClientData
+	class CPersistentClientData
 	{
+	public:
 		bool m_IsSpectator;
 		bool m_IsAfk;
 		int m_LastWhisperTo;
@@ -314,14 +317,12 @@ public:
 	void SendMotd(int ClientId) const;
 	void SendSettings(int ClientId) const;
 	void SendServerAlert(const char *pMessage);
-	void SendModeratorAlert(const char *pMessage, int ToClientId);
+	void SendModeratorAlert(int ToClientId, const char *pMessage);
 	void SendBroadcast(const char *pText, int ClientId, bool IsImportant = true);
 	void SendSkinChange7(int ClientId);
 
 	void List(int ClientId, const char *pFilter);
 
-	//
-	void CheckPureTuning();
 	void SendTuningParams(int ClientId, int Zone = 0);
 
 	const CVoteOptionServer *GetVoteOption(int Index) const;

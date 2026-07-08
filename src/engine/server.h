@@ -19,6 +19,7 @@
 #include <generated/protocol7.h>
 #include <generated/protocolglue.h>
 
+#include <algorithm>
 #include <array>
 #include <optional>
 #include <type_traits>
@@ -113,7 +114,9 @@ public:
 					Result = SendPackMsgOne(pMsg, Flags, i);
 		}
 		else if(IsSixup(ClientId))
+		{
 			Result = SendPackMsgOne(pMsg, Flags, ClientId);
+		}
 
 		return Result;
 	}
@@ -236,7 +239,7 @@ public:
 	virtual void SetClientScore(int ClientId, std::optional<int> Score) = 0;
 	virtual void SetClientFlags(int ClientId, int Flags) = 0;
 
-	virtual int SnapNewId() = 0;
+	virtual std::optional<int> SnapNewId() = 0;
 	virtual void SnapFreeId(int Id) = 0;
 	virtual bool SnapNewItem(int Type, int Id, const void *pData, int Size) = 0;
 

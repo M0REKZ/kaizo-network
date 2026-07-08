@@ -24,9 +24,9 @@
 #include <android/log.h>
 #endif
 
-std::atomic<ILogger *> global_logger = nullptr;
-thread_local ILogger *scope_logger = nullptr;
-thread_local bool in_logger = false;
+static std::atomic<ILogger *> global_logger = nullptr;
+thread_local ILogger *scope_logger = nullptr; // NOLINT(misc-use-internal-linkage) // TODO: remove NOLINT when updating clang-tidy version
+thread_local bool in_logger = false; // NOLINT(misc-use-internal-linkage) // TODO: remove NOLINT when updating clang-tidy version
 
 void log_set_global_logger(ILogger *logger)
 {
@@ -35,7 +35,13 @@ void log_set_global_logger(ILogger *logger)
 	{
 		dbg_assert_failed("global logger has already been set and can only be set once");
 	}
+#if !defined(CONF_PLATFORM_EMSCRIPTEN)
+	// With Emscripten, when atexit calls log_global_logger_finish, which calls GlobalFinish, the
+	// Emscripten runtime has already exited, so we cannot wait for the AIO thread to finish and
+	// calling io_sync in the assertion logger is not possible. We instead finish the global logger
+	// manually in src/engine/client/client.cpp before exit.
 	atexit(log_global_logger_finish);
+#endif
 }
 
 void log_global_logger_finish()

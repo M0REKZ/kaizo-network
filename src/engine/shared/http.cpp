@@ -4,17 +4,18 @@
 #include <base/fs.h>
 #include <base/io.h>
 #include <base/log.h>
-#include <base/math.h>
 #include <base/mem.h>
 #include <base/str.h>
 #include <base/thread.h>
 
 #include <engine/external/json-parser/json.h>
 #include <engine/shared/config.h>
+#include <engine/shared/json.h>
 #include <engine/storage.h>
 
 #include <game/version.h>
 
+#include <algorithm>
 #include <limits>
 
 #if !defined(CONF_FAMILY_WINDOWS)
@@ -329,7 +330,7 @@ size_t CHttpRequest::OnData(char *pData, size_t DataSize)
 
 	if(m_WriteToMemory)
 	{
-		size_t NewBufferSize = maximum((size_t)1024, m_BufferSize);
+		size_t NewBufferSize = std::max((size_t)1024, m_BufferSize);
 		while(m_ResponseLength + DataSize > NewBufferSize)
 		{
 			NewBufferSize *= 2;
@@ -427,11 +428,11 @@ void CHttpRequest::OnCompletionInternal(void *pHandle, unsigned int Result)
 
 		if(State == EHttpState::ERROR || State == EHttpState::ABORTED)
 		{
-			fs_remove(m_aDestAbsoluteTmp);
+			(void)fs_remove(m_aDestAbsoluteTmp);
 		}
 		else if(m_IfModifiedSince >= 0 && m_StatusCode == 304) // 304 Not Modified
 		{
-			fs_remove(m_aDestAbsoluteTmp);
+			(void)fs_remove(m_aDestAbsoluteTmp);
 			if(m_WriteToMemory)
 			{
 				free(m_pBuffer);
@@ -463,7 +464,7 @@ void CHttpRequest::OnCompletionInternal(void *pHandle, unsigned int Result)
 			{
 				log_error("http", "i/o error, cannot move file: %s", m_aDest);
 				State = EHttpState::ERROR;
-				fs_remove(m_aDestAbsoluteTmp);
+				(void)fs_remove(m_aDestAbsoluteTmp);
 			}
 		}
 	}
@@ -487,20 +488,20 @@ void CHttpRequest::OnValidation(bool Success)
 	{
 		if(m_IfModifiedSince >= 0 && m_StatusCode == 304) // 304 Not Modified
 		{
-			fs_remove(m_aDestAbsoluteTmp);
+			(void)fs_remove(m_aDestAbsoluteTmp);
 			return;
 		}
 		if(fs_rename(m_aDestAbsoluteTmp, m_aDestAbsolute))
 		{
 			log_error("http", "i/o error, cannot move file: %s", m_aDest);
 			m_State = EHttpState::ERROR;
-			fs_remove(m_aDestAbsoluteTmp);
+			(void)fs_remove(m_aDestAbsoluteTmp);
 		}
 	}
 	else
 	{
 		m_State = EHttpState::ERROR;
-		fs_remove(m_aDestAbsoluteTmp);
+		(void)fs_remove(m_aDestAbsoluteTmp);
 	}
 }
 
@@ -554,7 +555,7 @@ json_value *CHttpRequest::ResultJson() const
 	unsigned char *pResult;
 	size_t ResultLength;
 	Result(&pResult, &ResultLength);
-	return json_parse((char *)pResult, ResultLength);
+	return JsonParse((char *)pResult, ResultLength);
 }
 
 const SHA256_DIGEST &CHttpRequest::ResultSha256() const
@@ -832,4 +833,9 @@ CHttp::~CHttp()
 
 	Shutdown();
 	thread_wait(m_pThread);
+}
+
+IEngineHttp *CreateEngineHttp()
+{
+	return new CHttp;
 }
