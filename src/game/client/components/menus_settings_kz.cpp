@@ -1022,6 +1022,12 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 				g_KaizoConfig_KaizoFakeMaxZoom ^= 1;
 			}
 
+			Left.HSplitTop(20.0f, &Button, &Left);
+			if(DoButton_CheckBox(&g_KaizoConfig_KaizoGlitchyInput, Localize("Make your own gameplay less accurate xD"), g_KaizoConfig_KaizoGlitchyInput, &Button))
+			{
+				g_KaizoConfig_KaizoGlitchyInput ^= 1;
+			}
+
 			break;
 		}
 		case KAIZO_SETTINGS_TAB_INFO:
