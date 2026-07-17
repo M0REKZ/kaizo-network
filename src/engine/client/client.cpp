@@ -101,6 +101,7 @@ extern CKZConfigString g_KaizoConfig_KaizoRunOnJoinConsole;
 extern int g_KaizoConfig_KaizoRunOnJoinConsoleDelay;
 extern int g_KaizoConfig_KaizoPredMarginInFreeze;
 extern int g_KaizoConfig_KaizoPredMarginInFreezeAmount;
+extern int g_KaizoConfig_KaizoGlitchyInput;
 
 using namespace std::chrono_literals;
 
@@ -382,41 +383,57 @@ void CClient::SendInput()
 
 		if(Size)
 		{
-			// pack input
-			CMsgPacker Msg(NETMSG_INPUT, true);
-			Msg.AddInt(m_aAckGameTick[i]);
-			Msg.AddInt(m_aPredTick[g_Config.m_ClDummy]);
-			Msg.AddInt(Size);
-
-			m_aInputs[i][m_aCurrentInput[i]].m_Tick = m_aPredTick[g_Config.m_ClDummy];
-			m_aInputs[i][m_aCurrentInput[i]].m_PredictedTime = m_PredictedTime.Get(Now);
-			m_aInputs[i][m_aCurrentInput[i]].m_PredictionMargin = PredictionMargin() * time_freq() / 1000;
-			m_aInputs[i][m_aCurrentInput[i]].m_Time = Now;
-
-			// pack it
-			for(int k = 0; k < Size / 4; k++)
+			int origdir = ((CNetObj_PlayerInput *)(&(m_aInputs[i][m_aCurrentInput[i]].m_aData[0])))->m_Direction;
+			for(int xd = 0; xd < 1 + g_KaizoConfig_KaizoGlitchyInput; xd++)
 			{
-				static const int FlagsOffset = offsetof(CNetObj_PlayerInput, m_PlayerFlags) / sizeof(int);
-				if(k == FlagsOffset && IsSixup())
+				if(xd == 0)
 				{
-					int PlayerFlags = m_aInputs[i][m_aCurrentInput[i]].m_aData[k];
-					Msg.AddInt(PlayerFlags_SixToSeven(PlayerFlags));
+					((CNetObj_PlayerInput *)(&(m_aInputs[i][m_aCurrentInput[i]].m_aData[0])))->m_Direction = origdir;
 				}
 				else
 				{
-					Msg.AddInt(m_aInputs[i][m_aCurrentInput[i]].m_aData[k]);
+					((CNetObj_PlayerInput *)(&(m_aInputs[i][m_aCurrentInput[i]].m_aData[0])))->m_Direction = origdir * -1;
 				}
+
+				// pack input
+				CMsgPacker Msg(NETMSG_INPUT, true);
+				Msg.AddInt(m_aAckGameTick[i]);
+				Msg.AddInt(m_aPredTick[g_Config.m_ClDummy]);
+				Msg.AddInt(Size);
+
+				m_aInputs[i][m_aCurrentInput[i]].m_Tick = m_aPredTick[g_Config.m_ClDummy];
+				m_aInputs[i][m_aCurrentInput[i]].m_PredictedTime = m_PredictedTime.Get(Now);
+				m_aInputs[i][m_aCurrentInput[i]].m_PredictionMargin = PredictionMargin() * time_freq() / 1000;
+				m_aInputs[i][m_aCurrentInput[i]].m_Time = Now;
+
+				// pack it
+				for(int k = 0; k < Size / 4; k++)
+				{
+					static const int FlagsOffset = offsetof(CNetObj_PlayerInput, m_PlayerFlags) / sizeof(int);
+					if(k == FlagsOffset && IsSixup())
+					{
+						int PlayerFlags = m_aInputs[i][m_aCurrentInput[i]].m_aData[k];
+						Msg.AddInt(PlayerFlags_SixToSeven(PlayerFlags));
+					}
+					else
+					{
+						Msg.AddInt(m_aInputs[i][m_aCurrentInput[i]].m_aData[k]);
+					}
+				}
+
+				SendMsg(i, &Msg, MSGFLAG_FLUSH);
+
+				((CNetObj_PlayerInput *)(&(m_aInputs[i][m_aCurrentInput[i]].m_aData[0])))->m_Direction = origdir;
+				
 			}
-
-			m_aCurrentInput[i]++;
-			m_aCurrentInput[i] %= 200;
-
-			SendMsg(i, &Msg, MSGFLAG_FLUSH);
-			// ugly workaround for dummy. we need to send input with dummy to prevent
-			// prediction time resets. but if we do it too often, then it's
-			// impossible to use grenade with frozen dummy that gets hammered...
-			if(g_Config.m_ClDummyCopyMoves || m_aCurrentInput[i] % 2)
-				Force = true;
+				m_aCurrentInput[i]++;
+				m_aCurrentInput[i] %= 200;
+				
+				// ugly workaround for dummy. we need to send input with dummy to prevent
+				// prediction time resets. but if we do it too often, then it's
+				// impossible to use grenade with frozen dummy that gets hammered...
+				if(g_Config.m_ClDummyCopyMoves || m_aCurrentInput[i] % 2)
+					Force = true;
 		}
 	}
 }

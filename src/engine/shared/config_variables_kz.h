@@ -193,6 +193,7 @@ MACRO_CONFIG_INT(KaizoForceDDNetHUD, kaizo_force_ddnet_hud, 0, 0, 1, CFGFLAG_CLI
 MACRO_CONFIG_INT(KaizoForceBugDDRaceInput, kaizo_force_bug_ddrace_input, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Act as if Bug DDRace input is enabled (WARNING: can be considered as a cheat, use at your own risk!)")
 MACRO_CONFIG_INT(KaizoHideAiming, kaizo_hide_aiming, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Only send aiming when fire is pressed (WARNING: can be considered as a cheat, use at your own risk!)")
 MACRO_CONFIG_INT(KaizoFakeMaxZoom, kaizo_fake_max_zoom, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Make server think you have max zoom, may improve prediction (WARNING: can be considered as a cheat, use at your own risk!)")
+MACRO_CONFIG_INT(KaizoGlitchyInput, kaizo_glitchy_input, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Make your gameplay worse and inaccurate (WARNING: can be considered as a cheat, use at your own risk!)")
 
 //From DuckDDNet
 MACRO_CONFIG_INT(KaizoShowCharFlags, kaizo_show_char_flags, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Show Character flags (Deep/Jetpack/etc) (WARNING: can be considered as a cheat, use at your own risk!)")
