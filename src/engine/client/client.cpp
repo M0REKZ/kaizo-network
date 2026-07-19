@@ -396,7 +396,8 @@ void CClient::SendInput()
 				}
 				else
 				{
-					((CNetObj_PlayerInput *)(&(m_aInputs[i][m_aCurrentInput[i]].m_aData[0])))->m_Direction = origdir * -1;
+					static char dirchange = 1;
+					((CNetObj_PlayerInput *)(&(m_aInputs[i][m_aCurrentInput[i]].m_aData[0])))->m_Direction = (dirchange++, dirchange % SERVER_TICK_SPEED >= SERVER_TICK_SPEED/2) ? 1 : -1;
 					((CNetObj_PlayerInput *)(&(m_aInputs[i][m_aCurrentInput[i]].m_aData[0])))->m_TargetX = (rand() % 128) - 64;;
 					((CNetObj_PlayerInput *)(&(m_aInputs[i][m_aCurrentInput[i]].m_aData[0])))->m_TargetY = (rand() % 128) - 64;;
 				}
