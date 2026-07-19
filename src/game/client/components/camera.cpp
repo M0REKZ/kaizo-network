@@ -17,6 +17,9 @@
 
 #include <limits>
 
+//+KZ
+extern int g_KaizoConfig_KaizoFreeMouse;
+
 CCamera::CCamera()
 {
 	m_CamType = CAMTYPE_UNDEFINED;
@@ -220,6 +223,54 @@ void CCamera::UpdateCamera()
 	bool IsDyncam = CanUseCameraInfo ? true : g_Config.m_ClDyncam;
 
 	float DeltaTime = Client()->RenderFrameTime();
+
+	if(g_KaizoConfig_KaizoFreeMouse)
+	{
+		static int readjust = -1;
+		if(length(GameClient()->m_Controls.m_aMousePos[g_Config.m_ClDummy]) < Deadzone())
+		{
+			if(readjust != 1)
+			{
+				m_aDyncamCurrentCameraOffset[g_Config.m_ClDummy] = mix(m_aDyncamCurrentCameraOffset[g_Config.m_ClDummy], vec2(0, 0), 0.15f);
+
+				if(length(m_aDyncamCurrentCameraOffset[g_Config.m_ClDummy]) < 0.001f)
+				{
+					readjust = 1;
+				}
+				else
+				{
+					readjust = -1;
+				}
+			}
+			else
+			{
+				m_aDyncamCurrentCameraOffset[g_Config.m_ClDummy] = vec2(0, 0);
+			}
+		}
+		else if(length(GameClient()->m_Controls.m_aMousePos[g_Config.m_ClDummy]) < Deadzone() * 2.5f)
+		{
+			vec2 TargetOffset = GameClient()->m_Controls.m_aMousePos[g_Config.m_ClDummy] * m_Zoom;
+			if(readjust != 2)
+			{
+				m_aDyncamCurrentCameraOffset[g_Config.m_ClDummy] = mix(m_aDyncamCurrentCameraOffset[g_Config.m_ClDummy], TargetOffset, 0.15f);
+				if(distance(m_aDyncamCurrentCameraOffset[g_Config.m_ClDummy], TargetOffset) < 2.0f)
+				{
+					readjust = 2;
+				}
+				else
+				{
+					readjust = -1;
+				}
+			}
+			else
+			{
+				m_aDyncamCurrentCameraOffset[g_Config.m_ClDummy] = TargetOffset;
+			}
+		}
+		else
+			m_aDyncamCurrentCameraOffset[g_Config.m_ClDummy] = GameClient()->m_Controls.m_aMousePos[g_Config.m_ClDummy] * m_Zoom;
+		return;
+	}
 
 	if(Smoothness > 0)
 	{
