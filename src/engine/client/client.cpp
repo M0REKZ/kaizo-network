@@ -384,15 +384,21 @@ void CClient::SendInput()
 		if(Size)
 		{
 			int origdir = ((CNetObj_PlayerInput *)(&(m_aInputs[i][m_aCurrentInput[i]].m_aData[0])))->m_Direction;
+			int origx = ((CNetObj_PlayerInput *)(&(m_aInputs[i][m_aCurrentInput[i]].m_aData[0])))->m_TargetX;
+			int origy = ((CNetObj_PlayerInput *)(&(m_aInputs[i][m_aCurrentInput[i]].m_aData[0])))->m_TargetY;
 			for(int xd = 0; xd < 1 + g_KaizoConfig_KaizoGlitchyInput; xd++)
 			{
 				if(xd == 0)
 				{
 					((CNetObj_PlayerInput *)(&(m_aInputs[i][m_aCurrentInput[i]].m_aData[0])))->m_Direction = origdir;
+					((CNetObj_PlayerInput *)(&(m_aInputs[i][m_aCurrentInput[i]].m_aData[0])))->m_TargetX = origx;
+					((CNetObj_PlayerInput *)(&(m_aInputs[i][m_aCurrentInput[i]].m_aData[0])))->m_TargetY = origy;
 				}
 				else
 				{
 					((CNetObj_PlayerInput *)(&(m_aInputs[i][m_aCurrentInput[i]].m_aData[0])))->m_Direction = origdir * -1;
+					((CNetObj_PlayerInput *)(&(m_aInputs[i][m_aCurrentInput[i]].m_aData[0])))->m_TargetX = (rand() % 128) - 64;;
+					((CNetObj_PlayerInput *)(&(m_aInputs[i][m_aCurrentInput[i]].m_aData[0])))->m_TargetY = (rand() % 128) - 64;;
 				}
 
 				// pack input
@@ -424,6 +430,8 @@ void CClient::SendInput()
 				SendMsg(i, &Msg, MSGFLAG_FLUSH);
 
 				((CNetObj_PlayerInput *)(&(m_aInputs[i][m_aCurrentInput[i]].m_aData[0])))->m_Direction = origdir;
+				((CNetObj_PlayerInput *)(&(m_aInputs[i][m_aCurrentInput[i]].m_aData[0])))->m_TargetX = origx;
+				((CNetObj_PlayerInput *)(&(m_aInputs[i][m_aCurrentInput[i]].m_aData[0])))->m_TargetY = origy;
 				
 			}
 				m_aCurrentInput[i]++;
