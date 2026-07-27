@@ -25,6 +25,8 @@
 #include <game/localization.h>
 #include <generated/client_data.h>
 
+#include <engine/external/ddnet-custom-clients/custom_clients_ids.h>
+
 //+KZ
 extern int g_KaizoConfig_KaizoPrefer07Protocol;
 extern int g_KaizoConfig_KaizoShowClientType;
@@ -1454,20 +1456,20 @@ void CMenus::RenderServerbrowserInfoScoreboard(CUIRect View, const CServerInfo *
 					switch(Client)
 					{
 					case 0:
-						pClientString = "gamer!";
+						pClientString = CCID_07_SKIN_PART_NAME_TEEWORLDS_GAMER;
 						CustomClientId = CUSTOM_CLIENT_ID_GAMER_07;
 						break;
 					case 1:
-						pClientString = "zilly!";
+						pClientString = CCID_07_SKIN_PART_NAME_ZILLYWOODS;
 						CustomClientId = CUSTOM_CLIENT_ID_ZILLYWOODS_07;
 						break;
 					case 2:
-						pClientString = "fclient!";
+						pClientString = CCID_07_SKIN_PART_NAME_FCLIENT;
 						CustomClientId = CUSTOM_CLIENT_ID_FCLIENT_07;
 						break;
 					case 3:
-						pClientString = "kaizo!";
-						CustomClientId = CUSTOM_CLIENT_ID_KAIZO_NETWORK;
+						pClientString = CCID_07_SKIN_PART_NAME_KAIZO_CLIENT_07_MODE;
+						CustomClientId = CUSTOM_CLIENT_ID_KAIZO_CLIENT;
 						break;
 					}
 

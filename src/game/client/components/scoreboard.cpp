@@ -24,6 +24,8 @@
 #include <game/client/ui.h>
 #include <game/localization.h>
 
+#include <engine/external/ddnet-custom-clients/custom_clients_ids.h>
+
 //+KZ
 extern int g_KaizoConfig_KaizoShowClientType;
 extern int g_KaizoConfig_KaizoScoreboardStyle;

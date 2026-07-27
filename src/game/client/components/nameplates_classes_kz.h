@@ -6,6 +6,7 @@
 #include <game/client/gameclient.h>
 #include <game/mapitems.h>
 #include <base/helper_kz.h>
+#include <engine/external/ddnet-custom-clients/custom_clients_ids.h>
 
 class CNamePlatePartKaizoPlayerPing : public CNamePlatePart
 {

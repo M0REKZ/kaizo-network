@@ -85,6 +85,8 @@
 #include <chrono>
 #include <limits>
 
+#include <engine/external/ddnet-custom-clients/custom_clients_ids.h>
+
 //+KZ
 extern int g_KaizoConfig_KaizoSleepingInMenuPlayers;
 extern int g_KaizoConfig_KaizoFakeMaxZoom;

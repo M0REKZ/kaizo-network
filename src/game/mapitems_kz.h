@@ -5,7 +5,6 @@
 
 #include <game/mapitems.h>
 #include <generated/protocol.h>
-#include <engine/external/ddnet-custom-clients/custom_clients_ids.h>
 
 const char KZ_GAME_LAYER_NAME[9] = {'+','K', 'Z', 'G', 'a', 'm', 'e', (char)27, '\0'};
 const char KZ_FRONT_LAYER_NAME[10] = {'+','K', 'Z', 'F', 'r', 'o', 'n', 't', (char)27, '\0'};
