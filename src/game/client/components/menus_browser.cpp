@@ -1412,6 +1412,14 @@ void CMenus::RenderServerbrowserInfoScoreboard(CUIRect View, const CServerInfo *
 					Image = IMAGE_KZ_DUCKICON;
 					Sprite = SPRITE_KZ_DUCKICON;
 				}
+				else if(MACRO_IS_SKIN_COLOR_CCID(
+					CurrentClient.m_CustomSkinColorBody, CurrentClient.m_CustomSkinColorFeet,
+					CCID_COLOR_BODY_RUSHIECLIENT, CCID_COLOR_FEET_RUSHIECLIENT
+				))
+				{
+					Image = IMAGE_KZ_RUSHIEICON;
+					Sprite = SPRITE_KZ_RUSHIEICON;
+				}
 
 				if(Sprite != -1 && Image != -1)
 				{

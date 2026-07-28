@@ -94,6 +94,12 @@ public:
 			m_Sprite = SPRITE_KZ_DUCKICON;
 			m_Visible = true;
 		}
+		else if(This.m_aClients[Data.m_ClientId].m_CustomClient == CUSTOM_CLIENT_ID_RUSHIECLIENT)
+		{
+			m_Texture = g_pData->m_aImages[IMAGE_KZ_RUSHIEICON].m_Id;
+			m_Sprite = SPRITE_KZ_RUSHIEICON;
+			m_Visible = true;
+		}
 		else
 		{
 			m_Visible = false;

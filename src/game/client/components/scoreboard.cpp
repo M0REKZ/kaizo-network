@@ -846,6 +846,10 @@ void CScoreboard::RenderScoreboard(CUIRect Scoreboard, int Team, int CountStart,
 					Image = IMAGE_KZ_DUCKICON;
 					Sprite = SPRITE_KZ_DUCKICON;
 					break;
+				case CUSTOM_CLIENT_ID_RUSHIECLIENT:
+					Image = IMAGE_KZ_RUSHIEICON;
+					Sprite = SPRITE_KZ_RUSHIEICON;
+					break;
 				}
 
 				if(Sprite != -1 && Image != -1)

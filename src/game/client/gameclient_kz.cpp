@@ -223,6 +223,13 @@ void CGameClient::HandleKaizoSnapItem(const IClient::CSnapItem *pItem)
             {
                 pClient->m_CustomClient = CUSTOM_CLIENT_ID_PDUCKCLIENT;
             }
+            else if(MACRO_IS_SKIN_COLOR_CCID(
+                pInfo->m_ColorBody, pInfo->m_ColorFeet,
+                CCID_COLOR_BODY_RUSHIECLIENT, CCID_COLOR_FEET_RUSHIECLIENT
+            ))
+            {
+                pClient->m_CustomClient = CUSTOM_CLIENT_ID_RUSHIECLIENT;
+            }
         }
     }
     else if(pItem->m_Type == NETOBJTYPE_GAMEINFOTWPLUS)

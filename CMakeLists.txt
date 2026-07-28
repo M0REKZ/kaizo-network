@@ -1530,6 +1530,7 @@ set(EXPECTED_DATA
   kz/attractor.png
   kz/portal.png
   kz/portal_orange.png
+  kz/rushieicon.png
   kz/shield.png
   kz/zillywoods.png
   languages/README.txt
