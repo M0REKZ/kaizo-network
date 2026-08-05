@@ -334,9 +334,9 @@ bool CGameClient::CheckNewInput()
 	return m_Controls.CheckNewInput();
 }
 
-void CGameClient::GetKaizoInfo(CServerInfo *pServerInfo)
+void CGameClient::GetKaizoInfo(const CServerInfo *pServerInfo)
 {
-	Client()->GetServerInfo(pServerInfo);
+	//Client()->GetServerInfo(pServerInfo);
 
     //Detect Specific mods
 

@@ -7,7 +7,7 @@
 #include <base/str.h>
 
 #include <generated/protocol.h>
-#include <engine/shared/http.h>
+#include <engine/shared/http_curl.h>
 
 const int MAX_RESOURCE_ARRAY_SIZE = 64;
 const int MAX_RESOURCES = 64;
@@ -42,7 +42,7 @@ private:
 	{
 		char m_aName[MAX_RESOURCE_ARRAY_SIZE];
 		int m_ResourceId;
-		std::shared_ptr<CHttpRequest> m_pTask;
+		std::shared_ptr<IHttpRequest> m_pTask;
 	};
 	CResourceTask m_pTasks [MAX_RESOURCES];
 	

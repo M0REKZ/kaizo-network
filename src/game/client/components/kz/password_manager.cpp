@@ -120,8 +120,7 @@ void CPasswordManagerKZ::OnNewSnapshot()
     if(Client()->State() != IClient::STATE_ONLINE)
         return;
 
-    CServerInfo CurrentServerInfo;
-	Client()->GetServerInfo(&CurrentServerInfo);
+    const CServerInfo &CurrentServerInfo = Client()->ServerInfo();
 
     //on first snapshot there is still no address here????
     if(CurrentServerInfo.m_aAddress[0] == '\0')

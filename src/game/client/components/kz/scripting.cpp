@@ -32,13 +32,8 @@ private:
 	{
 		if(Client()->State() == IClient::STATE_ONLINE || Client()->State() == IClient::STATE_DEMOPLAYBACK)
 		{
-			static CServerInfo s_ServerInfo; // Prevent use after stack return
-			Client()->GetServerInfo(&s_ServerInfo);
+			static const CServerInfo &s_ServerInfo = Client()->ServerInfo();
 			return &s_ServerInfo;
-		}
-		else if(GameClient()->m_ConnectServerInfo)
-		{
-			return &*GameClient()->m_ConnectServerInfo;
 		}
 		return nullptr;
 	}

@@ -1057,7 +1057,7 @@ private:
 	CResources m_Resources; //+KZ from Duck/Infclass Client
 	CPasswordManagerKZ m_PasswordManager; //+KZ
 
-	void GetKaizoInfo(CServerInfo *pServerInfo);
+	void GetKaizoInfo(const CServerInfo *pServerInfo);
 	bool m_InstaShield = false;
 	void KaizoReset();
 	void KaizoPostUpdate();

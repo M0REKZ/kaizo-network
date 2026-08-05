@@ -1150,8 +1150,12 @@ void CRenderMap::RenderTunemap(CTuneTile *pTune, int w, int h, float Scale, Colo
 
 void CRenderMap::RenderKZGameOverlay(CKZTile *pKZ, int w, int h, float Scale, int OverlayRenderFlags, float Alpha)
 {
-		float ScreenX0, ScreenY0, ScreenX1, ScreenY1;
-	Graphics()->GetScreen(&ScreenX0, &ScreenY0, &ScreenX1, &ScreenY1);
+	float ScreenX0, ScreenY0, ScreenX1, ScreenY1;
+	CScreenRect rrr = Graphics()->GetScreen();
+	ScreenX0 = rrr.m_TopLeft.x;
+	ScreenY0 = rrr.m_TopLeft.y;
+	ScreenX1 = rrr.m_BottomRight.x;
+	ScreenY1 = rrr.m_BottomRight.y;
 
 	int StartY = (int)(ScreenY0 / Scale) - 1;
 	int StartX = (int)(ScreenX0 / Scale) - 1;
@@ -1215,13 +1219,17 @@ void CRenderMap::RenderKZGameOverlay(CKZTile *pKZ, int w, int h, float Scale, in
 		}
 	}
 	TextRender()->TextColor(TextRender()->DefaultTextColor());
-	Graphics()->MapScreen(ScreenX0, ScreenY0, ScreenX1, ScreenY1);
+	Graphics()->MapScreen(rrr);
 }
 
 void CRenderMap::RenderKZGameMap(CKZTile *pKZ, int w, int h, float Scale, ColorRGBA Color, int RenderFlags)
 {
 	float ScreenX0, ScreenY0, ScreenX1, ScreenY1;
-	Graphics()->GetScreen(&ScreenX0, &ScreenY0, &ScreenX1, &ScreenY1);
+	CScreenRect rrr = Graphics()->GetScreen();
+	ScreenX0 = rrr.m_TopLeft.x;
+	ScreenY0 = rrr.m_TopLeft.y;
+	ScreenX1 = rrr.m_BottomRight.x;
+	ScreenY1 = rrr.m_BottomRight.y;
 
 	// calculate the final pixelsize for the tiles
 	float TilePixelSize = 1024 / 32.0f;
@@ -1375,13 +1383,17 @@ void CRenderMap::RenderKZGameMap(CKZTile *pKZ, int w, int h, float Scale, ColorR
 		Graphics()->QuadsTex3DEnd();
 	else
 		Graphics()->QuadsEnd();
-	Graphics()->MapScreen(ScreenX0, ScreenY0, ScreenX1, ScreenY1);
+	Graphics()->MapScreen(rrr);
 }
 
 void CRenderMap::RenderKZFrontOverlay(CKZTile *pKZ, int w, int h, float Scale, int OverlayRenderFlags, float Alpha)
 {
 	float ScreenX0, ScreenY0, ScreenX1, ScreenY1;
-	Graphics()->GetScreen(&ScreenX0, &ScreenY0, &ScreenX1, &ScreenY1);
+	CScreenRect rrr = Graphics()->GetScreen();
+	ScreenX0 = rrr.m_TopLeft.x;
+	ScreenY0 = rrr.m_TopLeft.y;
+	ScreenX1 = rrr.m_BottomRight.x;
+	ScreenY1 = rrr.m_BottomRight.y;
 
 	int StartY = (int)(ScreenY0 / Scale) - 1;
 	int StartX = (int)(ScreenX0 / Scale) - 1;
@@ -1458,7 +1470,7 @@ void CRenderMap::RenderKZFrontOverlay(CKZTile *pKZ, int w, int h, float Scale, i
 		}
 	}
 	TextRender()->TextColor(TextRender()->DefaultTextColor());
-	Graphics()->MapScreen(ScreenX0, ScreenY0, ScreenX1, ScreenY1);
+	Graphics()->MapScreen(rrr);
 }
 
 void CRenderMap::RenderKZFrontMap(CKZTile *pKZ, int w, int h, float Scale, ColorRGBA Color, int RenderFlags)

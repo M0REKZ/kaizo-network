@@ -337,12 +337,12 @@ SEditResult<int64_t> CEditor::DoPropertiesWithStateLongLong(CUIRect *pToolBox, C
 			if(pProps[i].m_Value < 0 || pProps[i].m_Min < 0 || pProps[i].m_Min >= (int)m_Map.m_vpImages.size())
 				pName = "None";
 			else
-				pName = m_Map.m_vpImages[pProps[i].m_Min]->m_AutoMapper.GetConfigName(pProps[i].m_Value);
+				pName = m_Map.m_vpImages[pProps[i].m_Min]->m_Automapper.GetConfigName(pProps[i].m_Value);
 
 			if(DoButton_Ex(&pIds[i], pName, 0, &Shifter, BUTTONFLAG_LEFT, nullptr, IGraphics::CORNER_ALL))
-				PopupSelectConfigAutoMapInvoke(pProps[i].m_Value, Ui()->MouseX(), Ui()->MouseY());
+				PopupSelectAutomapperReferenceInvoke(pProps[i].m_Value, Ui()->MouseX(), Ui()->MouseY());
 
-			int r = PopupSelectConfigAutoMapResult();
+			int r = PopupSelectAutomapperReferenceResult();
 			if(r >= -1)
 			{
 				*pNewVal = r;
@@ -359,9 +359,9 @@ SEditResult<int64_t> CEditor::DoPropertiesWithStateLongLong(CUIRect *pToolBox, C
 				pName = AUTOMAP_REFERENCE_NAMES[pProps[i].m_Value];
 
 			if(DoButton_Ex(&pIds[i], pName, 0, &Shifter, BUTTONFLAG_LEFT, nullptr, IGraphics::CORNER_ALL))
-				PopupSelectAutoMapReferenceInvoke(pProps[i].m_Value, Ui()->MouseX(), Ui()->MouseY());
+				PopupSelectAutomapperReferenceInvoke(pProps[i].m_Value, Ui()->MouseX(), Ui()->MouseY());
 
-			const int Result = PopupSelectAutoMapReferenceResult();
+			const int Result = PopupSelectAutomapperReferenceResult();
 			if(Result >= -1)
 			{
 				*pNewVal = Result;

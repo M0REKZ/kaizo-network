@@ -91,7 +91,7 @@ void CMenusStart::RenderKaizoStartMenu(CUIRect MainView)
 		}
 		else if(s_JoinTutorialTime == 0.0f)
 		{
-			dbg_msg("menus", "couldn't find tutorial server, retrying in 5 seconds");
+			//dbg_msg("menus", "couldn't find tutorial server, retrying in 5 seconds");
 			s_JoinTutorialTime = Client()->LocalTime() + 5.0f;
 		}
 		else

@@ -3,6 +3,7 @@
 #include "custom_communities.h"
 
 #include <base/log.h>
+#include <base/dbg.h>
 
 #include <engine/client/serverbrowser.h>
 #include <engine/external/json-parser/json.h>

@@ -210,18 +210,22 @@ void CRechargeBars::OnRender()
         return;
     }
 
-	// get screen edges to avoid rendering offscreen
+	// get screen edges to avoid rendering offscreen //+KZ from old ddnet version
 	float ScreenX0, ScreenY0, ScreenX1, ScreenY1;
-	Graphics()->GetScreen(&ScreenX0, &ScreenY0, &ScreenX1, &ScreenY1);
-	// expand the edges to prevent popping in/out onscreen
-	//
-	// it is assumed that the tee with the freeze bar fit into a 240x240 box centered on the tee
-	// this may need to be changed or calculated differently in the future
-	float BorderBuffer = 120;
+	constexpr float BorderBuffer = 120.0f;
 	ScreenX0 -= BorderBuffer;
 	ScreenX1 += BorderBuffer;
 	ScreenY0 -= BorderBuffer;
 	ScreenY1 += BorderBuffer;
+
+	// get screen edges to avoid rendering offscreen
+	CScreenRect ScreenRect = Graphics()->GetScreen();
+	// expand the edges to prevent popping in/out onscreen
+	//
+	// it is assumed that the tee with the freeze bar fit into a 240x240 box centered on the tee
+	// this may need to be changed or calculated differently in the future
+	//constexpr float BorderBuffer = 120.0f;
+	ScreenRect.Expand(BorderBuffer);
 
 	int LocalClientId = GameClient()->m_Snap.m_LocalClientId;
 

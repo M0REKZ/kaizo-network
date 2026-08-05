@@ -24,7 +24,7 @@ void CMenus::UpdateOnlinePlayerCache()
 		const CServerInfo *pCurServer = ServerBrowser()->SortedGet(ServerIdx);
 		for(int ClientIdx = 0; ClientIdx < std::min(pCurServer->m_NumClients, (int)SERVERINFO_MAX_CLIENTS); ++ClientIdx)
 		{
-			const CServerInfo::CClient *pClient = &pCurServer->m_aClients[ClientIdx];
+			const CServerInfo::CClient *pClient = &pCurServer->m_vClients[ClientIdx];
 
 			union
             {
