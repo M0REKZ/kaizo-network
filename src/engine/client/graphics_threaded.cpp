@@ -199,20 +199,15 @@ const TTwGraphicsGpuList &CGraphics_Threaded::GetGpus() const
 	return m_pBackend->GetGpus();
 }
 
-void CGraphics_Threaded::MapScreen(float TopLeftX, float TopLeftY, float BottomRightX, float BottomRightY)
+void CGraphics_Threaded::MapScreen(const CScreenRect &ScreenRect)
 {
-	m_State.m_ScreenTL.x = TopLeftX;
-	m_State.m_ScreenTL.y = TopLeftY;
-	m_State.m_ScreenBR.x = BottomRightX;
-	m_State.m_ScreenBR.y = BottomRightY;
+	m_State.m_ScreenTL = ScreenRect.m_TopLeft;
+	m_State.m_ScreenBR = ScreenRect.m_BottomRight;
 }
 
-void CGraphics_Threaded::GetScreen(float *pTopLeftX, float *pTopLeftY, float *pBottomRightX, float *pBottomRightY) const
+CScreenRect CGraphics_Threaded::GetScreen() const
 {
-	*pTopLeftX = m_State.m_ScreenTL.x;
-	*pTopLeftY = m_State.m_ScreenTL.y;
-	*pBottomRightX = m_State.m_ScreenBR.x;
-	*pBottomRightY = m_State.m_ScreenBR.y;
+	return CScreenRect(m_State.m_ScreenTL, m_State.m_ScreenBR);
 }
 
 void CGraphics_Threaded::LinesBegin()
@@ -321,7 +316,7 @@ void CGraphics_Threaded::UnloadTexture(CTextureHandle *pIndex)
 	FreeTextureIndex(pIndex);
 }
 
-IGraphics::CTextureHandle CGraphics_Threaded::LoadSpriteTexture(const CImageInfo &FromImageInfo, const CDataSprite *pSprite)
+IGraphics::CTextureHandle CGraphics_Threaded::LoadSpriteTexture(const CImageInfo &FromImageInfo, const std::optional<CImageInfo> &FallbackImageInfo, const CDataSprite *pSprite)
 {
 	int ImageGridX = FromImageInfo.m_Width / pSprite->m_pSet->m_Gridx;
 	int ImageGridY = FromImageInfo.m_Height / pSprite->m_pSet->m_Gridy;
@@ -329,6 +324,13 @@ IGraphics::CTextureHandle CGraphics_Threaded::LoadSpriteTexture(const CImageInfo
 	int y = pSprite->m_Y * ImageGridY;
 	int w = pSprite->m_W * ImageGridX;
 	int h = pSprite->m_H * ImageGridY;
+
+	// check for invisible texture, maybe due to outdated game assets
+	if(FallbackImageInfo.has_value() && IsImageSubFullyTransparent(FromImageInfo, x, y, w, h))
+	{
+		log_warn("graphics", "Asset '%s' appears to be invisible, falling back to default", pSprite->m_pName);
+		return LoadSpriteTexture(FallbackImageInfo.value(), std::nullopt, pSprite);
+	}
 
 	CImageInfo SpriteInfo;
 	SpriteInfo.m_Width = w;
@@ -1739,11 +1741,13 @@ void CGraphics_Threaded::RenderQuadContainerEx(int ContainerIndex, int QuadOffse
 
 		WrapClamp();
 
-		float ScreenX0, ScreenY0, ScreenX1, ScreenY1;
-		GetScreen(&ScreenX0, &ScreenY0, &ScreenX1, &ScreenY1);
-		MapScreen((ScreenX0 - X) / ScaleX, (ScreenY0 - Y) / ScaleY, (ScreenX1 - X) / ScaleX, (ScreenY1 - Y) / ScaleY);
+		CScreenRect ScreenRect = GetScreen();
+		CScreenRect CommandScreenRect = ScreenRect.Move({-X, -Y});
+		CommandScreenRect.m_TopLeft /= vec2(ScaleX, ScaleY);
+		CommandScreenRect.m_BottomRight /= vec2(ScaleX, ScaleY);
 		Cmd.m_State = m_State;
-		MapScreen(ScreenX0, ScreenY0, ScreenX1, ScreenY1);
+		Cmd.m_State.m_ScreenTL = CommandScreenRect.m_TopLeft;
+		Cmd.m_State.m_ScreenBR = CommandScreenRect.m_BottomRight;
 
 		Cmd.m_DrawNum = QuadDrawNum * 6;
 		Cmd.m_pOffset = (void *)(QuadOffset * 6 * sizeof(unsigned int));

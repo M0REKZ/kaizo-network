@@ -11,7 +11,6 @@
 #include "layer_selector.h"
 #include "map_view.h"
 #include "quad_art.h"
-#include "smooth_value.h"
 
 #include <base/bezier.h>
 #include <base/fs.h>
@@ -22,6 +21,7 @@
 #include <game/client/ui.h>
 #include <game/client/ui_listbox.h>
 #include <game/editor/enums.h>
+#include <game/editor/envelope_editor.h>
 #include <game/editor/file_browser.h>
 #include <game/editor/mapitems/envelope.h>
 #include <game/editor/mapitems/layer.h>
@@ -121,6 +121,7 @@ class CEditor : public IEditor
 
 	std::vector<std::reference_wrapper<CEditorComponent>> m_vComponents;
 	CMapView m_MapView;
+	CEnvelopeEditor m_EnvelopeEditor;
 	CLayerSelector m_LayerSelector;
 	CFileBrowser m_FileBrowser;
 	CPrompt m_Prompt;
@@ -185,6 +186,7 @@ public:
 	bool IsNonGameTileLayerSelected() const;
 	void MapDetails();
 	void TestMapLocally();
+	void GotoPosition();
 #define REGISTER_QUICK_ACTION(name, text, callback, disabled, active, button_color, description) CQuickAction m_QuickAction##name;
 #include <game/editor/quick_actions.h>
 #undef REGISTER_QUICK_ACTION
@@ -193,9 +195,6 @@ public:
 #define REGISTER_QUICK_ACTION(name, text, callback, disabled, active, button_color, description) m_QuickAction##name(text, description, callback, disabled, active, button_color),
 #include <game/editor/quick_actions.h>
 #undef REGISTER_QUICK_ACTION
-		m_ZoomEnvelopeX(1.0f, 0.1f, 600.0f),
-		m_ZoomEnvelopeY(640.0f, 0.1f, 32000.0f),
-		m_MapSettingsCommandContext(m_MapSettingsBackend.NewContext(&m_SettingsCommandInput)),
 		m_Map(this)
 	{
 		m_EntitiesTexture.Invalidate();
@@ -219,17 +218,11 @@ public:
 
 		m_SelectEntitiesImage = "DDNet";
 
-		m_ResetZoomEnvelope = true;
-		m_OffsetEnvelopeX = 0.1f;
-		m_OffsetEnvelopeY = 0.5f;
-
 		m_ShowMousePointer = true;
 
 		m_GuiActive = true;
-		m_PreviewZoom = false;
 
 		m_ShowTileInfo = SHOW_TILE_OFF;
-		m_ShowDetail = true;
 
 		for(size_t i = 0; i < std::size(m_aSavedColors); ++i)
 		{
@@ -399,19 +392,9 @@ public:
 	std::vector<std::string> m_vSelectEntitiesFiles;
 	std::string m_SelectEntitiesImage;
 
-	// Zooming
-	CSmoothValue m_ZoomEnvelopeX;
-	CSmoothValue m_ZoomEnvelopeY;
-
-	bool m_ResetZoomEnvelope;
-
-	float m_OffsetEnvelopeX;
-	float m_OffsetEnvelopeY;
-
 	bool m_ShowMousePointer;
 	bool m_GuiActive;
 
-	bool m_PreviewZoom;
 	const void *m_pContainerPanned;
 	const void *m_pContainerPannedLast;
 
@@ -422,7 +405,6 @@ public:
 		SHOW_TILE_HEXADECIMAL
 	};
 	EShowTile m_ShowTileInfo;
-	bool m_ShowDetail;
 
 	enum EExtraEditor
 	{
@@ -474,6 +456,7 @@ public:
 
 	IGraphics::CTextureHandle GetEntitiesTexture();
 
+	std::unique_ptr<CEditorMap> m_pToolsMap;
 	std::shared_ptr<CLayerGroup> m_pBrush;
 	std::shared_ptr<CLayerTiles> m_pTilesetPicker;
 	std::shared_ptr<CLayerQuads> m_pQuadsetPicker;
@@ -482,9 +465,7 @@ public:
 
 	std::deque<std::shared_ptr<CDataFileWriterFinishJob>> m_WriterFinishJobs;
 
-	CLineInputBuffered<256> m_SettingsCommandInput;
 	CMapSettingsBackend m_MapSettingsBackend;
-	CMapSettingsBackend::CContext m_MapSettingsCommandContext;
 
 	// editor_ui.cpp
 	void UpdateTooltip(const void *pId, const CUIRect *pRect, const char *pToolTip);
@@ -502,7 +483,7 @@ public:
 	void RenderBackground(CUIRect View, IGraphics::CTextureHandle Texture, float Size, float Brightness) const;
 
 	// editor_server_settings.cpp
-	void DoMapSettingsEditBox(CMapSettingsBackend::CContext *pContext, const CUIRect *pRect, float FontSize, float DropdownMaxHeight, int Corners = IGraphics::CORNER_ALL, const char *pToolTip = nullptr);
+	void DoMapSettingsEditBox(CMapSettingsBackend::CContextWithInput *pContext, const CUIRect *pRect, float FontSize, float DropdownMaxHeight, int Corners = IGraphics::CORNER_ALL, const char *pToolTip = nullptr);
 	template<typename T>
 	int DoEditBoxDropdown(SEditBoxDropdownContext *pDropdown, CLineInput *pLineInput, const CUIRect *pEditBoxRect, int x, float MaxHeight, bool AutoWidth, const std::vector<T> &vData, const FDropdownRenderCallback<T> &pfnMatchCallback);
 	template<typename T>
@@ -551,9 +532,6 @@ public:
 	};
 	CPointPopupContext m_PointPopupContext;
 	static CUi::EPopupMenuFunctionResult PopupPoint(void *pContext, CUIRect View, bool Active);
-	static CUi::EPopupMenuFunctionResult PopupEnvPoint(void *pContext, CUIRect View, bool Active);
-	static CUi::EPopupMenuFunctionResult PopupEnvPointMulti(void *pContext, CUIRect View, bool Active);
-	static CUi::EPopupMenuFunctionResult PopupEnvPointCurveType(void *pContext, CUIRect View, bool Active);
 	static CUi::EPopupMenuFunctionResult PopupImage(void *pContext, CUIRect View, bool Active);
 	static CUi::EPopupMenuFunctionResult PopupSound(void *pContext, CUIRect View, bool Active);
 	static CUi::EPopupMenuFunctionResult PopupMapInfo(void *pContext, CUIRect View, bool Active);
@@ -561,8 +539,8 @@ public:
 	static CUi::EPopupMenuFunctionResult PopupSelectImage(void *pContext, CUIRect View, bool Active);
 	static CUi::EPopupMenuFunctionResult PopupSelectSound(void *pContext, CUIRect View, bool Active);
 	static CUi::EPopupMenuFunctionResult PopupSelectGametileOp(void *pContext, CUIRect View, bool Active);
-	static CUi::EPopupMenuFunctionResult PopupSelectConfigAutoMap(void *pContext, CUIRect View, bool Active);
-	static CUi::EPopupMenuFunctionResult PopupSelectAutoMapReference(void *pContext, CUIRect View, bool Active);
+	static CUi::EPopupMenuFunctionResult PopupSelectAutomapperConfig(void *pContext, CUIRect View, bool Active);
+	static CUi::EPopupMenuFunctionResult PopupSelectAutomapperReference(void *pContext, CUIRect View, bool Active);
 	static CUi::EPopupMenuFunctionResult PopupTele(void *pContext, CUIRect View, bool Active);
 	static CUi::EPopupMenuFunctionResult PopupSpeedup(void *pContext, CUIRect View, bool Active);
 	static CUi::EPopupMenuFunctionResult PopupSwitch(void *pContext, CUIRect View, bool Active);
@@ -571,8 +549,6 @@ public:
 	static CUi::EPopupMenuFunctionResult PopupEntities(void *pContext, CUIRect View, bool Active);
 	static CUi::EPopupMenuFunctionResult PopupProofMode(void *pContext, CUIRect View, bool Active);
 	static CUi::EPopupMenuFunctionResult PopupAnimateSettings(void *pContext, CUIRect View, bool Active);
-	int m_PopupEnvelopeSelectedPoint = -1;
-	static CUi::EPopupMenuFunctionResult PopupEnvelopeCurvetype(void *pContext, CUIRect View, bool Active);
 	static CUi::EPopupMenuFunctionResult PopupQuadArt(void *pContext, CUIRect View, bool Active);
 
 	static bool CallbackOpenMap(const char *pFilename, int StorageType, void *pUser);
@@ -591,14 +567,14 @@ public:
 	void PopupSelectGametileOpInvoke(float x, float y);
 	int PopupSelectGameTileOpResult();
 
-	void PopupSelectConfigAutoMapInvoke(int Current, float x, float y);
-	int PopupSelectConfigAutoMapResult();
+	void PopupSelectAutomapperConfigInvoke(int Current, float x, float y);
+	int PopupSelectAutomapperConfigResult();
 
 	void PopupSelectSoundInvoke(int Current, float x, float y);
 	int PopupSelectSoundResult();
 
-	void PopupSelectAutoMapReferenceInvoke(int Current, float x, float y);
-	int PopupSelectAutoMapReferenceResult();
+	void PopupSelectAutomapperReferenceInvoke(int Current, float x, float y);
+	int PopupSelectAutomapperReferenceResult();
 
 	void DoQuadEnvelopes(const CLayerQuads *pLayerQuads);
 	void DoQuadEnvPoint(const CQuad *pQuad, CEnvelope *pEnvelope, int QuadIndex, int PointIndex);
@@ -682,7 +658,6 @@ public:
 	class CRenderLayersState
 	{
 	public:
-		CScrollRegion m_ScrollRegion;
 		ELayerOperation m_Operation;
 		ELayerOperation m_PreviousOperation;
 		const void *m_pDraggedButton;
@@ -708,9 +683,6 @@ public:
 	void RenderStatusbar(CUIRect View, CUIRect *pTooltipRect);
 	void RenderTooltip(CUIRect TooltipRect);
 
-	void RenderEnvelopeEditor(CUIRect View);
-	void RenderEnvelopeEditorColorBar(CUIRect ColorBar, const std::shared_ptr<CEnvelope> &pEnvelope);
-
 	void RenderMapSettingsErrorDialog();
 	void RenderServerSettingsEditor(CUIRect View, bool ShowServerSettingsEditorLast);
 	static void MapSettingsDropdownRenderCallback(const SPossibleValueMatch &Match, char (&aOutput)[128], std::vector<STextColorSplit> &vColorSplits);
@@ -726,28 +698,10 @@ public:
 	};
 	void DoEditorDragBar(CUIRect View, CUIRect *pDragBar, EDragSide Side, float *pValue, float MinValue = 100.0f, float MaxValue = 400.0f);
 
-	void UpdateHotEnvelopeObject(const CUIRect &View, const CEnvelope *pEnvelope, int ActiveChannels);
-
 	void RenderMenubar(CUIRect Menubar);
 	void ShowHelp();
 
 	void DoAudioPreview(CUIRect View, const void *pPlayPauseButtonId, const void *pStopButtonId, const void *pSeekBarId, int SampleId);
-
-	// Zooming
-	void ZoomAdaptOffsetX(float ZoomFactor, const CUIRect &View);
-	void UpdateZoomEnvelopeX(const CUIRect &View);
-
-	void ZoomAdaptOffsetY(float ZoomFactor, const CUIRect &View);
-	void UpdateZoomEnvelopeY(const CUIRect &View);
-
-	void ResetZoomEnvelope(const std::shared_ptr<CEnvelope> &pEnvelope, int ActiveChannels);
-	void RemoveTimeOffsetEnvelope(const std::shared_ptr<CEnvelope> &pEnvelope);
-	float ScreenToEnvelopeX(const CUIRect &View, float x) const;
-	float EnvelopeToScreenX(const CUIRect &View, float x) const;
-	float ScreenToEnvelopeY(const CUIRect &View, float y) const;
-	float EnvelopeToScreenY(const CUIRect &View, float y) const;
-	float ScreenToEnvelopeDX(const CUIRect &View, float DeltaX);
-	float ScreenToEnvelopeDY(const CUIRect &View, float DeltaY);
 
 	// DDRace
 

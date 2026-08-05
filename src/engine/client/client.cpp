@@ -33,6 +33,7 @@
 #include <engine/external/json-parser/json.h>
 #include <engine/favorites.h>
 #include <engine/graphics.h>
+#include <engine/http.h>
 #include <engine/input.h>
 #include <engine/keys.h>
 #include <engine/map.h>
@@ -44,7 +45,6 @@
 #include <engine/shared/demo.h>
 #include <engine/shared/fifo.h>
 #include <engine/shared/filecollection.h>
-#include <engine/shared/http.h>
 #include <engine/shared/masterserver.h>
 #include <engine/shared/network.h>
 #include <engine/shared/packer.h>
@@ -939,9 +939,9 @@ bool CClient::DummyAllowed() const
 	return m_ServerCapabilities.m_AllowDummy;
 }
 
-void CClient::GetServerInfo(CServerInfo *pServerInfo) const
+const CServerInfo &CClient::ServerInfo() const
 {
-	*pServerInfo = m_CurrentServerInfo;
+	return m_CurrentServerInfo;
 }
 
 void CClient::ServerInfoRequest()
@@ -1024,7 +1024,7 @@ void CClient::RenderDebug()
 	const float FontSize = 16.0f;
 
 	Graphics()->TextureSet(m_DebugFont);
-	Graphics()->MapScreen(0, 0, Graphics()->ScreenWidth(), Graphics()->ScreenHeight());
+	Graphics()->MapScreenToSize(Graphics()->ScreenWidth(), Graphics()->ScreenHeight());
 	Graphics()->QuadsBegin();
 
 	str_format(aBuffer, sizeof(aBuffer), "Game/predicted tick: %d/%d", m_aCurGameTick[g_Config.m_ClDummy], m_aPredTick[g_Config.m_ClDummy]);
@@ -1138,7 +1138,7 @@ void CClient::RenderGraphs()
 		return;
 
 	// Make sure graph positions and sizes are aligned with pixels to avoid lines overlapping graph edges
-	Graphics()->MapScreen(0, 0, Graphics()->ScreenWidth(), Graphics()->ScreenHeight());
+	Graphics()->MapScreenToSize(Graphics()->ScreenWidth(), Graphics()->ScreenHeight());
 	const float GraphW = std::round(Graphics()->ScreenWidth() / 4.0f);
 	const float GraphH = std::round(Graphics()->ScreenHeight() / 6.0f);
 	const float GraphSpacing = std::round(Graphics()->ScreenWidth() / 100.0f);
@@ -1515,10 +1515,10 @@ void CClient::ProcessServerInfo(int RawType, NETADDR *pFrom, const void *pData, 
 	}
 
 	bool IgnoreError = false;
-	for(int i = 0; i < MAX_CLIENTS && Info.m_NumReceivedClients < MAX_CLIENTS && !Up.Error(); i++)
+	for(int i = 0; i < MAX_CLIENTS && (int)Info.m_vClients.size() < MAX_CLIENTS && !Up.Error(); i++)
 	{
-		CServerInfo::CClient *pClient = &Info.m_aClients[Info.m_NumReceivedClients];
-		GET_STRING(pClient->m_aName);
+		CServerInfo::CClient Client = {};
+		GET_STRING(Client.m_aName);
 		if(Up.Error())
 		{
 			// Packet end, no problem unless it happens during one
@@ -1526,14 +1526,14 @@ void CClient::ProcessServerInfo(int RawType, NETADDR *pFrom, const void *pData, 
 			IgnoreError = true;
 			break;
 		}
-		GET_STRING(pClient->m_aClan);
-		GET_INT(pClient->m_Country);
-		if(!in_range(pClient->m_Country, CountryCode::MINIMUM, CountryCode::MAXIMUM))
+		GET_STRING(Client.m_aClan);
+		GET_INT(Client.m_Country);
+		if(!in_range(Client.m_Country, CountryCode::MINIMUM, CountryCode::MAXIMUM))
 		{
-			pClient->m_Country = CountryCode::DEFAULT;
+			Client.m_Country = CountryCode::DEFAULT;
 		}
-		GET_INT(pClient->m_Score);
-		GET_INT(pClient->m_Player);
+		GET_INT(Client.m_Score);
+		GET_INT(Client.m_Player);
 		if(SavedType == SERVERINFO_EXTENDED)
 		{
 			Up.GetString(); // extra info, reserved
@@ -1546,12 +1546,12 @@ void CClient::ProcessServerInfo(int RawType, NETADDR *pFrom, const void *pData, 
 				if(!(Info.m_ReceivedPackets & Flag))
 				{
 					Info.m_ReceivedPackets |= Flag;
-					Info.m_NumReceivedClients++;
+					Info.m_vClients.push_back(Client);
 				}
 			}
 			else
 			{
-				Info.m_NumReceivedClients++;
+				Info.m_vClients.push_back(Client);
 			}
 		}
 	}
@@ -1801,7 +1801,7 @@ void CClient::ProcessServerPacket(CNetChunk *pPacket, int Conn, bool Dummy)
 				{
 					char aUrl[256];
 					char aEscaped[256];
-					EscapeUrl(aEscaped, m_aMapdownloadFilename + 15); // cut off downloadedmaps/
+					EscapeUrl(aEscaped, str_startswith(m_aMapdownloadFilename, "downloadedmaps/"));
 					bool UseConfigUrl = str_comp(g_Config.m_ClMapDownloadUrl, "https://maps.ddnet.org") != 0 || m_aMapDownloadUrl[0] == '\0';
 					str_format(aUrl, sizeof(aUrl), "%s/%s", UseConfigUrl ? g_Config.m_ClMapDownloadUrl : m_aMapDownloadUrl, aEscaped);
 
@@ -2783,8 +2783,8 @@ void CClient::PumpNetwork()
 		{
 			if(Packet.m_ClientId == -1)
 			{
-				if(ResponseToken != NET_SECURITY_TOKEN_UNKNOWN)
-					PreprocessConnlessPacket7(&Packet);
+				if(ResponseToken != NET_SECURITY_TOKEN_UNKNOWN && !PreprocessConnlessPacket7(&Packet))
+					continue;
 
 				ProcessConnlessPacket(&Packet);
 				continue;
@@ -5397,7 +5397,7 @@ void CClient::RequestDDNetInfo()
 	if(g_Config.m_BrIndicateFinished)
 	{
 		char aEscaped[128];
-		EscapeUrl(aEscaped, sizeof(aEscaped), PlayerName());
+		EscapeUrl(aEscaped, PlayerName());
 		str_append(aUrl, "?name=");
 		str_append(aUrl, aEscaped);
 	}

@@ -630,8 +630,7 @@ void CMenus::RenderServerInfo(CUIRect MainView)
 	const float FontSizeTitle = 32.0f;
 	const float FontSizeBody = 20.0f;
 
-	CServerInfo CurrentServerInfo;
-	Client()->GetServerInfo(&CurrentServerInfo);
+	const CServerInfo &CurrentServerInfo = Client()->ServerInfo();
 
 	CUIRect ServerInfo, GameInfo, Motd;
 	MainView.Draw(ms_ColorTabbarActive, IGraphics::CORNER_B, 10.0f);
@@ -1636,7 +1635,7 @@ void CMenus::RenderIngameHint()
 		return;
 
 	float Width = 300 * Graphics()->ScreenAspect();
-	Graphics()->MapScreen(0, 0, Width, 300);
+	Graphics()->MapScreenToSize(Width, 300);
 	TextRender()->TextColor(1, 1, 1, 1);
 	TextRender()->Text(5, 280, 5, Localize("Menu opened. Press Esc key again to close menu."), -1.0f);
 	Ui()->MapScreen();

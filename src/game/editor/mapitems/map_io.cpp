@@ -274,15 +274,15 @@ bool CEditorMap::Save(const char *pFilename, const FErrorHandler &ErrorHandler)
 				// save auto mapper of each tile layer (not physics layer)
 				if(!Item.m_Flags)
 				{
-					CMapItemAutoMapperConfig ItemAutomapper;
+					CMapItemAutomapperConfig ItemAutomapper;
 					ItemAutomapper.m_Version = 1;
 					ItemAutomapper.m_GroupId = GroupCount;
 					ItemAutomapper.m_LayerId = GItem.m_NumLayers;
-					ItemAutomapper.m_AutomapperConfig = pLayerTiles->m_AutoMapperConfig;
+					ItemAutomapper.m_AutomapperConfig = pLayerTiles->m_AutomapperConfig;
 					ItemAutomapper.m_AutomapperSeed = pLayerTiles->m_Seed;
 					ItemAutomapper.m_Flags = 0;
-					if(pLayerTiles->m_AutoAutoMap)
-						ItemAutomapper.m_Flags |= CMapItemAutoMapperConfig::FLAG_AUTOMATIC;
+					if(pLayerTiles->m_AutoAutomapper)
+						ItemAutomapper.m_Flags |= CMapItemAutomapperConfig::FLAG_AUTOMATIC;
 
 					Writer.AddItem(MAPITEMTYPE_AUTOMAPPER_CONFIG, AutomapperCount, sizeof(ItemAutomapper), &ItemAutomapper);
 					AutomapperCount++;
@@ -488,7 +488,7 @@ bool CEditorMap::Load(const char *pFilename, int StorageType, const FErrorHandle
 		pMap->GetType(MAPITEMTYPE_INFO, &Start, &Num);
 		for(int i = Start; i < Start + Num; i++)
 		{
-			int ItemSize = pMap->GetItemSize(Start);
+			int ItemSize = pMap->GetItemSize(i);
 			int ItemId;
 			CMapItemInfoSettings *pItem = (CMapItemInfoSettings *)pMap->GetItem(i, nullptr, &ItemId);
 			if(!pItem || ItemId != 0)
@@ -588,19 +588,31 @@ bool CEditorMap::Load(const char *pFilename, int StorageType, const FErrorHandle
 				pImg->m_Width = pItem->m_Width;
 				pImg->m_Height = pItem->m_Height;
 				pImg->m_Format = CImageInfo::FORMAT_RGBA;
-				pImg->Allocate();
 
-				// copy image data
-				void *pData = pMap->GetData(pItem->m_ImageData);
-				mem_copy(pImg->m_pData, pData, pImg->DataSize());
-				int TextureLoadFlag = m_pEditor->Graphics()->TextureLoadFlags();
-				if(pImg->m_Width % 16 != 0 || pImg->m_Height % 16 != 0)
-					TextureLoadFlag = 0;
-				pImg->m_Texture = m_pEditor->Graphics()->LoadTextureRaw(*pImg, TextureLoadFlag, pImg->m_aName);
+				const void *pData = pMap->GetData(pItem->m_ImageData);
+				if(pItem->m_Width <= 0 || pItem->m_Height <= 0 || pData == nullptr || (size_t)pMap->GetDataSize(pItem->m_ImageData) < pImg->DataSize())
+				{
+					pImg->m_Width = 0;
+					pImg->m_Height = 0;
+					char aBuf[128];
+					str_format(aBuf, sizeof(aBuf), "Error: Failed to load data of image %d '%s'.", i, pImg->m_aName);
+					ErrorHandler(aBuf);
+				}
+				else
+				{
+					pImg->Allocate();
+
+					// copy image data
+					mem_copy(pImg->m_pData, pData, pImg->DataSize());
+					int TextureLoadFlag = m_pEditor->Graphics()->TextureLoadFlags();
+					if(pImg->m_Width % 16 != 0 || pImg->m_Height % 16 != 0)
+						TextureLoadFlag = 0;
+					pImg->m_Texture = m_pEditor->Graphics()->LoadTextureRaw(*pImg, TextureLoadFlag, pImg->m_aName);
+				}
 			}
 
 			// load auto mapper file
-			pImg->m_AutoMapper.Load(pImg->m_aName);
+			pImg->m_Automapper.Load(pImg->m_aName);
 
 			m_vpImages.push_back(pImg);
 
@@ -780,7 +792,6 @@ bool CEditorMap::Load(const char *pFilename, int StorageType, const FErrorHandle
 
 					pGroup->AddLayer(pTiles);
 					pTiles->m_Image = pTilemapItem->m_Image;
-					pTiles->m_HasGame = pTilemapItem->m_Flags & TILESLAYERFLAG_GAME;
 
 					// validate image index
 					if(pTiles->m_Image < -1 || pTiles->m_Image >= (int)m_vpImages.size())
@@ -947,9 +958,18 @@ bool CEditorMap::Load(const char *pFilename, int StorageType, const FErrorHandle
 
 					if(pQuadsItem->m_NumQuads > 0)
 					{
-						void *pData = pMap->GetDataSwapped(pQuadsItem->m_Data);
-						pQuads->m_vQuads.resize(pQuadsItem->m_NumQuads);
-						mem_copy(pQuads->m_vQuads.data(), pData, sizeof(CQuad) * pQuadsItem->m_NumQuads);
+						const void *pData = pMap->GetDataSwapped(pQuadsItem->m_Data);
+						if(pData != nullptr && (size_t)pMap->GetDataSize(pQuadsItem->m_Data) >= sizeof(CQuad) * (size_t)pQuadsItem->m_NumQuads)
+						{
+							pQuads->m_vQuads.resize(pQuadsItem->m_NumQuads);
+							mem_copy(pQuads->m_vQuads.data(), pData, sizeof(CQuad) * pQuadsItem->m_NumQuads);
+						}
+						else
+						{
+							char aBuf[128];
+							str_format(aBuf, sizeof(aBuf), "Error: Failed to read quads of layer %d.", l);
+							ErrorHandler(aBuf);
+						}
 						pMap->UnloadData(pQuadsItem->m_Data);
 					}
 
@@ -977,9 +997,18 @@ bool CEditorMap::Load(const char *pFilename, int StorageType, const FErrorHandle
 					// load data
 					if(pSoundsItem->m_NumSources > 0)
 					{
-						void *pData = pMap->GetDataSwapped(pSoundsItem->m_Data);
-						pSounds->m_vSources.resize(pSoundsItem->m_NumSources);
-						mem_copy(pSounds->m_vSources.data(), pData, sizeof(CSoundSource) * pSoundsItem->m_NumSources);
+						const void *pData = pMap->GetDataSwapped(pSoundsItem->m_Data);
+						if(pData != nullptr && (size_t)pMap->GetDataSize(pSoundsItem->m_Data) >= sizeof(CSoundSource) * (size_t)pSoundsItem->m_NumSources)
+						{
+							pSounds->m_vSources.resize(pSoundsItem->m_NumSources);
+							mem_copy(pSounds->m_vSources.data(), pData, sizeof(CSoundSource) * pSoundsItem->m_NumSources);
+						}
+						else
+						{
+							char aBuf[128];
+							str_format(aBuf, sizeof(aBuf), "Error: Failed to read sound sources of layer %d.", l);
+							ErrorHandler(aBuf);
+						}
 						pMap->UnloadData(pSoundsItem->m_Data);
 					}
 
@@ -1005,32 +1034,45 @@ bool CEditorMap::Load(const char *pFilename, int StorageType, const FErrorHandle
 					// load layer name
 					IntsToStr(pSoundsItem->m_aName, std::size(pSoundsItem->m_aName), pSounds->m_aName, std::size(pSounds->m_aName));
 
-					// load data
-					CSoundSourceDeprecated *pData = (CSoundSourceDeprecated *)pMap->GetDataSwapped(pSoundsItem->m_Data);
 					pGroup->AddLayer(pSounds);
-					pSounds->m_vSources.resize(pSoundsItem->m_NumSources);
 
-					for(int i = 0; i < pSoundsItem->m_NumSources; i++)
+					// load data
+					if(pSoundsItem->m_NumSources > 0)
 					{
-						CSoundSourceDeprecated *pOldSource = &pData[i];
+						const CSoundSourceDeprecated *pData = (const CSoundSourceDeprecated *)pMap->GetDataSwapped(pSoundsItem->m_Data);
+						if(pData == nullptr || (size_t)pMap->GetDataSize(pSoundsItem->m_Data) < sizeof(CSoundSourceDeprecated) * (size_t)pSoundsItem->m_NumSources)
+						{
+							char aBuf[128];
+							str_format(aBuf, sizeof(aBuf), "Error: Failed to read sound sources of layer %d.", l);
+							ErrorHandler(aBuf);
+						}
+						else
+						{
+							pSounds->m_vSources.resize(pSoundsItem->m_NumSources);
 
-						CSoundSource &Source = pSounds->m_vSources[i];
-						Source.m_Position = pOldSource->m_Position;
-						Source.m_Loop = pOldSource->m_Loop;
-						Source.m_Pan = true;
-						Source.m_TimeDelay = pOldSource->m_TimeDelay;
-						Source.m_Falloff = 0;
+							for(int i = 0; i < pSoundsItem->m_NumSources; i++)
+							{
+								const CSoundSourceDeprecated *pOldSource = &pData[i];
 
-						Source.m_PosEnv = pOldSource->m_PosEnv;
-						Source.m_PosEnvOffset = pOldSource->m_PosEnvOffset;
-						Source.m_SoundEnv = pOldSource->m_SoundEnv;
-						Source.m_SoundEnvOffset = pOldSource->m_SoundEnvOffset;
+								CSoundSource &Source = pSounds->m_vSources[i];
+								Source.m_Position = pOldSource->m_Position;
+								Source.m_Loop = pOldSource->m_Loop;
+								Source.m_Pan = true;
+								Source.m_TimeDelay = pOldSource->m_TimeDelay;
+								Source.m_Falloff = 0;
 
-						Source.m_Shape.m_Type = CSoundShape::SHAPE_CIRCLE;
-						Source.m_Shape.m_Circle.m_Radius = pOldSource->m_FalloffDistance;
+								Source.m_PosEnv = pOldSource->m_PosEnv;
+								Source.m_PosEnvOffset = pOldSource->m_PosEnvOffset;
+								Source.m_SoundEnv = pOldSource->m_SoundEnv;
+								Source.m_SoundEnvOffset = pOldSource->m_SoundEnvOffset;
+
+								Source.m_Shape.m_Type = CSoundShape::SHAPE_CIRCLE;
+								Source.m_Shape.m_Circle.m_Radius = pOldSource->m_FalloffDistance;
+							}
+						}
+
+						pMap->UnloadData(pSoundsItem->m_Data);
 					}
-
-					pMap->UnloadData(pSoundsItem->m_Data);
 				}
 			}
 		}
@@ -1083,7 +1125,7 @@ bool CEditorMap::Load(const char *pFilename, int StorageType, const FErrorHandle
 		pMap->GetType(MAPITEMTYPE_AUTOMAPPER_CONFIG, &AutomapperConfigStart, &AutomapperConfigNum);
 		for(int i = 0; i < AutomapperConfigNum; i++)
 		{
-			CMapItemAutoMapperConfig *pItem = (CMapItemAutoMapperConfig *)pMap->GetItem(AutomapperConfigStart + i);
+			CMapItemAutomapperConfig *pItem = (CMapItemAutomapperConfig *)pMap->GetItem(AutomapperConfigStart + i);
 			if(pItem->m_Version == 1)
 			{
 				if(pItem->m_GroupId >= 0 && (size_t)pItem->m_GroupId < m_vpGroups.size() &&
@@ -1097,9 +1139,9 @@ bool CEditorMap::Load(const char *pFilename, int StorageType, const FErrorHandle
 						if(!(pTiles->m_HasGame || pTiles->m_HasTele || pTiles->m_HasSpeedup ||
 							   pTiles->m_HasFront || pTiles->m_HasSwitch || pTiles->m_HasTune))
 						{
-							pTiles->m_AutoMapperConfig = pItem->m_AutomapperConfig;
+							pTiles->m_AutomapperConfig = pItem->m_AutomapperConfig;
 							pTiles->m_Seed = pItem->m_AutomapperSeed;
-							pTiles->m_AutoAutoMap = !!(pItem->m_Flags & CMapItemAutoMapperConfig::FLAG_AUTOMATIC);
+							pTiles->m_AutoAutomapper = !!(pItem->m_Flags & CMapItemAutomapperConfig::FLAG_AUTOMATIC);
 						}
 					}
 				}

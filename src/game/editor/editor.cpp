@@ -379,10 +379,10 @@ void CEditor::DoToolbarLayers(CUIRect ToolBar)
 		// detail button
 		ToolbarTop.VSplitLeft(40.0f, &Button, &ToolbarTop);
 		static int s_HqButton = 0;
-		if(DoButton_Editor(&s_HqButton, "HD", m_ShowDetail, &Button, BUTTONFLAG_LEFT, "[Ctrl+H] Toggle high detail.") ||
+		if(DoButton_Editor(&s_HqButton, "HD", Map()->m_ShowDetail, &Button, BUTTONFLAG_LEFT, "[Ctrl+H] Toggle high detail.") ||
 			(m_Dialog == DIALOG_NONE && CLineInput::GetActiveInput() == nullptr && Input()->KeyPress(KEY_H) && ModPressed))
 		{
-			m_ShowDetail = !m_ShowDetail;
+			Map()->m_ShowDetail = !Map()->m_ShowDetail;
 		}
 
 		ToolbarTop.VSplitLeft(5.0f, nullptr, &ToolbarTop);
@@ -437,9 +437,9 @@ void CEditor::DoToolbarLayers(CUIRect ToolBar)
 		// zoom button
 		ToolbarTop.VSplitLeft(40.0f, &Button, &ToolbarTop);
 		static int s_ZoomButton = 0;
-		if(DoButton_Editor(&s_ZoomButton, "Zoom", m_PreviewZoom, &Button, BUTTONFLAG_LEFT, "Toggle preview of how layers will be zoomed ingame."))
+		if(DoButton_Editor(&s_ZoomButton, "Zoom", Map()->m_PreviewZoom, &Button, BUTTONFLAG_LEFT, "Toggle preview of how layers will be zoomed ingame."))
 		{
-			m_PreviewZoom = !m_PreviewZoom;
+			Map()->m_PreviewZoom = !Map()->m_PreviewZoom;
 		}
 
 		ToolbarTop.VSplitLeft(5.0f, nullptr, &ToolbarTop);
@@ -2222,7 +2222,6 @@ bool CEditor::IsAllowPlaceUnusedTiles() const
 
 void CEditor::CRenderLayersState::Reset()
 {
-	m_ScrollRegion.Reset();
 	m_Operation = ELayerOperation::NONE;
 	m_PreviousOperation = ELayerOperation::NONE;
 	m_pDraggedButton = nullptr;
@@ -2243,11 +2242,12 @@ void CEditor::RenderLayers(CUIRect LayersBox)
 
 	CUIRect UnscrolledLayersBox = LayersBox;
 
+	CScrollRegion &ScrollRegion = Map()->m_EditorUiElements.m_LayersScrollRegion;
 	CScrollRegionParams ScrollParams;
 	ScrollParams.m_ScrollbarThickness = 10.0f;
 	ScrollParams.m_ScrollbarMargin = 3.0f;
 	ScrollParams.m_ScrollUnit = RowHeight * 5.0f;
-	State.m_ScrollRegion.Begin(&LayersBox, &ScrollParams);
+	ScrollRegion.Begin(&LayersBox, &ScrollParams);
 
 	constexpr float MinDragDistance = 5.0f;
 	int GroupAfterDraggedLayer = -1;
@@ -2325,7 +2325,7 @@ void CEditor::RenderLayers(CUIRect LayersBox)
 
 			CUIRect Slot;
 			LayersBox.HSplitTop(Map()->m_vSelectedLayers.size() * (RowHeight + 2.0f), &Slot, &LayersBox);
-			State.m_ScrollRegion.AddRect(Slot);
+			ScrollRegion.AddRect(Slot);
 		}
 
 		CUIRect Slot, VisibleToggle;
@@ -2346,7 +2346,7 @@ void CEditor::RenderLayers(CUIRect LayersBox)
 					LayersBox.HSplitTop(RowHeight + 7.0f, &TmpSlot, &LayersBox);
 				else
 					LayersBox.HSplitTop(vButtonsPerGroup[Map()->m_SelectedGroup] * (RowHeight + 2.0f) + 5.0f, &TmpSlot, &LayersBox);
-				State.m_ScrollRegion.AddRect(TmpSlot, false);
+				ScrollRegion.AddRect(TmpSlot, false);
 			}
 		}
 		if(State.m_Operation != ELayerOperation::GROUP_DRAG || g != Map()->m_SelectedGroup)
@@ -2355,10 +2355,10 @@ void CEditor::RenderLayers(CUIRect LayersBox)
 
 			CUIRect TmpRect;
 			LayersBox.HSplitTop(2.0f, &TmpRect, &LayersBox);
-			State.m_ScrollRegion.AddRect(TmpRect);
+			ScrollRegion.AddRect(TmpRect);
 		}
 
-		if(State.m_ScrollRegion.AddRect(Slot))
+		if(ScrollRegion.AddRect(Slot))
 		{
 			Slot.VSplitLeft(15.0f, &VisibleToggle, &Slot);
 
@@ -2499,18 +2499,18 @@ void CEditor::RenderLayers(CUIRect LayersBox)
 						for(size_t j = 0; j < Map()->m_vSelectedLayers.size(); j++)
 						{
 							LayersBox.HSplitTop(RowHeight + 2.0f, nullptr, &LayersBox);
-							State.m_ScrollRegion.AddRect(Slot);
+							ScrollRegion.AddRect(Slot);
 						}
 					}
 					LayersBox.HSplitTop(RowHeight + 2.0f, &Slot, &LayersBox);
-					if(!State.m_ScrollRegion.AddRect(Slot, ScrollToSelection && IsLayerSelected))
+					if(!ScrollRegion.AddRect(Slot, ScrollToSelection && IsLayerSelected))
 						continue;
 				}
 			}
 			else
 			{
 				LayersBox.HSplitTop(RowHeight + 2.0f, &Slot, &LayersBox);
-				if(!State.m_ScrollRegion.AddRect(Slot, ScrollToSelection && IsLayerSelected))
+				if(!ScrollRegion.AddRect(Slot, ScrollToSelection && IsLayerSelected))
 					continue;
 			}
 
@@ -2700,7 +2700,7 @@ void CEditor::RenderLayers(CUIRect LayersBox)
 		if(State.m_Operation != ELayerOperation::GROUP_DRAG || g != Map()->m_SelectedGroup)
 		{
 			LayersBox.HSplitTop(5.0f, &Slot, &LayersBox);
-			State.m_ScrollRegion.AddRect(Slot);
+			ScrollRegion.AddRect(Slot);
 		}
 	}
 
@@ -2711,7 +2711,7 @@ void CEditor::RenderLayers(CUIRect LayersBox)
 
 		CUIRect TmpSlot;
 		LayersBox.HSplitTop(Map()->m_vSelectedLayers.size() * (RowHeight + 2.0f), &TmpSlot, &LayersBox);
-		State.m_ScrollRegion.AddRect(TmpSlot);
+		ScrollRegion.AddRect(TmpSlot);
 	}
 
 	if(!DraggedPositionFound && State.m_Operation == ELayerOperation::GROUP_DRAG)
@@ -2723,7 +2723,7 @@ void CEditor::RenderLayers(CUIRect LayersBox)
 			LayersBox.HSplitTop(RowHeight + 7.0f, &TmpSlot, &LayersBox);
 		else
 			LayersBox.HSplitTop(vButtonsPerGroup[Map()->m_SelectedGroup] * (RowHeight + 2.0f) + 5.0f, &TmpSlot, &LayersBox);
-		State.m_ScrollRegion.AddRect(TmpSlot, false);
+		ScrollRegion.AddRect(TmpSlot, false);
 	}
 
 	if(MoveLayers && 1 <= GroupAfterDraggedLayer && GroupAfterDraggedLayer <= (int)Map()->m_vpGroups.size())
@@ -2803,7 +2803,7 @@ void CEditor::RenderLayers(CUIRect LayersBox)
 		}
 		else
 		{
-			State.m_ScrollRegion.DoEdgeScrolling();
+			ScrollRegion.DoEdgeScrolling();
 			Ui()->SetActiveItem(State.m_pDraggedButton);
 		}
 	}
@@ -2838,7 +2838,7 @@ void CEditor::RenderLayers(CUIRect LayersBox)
 
 	CUIRect AddGroupButton, CollapseAllButton;
 	LayersBox.HSplitTop(RowHeight + 1.0f, &AddGroupButton, &LayersBox);
-	if(State.m_ScrollRegion.AddRect(AddGroupButton))
+	if(ScrollRegion.AddRect(AddGroupButton))
 	{
 		AddGroupButton.HSplitTop(RowHeight, &AddGroupButton, nullptr);
 		if(DoButton_Editor(&State.m_AddGroupButtonId, m_QuickActionAddGroup.Label(), 0, &AddGroupButton, BUTTONFLAG_LEFT, m_QuickActionAddGroup.Description()))
@@ -2849,7 +2849,7 @@ void CEditor::RenderLayers(CUIRect LayersBox)
 
 	LayersBox.HSplitTop(5.0f, nullptr, &LayersBox);
 	LayersBox.HSplitTop(RowHeight + 1.0f, &CollapseAllButton, &LayersBox);
-	if(State.m_ScrollRegion.AddRect(CollapseAllButton))
+	if(ScrollRegion.AddRect(CollapseAllButton))
 	{
 		size_t TotalCollapsed = 0;
 		for(const auto &pGroup : Map()->m_vpGroups)
@@ -2875,7 +2875,7 @@ void CEditor::RenderLayers(CUIRect LayersBox)
 		}
 	}
 
-	State.m_ScrollRegion.End();
+	ScrollRegion.End();
 
 	if(State.m_Operation == ELayerOperation::NONE)
 	{
@@ -2941,7 +2941,7 @@ bool CEditor::ReplaceImage(const char *pFilename, int StorageType, bool CheckDup
 	ConvertToRgba(*pImg);
 	DilateImage(*pImg);
 
-	pImg->m_AutoMapper.Load(pImg->m_aName);
+	pImg->m_Automapper.Load(pImg->m_aName);
 	int TextureLoadFlag = Graphics()->TextureLoadFlags();
 	if(pImg->m_Width % 16 != 0 || pImg->m_Height % 16 != 0)
 		TextureLoadFlag = 0;
@@ -3001,7 +3001,7 @@ bool CEditor::AddImage(const char *pFilename, int StorageType, void *pUser)
 		TextureLoadFlag = 0;
 	pImg->m_Texture = pEditor->Graphics()->LoadTextureRaw(*pImg, TextureLoadFlag, pFilename);
 	str_copy(pImg->m_aName, aBuf);
-	pImg->m_AutoMapper.Load(pImg->m_aName);
+	pImg->m_Automapper.Load(pImg->m_aName);
 	pEditor->Map()->m_vpImages.push_back(pImg);
 	pEditor->Map()->SortImages();
 	pEditor->Map()->SelectImage(pImg);
@@ -3129,12 +3129,12 @@ void CEditor::RenderImagesList(CUIRect ToolBox)
 {
 	const float RowHeight = 12.0f;
 
-	static CScrollRegion s_ScrollRegion;
+	CScrollRegion &ScrollRegion = Map()->m_EditorUiElements.m_ImagesScrollRegion;
 	CScrollRegionParams ScrollParams;
 	ScrollParams.m_ScrollbarThickness = 10.0f;
 	ScrollParams.m_ScrollbarMargin = 3.0f;
 	ScrollParams.m_ScrollUnit = RowHeight * 5;
-	s_ScrollRegion.Begin(&ToolBox, &ScrollParams);
+	ScrollRegion.Begin(&ToolBox, &ScrollParams);
 
 	bool ScrollToSelection = false;
 	if(m_Dialog == DIALOG_NONE && CLineInput::GetActiveInput() == nullptr && !Map()->m_vpImages.empty())
@@ -3157,7 +3157,7 @@ void CEditor::RenderImagesList(CUIRect ToolBox)
 	{
 		CUIRect Slot;
 		ToolBox.HSplitTop(RowHeight + 3.0f, &Slot, &ToolBox);
-		if(s_ScrollRegion.AddRect(Slot))
+		if(ScrollRegion.AddRect(Slot))
 			Ui()->DoLabel(&Slot, e == 0 ? "Embedded" : "External", 12.0f, TEXTALIGN_MC);
 
 		for(int i = 0; i < (int)Map()->m_vpImages.size(); i++)
@@ -3170,7 +3170,7 @@ void CEditor::RenderImagesList(CUIRect ToolBox)
 
 			ToolBox.HSplitTop(RowHeight + 2.0f, &Slot, &ToolBox);
 			int Selected = Map()->m_SelectedImage == i;
-			if(!s_ScrollRegion.AddRect(Slot, Selected && ScrollToSelection))
+			if(!ScrollRegion.AddRect(Slot, Selected && ScrollToSelection))
 				continue;
 			Slot.HSplitTop(RowHeight, &Slot, nullptr);
 
@@ -3211,7 +3211,7 @@ void CEditor::RenderImagesList(CUIRect ToolBox)
 
 		// separator
 		ToolBox.HSplitTop(5.0f, &Slot, &ToolBox);
-		if(s_ScrollRegion.AddRect(Slot))
+		if(ScrollRegion.AddRect(Slot))
 		{
 			IGraphics::CLineItem LineItem(Slot.x, Slot.y + Slot.h / 2, Slot.x + Slot.w, Slot.y + Slot.h / 2);
 			Graphics()->TextureClear();
@@ -3225,14 +3225,14 @@ void CEditor::RenderImagesList(CUIRect ToolBox)
 	static int s_AddImageButton = 0;
 	CUIRect AddImageButton;
 	ToolBox.HSplitTop(5.0f + RowHeight + 1.0f, &AddImageButton, &ToolBox);
-	if(s_ScrollRegion.AddRect(AddImageButton))
+	if(ScrollRegion.AddRect(AddImageButton))
 	{
 		AddImageButton.HSplitTop(5.0f, nullptr, &AddImageButton);
 		AddImageButton.HSplitTop(RowHeight, &AddImageButton, nullptr);
 		if(DoButton_Editor(&s_AddImageButton, m_QuickActionAddImage.Label(), 0, &AddImageButton, BUTTONFLAG_LEFT, m_QuickActionAddImage.Description()))
 			m_QuickActionAddImage.Call();
 	}
-	s_ScrollRegion.End();
+	ScrollRegion.End();
 }
 
 void CEditor::RenderSelectedImage(CUIRect View) const
@@ -3262,12 +3262,12 @@ void CEditor::RenderSounds(CUIRect ToolBox)
 {
 	const float RowHeight = 12.0f;
 
-	static CScrollRegion s_ScrollRegion;
+	CScrollRegion &ScrollRegion = Map()->m_EditorUiElements.m_SoundsScrollRegion;
 	CScrollRegionParams ScrollParams;
 	ScrollParams.m_ScrollbarThickness = 10.0f;
 	ScrollParams.m_ScrollbarMargin = 3.0f;
 	ScrollParams.m_ScrollUnit = RowHeight * 5;
-	s_ScrollRegion.Begin(&ToolBox, &ScrollParams);
+	ScrollRegion.Begin(&ToolBox, &ScrollParams);
 
 	bool ScrollToSelection = false;
 	if(m_Dialog == DIALOG_NONE && CLineInput::GetActiveInput() == nullptr && !Map()->m_vpSounds.empty())
@@ -3286,14 +3286,14 @@ void CEditor::RenderSounds(CUIRect ToolBox)
 
 	CUIRect Slot;
 	ToolBox.HSplitTop(RowHeight + 3.0f, &Slot, &ToolBox);
-	if(s_ScrollRegion.AddRect(Slot))
+	if(ScrollRegion.AddRect(Slot))
 		Ui()->DoLabel(&Slot, "Embedded", 12.0f, TEXTALIGN_MC);
 
 	for(int i = 0; i < (int)Map()->m_vpSounds.size(); i++)
 	{
 		ToolBox.HSplitTop(RowHeight + 2.0f, &Slot, &ToolBox);
 		int Selected = Map()->m_SelectedSound == i;
-		if(!s_ScrollRegion.AddRect(Slot, Selected && ScrollToSelection))
+		if(!ScrollRegion.AddRect(Slot, Selected && ScrollToSelection))
 			continue;
 		Slot.HSplitTop(RowHeight, &Slot, nullptr);
 
@@ -3323,7 +3323,7 @@ void CEditor::RenderSounds(CUIRect ToolBox)
 
 	// separator
 	ToolBox.HSplitTop(5.0f, &Slot, &ToolBox);
-	if(s_ScrollRegion.AddRect(Slot))
+	if(ScrollRegion.AddRect(Slot))
 	{
 		IGraphics::CLineItem LineItem(Slot.x, Slot.y + Slot.h / 2, Slot.x + Slot.w, Slot.y + Slot.h / 2);
 		Graphics()->TextureClear();
@@ -3336,14 +3336,14 @@ void CEditor::RenderSounds(CUIRect ToolBox)
 	static int s_AddSoundButton = 0;
 	CUIRect AddSoundButton;
 	ToolBox.HSplitTop(5.0f + RowHeight + 1.0f, &AddSoundButton, &ToolBox);
-	if(s_ScrollRegion.AddRect(AddSoundButton))
+	if(ScrollRegion.AddRect(AddSoundButton))
 	{
 		AddSoundButton.HSplitTop(5.0f, nullptr, &AddSoundButton);
 		AddSoundButton.HSplitTop(RowHeight, &AddSoundButton, nullptr);
 		if(DoButton_Editor(&s_AddSoundButton, "Add sound", 0, &AddSoundButton, BUTTONFLAG_LEFT, "Load a new sound to use in the map."))
 			m_FileBrowser.ShowFileDialog(IStorage::TYPE_ALL, CFileBrowser::EFileType::SOUND, "Add sound", "Add", "mapres", "", AddSound, this);
 	}
-	s_ScrollRegion.End();
+	ScrollRegion.End();
 }
 
 bool CEditor::CStringKeyComparator::operator()(const char *pLhs, const char *pRhs) const
@@ -3857,7 +3857,7 @@ void CEditor::Render()
 			static bool s_ShowServerSettingsEditorLast = false;
 			if(m_ActiveExtraEditor == EXTRAEDITOR_ENVELOPES)
 			{
-				RenderEnvelopeEditor(ExtraEditor);
+				m_EnvelopeEditor.Render(ExtraEditor);
 			}
 			else if(m_ActiveExtraEditor == EXTRAEDITOR_SERVER_SETTINGS)
 			{
@@ -4228,13 +4228,12 @@ void CEditor::RenderIngameEntities(const CLayerGroup &Group, const CLayerTiles &
 	const ColorRGBA DoorOuterColor = color_cast<ColorRGBA>(ColorHSLA(g_Config.m_ClLaserDoorOutlineColor));
 	const ColorRGBA DoorInnerColor = color_cast<ColorRGBA>(ColorHSLA(g_Config.m_ClLaserDoorInnerColor));
 
-	float aPoints[4];
-	Group.Mapping(aPoints);
+	CScreenRect ScreenRect = Group.Mapping();
 	const int ExtraBorder = 9; // doors extend beyond the tile on which they are placed
-	const int StartX = std::max(0, (int)std::floor(aPoints[0] / TileSize) - ExtraBorder);
-	const int EndX = std::min(TilesLayer.m_Width, (int)std::ceil(aPoints[2] / TileSize) + ExtraBorder);
-	const int StartY = std::max(0, (int)std::floor(aPoints[1] / TileSize) - ExtraBorder);
-	const int EndY = std::min(TilesLayer.m_Height, (int)std::ceil(aPoints[3] / TileSize) + ExtraBorder);
+	const int StartX = std::max(0, (int)std::floor(ScreenRect.m_TopLeft.x / TileSize) - ExtraBorder);
+	const int EndX = std::min(TilesLayer.m_Width, (int)std::ceil(ScreenRect.m_BottomRight.x / TileSize) + ExtraBorder);
+	const int StartY = std::max(0, (int)std::floor(ScreenRect.m_TopLeft.y / TileSize) - ExtraBorder);
+	const int EndY = std::min(TilesLayer.m_Height, (int)std::ceil(ScreenRect.m_BottomRight.y / TileSize) + ExtraBorder);
 	for(int y = StartY; y < EndY; y++)
 	{
 		for(int x = StartX; x < EndX; x++)
@@ -4410,9 +4409,6 @@ void CEditor::Reset(bool CreateDefault)
 	m_ActiveEnvelopePreview = EEnvelopePreview::NONE;
 	m_QuadEnvelopePointOperation = EQuadEnvelopePointOperation::NONE;
 
-	m_ResetZoomEnvelope = true;
-	m_SettingsCommandInput.Clear();
-	m_MapSettingsCommandContext.Reset();
 	m_RenderLayersState.Reset();
 }
 
@@ -4477,10 +4473,9 @@ void CEditor::Init()
 		OnInput(Event);
 	});
 	m_RenderMap.Init(m_pGraphics, m_pTextRender);
-	m_ZoomEnvelopeX.OnInit(this);
-	m_ZoomEnvelopeY.OnInit(this);
 
 	m_vComponents.emplace_back(m_MapView);
+	m_vComponents.emplace_back(m_EnvelopeEditor);
 	m_vComponents.emplace_back(m_MapSettingsBackend);
 	m_vComponents.emplace_back(m_LayerSelector);
 	m_vComponents.emplace_back(m_FileBrowser);
@@ -4495,15 +4490,18 @@ void CEditor::Init()
 	m_aCursorTextures[CURSOR_RESIZE_H] = Graphics()->LoadTexture("editor/cursor_resize.png", IStorage::TYPE_ALL);
 	m_aCursorTextures[CURSOR_RESIZE_V] = m_aCursorTextures[CURSOR_RESIZE_H];
 
-	m_pTilesetPicker = std::make_shared<CLayerTiles>(Map(), 16, 16);
+	m_pToolsMap = std::make_unique<CEditorMap>(this);
+
+	m_pTilesetPicker = std::make_shared<CLayerTiles>(m_pToolsMap.get(), 16, 16);
 	m_pTilesetPicker->MakePalette();
 	m_pTilesetPicker->m_Readonly = true;
+	m_pTilesetPicker->m_RenderOverlays = false;
 
-	m_pQuadsetPicker = std::make_shared<CLayerQuads>(Map());
+	m_pQuadsetPicker = std::make_shared<CLayerQuads>(m_pToolsMap.get());
 	m_pQuadsetPicker->NewQuad(0, 0, 64, 64);
 	m_pQuadsetPicker->m_Readonly = true;
 
-	m_pBrush = std::make_shared<CLayerGroup>(Map());
+	m_pBrush = std::make_shared<CLayerGroup>(m_pToolsMap.get());
 
 	Reset(false);
 }
@@ -4604,9 +4602,7 @@ void CEditor::HandleWriterFinishJobs()
 	// send rcon.. if we can
 	if(Client()->RconAuthed() && g_Config.m_EdAutoMapReload)
 	{
-		CServerInfo CurrentServerInfo;
-		Client()->GetServerInfo(&CurrentServerInfo);
-
+		const CServerInfo &CurrentServerInfo = Client()->ServerInfo();
 		if(net_addr_is_local(&Client()->ServerAddress()))
 		{
 			char aMapName[MAX_MAP_LENGTH];

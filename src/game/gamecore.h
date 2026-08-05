@@ -207,6 +207,8 @@ public:
 	void SetTime(double Time) { m_Time = Time; }
 };
 
+typedef std::function<void(int ClientId, bool DisallowReset)> FAntiPingInterfereCallback;
+
 class CCharacterCore
 {
 public: // KZ
@@ -304,11 +306,16 @@ public:
 	bool m_LiveFrozen;
 	CTuningParams m_Tuning;
 
+	// clientside only: antiping
+	void SetAntiPingInterfereCallback(FAntiPingInterfereCallback Callback);
+
 //private: // +KZ made public
 	CTeamsCore *m_pTeams;
 	int m_MoveRestrictions;
 	int m_HookedPlayer;
 	static bool IsSwitchActiveCb(unsigned char Number, void *pUser);
+
+	FAntiPingInterfereCallback m_AntiPingInterfereCallback = [](int ClientId, bool DisallowReset) {};
 
 	// +KZ
 	bool m_SendCoreThisTick = false;

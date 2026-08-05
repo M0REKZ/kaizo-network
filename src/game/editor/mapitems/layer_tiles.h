@@ -120,7 +120,7 @@ public:
 	virtual void Shift(EShiftDirection Direction);
 
 	void MakePalette() const;
-	void Render(bool Tileset = false) override;
+	void Render(const CEditorMap *pRenderMap) override;
 
 	int ConvertX(float x) const;
 	int ConvertY(float y) const;
@@ -191,10 +191,10 @@ public:
 
 	int m_FillGameTile = -1;
 	bool m_LiveGameTiles = false;
-	int m_AutoMapperConfig;
-	int m_AutoMapperReference;
+	int m_AutomapperConfig;
+	int m_AutomapperReference;
 	int m_Seed;
-	bool m_AutoAutoMap;
+	bool m_AutoAutomapper;
 	bool m_HasTele;
 	bool m_HasSpeedup;
 	bool m_HasFront;
@@ -202,6 +202,7 @@ public:
 	bool m_HasTune;
 	char m_aFilename[IO_MAX_PATH_LENGTH];
 	bool m_KnownTextModeLayer = false;
+	bool m_RenderOverlays = true;
 
 	// KZ
 	bool m_HasKZGame;
@@ -217,7 +218,7 @@ protected:
 
 	void ShowPreventUnusedTilesWarning();
 
-	friend class CAutoMapper;
+	friend class CAutomapper;
 };
 
 #endif
