@@ -121,7 +121,7 @@ MACRO_CONFIG_INT(KaizoDiscordRpc, kaizo_discord_rpc, 1, 0, 1, CFGFLAG_CLIENT | C
 MACRO_CONFIG_INT(KaizoDiscordLaunchSteam, kaizo_discord_launch_steam, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Tell Discord to launch DDNet from Steam when joining with a invite (requires restarting both Client and Discord)")
 
 //From TaterClient
-MACRO_CONFIG_STR(KaizoCustomCommunitiesUrl, kaizo_custom_communities_url, 256, "https://raw.githubusercontent.com/SollyBunny/ddnet-custom-communities/refs/heads/main/custom-communities-ddnet-info.json", CFGFLAG_CLIENT | CFGFLAG_SAVE, "URL to fetch custom communities from (must be https), empty to disable")
+MACRO_CONFIG_STR(KaizoCustomCommunitiesUrl, kaizo_custom_communities_url, 256, "https://raw.githubusercontent.com/TaterClient/ddnet-custom-communities/refs/heads/main/custom-communities-ddnet-info.json", CFGFLAG_CLIENT | CFGFLAG_SAVE, "URL to fetch custom communities from (must be https), empty to disable")
 MACRO_CONFIG_INT(KaizoAntiPingImproved, kaizo_antiping_improved, 1, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Different antiping smoothing algorithm, overrides cl_antiping_smooth")
 MACRO_CONFIG_INT(KaizoAntiPingNegativeBuffer, kaizo_antiping_negative_buffer, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Helps in Gores. Allows internal certainty value to be negative which causes more conservative prediction")
 MACRO_CONFIG_INT(KaizoAntiPingStableDirection, kaizo_antiping_stable_direction, 1, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Predicts optimistically along the tees stable axis to reduce delay in gaining overall stability")
