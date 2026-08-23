@@ -2450,8 +2450,8 @@ void CGameClient::OnNewSnapshot(bool DummySwapped)
 	//+KZ fake max zoom
 	if(g_KaizoConfig_KaizoFakeMaxZoom)
 	{
-		Zoom = std::numeric_limits<float>::max(); //is not that value high enough?
-		ShowDistanceZoom = std::numeric_limits<float>::max();
+		Zoom = std::numeric_limits<float>::max() - 1; //is not that value high enough?
+		ShowDistanceZoom = std::numeric_limits<float>::max() - 1;
 	}
 
 	// initialize dummy vital when first connected
@@ -2463,8 +2463,8 @@ void CGameClient::OnNewSnapshot(bool DummySwapped)
 			//+KZ fake max zoom
 			if(g_KaizoConfig_KaizoFakeMaxZoom)
 			{
-				x = std::numeric_limits<float>::max();
-				y = std::numeric_limits<float>::max();
+				x = std::numeric_limits<float>::max() - 1;
+				y = std::numeric_limits<float>::max() - 1;
 			}
 			else
 			{
@@ -2495,8 +2495,8 @@ void CGameClient::OnNewSnapshot(bool DummySwapped)
 		//+KZ fake max zoom
 		if(g_KaizoConfig_KaizoFakeMaxZoom)
 		{
-			x = std::numeric_limits<float>::max();
-			y = std::numeric_limits<float>::max();
+			x = std::numeric_limits<float>::max() - 1;
+			y = std::numeric_limits<float>::max() - 1;
 		}
 		else
 		{
