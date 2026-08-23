@@ -135,6 +135,14 @@ public:
 
 	bool m_PredictEvents;
 
+	bool m_OldLaser;
+
+	// zero if the server does not send them
+	int m_MinTeamSize;
+	int m_MaxTeamSize;
+
+	int m_NumDDRaceTeams;
+
 	int m_GameInfoFlagsKZ;
 	int m_GameInfoVersionKZ;
 };
@@ -711,7 +719,7 @@ public:
 	void SendInfo(bool Start);
 	void SendDummyInfo(bool Start) override;
 	void SendKill() const;
-	void SendReadyChange7();
+	void SendReadyChange7(); // NOLINT(readability-make-member-function-const)
 
 	void ApplyPreInputs(int Tick, bool Direct, CGameWorld &GameWorld);
 
@@ -735,6 +743,8 @@ public:
 	int CurrentRaceTime() const;
 
 	bool IsTeamPlay() const;
+	int MinTeamSize() const;
+	int MaxTeamSize() const;
 	bool IsWorldPaused() const;
 	bool IsDemoPlaybackPaused() const;
 	float GetAnimationPlaybackSpeed() const;

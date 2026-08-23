@@ -443,7 +443,7 @@ void IGameController::OnPlayerDisconnect(class CPlayer *pPlayer, const char *pRe
 			str_format(aBuf, sizeof(aBuf), "'%s' has left the game (%s)", Server()->ClientName(ClientId), pReason);
 		else
 			str_format(aBuf, sizeof(aBuf), "'%s' has left the game", Server()->ClientName(ClientId));
-		GameServer()->SendChat(-1, TEAM_ALL, aBuf, -1, CGameContext::FLAG_SIX);
+		GameServer()->SendChat(-1, TEAM_ALL, aBuf, -1);
 
 		str_format(aBuf, sizeof(aBuf), "leave player='%d:%s'", ClientId, Server()->ClientName(ClientId));
 		GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "game", aBuf);
@@ -654,10 +654,17 @@ void IGameController::Snap(int SnappingClient)
 		GAMEINFOFLAG_ENTITIES_DDRACE |
 		GAMEINFOFLAG_ENTITIES_RACE |
 		GAMEINFOFLAG_RACE;
-	GameInfoEx.m_Flags2 = GAMEINFOFLAG2_HUD_DDRACE | GAMEINFOFLAG2_DDRACE_TEAM | GAMEINFOFLAG2_PREDICT_EVENTS;
+	GameInfoEx.m_Flags2 = GAMEINFOFLAG2_HUD_DDRACE |
+			      GAMEINFOFLAG2_DDRACE_TEAM |
+			      GAMEINFOFLAG2_PREDICT_EVENTS;
 	if(g_Config.m_SvNoWeakHook)
 		GameInfoEx.m_Flags2 |= GAMEINFOFLAG2_NO_WEAK_HOOK;
+	if(g_Config.m_SvOldLaser)
+		GameInfoEx.m_Flags2 |= GAMEINFOFLAG2_OLD_LASER;
 	GameInfoEx.m_Version = GAMEINFO_CURVERSION;
+	GameInfoEx.m_MinTeamSize = g_Config.m_SvMinTeamSize;
+	GameInfoEx.m_MaxTeamSize = g_Config.m_SvMaxTeamSize;
+	GameInfoEx.m_NumDDRaceTeams = NUM_DDRACE_TEAMS;
 	Server()->SnapNewItem(0, GameInfoEx);
 
 	if(Server()->IsSixup(SnappingClient))

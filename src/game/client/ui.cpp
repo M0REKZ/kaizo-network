@@ -478,8 +478,8 @@ void CUi::ClipEnable(const CUIRect *pRect)
 		CUIRect Intersection;
 		Intersection.x = std::max(pRect->x, pOldRect->x);
 		Intersection.y = std::max(pRect->y, pOldRect->y);
-		Intersection.w = std::min(pRect->x + pRect->w, pOldRect->x + pOldRect->w) - pRect->x;
-		Intersection.h = std::min(pRect->y + pRect->h, pOldRect->y + pOldRect->h) - pRect->y;
+		Intersection.w = std::min(pRect->x + pRect->w, pOldRect->x + pOldRect->w) - Intersection.x;
+		Intersection.h = std::min(pRect->y + pRect->h, pOldRect->y + pOldRect->h) - Intersection.y;
 		m_vClips.push_back(Intersection);
 	}
 	else
@@ -1585,7 +1585,10 @@ void CCachedText::Update(ITextRender *pTextRender, const char *pText, float Font
 	if(m_FontSize == FontSize && m_LineWidth == LineWidth && m_CursorFlags == CursorFlags && m_Text == pText)
 		return;
 
-	pTextRender->DeleteTextContainer(m_TextContainerIndex);
+	// The render flags of a text container are fixed when it is created and depend on the
+	// line width, so only text and font size changes can reuse the existing container and
+	// upload the new quads into its buffer instead of allocating a new one.
+	const bool ReuseContainer = m_TextContainerIndex.Valid() && m_LineWidth == LineWidth && m_CursorFlags == CursorFlags;
 
 	m_Text = pText;
 	m_FontSize = FontSize;
@@ -1600,7 +1603,10 @@ void CCachedText::Update(ITextRender *pTextRender, const char *pText, float Font
 	// The color is applied when rendering, so it must not be baked into the quads.
 	const ColorRGBA OldColor = pTextRender->GetTextColor();
 	pTextRender->TextColor(pTextRender->DefaultTextColor());
-	pTextRender->CreateTextContainer(m_TextContainerIndex, &Cursor, m_Text.c_str());
+	if(ReuseContainer)
+		pTextRender->RecreateTextContainerSoft(m_TextContainerIndex, &Cursor, m_Text.c_str());
+	else
+		pTextRender->RecreateTextContainer(m_TextContainerIndex, &Cursor, m_Text.c_str());
 	pTextRender->TextColor(OldColor);
 
 	m_BoundingBox = Cursor.BoundingBox();
@@ -1633,7 +1639,7 @@ void CUi::RenderTime(CUIRect TimeRect, float FontSize, int Seconds, bool NotFini
 		return;
 
 	char aBuf[128];
-	str_time(((int64_t)absolute(Seconds)) * 100, ETimeFormat::HOURS, aBuf, sizeof(aBuf));
+	str_time(absolute(static_cast<int64_t>(Seconds)) * 100, ETimeFormat::HOURS, aBuf, sizeof(aBuf));
 	SecondsText.Update(TextRender(), aBuf, FontSize);
 
 	// align in vertical middle
@@ -1763,9 +1769,9 @@ void CUi::DoBackButton()
 		ButtonRect.y = ButtonPos.y;
 	}
 
-	if(Result && Clicked)
+	if(Clicked || Abrupted)
 	{
-		if(m_BackButtonOp == EBackButtonOp::CLICKED && m_DispatchInputFunction)
+		if(Result && Clicked && m_BackButtonOp == EBackButtonOp::CLICKED && m_DispatchInputFunction)
 		{
 			IInput::CEvent Event;
 			Event.m_Key = KEY_ESCAPE;
@@ -1776,10 +1782,6 @@ void CUi::DoBackButton()
 			Event.m_Flags = IInput::FLAG_RELEASE;
 			m_DispatchInputFunction(Event);
 		}
-		m_BackButtonOp = EBackButtonOp::NONE;
-	}
-	else if(Result && Abrupted)
-	{
 		m_BackButtonOp = EBackButtonOp::NONE;
 	}
 

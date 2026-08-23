@@ -167,6 +167,11 @@ public:
 		int m_AuthTries;
 		bool m_AuthHidden;
 		int m_NextMapChunk;
+		// map data chunks sent since the last map change
+		int m_NumMapChunks;
+		// per-tick preinput budget
+		int m_PreInputsTick;
+		int m_NumPreInputs;
 		int m_Flags;
 		bool m_ShowIps;
 		bool m_DebugDummy;
@@ -198,6 +203,9 @@ public:
 		CUuid m_ConnectionId;
 		int64_t m_RedirectDropTime;
 
+		int m_aIdMap[LEGACY_MAX_CLIENTS];
+		int m_aReverseIdMap[MAX_CLIENTS];
+
 		// DNSBL
 		EDnsblState m_DnsblState;
 		std::shared_ptr<CHostLookup> m_pDnsblLookup;
@@ -213,7 +221,6 @@ public:
 	IConsole::EAccessLevel ConsoleAccessLevel(int ClientId) const;
 
 	CClient m_aClients[MAX_CLIENTS];
-	int m_aIdMap[MAX_CLIENTS * VANILLA_MAX_CLIENTS];
 
 	CSnapshotDelta m_SnapshotDelta;
 	CSnapshotDelta m_SnapshotDeltaSixup;
@@ -267,6 +274,7 @@ public:
 	CDemoRecorder m_aDemoRecorder[NUM_RECORDERS];
 	CAuthManager m_AuthManager;
 
+	// start of the second the connection-less server info responses are counted in
 	int64_t m_ServerInfoFirstRequest;
 	int m_ServerInfoNumRequests;
 
@@ -371,6 +379,7 @@ public:
 	void UpdateClientMaplistEntries(int ClientId);
 
 	bool CheckReservedSlotAuth(int ClientId, const char *pPassword);
+	bool TakePreInputBudget(int ClientId);
 	void ProcessClientPacket(CNetChunk *pPacket);
 	void OnNetMsgClientVer(int ClientId, CUuid *pConnectionId, int DDNetVersion, const char *pDDNetVersionStr);
 	void OnNetMsgInfo(int ClientId, const char *pVersion, const char *pPasswordOrNullptr);
@@ -413,12 +422,13 @@ public:
 	void CacheServerInfoSixup(CCache *pCache, bool SendClients, int MaxConsideredClients);
 	void SendServerInfo(const NETADDR *pAddr, int Token, int Type, bool SendClients);
 	void GetServerInfoSixup(CPacker *pPacker, bool SendClients);
-	bool RateLimitServerInfoConnless();
-	void SendServerInfoConnless(const NETADDR *pAddr, int Token, int Type);
+	// Whether a connection-less server info response may be sent, and if so whether it
+	// includes the client list.
+	std::optional<bool> RateLimitServerInfoConnless();
 	void UpdateRegisterServerInfo();
 	void UpdateServerInfo(bool Resend);
 
-	void PumpNetwork(bool PacketWaiting);
+	void PumpNetwork();
 
 	void ChangeMap(const char *pMap) override;
 	void ReloadMap() override;
@@ -498,6 +508,7 @@ public:
 	void InitMaplist();
 
 	int *GetIdMap(int ClientId) override;
+	int *GetReverseIdMap(int ClientId) override;
 
 	void InitDnsbl(int ClientId);
 	bool DnsblWhite(int ClientId) override
@@ -529,6 +540,8 @@ public:
 	void SetErrorShutdown(const char *pReason) override;
 
 	bool IsSixup(int ClientId) const override { return ClientId != SERVER_DEMO_CLIENT && m_aClients[ClientId].m_Sixup; }
+	int GetMaxClients(int ClientId) const override;
+	bool ClientSupportsServerMaxClients(int ClientId) const override;
 
 	void SetLoggers(std::shared_ptr<ILogger> &&pFileLogger, std::shared_ptr<ILogger> &&pStdoutLogger);
 

@@ -183,12 +183,12 @@ bool CRenderLayerTile::CTileLayerVisuals::Init(unsigned int Width, unsigned int 
 CRenderLayer::CRenderLayer(int GroupId, int LayerId, int Flags) :
 	m_GroupId(GroupId), m_LayerId(LayerId), m_Flags(Flags) {}
 
-void CRenderLayer::OnInit(IGraphics *pGraphics, ITextRender *pTextRender, CRenderMap *pRenderMap, std::shared_ptr<CEnvelopeManager> &pEnvelopeManager, IMap *pMap, IMapImages *pMapImages, std::optional<FRenderUploadCallback> &FRenderUploadCallbackOptional)
+void CRenderLayer::OnInit(IGraphics *pGraphics, ITextRender *pTextRender, CRenderMap *pRenderMap, std::shared_ptr<CEnvelopeManager> &pEnvelopeManager, IMap *pMap, IMapImages *pMapImages, std::optional<FCallbackLayerInit> &CallbackLayerInitOptional)
 {
 	CRenderComponent::OnInit(pGraphics, pTextRender, pRenderMap);
 	m_pMap = pMap;
 	m_pMapImages = pMapImages;
-	m_RenderUploadCallback = FRenderUploadCallbackOptional;
+	m_InitCallback = CallbackLayerInitOptional;
 	m_pEnvelopeManager = pEnvelopeManager;
 }
 
@@ -198,14 +198,6 @@ void CRenderLayer::UseTexture(IGraphics::CTextureHandle TextureHandle)
 		Graphics()->TextureSet(TextureHandle);
 	else
 		Graphics()->TextureClear();
-}
-
-void CRenderLayer::RenderLoading() const
-{
-	const char *pLoadingTitle = Localize("Loading map");
-	const char *pLoadingMessage = Localize("Uploading map data to GPU");
-	if(m_RenderUploadCallback.has_value())
-		(*m_RenderUploadCallback)(pLoadingTitle, pLoadingMessage, 0);
 }
 
 bool CRenderLayer::IsVisibleInClipRegion(const std::optional<CClipRegion> &ClipRegion) const
@@ -221,6 +213,14 @@ bool CRenderLayer::IsVisibleInClipRegion(const std::optional<CClipRegion> &ClipR
 	float Bottom = ClipRegion->m_Y + ClipRegion->m_Height;
 
 	return Right >= ScreenRect.m_TopLeft.x && Left <= ScreenRect.m_BottomRight.x && Bottom >= ScreenRect.m_TopLeft.y && Top <= ScreenRect.m_BottomRight.y;
+}
+
+void CRenderLayer::InitCallback() const
+{
+	if(m_InitCallback.has_value())
+	{
+		(*m_InitCallback)(m_GroupId, m_LayerId);
+	}
 }
 
 /**************
@@ -270,6 +270,20 @@ bool CRenderLayerGroup::DoRender(const CRenderLayerParams &Params)
 		}
 	}
 	return true;
+}
+
+void CRenderLayerGroup::InitCallback() const
+{
+	if(m_InitCallback.has_value())
+	{
+		// Report layer 0, even if this is not a layer so the loading bar is monotone
+		(*m_InitCallback)(m_GroupId, 0);
+	}
+}
+
+void CRenderLayerGroup::Init()
+{
+	InitCallback();
 }
 
 void CRenderLayerGroup::Render(const CRenderLayerParams &Params)
@@ -597,6 +611,7 @@ void CRenderLayerTile::RenderTileLayerNoTileBuffer(const ColorRGBA &Color, const
 
 void CRenderLayerTile::Init()
 {
+	InitCallback();
 	if(m_pLayerTilemap->m_Image >= 0 && m_pLayerTilemap->m_Image < m_pMapImages->Num())
 		m_TextureHandle = m_pMapImages->Get(m_pLayerTilemap->m_Image);
 	else
@@ -818,7 +833,6 @@ void CRenderLayerTile::UploadTileData(std::optional<CTileLayerVisuals> &VisualsO
 	size_t UploadDataSize = vTmpTileTexCoords.size() * sizeof(CGraphicTileTextureCoords) + vTmpTiles.size() * sizeof(CGraphicTile);
 	if(UploadDataSize == 0)
 	{
-		RenderLoading();
 		return;
 	}
 
@@ -884,8 +898,6 @@ void CRenderLayerTile::UploadTileData(std::optional<CTileLayerVisuals> &VisualsO
 	Visuals.m_BufferContainerIndex = Graphics()->CreateBufferContainer(&ContainerInfo);
 	// and finally inform the backend how many indices are required
 	Graphics()->IndicesNumRequiredNotify(vTmpTiles.size() * 6);
-
-	RenderLoading();
 }
 
 void CRenderLayerTile::Unload()
@@ -902,28 +914,19 @@ void CRenderLayerTile::CTileLayerVisuals::Unload()
 	Graphics()->DeleteBufferContainer(m_BufferContainerIndex);
 }
 
-int CRenderLayerTile::GetDataIndex(unsigned int &TileSize) const
+int CRenderLayerTile::GetDataIndex() const
 {
-	TileSize = sizeof(CTile);
 	return m_pLayerTilemap->m_Data;
 }
 
 void *CRenderLayerTile::GetRawData() const
 {
-	unsigned int TileSize;
-	unsigned int DataIndex = GetDataIndex(TileSize);
-	void *pTiles = m_pMap->GetData(DataIndex);
-	int Size = m_pMap->GetDataSize(DataIndex);
-
-	if(!pTiles || Size < m_pLayerTilemap->m_Width * m_pLayerTilemap->m_Height * (int)TileSize)
-		return nullptr;
-
-	return pTiles;
+	return m_pMap->GetData(GetDataIndex());
 }
 
-void CRenderLayerTile::OnInit(IGraphics *pGraphics, ITextRender *pTextRender, CRenderMap *pRenderMap, std::shared_ptr<CEnvelopeManager> &pEnvelopeManager, IMap *pMap, IMapImages *pMapImages, std::optional<FRenderUploadCallback> &FRenderUploadCallbackOptional)
+void CRenderLayerTile::OnInit(IGraphics *pGraphics, ITextRender *pTextRender, CRenderMap *pRenderMap, std::shared_ptr<CEnvelopeManager> &pEnvelopeManager, IMap *pMap, IMapImages *pMapImages, std::optional<FCallbackLayerInit> &CallbackLayerInitOptional)
 {
-	CRenderLayer::OnInit(pGraphics, pTextRender, pRenderMap, pEnvelopeManager, pMap, pMapImages, FRenderUploadCallbackOptional);
+	CRenderLayer::OnInit(pGraphics, pTextRender, pRenderMap, pEnvelopeManager, pMap, pMapImages, CallbackLayerInitOptional);
 	InitTileData();
 
 	// set clip region
@@ -1025,11 +1028,10 @@ void CRenderLayerQuads::RenderQuadLayer(float Alpha, const CRenderLayerParams &P
 				if(Color.a < 0.0f)
 					Color.a = 0.0f;
 				QInfo.m_Color = Color;
-				const bool IsVisible = Color.a >= 0.0f;
-				AnyVisible |= IsVisible;
 
-				if(IsVisible)
+				if(Color.a > 0.0f)
 				{
+					AnyVisible = true;
 					ColorRGBA Position = ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f);
 					m_pEnvelopeManager->EnvelopeEval()->EnvelopeEval(pQuad->m_PosEnvOffset, pQuad->m_PosEnv, Position, 3);
 					QInfo.m_Offsets.x = Position.r;
@@ -1085,9 +1087,9 @@ void CRenderLayerQuads::RenderQuadLayer(float Alpha, const CRenderLayerParams &P
 	}
 }
 
-void CRenderLayerQuads::OnInit(IGraphics *pGraphics, ITextRender *pTextRender, CRenderMap *pRenderMap, std::shared_ptr<CEnvelopeManager> &pEnvelopeManager, IMap *pMap, IMapImages *pMapImages, std::optional<FRenderUploadCallback> &FRenderUploadCallbackOptional)
+void CRenderLayerQuads::OnInit(IGraphics *pGraphics, ITextRender *pTextRender, CRenderMap *pRenderMap, std::shared_ptr<CEnvelopeManager> &pEnvelopeManager, IMap *pMap, IMapImages *pMapImages, std::optional<FCallbackLayerInit> &CallbackLayerInitOptional)
 {
-	CRenderLayer::OnInit(pGraphics, pTextRender, pRenderMap, pEnvelopeManager, pMap, pMapImages, FRenderUploadCallbackOptional);
+	CRenderLayer::OnInit(pGraphics, pTextRender, pRenderMap, pEnvelopeManager, pMap, pMapImages, CallbackLayerInitOptional);
 	int DataSize = m_pMap->GetDataSize(m_pLayerQuads->m_Data);
 	if(m_pLayerQuads->m_NumQuads > 0 && DataSize / (int)sizeof(CQuad) >= m_pLayerQuads->m_NumQuads)
 		m_pQuads = (CQuad *)m_pMap->GetDataSwapped(m_pLayerQuads->m_Data);
@@ -1095,6 +1097,7 @@ void CRenderLayerQuads::OnInit(IGraphics *pGraphics, ITextRender *pTextRender, C
 
 void CRenderLayerQuads::Init()
 {
+	InitCallback();
 	char aBuf[30] = {0};
 
 	IntsToStr(m_pLayerQuads->m_aName, std::size(m_pLayerQuads->m_aName), aBuf, std::size(aBuf));
@@ -1289,7 +1292,6 @@ void CRenderLayerQuads::Init()
 		// and finally inform the backend how many indices are required
 		Graphics()->IndicesNumRequiredNotify(m_pLayerQuads->m_NumQuads * 6);
 	}
-	RenderLoading();
 }
 
 void CRenderLayerQuads::Unload()
@@ -1320,7 +1322,7 @@ bool CRenderLayerQuads::CalculateQuadClipping(const CQuadCluster &QuadCluster, f
 	for(int Channel = 0; Channel < 2; ++Channel)
 	{
 		aQuadOffsetMin[Channel] = std::numeric_limits<float>::max(); // minimum of channel
-		aQuadOffsetMax[Channel] = std::numeric_limits<float>::min(); // maximum of channel
+		aQuadOffsetMax[Channel] = std::numeric_limits<float>::lowest(); // maximum of channel
 	}
 
 	for(int QuadId = QuadCluster.m_StartIndex; QuadId < QuadCluster.m_StartIndex + QuadCluster.m_NumQuads; ++QuadId)
@@ -1514,6 +1516,7 @@ CRenderLayerEntityGame::CRenderLayerEntityGame(int GroupId, int LayerId, int Fla
 
 void CRenderLayerEntityGame::Init()
 {
+	InitCallback();
 	UploadTileData(m_VisualTiles, 0, false, true);
 }
 
@@ -1553,9 +1556,8 @@ ColorRGBA CRenderLayerEntityGame::GetDeathBorderColor() const
 CRenderLayerEntityFront::CRenderLayerEntityFront(int GroupId, int LayerId, int Flags, CMapItemLayerTilemap *pLayerTilemap) :
 	CRenderLayerEntityBase(GroupId, LayerId, Flags, pLayerTilemap) {}
 
-int CRenderLayerEntityFront::GetDataIndex(unsigned int &TileSize) const
+int CRenderLayerEntityFront::GetDataIndex() const
 {
-	TileSize = sizeof(CTile);
 	return m_pLayerTilemap->m_Front;
 }
 
@@ -1563,14 +1565,14 @@ int CRenderLayerEntityFront::GetDataIndex(unsigned int &TileSize) const
 CRenderLayerEntityTele::CRenderLayerEntityTele(int GroupId, int LayerId, int Flags, CMapItemLayerTilemap *pLayerTilemap) :
 	CRenderLayerEntityBase(GroupId, LayerId, Flags, pLayerTilemap) {}
 
-int CRenderLayerEntityTele::GetDataIndex(unsigned int &TileSize) const
+int CRenderLayerEntityTele::GetDataIndex() const
 {
-	TileSize = sizeof(CTeleTile);
 	return m_pLayerTilemap->m_Tele;
 }
 
 void CRenderLayerEntityTele::Init()
 {
+	InitCallback();
 	UploadTileData(m_VisualTiles, 0, false);
 	UploadTileData(m_VisualTeleNumbers, 1, false);
 }
@@ -1632,14 +1634,14 @@ IGraphics::CTextureHandle CRenderLayerEntitySpeedup::GetTexture() const
 	return m_pMapImages->GetSpeedupArrow();
 }
 
-int CRenderLayerEntitySpeedup::GetDataIndex(unsigned int &TileSize) const
+int CRenderLayerEntitySpeedup::GetDataIndex() const
 {
-	TileSize = sizeof(CSpeedupTile);
 	return m_pLayerTilemap->m_Speedup;
 }
 
 void CRenderLayerEntitySpeedup::Init()
 {
+	InitCallback();
 	UploadTileData(m_VisualTiles, 0, true);
 	UploadTileData(m_VisualForce, 1, false);
 	UploadTileData(m_VisualMaxSpeed, 2, false);
@@ -1712,14 +1714,14 @@ IGraphics::CTextureHandle CRenderLayerEntitySwitch::GetTexture() const
 	return m_pMapImages->GetEntities(MAP_IMAGE_ENTITY_LAYER_TYPE_SWITCH);
 }
 
-int CRenderLayerEntitySwitch::GetDataIndex(unsigned int &TileSize) const
+int CRenderLayerEntitySwitch::GetDataIndex() const
 {
-	TileSize = sizeof(CSwitchTile);
 	return m_pLayerTilemap->m_Switch;
 }
 
 void CRenderLayerEntitySwitch::Init()
 {
+	InitCallback();
 	UploadTileData(m_VisualTiles, 0, false);
 	UploadTileData(m_VisualSwitchNumberTop, 1, false);
 	UploadTileData(m_VisualSwitchNumberBottom, 2, false);
@@ -1813,9 +1815,8 @@ void CRenderLayerEntityTune::Init()
 	CRenderLayerTile::Init();
 }
 
-int CRenderLayerEntityTune::GetDataIndex(unsigned int &TileSize) const
+int CRenderLayerEntityTune::GetDataIndex() const
 {
-	TileSize = sizeof(CTuneTile);
 	return m_pLayerTilemap->m_Tune;
 }
 

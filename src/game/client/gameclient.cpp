@@ -507,19 +507,12 @@ void CGameClient::OnUpdate()
 	}
 
 	// handle touch events
-	const std::vector<IInput::CTouchFingerState> &vTouchFingerStates = Input()->TouchFingerStates();
-	bool TouchHandled = false;
+	std::vector<IInput::CTouchFingerState> vTouchFingerStates = Input()->TouchFingerStates();
 	for(auto &pComponent : m_vpInput)
 	{
-		if(TouchHandled)
-		{
-			// Also update inactive components so they can handle touch fingers being released.
-			pComponent->OnTouchState({});
-		}
-		else if(pComponent->OnTouchState(vTouchFingerStates))
+		if(pComponent->OnTouchState(vTouchFingerStates))
 		{
 			Input()->ClearTouchDeltas();
-			TouchHandled = true;
 		}
 	}
 
@@ -839,7 +832,6 @@ void CGameClient::OnRender()
 
 		if(!InitMultiView(TeamId))
 		{
-			dbg_msg("MultiView", "No players found to spectate");
 			ResetMultiView();
 		}
 	}
@@ -982,6 +974,18 @@ bool CGameClient::IsTeamPlay() const
 {
 	return m_Snap.m_pGameInfoObj &&
 	       (m_Snap.m_pGameInfoObj->m_GameFlags & GAMEFLAG_TEAMS) != 0;
+}
+
+int CGameClient::MinTeamSize() const
+{
+	// old servers only expose it if the map settings happen to contain it
+	return m_GameInfo.m_MinTeamSize != 0 ? m_GameInfo.m_MinTeamSize : Config()->m_SvMinTeamSize;
+}
+
+int CGameClient::MaxTeamSize() const
+{
+	// old servers only expose it if the map settings happen to contain it
+	return m_GameInfo.m_MaxTeamSize != 0 ? m_GameInfo.m_MaxTeamSize : Config()->m_SvMaxTeamSize;
 }
 
 bool CGameClient::IsWorldPaused() const
@@ -1150,9 +1154,8 @@ void CGameClient::OnMessage(int MsgId, CUnpacker *pUnpacker, int Conn, bool Dumm
 		// in sixup/translate_game.cpp
 		if(!Client()->IsSixup())
 		{
-			char aBuf[256];
-			str_format(aBuf, sizeof(aBuf), "dropped weird message '%s' (%d), failed on '%s'", m_NetObjHandler.GetMsgName(MsgId), MsgId, m_NetObjHandler.FailedMsgOn());
-			Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "client", aBuf);
+			log_debug("client", "dropped weird message '%s' (%d), failed on '%s'",
+				m_NetObjHandler.GetMsgName(MsgId), MsgId, m_NetObjHandler.FailedMsgOn());
 		}
 		return;
 	}
@@ -1237,8 +1240,8 @@ void CGameClient::OnMessage(int MsgId, CUnpacker *pUnpacker, int Conn, bool Dumm
 			}
 		}
 
-		if(i <= 16)
-			m_Teams.m_IsDDRace16 = true;
+		if(i <= VANILLA_MAX_CLIENTS)
+			m_Teams.m_NumDDRaceTeams = VANILLA_MAX_CLIENTS + 1;
 
 		m_Ghost.m_AllowRestart = true;
 		m_RaceDemo.m_AllowRestart = true;
@@ -1686,6 +1689,10 @@ CGameInfo GetGameInfo(const CNetObj_GameInfoEx *pInfoEx, int InfoExSize, const C
 	Info.m_NoSkinChangeForFrozen = false;
 	Info.m_DDRaceTeam = false;
 	Info.m_PredictEvents = Vanilla;
+	Info.m_MinTeamSize = 0;
+	Info.m_MaxTeamSize = 0;
+	Info.m_NumDDRaceTeams = 65; // `TEAM_SUPER + 1`, fallback for ddrace64 servers
+	Info.m_OldLaser = false;
 
 	//+KZ
 	Info.m_GameInfoFlagsKZ = Flags;
@@ -1756,6 +1763,13 @@ CGameInfo GetGameInfo(const CNetObj_GameInfoEx *pInfoEx, int InfoExSize, const C
 	if(Version >= 11)
 	{
 		Info.m_PredictEvents = Flags2 & GAMEINFOFLAG2_PREDICT_EVENTS;
+	}
+	if(Version >= 12)
+	{
+		Info.m_MinTeamSize = pInfoEx->m_MinTeamSize;
+		Info.m_MaxTeamSize = pInfoEx->m_MaxTeamSize;
+		Info.m_NumDDRaceTeams = pInfoEx->m_NumDDRaceTeams;
+		Info.m_OldLaser = Flags2 & GAMEINFOFLAG2_OLD_LASER;
 	}
 
 	return Info;
@@ -2135,9 +2149,7 @@ void CGameClient::OnNewSnapshot(bool DummySwapped)
 					continue;
 				}
 				const CNetObj_SwitchState *pSwitchStateData = (const CNetObj_SwitchState *)Item.m_pData;
-				// TODO: use NUM_DDRACE_TEAMS-1 instead of hardcoding 63
-				//       once https://github.com/ddnet/ddnet/pull/11232 is resolved
-				int Team = std::clamp(Item.m_Id, (int)TEAM_FLOCK, 63);
+				int Team = std::clamp(Item.m_Id, (int)TEAM_FLOCK, NUM_DDRACE_TEAMS - 1);
 
 				int HighestSwitchNumber = std::clamp(std::max(pSwitchStateData->m_HighestSwitchNumber, Collision()->m_HighestSwitchNumber), 0, 255);
 				if(HighestSwitchNumber != std::max(0, (int)Switchers().size() - 1))
@@ -2197,6 +2209,9 @@ void CGameClient::OnNewSnapshot(bool DummySwapped)
 		m_GameInfo = GetGameInfo(nullptr, 0, &ServerInfo);
 		GetKaizoInfo(&ServerInfo); //+KZ added
 	}
+
+	// Sv_TeamsState can arrive before the first snapshot, so derive this here instead of in the message handler
+	m_Teams.m_NumDDRaceTeams = m_GameInfo.m_NumDDRaceTeams;
 
 	for(CClientData &Client : m_aClients)
 	{
@@ -2322,9 +2337,12 @@ void CGameClient::OnNewSnapshot(bool DummySwapped)
 
 	if(ServerInfo.m_aGameType[0] != '0')
 	{
+		// Vanilla servers send laser_bounce_num 1, DDNet has laser_bounce_num 1000 since ~2014
+		CTuningParams VanillaTuning;
+		VanillaTuning.m_LaserBounceNum = 1;
 		if(str_comp(ServerInfo.m_aGameType, "DM") != 0 && str_comp(ServerInfo.m_aGameType, "TDM") != 0 && str_comp(ServerInfo.m_aGameType, "CTF") != 0)
 			m_ServerMode = SERVERMODE_MOD;
-		else if(mem_comp(&CTuningParams::DEFAULT, &m_aTuning[g_Config.m_ClDummy], 33) == 0)
+		else if(mem_comp(&VanillaTuning, &m_aTuning[g_Config.m_ClDummy], 33 * sizeof(CTuneParam)) == 0)
 			m_ServerMode = SERVERMODE_PURE;
 		else
 			m_ServerMode = SERVERMODE_PUREMOD;
@@ -3311,14 +3329,14 @@ void CGameClient::OnPredict()
 
 		if(mem_comp(&Before, &Now, sizeof(CNetObj_CharacterCore)) != 0)
 		{
-			Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "client", "prediction error");
+			log_trace("client", "prediction error");
 			for(unsigned i = 0; i < sizeof(CNetObj_CharacterCore) / sizeof(int); i++)
+			{
 				if(((int *)&Before)[i] != ((int *)&Now)[i])
 				{
-					char aBuf[256];
-					str_format(aBuf, sizeof(aBuf), "	%d %d %d (%d %d)", i, ((int *)&Before)[i], ((int *)&Now)[i], ((int *)&BeforePrev)[i], ((int *)&NowPrev)[i]);
-					Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "client", aBuf);
+					log_trace("client", "	%d %d %d (%d %d)", i, ((int *)&Before)[i], ((int *)&Now)[i], ((int *)&BeforePrev)[i], ((int *)&NowPrev)[i]);
 				}
+			}
 		}
 	}
 
@@ -3796,11 +3814,11 @@ void CGameClient::SendKill() const
 	}
 }
 
-void CGameClient::SendReadyChange7()
+void CGameClient::SendReadyChange7() // NOLINT(readability-make-member-function-const)
 {
 	if(!Client()->IsSixup())
 	{
-		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "client", "Error you have to be connected to a 0.7 server to use ready_change");
+		log_error("client", "You have to be connected to a 0.7 server to use 'ready_change'");
 		return;
 	}
 	protocol7::CNetMsg_Cl_ReadyChange Msg;
@@ -4007,6 +4025,7 @@ void CGameClient::UpdatePrediction()
 	m_GameWorld.m_WorldConfig.m_BugDDRaceInput = m_GameInfo.m_BugDDRaceInput;
 	m_GameWorld.m_WorldConfig.m_NoWeakHookAndBounce = m_GameInfo.m_NoWeakHookAndBounce;
 	m_GameWorld.m_WorldConfig.m_PredictEvents = m_GameInfo.m_PredictEvents;
+	m_GameWorld.m_WorldConfig.m_OldLaser = m_GameInfo.m_OldLaser;
 
 	if(!m_Snap.m_pLocalCharacter)
 	{
@@ -4532,7 +4551,7 @@ bool CGameClient::IsOtherTeam(int ClientId) const
 	}
 	else if(m_Snap.m_SpecInfo.m_Active && m_Snap.m_SpecInfo.m_SpectatorId != SPEC_FREEVIEW)
 	{
-		if(m_Teams.Team(ClientId) == TEAM_SUPER || m_Teams.Team(m_Snap.m_SpecInfo.m_SpectatorId) == TEAM_SUPER)
+		if(m_Teams.Team(ClientId) == m_Teams.TeamSuper() || m_Teams.Team(m_Snap.m_SpecInfo.m_SpectatorId) == m_Teams.TeamSuper())
 			return false;
 		return m_Teams.Team(ClientId) != m_Teams.Team(m_Snap.m_SpecInfo.m_SpectatorId);
 	}
@@ -4541,7 +4560,7 @@ bool CGameClient::IsOtherTeam(int ClientId) const
 		return true;
 	}
 
-	if(m_Teams.Team(ClientId) == TEAM_SUPER || m_Teams.Team(m_Snap.m_LocalClientId) == TEAM_SUPER)
+	if(m_Teams.Team(ClientId) == m_Teams.TeamSuper() || m_Teams.Team(m_Snap.m_LocalClientId) == m_Teams.TeamSuper())
 		return false;
 
 	return m_Teams.Team(ClientId) != m_Teams.Team(m_Snap.m_LocalClientId);

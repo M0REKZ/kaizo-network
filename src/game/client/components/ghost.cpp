@@ -8,6 +8,7 @@
 #include <base/time.h>
 
 #include <engine/ghost.h>
+#include <engine/graphics.h>
 #include <engine/shared/config.h>
 #include <engine/storage.h>
 
@@ -336,6 +337,11 @@ void CGhost::OnRender()
 
 	int PlaybackTick = FinalTick - m_StartRenderTick;
 
+	CScreenRect ScreenRect = Graphics()->GetScreen();
+
+	// 200x200 box around the player
+	ScreenRect.Expand(100.0f);
+
 	for(auto &Ghost : m_aActiveGhosts)
 	{
 		if(Ghost.Empty())
@@ -385,8 +391,8 @@ void CGhost::OnRender()
 			pRenderInfo = &GhostNinjaRenderInfo;
 		}
 
-		GameClient()->m_Players.RenderHook(&Prev, &Player, pRenderInfo, -2, IntraTick);
-		GameClient()->m_Players.RenderPlayer(&Prev, &Player, pRenderInfo, -2, IntraTick);
+		GameClient()->m_Players.RenderHook(ScreenRect, &Prev, &Player, pRenderInfo, -2, IntraTick);
+		GameClient()->m_Players.RenderPlayer(ScreenRect, &Prev, &Player, pRenderInfo, -2, IntraTick);
 	}
 }
 
