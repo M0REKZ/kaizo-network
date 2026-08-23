@@ -5,7 +5,6 @@
 
 #include <base/color.h>
 #include <base/vmath.h>
-#include <game/mapitems_kz.h>
 
 // layer types
 enum
@@ -456,11 +455,6 @@ public:
 	int m_Front;
 	int m_Switch;
 	int m_Tune;
-
-	//+KZ
-
-	int m_KZGame;
-	int m_KZFront;
 };
 
 // Teeworlds added layer names to tiles layers in version 3 based on the original version 2 items.
@@ -472,7 +466,8 @@ public:
 };
 
 // DDRace added its own member variables to Teeworlds version 3 tiles layer items again.
-class CMapItemLayerTilemap : public CMapItemLayerTilemap_v3Teeworlds
+//+KZ renamed to CMapItemLayerTilemap_DDNet
+class CMapItemLayerTilemap_DDNet : public CMapItemLayerTilemap_v3Teeworlds
 {
 public:
 	int m_Tele;
@@ -487,7 +482,7 @@ public:
 static_assert(sizeof(CMapItemLayerTilemap_v2) == 60);
 static_assert(sizeof(CMapItemLayerTilemap_v2Legacy) == 80);
 static_assert(sizeof(CMapItemLayerTilemap_v3Teeworlds) == 72);
-static_assert(sizeof(CMapItemLayerTilemap) == 92);
+static_assert(sizeof(CMapItemLayerTilemap_DDNet) == 92);
 
 class CMapItemLayerQuads
 {
@@ -718,5 +713,8 @@ bool IsCreditsTile(int TileIndex);
 
 int PackColor(const CColor &Color);
 CColor UnpackColor(int PackedColor);
+
+//+KZ
+#include <game/mapitems_kz.h>
 
 #endif

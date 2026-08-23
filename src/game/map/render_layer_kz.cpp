@@ -22,9 +22,8 @@ IGraphics::CTextureHandle CRenderLayerEntityKZGame::GetTexture() const
 	return m_Texture;
 }
 
-int CRenderLayerEntityKZGame::GetDataIndex(unsigned int &TileSize) const
+int CRenderLayerEntityKZGame::GetDataIndex() const
 {
-	TileSize = sizeof(CKZTile);
 	return m_pLayerTilemap->m_KZGame;
 }
 
@@ -78,9 +77,8 @@ IGraphics::CTextureHandle CRenderLayerEntityKZFront::GetTexture() const
 	return m_Texture;
 }
 
-int CRenderLayerEntityKZFront::GetDataIndex(unsigned int &TileSize) const
+int CRenderLayerEntityKZFront::GetDataIndex() const
 {
-	TileSize = sizeof(CKZTile);
 	return m_pLayerTilemap->m_KZFront;
 }
 

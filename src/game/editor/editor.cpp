@@ -758,13 +758,13 @@ void CEditor::DoToolbarLayers(CUIRect ToolBar)
 						Rows = 3;
 						ExtraWidth = 50;
 					}
-					else if(pS == m_Map.m_pKZGameLayer)
+					else if(pS == Map()->m_pKZGameLayer)
 					{
 						pButtonName = "KZ Values";
 						pfnPopupFunc = PopupKZGame;
 						Rows = 4;
 					}
-					else if(pS == m_Map.m_pKZFrontLayer)
+					else if(pS == Map()->m_pKZFrontLayer)
 					{
 						pButtonName = "KZ Front Values";
 						pfnPopupFunc = PopupKZFront;

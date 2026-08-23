@@ -135,4 +135,22 @@ inline int64_t BitWiseAndInt64(int64_t a, int64_t b)
 	return (a & b);
 }
 
+//+KZ: Based on CMapItemLayerTilemap_v3Teeworlds
+class CMapItemLayerTilemap : public CMapItemLayerTilemap_v3Teeworlds
+{
+public:
+	int m_Tele;
+	int m_Speedup;
+	int m_Front;
+	int m_Switch;
+	int m_Tune;
+
+	//+KZ
+
+	int m_KZGame;
+	int m_KZFront;
+};
+
+static_assert(sizeof(CMapItemLayerTilemap) == 100);
+
 #endif

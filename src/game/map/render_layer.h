@@ -407,7 +407,7 @@ class CRenderLayerEntityKZGame final : public CRenderLayerEntityBase
 {
 public:
 	CRenderLayerEntityKZGame(int GroupId, int LayerId, int Flags, CMapItemLayerTilemap *pLayerTilemap);
-	int GetDataIndex(unsigned int &TileSize) const override;
+	int GetDataIndex() const override;
 	void Init() override;
 	void InitTileData() override;
 	void Unload() override;
@@ -428,7 +428,7 @@ class CRenderLayerEntityKZFront final : public CRenderLayerEntityBase
 {
 public:
 	CRenderLayerEntityKZFront(int GroupId, int LayerId, int Flags, CMapItemLayerTilemap *pLayerTilemap);
-	int GetDataIndex(unsigned int &TileSize) const override;
+	int GetDataIndex() const override;
 	void Init() override;
 	void InitTileData() override;
 	void Unload() override;
