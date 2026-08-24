@@ -2928,6 +2928,12 @@ void CClient::Update()
 {
 	PumpNetwork();
 
+	// update editor/gameclient, before input snapping
+	if(m_EditorActive)
+		m_pEditor->OnUpdate();
+	else
+		GameClient()->OnUpdate();
+
 	if(State() == IClient::STATE_DEMOPLAYBACK)
 	{
 		if(m_DemoPlayer.IsPlaying())
@@ -3217,12 +3223,6 @@ void CClient::Update()
 
 	// update the server browser
 	m_ServerBrowser.Update();
-
-	// update editor/gameclient
-	if(m_EditorActive)
-		m_pEditor->OnUpdate();
-	else
-		GameClient()->OnUpdate();
 
 	Discord()->Update();
 	Steam()->Update();
