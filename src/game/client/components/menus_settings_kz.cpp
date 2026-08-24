@@ -156,14 +156,6 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 			Left.HSplitTop(2.0f, nullptr, &Left);
 
 			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoShowCrowns, Localize("Show crowns on Kaizo servers"), g_KaizoConfig_KaizoShowCrowns, &Button))
-			{
-				g_KaizoConfig_KaizoShowCrowns ^= 1;
-			}
-
-			Left.HSplitTop(2.0f, nullptr, &Left);
-
-			Left.HSplitTop(20.0f, &Button, &Left);
 			if(DoButton_CheckBox(&g_KaizoConfig_KaizoPingCircles, Localize("Show ping circles above players"), g_KaizoConfig_KaizoPingCircles, &Button))
 			{
 				g_KaizoConfig_KaizoPingCircles ^= 1;
@@ -175,22 +167,6 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 			if(DoButton_CheckBox(&g_KaizoConfig_KaizoSleepingInMenuPlayers, Localize("Show players navigating menu as sleeping tees"), g_KaizoConfig_KaizoSleepingInMenuPlayers, &Button))
 			{
 				g_KaizoConfig_KaizoSleepingInMenuPlayers ^= 1;
-			}
-
-			Left.HSplitTop(2.0f, nullptr, &Left);
-
-			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoShowClientType, Localize("Try to identify custom clients of other players"), g_KaizoConfig_KaizoShowClientType, &Button))
-			{
-				g_KaizoConfig_KaizoShowClientType ^= 1;
-			}
-
-			Left.HSplitTop(2.0f, nullptr, &Left);
-
-			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoSendClientType, Localize("Let know other clients we are using Kaizo Client"), g_KaizoConfig_KaizoSendClientType, &Button))
-			{
-				g_KaizoConfig_KaizoSendClientType ^= 1;
 			}
 
 			Left.HSplitTop(2.0f, nullptr, &Left);
@@ -242,22 +218,6 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 				Left.HSplitTop(2.0f, nullptr, &Left);
 				Left.HSplitTop(10.0f, &Label, &Left);
 				Ui()->DoLabel(&Label, Localize("NOTE: high values may break map download"), 10.0f, TEXTALIGN_ML);
-			}
-
-			Left.HSplitTop(2.0f, nullptr, &Left);
-
-			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoEmotionalTees, Localize("Emotional Tees in non-DDNet servers (Client-side)"), g_KaizoConfig_KaizoEmotionalTees, &Button))
-			{
-				g_KaizoConfig_KaizoEmotionalTees ^= 1;
-			}
-
-			Left.HSplitTop(2.0f, nullptr, &Left);
-
-			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoInstaShieldShield, Localize("InstaShield Shield"), g_KaizoConfig_KaizoInstaShieldShield, &Button))
-			{
-				g_KaizoConfig_KaizoInstaShieldShield ^= 1;
 			}
 
 			Left.HSplitTop(2.0f, nullptr, &Left);
@@ -318,33 +278,9 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 			Left.HSplitTop(2.0f, nullptr, &Left);
 
 			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoSendLanguage, Localize("Send Client language to server"), g_KaizoConfig_KaizoSendLanguage, &Button))
-			{
-				g_KaizoConfig_KaizoSendLanguage ^= 1;
-			}
-
-			Left.HSplitTop(2.0f, nullptr, &Left);
-
-			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoPrefer07Protocol, Localize("Always prefer 0.7 connection"), g_KaizoConfig_KaizoPrefer07Protocol, &Button))
-			{
-				g_KaizoConfig_KaizoPrefer07Protocol ^= 1;
-			}
-
-			Left.HSplitTop(2.0f, nullptr, &Left);
-
-			Left.HSplitTop(20.0f, &Button, &Left);
 			if(DoButton_CheckBox(&g_KaizoConfig_KaizoAlwaysAllowXSkins, Localize("Be able to see players using \"x_\" prefixed skins"), g_KaizoConfig_KaizoAlwaysAllowXSkins, &Button))
 			{
 				g_KaizoConfig_KaizoAlwaysAllowXSkins ^= 1;
-			}
-
-			Left.HSplitTop(2.0f, nullptr, &Left);
-
-			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoClientIndicatorBrowser, Localize("Show detected Kaizo Client users in friends tab"), g_KaizoConfig_KaizoClientIndicatorBrowser, &Button))
-			{
-				g_KaizoConfig_KaizoClientIndicatorBrowser ^= 1;
 			}
 
 			Left.HSplitTop(2.0f, nullptr, &Left);
@@ -373,14 +309,6 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 
 			Left.HSplitTop(2.0f, nullptr, &Left);
 
-			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoKeepMenuAfterVoteInMods, Localize("Fix vote menu in F-DDrace, FoxNet, MMOTEE, etc..."), g_KaizoConfig_KaizoKeepMenuAfterVoteInMods, &Button))
-			{
-				g_KaizoConfig_KaizoKeepMenuAfterVoteInMods ^= 1;
-			}
-
-			Left.HSplitTop(2.0f, nullptr, &Left);
-
 			{ //to make a char buffer only accesible here
 
 				static char s_aBuf[128] = {'\0'};
@@ -398,6 +326,88 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 				{
 					g_KaizoConfig_KaizoEmoticonToEmoji ^= 1;
 				}
+			}
+
+			//Mod support
+			Left.HSplitTop(40.0f, &Label, &SettingsBox);
+			Ui()->DoLabel(&Label, Localize("Mod support and improvements"), 20.0f, TEXTALIGN_ML);
+			Left.HSplitTop(40.0f, &Label, &Left);
+
+			Left.HSplitTop(2.0f, nullptr, &Left);
+
+			Left.HSplitTop(20.0f, &Button, &Left);
+			if(DoButton_CheckBox(&g_KaizoConfig_KaizoKeepMenuAfterVoteInMods, Localize("Fix vote menu in F-DDrace, FoxNet, MMOTEE, etc..."), g_KaizoConfig_KaizoKeepMenuAfterVoteInMods, &Button))
+			{
+				g_KaizoConfig_KaizoKeepMenuAfterVoteInMods ^= 1;
+			}
+
+			Left.HSplitTop(2.0f, nullptr, &Left);
+
+			Left.HSplitTop(20.0f, &Button, &Left);
+			if(DoButton_CheckBox(&g_KaizoConfig_KaizoEmotionalTees, Localize("Emotional Tees in non-DDNet servers (Client-side)"), g_KaizoConfig_KaizoEmotionalTees, &Button))
+			{
+				g_KaizoConfig_KaizoEmotionalTees ^= 1;
+			}
+
+			Left.HSplitTop(2.0f, nullptr, &Left);
+
+			Left.HSplitTop(20.0f, &Button, &Left);
+			if(DoButton_CheckBox(&g_KaizoConfig_KaizoSendLanguage, Localize("Send Client language to server"), g_KaizoConfig_KaizoSendLanguage, &Button))
+			{
+				g_KaizoConfig_KaizoSendLanguage ^= 1;
+			}
+
+			Left.HSplitTop(2.0f, nullptr, &Left);
+
+			Left.HSplitTop(20.0f, &Button, &Left);
+			if(DoButton_CheckBox(&g_KaizoConfig_KaizoShowCrowns, Localize("Show crowns in Kaizo Network"), g_KaizoConfig_KaizoShowCrowns, &Button))
+			{
+				g_KaizoConfig_KaizoShowCrowns ^= 1;
+			}
+
+			Left.HSplitTop(2.0f, nullptr, &Left);
+
+			Left.HSplitTop(20.0f, &Button, &Left);
+			if(DoButton_CheckBox(&g_KaizoConfig_KaizoInstaShieldShield, Localize("InstaShield Shield (for \"iCTF)\")"), g_KaizoConfig_KaizoInstaShieldShield, &Button))
+			{
+				g_KaizoConfig_KaizoInstaShieldShield ^= 1;
+			}
+
+			Left.HSplitTop(2.0f, nullptr, &Left);
+
+			Left.HSplitTop(20.0f, &Button, &Left);
+			if(DoButton_CheckBox(&g_KaizoConfig_KaizoPrefer07Protocol, Localize("Always prefer 0.7 connection"), g_KaizoConfig_KaizoPrefer07Protocol, &Button))
+			{
+				g_KaizoConfig_KaizoPrefer07Protocol ^= 1;
+			}
+
+			//Client identify
+			Left.HSplitTop(40.0f, &Label, &SettingsBox);
+			Ui()->DoLabel(&Label, Localize("Client identification"), 20.0f, TEXTALIGN_ML);
+			Left.HSplitTop(40.0f, &Label, &Left);
+
+			Left.HSplitTop(2.0f, nullptr, &Left);
+
+			Left.HSplitTop(20.0f, &Button, &Left);
+			if(DoButton_CheckBox(&g_KaizoConfig_KaizoShowClientType, Localize("Try to identify custom clients of other players"), g_KaizoConfig_KaizoShowClientType, &Button))
+			{
+				g_KaizoConfig_KaizoShowClientType ^= 1;
+			}
+
+			Left.HSplitTop(2.0f, nullptr, &Left);
+
+			Left.HSplitTop(20.0f, &Button, &Left);
+			if(DoButton_CheckBox(&g_KaizoConfig_KaizoSendClientType, Localize("Let know other clients we are using Kaizo Client"), g_KaizoConfig_KaizoSendClientType, &Button))
+			{
+				g_KaizoConfig_KaizoSendClientType ^= 1;
+			}
+
+			Left.HSplitTop(2.0f, nullptr, &Left);
+
+			Left.HSplitTop(20.0f, &Button, &Left);
+			if(DoButton_CheckBox(&g_KaizoConfig_KaizoClientIndicatorBrowser, Localize("Show detected Kaizo Client users in friends tab"), g_KaizoConfig_KaizoClientIndicatorBrowser, &Button))
+			{
+				g_KaizoConfig_KaizoClientIndicatorBrowser ^= 1;
 			}
 
 			// Prediction
