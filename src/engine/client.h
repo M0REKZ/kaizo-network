@@ -460,6 +460,7 @@ public:
 	virtual void SetConnectInfo(const NETADDR *pAddress) = 0; // E-Client/T-Client
 	virtual void OnServerBrowserRefresh() = 0; // E-Client
 	virtual void OnKaizoSetConnectPassword(const NETADDR *pAddresses, int NumAddresses, char *pOutPassword, int OutPasswordSize) = 0; //+KZ
+	virtual bool KaizoGlitchyInputAllowed() = 0;
 };
 
 extern IGameClient *CreateGameClient();

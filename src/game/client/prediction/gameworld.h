@@ -93,6 +93,7 @@ public:
 		bool m_HasLaserJump;
 		bool m_HasAutoPistol;
 		bool m_HasPointerTiles; //0.7 TW+
+		bool m_IsFoxNet;
 	} m_WorldConfig;
 
 	bool m_IsValidCopy;

@@ -28,6 +28,7 @@ extern int g_KaizoConfig_KaizoRemoveAnti;
 extern int g_KaizoConfig_KaizoFastInput;
 extern int g_KaizoConfig_KaizoFastInputOthers;
 extern int g_KaizoConfig_SvGoresQuadsEnable;
+extern int g_KaizoConfig_KaizoGlitchyInput;
 
 void CGameClient::OnKaizoConnected()
 {
@@ -39,6 +40,7 @@ void CGameClient::OnKaizoConnected()
     m_GameWorld.m_WorldConfig.m_HasLaserJump = false;
     m_GameWorld.m_WorldConfig.m_HasAutoPistol = false;
     m_GameWorld.m_WorldConfig.m_HasPointerTiles = false;
+    m_GameWorld.m_WorldConfig.m_IsFoxNet = false;
     m_WaitingForPointerTWPlusInfo = false;   
 
     m_GameWorld.m_Core.InitKZQuads(Layers());
@@ -314,6 +316,12 @@ bool CGameClient::IsKaizoCharUpdated(int ClientId)
 	return false;
 }
 
+bool CGameClient::KaizoGlitchyInputAllowed()
+{
+    //not allowed in foxnet
+	return g_KaizoConfig_KaizoGlitchyInput && !m_GameWorld.m_WorldConfig.m_IsFoxNet;
+}
+
 void CGameClient::CClientData::KaizoReset()
 {
     m_CrownTick = -1;
@@ -339,6 +347,8 @@ void CGameClient::GetKaizoInfo(const CServerInfo *pServerInfo)
 	//Client()->GetServerInfo(pServerInfo);
 
     //Detect Specific mods
+
+    m_GameWorld.m_WorldConfig.m_IsFoxNet = str_startswith(pServerInfo->m_aGameType, "FoxNet") != 0;
 
     //Pure Vanilla
     m_GameWorld.m_WorldConfig.m_IsPureVanilla = (str_comp(pServerInfo->m_aGameType, "CTF") == 0 ||

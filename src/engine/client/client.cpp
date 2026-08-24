@@ -391,7 +391,8 @@ void CClient::SendInput()
 			int origdir = ((CNetObj_PlayerInput *)(&(m_aInputs[i][m_aCurrentInput[i]].m_aData[0])))->m_Direction;
 			int origx = ((CNetObj_PlayerInput *)(&(m_aInputs[i][m_aCurrentInput[i]].m_aData[0])))->m_TargetX;
 			int origy = ((CNetObj_PlayerInput *)(&(m_aInputs[i][m_aCurrentInput[i]].m_aData[0])))->m_TargetY;
-			for(int xd = 0; xd < 1 + g_KaizoConfig_KaizoGlitchyInput; xd++)
+			int glitchyinput = GameClient()->KaizoGlitchyInputAllowed() ? 1 : 0;
+			for(int xd = 0; xd < 1 + glitchyinput; xd++)
 			{
 				if(xd == 0)
 				{

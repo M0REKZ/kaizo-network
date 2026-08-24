@@ -1057,6 +1057,7 @@ private:
 	void PostSnapshotKaizo();
 	public:
 	bool IsKaizoCharUpdated(int ClientId);
+	virtual bool KaizoGlitchyInputAllowed() override;
 	bool CheckNewInput() override; //+KZ from FastInput commit
 	CCustomCommunities m_CustomCommunities; //+KZ from T-Client
 	CRechargeBars m_RechargeBars; //+KZ
