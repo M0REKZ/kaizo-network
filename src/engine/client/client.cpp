@@ -102,6 +102,7 @@ extern int g_KaizoConfig_KaizoRunOnJoinConsoleDelay;
 extern int g_KaizoConfig_KaizoPredMarginInFreeze;
 extern int g_KaizoConfig_KaizoPredMarginInFreezeAmount;
 extern int g_KaizoConfig_KaizoGlitchyInput;
+extern int g_KaizoConfig_KaizoAlwaysRepredict;
 
 using namespace std::chrono_literals;
 
@@ -3002,6 +3003,11 @@ void CClient::Update()
 
 				//+KZ from Fast Input commit
 				if(g_KaizoConfig_KaizoFastInput && GameClient()->CheckNewInput())
+				{
+					Repredict = true;
+				}
+				
+				if(g_KaizoConfig_KaizoAlwaysRepredict)
 				{
 					Repredict = true;
 				}

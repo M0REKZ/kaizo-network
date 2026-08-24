@@ -77,6 +77,7 @@ MACRO_CONFIG_INT(KaizoPredictGoresGrenadeTele, kaizo_predict_grenade_gores_tele,
 //MACRO_CONFIG_INT(KaizoApplyGuessedInput, kaizo_apply_guessed_input, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Apply guessed input to predicted characters (kinda useless honestly i should remove this)")
 MACRO_CONFIG_INT(KaizoPredictGameTypes, kaizo_predict_gametypes, 1, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Predict game type specific logic")
 MACRO_CONFIG_INT(KaizoPredictOthersEffects, kaizo_predict_others_effects, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Also predict effects for others (like death)")
+MACRO_CONFIG_INT(KaizoAlwaysRepredict, kaizo_always_repredict, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Always repredict (no idea if it is even useful)")
 
 //From TaterClient
 MACRO_CONFIG_INT(KaizoFastInput, kaizo_fast_input, 1, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Enable fast input")

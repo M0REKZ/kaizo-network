@@ -545,6 +545,14 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 				Ui()->DoScrollbarOption(&g_KaizoConfig_KaizoPredMarginInFreezeAmount, &g_KaizoConfig_KaizoPredMarginInFreezeAmount, &Button, Localize("Margin while frozen"), 1, 100, &CUi::ms_LogarithmicScrollbarScale, 0u, "");
 			}
 
+			Right.HSplitTop(2.0f, nullptr, &Right);
+
+			Right.HSplitTop(20.0f, &Button, &Right);
+			if(DoButton_CheckBox(&g_KaizoConfig_KaizoAlwaysRepredict, Localize("Always repredict (no idea if it is even useful)"), g_KaizoConfig_KaizoAlwaysRepredict, &Button))
+			{
+				g_KaizoConfig_KaizoAlwaysRepredict ^= 1;
+			}
+
 			//Discord
 			Right.HSplitTop(40.0f, &Label, &SettingsBox);
 			Ui()->DoLabel(&Label, Localize("Discord Settings"), 20.0f, TEXTALIGN_ML);
