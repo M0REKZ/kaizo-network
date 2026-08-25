@@ -106,8 +106,8 @@ MACRO_CONFIG_INT(KaizoKeepMenuAfterVoteInMods, kaizo_keep_menu_after_vote_in_mod
 MACRO_CONFIG_INT(KaizoEmoticonToEmoji, kaizo_emoticon_to_emoji, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "When sending chat messages, convert :emoticons: to emojis")
 MACRO_CONFIG_INT(KaizoShowPreciseAuthedState, kaizo_show_precise_authed_state, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Show different color names for moderators and helpers")
 MACRO_CONFIG_INT(KaizoShowAuthedStateInGame, kaizo_show_authed_state_in_game, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Show authed state color in-game")
-MACRO_CONFIG_COL(KaizoModeratorAuthedColor, kaizo_moderator_authed_color, 5898211, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Moderator authed state color")
-MACRO_CONFIG_COL(KaizoHelperAuthedColor, kaizo_helper_authed_color, 5898211, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Helper authed state color")
+MACRO_CONFIG_COL(KaizoModeratorAuthedColor, kaizo_moderator_authed_color, 0x59FFE3, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Moderator authed state color")
+MACRO_CONFIG_COL(KaizoHelperAuthedColor, kaizo_helper_authed_color, 0x59FFE3, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Helper authed state color")
 
 //Idenfity other custom clients
 MACRO_CONFIG_INT(KaizoSendClientType, kaizo_send_client_type, 1, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Let know other clients that we are Kaizo Client")
@@ -213,4 +213,4 @@ MACRO_CONFIG_INT(KaizoFreeMouse, kaizo_free_mouse, 0, 0, 1, CFGFLAG_CLIENT | CFG
 MACRO_CONFIG_INT(KaizoShowHitbox, kaizo_show_hitbox, 0, 0, 3, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Show hitbox (1-other's 2-everyone 3-self)")
 MACRO_CONFIG_INT(KaizoShowHitboxSize, kaizo_show_hitbox_size, 50, 1, 100, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Hitbox size")
 MACRO_CONFIG_INT(KaizoShowHitboxQuality, kaizo_show_hitbox_quality, 8, 1, 32, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Hitbox quality (segments)")
-MACRO_CONFIG_COL(KaizoShowHitboxColor, kaizo_show_hitbox_color, 4288086271, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Hitbox color")
+MACRO_CONFIG_COL(KaizoShowHitboxColor, kaizo_show_hitbox_color, 0xFF9700FF, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Hitbox color")
