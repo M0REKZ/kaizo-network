@@ -104,6 +104,10 @@ MACRO_CONFIG_INT(KaizoPrefer07Protocol, kaizo_prefer_07_protocol, 0, 0, 1, CFGFL
 MACRO_CONFIG_INT(KaizoHideBroadcastOnChat, kaizo_hide_broadcast_on_chat, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Hide broadcasts when looking the chat")
 MACRO_CONFIG_INT(KaizoKeepMenuAfterVoteInMods, kaizo_keep_menu_after_vote_in_mods, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Dont close the menu while changing settings in F-DDrace, FoxNet, MMOTEE and other similar mods")
 MACRO_CONFIG_INT(KaizoEmoticonToEmoji, kaizo_emoticon_to_emoji, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "When sending chat messages, convert :emoticons: to emojis")
+MACRO_CONFIG_INT(KaizoShowPreciseAuthedState, kaizo_show_precise_authed_state, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Show different color names for moderators and helpers")
+MACRO_CONFIG_INT(KaizoShowAuthedStateInGame, kaizo_show_authed_state_in_game, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Show authed state color in-game")
+MACRO_CONFIG_COL(KaizoModeratorAuthedColor, kaizo_moderator_authed_color, 5898211, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Moderator authed state color")
+MACRO_CONFIG_COL(KaizoHelperAuthedColor, kaizo_helper_authed_color, 5898211, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Helper authed state color")
 
 //Idenfity other custom clients
 MACRO_CONFIG_INT(KaizoSendClientType, kaizo_send_client_type, 1, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Let know other clients that we are Kaizo Client")

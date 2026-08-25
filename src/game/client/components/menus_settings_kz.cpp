@@ -130,7 +130,7 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 	switch (s_CurCustomTab)
 	{
 	case KAIZO_SETTINGS_TAB_KAIZO:
-		ScrollHeight = 880.f;
+		ScrollHeight = 920.f;
 		break;
 	case KAIZO_SETTINGS_TAB_TCLIENT_BINDWHEEL:
 		ScrollHeight = SettingsBoxContainer.h;
@@ -346,6 +346,48 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 					g_KaizoConfig_KaizoEmoticonToEmoji ^= 1;
 				}
 			}
+
+			Left.HSplitTop(2.0f, nullptr, &Left);
+
+			Left.HSplitTop(20.0f, &Button, &Left);
+			if(DoButton_CheckBox(&g_KaizoConfig_KaizoShowAuthedStateInGame, Localize("Show authed state in-game"), g_KaizoConfig_KaizoShowAuthedStateInGame, &Button))
+			{
+				g_KaizoConfig_KaizoShowAuthedStateInGame ^= 1;
+			}
+
+			Left.HSplitTop(2.0f, nullptr, &Left);
+
+			Left.HSplitTop(20.0f, &Button, &Left);
+			if(DoButton_CheckBox(&g_KaizoConfig_KaizoShowPreciseAuthedState, Localize("Show more precise authed colors"), g_KaizoConfig_KaizoShowPreciseAuthedState, &Button))
+			{
+				g_KaizoConfig_KaizoShowPreciseAuthedState ^= 1;
+			}
+
+			Left.HSplitTop(2.0f, nullptr, &Left);
+
+			Left.HSplitTop(20.0f, &Button, &Left);
+			{
+				static CButtonContainer s_Color;
+				DoButton_ColorPickerAutoVMargin(&s_Color, Localize("Admin color"), &g_Config.m_ClAuthedPlayerColor, color_cast<ColorRGBA>(ColorHSLA(5898211 /*default value*/)), &Left, LineSize, true);
+			}
+
+			if(g_KaizoConfig_KaizoShowPreciseAuthedState)
+			{
+				Left.HSplitTop(2.0f, nullptr, &Left);
+				Left.HSplitTop(20.0f, &Button, &Left);
+				{
+					static CButtonContainer s_Color;
+					DoButton_ColorPickerAutoVMargin(&s_Color, Localize("Moderator color"), &g_KaizoConfig_KaizoModeratorAuthedColor, color_cast<ColorRGBA>(ColorHSLA(5898211 /*default value*/)), &Left, LineSize, true);
+				}
+				Left.HSplitTop(2.0f, nullptr, &Left);
+				Left.HSplitTop(20.0f, &Button, &Left);
+				{
+					static CButtonContainer s_Color;
+					DoButton_ColorPickerAutoVMargin(&s_Color, Localize("Helper color"), &g_KaizoConfig_KaizoHelperAuthedColor, color_cast<ColorRGBA>(ColorHSLA(5898211 /*default value*/)), &Left, LineSize, true);
+				}
+			}
+
+			Left.HSplitTop(2.0f, nullptr, &Left);
 
 			//Mod support
 			Left.HSplitTop(40.0f, &Label, &SettingsBox);

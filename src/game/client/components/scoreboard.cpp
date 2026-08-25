@@ -30,6 +30,9 @@
 extern int g_KaizoConfig_KaizoShowClientType;
 extern int g_KaizoConfig_KaizoScoreboardStyle;
 extern int g_KaizoConfig_KaizoScoreboardShorten;
+extern int g_KaizoConfig_KaizoShowPreciseAuthedState;
+extern unsigned g_KaizoConfig_KaizoModeratorAuthedColor;
+extern unsigned g_KaizoConfig_KaizoHelperAuthedColor;
 
 // Horizontal spacing of the scoreboard contents, both to its edges and between columns
 static constexpr float MARGIN = 10.0f;
@@ -424,7 +427,27 @@ void CScoreboard::RenderSpectators(CUIRect Spectators)
 
 		if(GameClient()->m_aClients[pInfo->m_ClientId].m_AuthLevel)
 		{
-			TextRender()->TextColor(color_cast<ColorRGBA>(ColorHSLA(g_Config.m_ClAuthedPlayerColor)));
+			//+KZ
+			if(g_KaizoConfig_KaizoShowPreciseAuthedState)
+			{
+				if(GameClient()->m_aClients[pInfo->m_ClientId].m_AuthLevel == AUTHED_MOD)
+				{
+					TextRender()->TextColor(color_cast<ColorRGBA>(ColorHSLA(g_KaizoConfig_KaizoModeratorAuthedColor)));
+				}
+				else if(GameClient()->m_aClients[pInfo->m_ClientId].m_AuthLevel == AUTHED_HELPER)
+				{
+					TextRender()->TextColor(color_cast<ColorRGBA>(ColorHSLA(g_KaizoConfig_KaizoHelperAuthedColor)));
+				}
+				else
+				{
+					TextRender()->TextColor(color_cast<ColorRGBA>(ColorHSLA(g_Config.m_ClAuthedPlayerColor)));
+				}
+			}
+			else
+			{
+				TextRender()->TextColor(color_cast<ColorRGBA>(
+					ColorHSLA(g_Config.m_ClAuthedPlayerColor)));
+			}
 		}
 
 		TextRender()->TextEx(&Cursor, GameClient()->m_aClients[pInfo->m_ClientId].m_aName);
@@ -838,7 +861,27 @@ void CScoreboard::RenderScoreboard(CUIRect Scoreboard, int Team, int CountStart,
 				ColorRGBA NameColor = TextColor;
 				if(ClientData.m_AuthLevel)
 				{
-					NameColor = color_cast<ColorRGBA>(ColorHSLA(g_Config.m_ClAuthedPlayerColor));
+					//+KZ
+					if(g_KaizoConfig_KaizoShowPreciseAuthedState)
+					{
+						if(ClientData.m_AuthLevel == AUTHED_MOD)
+						{
+							NameColor = (color_cast<ColorRGBA>(ColorHSLA(g_KaizoConfig_KaizoModeratorAuthedColor)));
+						}
+						else if(ClientData.m_AuthLevel == AUTHED_HELPER)
+						{
+							NameColor = (color_cast<ColorRGBA>(ColorHSLA(g_KaizoConfig_KaizoHelperAuthedColor)));
+						}
+						else
+						{
+							NameColor = (color_cast<ColorRGBA>(ColorHSLA(g_Config.m_ClAuthedPlayerColor)));
+						}
+					}
+					else
+					{
+						NameColor = (color_cast<ColorRGBA>(
+							ColorHSLA(g_Config.m_ClAuthedPlayerColor)));
+					}
 				}
 				Player.m_Name.Render(TextRender(), vec2(NameOffset, TextY), NameColor);
 

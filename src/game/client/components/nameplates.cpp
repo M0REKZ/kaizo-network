@@ -22,6 +22,10 @@ extern int g_KaizoConfig_KaizoShowCharFlags;
 extern int g_KaizoConfig_KaizoShowCharJumps;
 extern int g_KaizoConfig_KaizoShowCharFlagsSize;
 extern int g_KaizoConfig_KaizoShowCharJumpsSize;
+extern int g_KaizoConfig_KaizoShowPreciseAuthedState;
+extern int g_KaizoConfig_KaizoShowAuthedStateInGame;
+extern unsigned g_KaizoConfig_KaizoModeratorAuthedColor;
+extern unsigned g_KaizoConfig_KaizoHelperAuthedColor;
 
 enum class EHookStrongWeakState
 {
@@ -376,6 +380,31 @@ protected:
 		CTextCursor Cursor;
 		Cursor.m_FontSize = m_FontSize;
 		This.TextRender()->CreateOrAppendTextContainer(m_TextContainerIndex, &Cursor, m_aText);
+	}
+
+	//+KZ
+	void Update(CGameClient &This, const CNamePlateData &Data) override
+	{
+		CNamePlatePartText::Update(This, Data);
+
+		if(!(g_KaizoConfig_KaizoShowPreciseAuthedState && g_KaizoConfig_KaizoShowAuthedStateInGame))
+			return;
+
+		switch (This.m_aClients[Data.m_ClientId].m_AuthLevel)
+		{
+		case AUTHED_ADMIN:
+			m_Color = color_cast<ColorRGBA>(ColorHSLA(g_Config.m_ClAuthedPlayerColor));
+			break;
+		case AUTHED_MOD:
+			m_Color = color_cast<ColorRGBA>(ColorHSLA(g_KaizoConfig_KaizoModeratorAuthedColor));
+			break;
+		case AUTHED_HELPER:
+			m_Color = color_cast<ColorRGBA>(ColorHSLA(g_KaizoConfig_KaizoHelperAuthedColor));
+			break;
+		
+		default:
+			break;
+		}
 	}
 
 public:
