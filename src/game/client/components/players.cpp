@@ -40,6 +40,10 @@ extern int g_KaizoConfig_KaizoPredictGameTypes;
 extern int g_KaizoConfig_KaizoPredictOthersEffects;
 extern int g_KaizoConfig_KaizoFastInput;
 extern int g_KaizoConfig_SvGoresQuadsEnable;
+extern int g_KaizoConfig_KaizoShowHitbox;
+extern int g_KaizoConfig_KaizoShowHitboxSize;
+extern int g_KaizoConfig_KaizoShowHitboxQuality;
+extern unsigned g_KaizoConfig_KaizoShowHitboxColor;
 
 static float CalculateHandAngle(vec2 Dir, float AngleOffset)
 {
@@ -1009,6 +1013,38 @@ void CPlayers::RenderPlayer(
 
 		Graphics()->SetColor(1.0f, 1.0f, 1.0f, 1.0f);
 		Graphics()->QuadsSetRotation(0);
+	}
+
+	//From Rushie Client
+	if(g_KaizoConfig_KaizoShowHitbox)
+	{
+		bool ShowHitbox = false;
+		switch(g_KaizoConfig_KaizoShowHitbox)
+		{
+		case 0:
+			ShowHitbox = false;
+			break;
+		case 1:
+			ShowHitbox = GameClient()->m_Snap.m_LocalClientId != ClientId;
+			break;
+		case 2:
+			ShowHitbox = true;
+			break;
+		case 3:
+			ShowHitbox = GameClient()->m_Snap.m_LocalClientId == ClientId;
+			break;
+		default:
+			ShowHitbox = false;
+			break;
+		}
+		if(ShowHitbox)
+		{
+			Graphics()->TextureClear();
+			Graphics()->QuadsBegin();
+			Graphics()->SetColor(color_cast<ColorRGBA>(ColorHSLA(g_KaizoConfig_KaizoShowHitboxColor)));
+			Graphics()->DrawCircle(BodyPos.x, BodyPos.y, 2.0f * g_KaizoConfig_KaizoShowHitboxSize / 50.0f, g_KaizoConfig_KaizoShowHitboxQuality);
+			Graphics()->QuadsEnd();
+		}
 	}
 
 	if(g_Config.m_ClShowEmotes && !GameClient()->m_aClients[ClientId].m_EmoticonIgnore && GameClient()->m_aClients[ClientId].m_EmoticonStartTick != -1)

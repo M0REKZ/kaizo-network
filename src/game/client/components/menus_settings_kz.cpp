@@ -59,6 +59,25 @@ static CKeyInfo gs_aKeys[NUM_KAIZO_KEYBINDS] = {
 	{Localizable("Drop Flag"), "say /drop flag", 0, 0},
 };*/
 
+//copypasted TClient consts
+const float FontSize = 14.0f;
+const float EditBoxFontSize = 12.0f;
+const float LineSize = 20.0f;
+const float ColorPickerLineSize = 25.0f;
+const float HeadlineFontSize = 20.0f;
+const float StandardFontSize = 14.0f;
+
+const float HeadlineHeight = HeadlineFontSize + 0.0f;
+const float Margin = 10.0f;
+const float MarginSmall = 5.0f;
+const float MarginExtraSmall = 2.5f;
+const float MarginBetweenSections = 30.0f;
+const float MarginBetweenViews = 30.0f;
+
+const float ColorPickerLabelSize = 13.0f;
+const float ColorPickerLineSpacing = 5.0f;
+//end of copypasted TClient consts
+
 void CMenus::RenderSettingsKaizo(CUIRect MainView)
 {
 	CUIRect TabBar;
@@ -1046,6 +1065,27 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 				g_KaizoConfig_KaizoGlitchyInput ^= 1;
 			}
 
+			//Freeze hitbox
+			Left.HSplitTop(40.0f, &Label, &SettingsBox);
+			Ui()->DoLabel(&Label, Localize("Freeze hitbox"), 20.0f, TEXTALIGN_ML);
+			Left.HSplitTop(40.0f, &Label, &Left);
+
+			Left.HSplitTop(2.0f, nullptr, &Left);
+			{
+				static std::vector<CButtonContainer> s_vButtonContainersPlayersHitbox = {{}, {}, {}, {}};
+				DoLine_RadioMenu(Left, Localize("Show player hitbox"),
+					s_vButtonContainersPlayersHitbox,
+					{Localize("Off"), Localize("Others"), Localize("Everyone"), Localize("Own")},
+					{0, 1, 2, 3},
+					g_KaizoConfig_KaizoShowHitbox);
+				Left.HSplitTop(LineSize, &Button, &Left);
+				Ui()->DoScrollbarOption(&g_KaizoConfig_KaizoShowHitboxSize, &g_KaizoConfig_KaizoShowHitboxSize, &Button, Localize("Size of hitbox"), 1, 100, &CUi::ms_LinearScrollbarScale, 0);
+				Left.HSplitTop(LineSize, &Button, &Left);
+				Ui()->DoScrollbarOption(&g_KaizoConfig_KaizoShowHitboxQuality, &g_KaizoConfig_KaizoShowHitboxQuality, &Button, Localize("Quality of hitbox"), 1, 32, &CUi::ms_LinearScrollbarScale, 0);
+				static CButtonContainer s_HitboxColor;
+				DoButton_ColorPickerAutoVMargin(&s_HitboxColor, Localize("Hitbox color"), &g_KaizoConfig_KaizoShowHitboxColor, color_cast<ColorRGBA>(ColorHSLA(4288086271 /*default value*/)), &Left, LineSize, true);
+			}
+
 			break;
 		}
 		case KAIZO_SETTINGS_TAB_INFO:
@@ -1124,24 +1164,6 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 
 	s_ScrollRegion.End();
 }
-
-//copypasted TClient consts
-const float FontSize = 14.0f;
-const float EditBoxFontSize = 12.0f;
-const float LineSize = 20.0f;
-const float ColorPickerLineSize = 25.0f;
-const float HeadlineFontSize = 20.0f;
-const float StandardFontSize = 14.0f;
-
-const float HeadlineHeight = HeadlineFontSize + 0.0f;
-const float Margin = 10.0f;
-const float MarginSmall = 5.0f;
-const float MarginExtraSmall = 2.5f;
-const float MarginBetweenSections = 30.0f;
-const float MarginBetweenViews = 30.0f;
-
-const float ColorPickerLabelSize = 13.0f;
-const float ColorPickerLineSpacing = 5.0f;
 
 //this function is from TClient:
 bool CMenus::DoLine_KeyReader(CUIRect &View, CButtonContainer &ReaderButton, CButtonContainer &ClearButton, const char *pName, const char *pCommand)

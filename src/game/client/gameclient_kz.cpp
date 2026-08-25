@@ -220,10 +220,10 @@ void CGameClient::HandleKaizoSnapItem(const IClient::CSnapItem *pItem)
             }
             else if(MACRO_IS_SKIN_COLOR_CCID(
                 pInfo->m_ColorBody, pInfo->m_ColorFeet,
-                CCID_COLOR_BODY_PDUCKCLIENT, CCID_COLOR_FEET_PDUCKCLIENT
+                CCID_COLOR_BODY_DUCK_N_INFCLASS_CLIENT, CCID_COLOR_FEET_DUCK_N_INFCLASS_CLIENT
             ))
             {
-                pClient->m_CustomClient = CUSTOM_CLIENT_ID_PDUCKCLIENT;
+                pClient->m_CustomClient = CUSTOM_CLIENT_ID_DUCK_N_INFCLASS_CLIENT;
             }
             else if(MACRO_IS_SKIN_COLOR_CCID(
                 pInfo->m_ColorBody, pInfo->m_ColorFeet,
@@ -231,6 +231,13 @@ void CGameClient::HandleKaizoSnapItem(const IClient::CSnapItem *pItem)
             ))
             {
                 pClient->m_CustomClient = CUSTOM_CLIENT_ID_RUSHIECLIENT;
+            }
+            else if(MACRO_IS_SKIN_COLOR_CCID(
+                pInfo->m_ColorBody, pInfo->m_ColorFeet,
+                CCID_COLOR_BODY_ASCENDCLIENT, CCID_COLOR_FEET_ASCENDCLIENT
+            ))
+            {
+                pClient->m_CustomClient = CUSTOM_CLIENT_ID_ASCENDCLIENT;
             }
         }
     }

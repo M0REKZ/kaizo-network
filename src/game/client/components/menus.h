@@ -57,6 +57,10 @@ public:
 
 private:
 	CUi::SColorPickerPopupContext m_ColorPickerPopupContext;
+
+	//From Rushie Client
+	ColorHSLA DoButton_ColorPickerAutoVMargin(CButtonContainer *pResetId, const char *pText, unsigned int *pColorValue, ColorRGBA DefaultColor, CUIRect *pRect, float VMargin, bool Alpha = false, int *pCheckBoxValue = nullptr);
+
 	ColorHSLA DoLine_ColorPicker(CButtonContainer *pResetId, float LineSize, float LabelSize, float BottomMargin, CUIRect *pMainRect, const char *pText, unsigned int *pColorValue, ColorRGBA DefaultColor, bool CheckBoxSpacing = true, int *pCheckBoxValue = nullptr, bool Alpha = false);
 	ColorHSLA DoButton_ColorPicker(const CUIRect *pRect, unsigned int *pHslaColor, bool Alpha);
 

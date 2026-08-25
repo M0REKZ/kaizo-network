@@ -2748,6 +2748,7 @@ if(CLIENT)
     components/mapsounds.h
     components/menu_background.cpp
     components/menu_background.h
+    components/menus_kz.cpp
     components/menus.cpp
     components/menus.h
     components/menus_browser_kz.cpp

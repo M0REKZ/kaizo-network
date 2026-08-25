@@ -1420,6 +1420,14 @@ void CMenus::RenderServerbrowserInfoScoreboard(CUIRect View, const CServerInfo *
 					Image = IMAGE_KZ_RUSHIEICON;
 					Sprite = SPRITE_KZ_RUSHIEICON;
 				}
+				else if(MACRO_IS_SKIN_COLOR_CCID(
+					CurrentClient.m_CustomSkinColorBody, CurrentClient.m_CustomSkinColorFeet,
+					CCID_COLOR_BODY_ASCENDCLIENT, CCID_COLOR_FEET_ASCENDCLIENT
+				))
+				{
+					Image = IMAGE_KZ_ASCENDICON;
+					Sprite = SPRITE_KZ_ASCENDICON;
+				}
 
 				if(Sprite != -1 && Image != -1)
 				{

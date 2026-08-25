@@ -204,3 +204,9 @@ MACRO_CONFIG_INT(KaizoGrenadePath, kaizo_grenade_path, 0, 0, 1, CFGFLAG_CLIENT |
 MACRO_CONFIG_INT(KaizoShowCharJumps, kaizo_show_char_jumps, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Show remaining double jumps of a tee (WARNING: can be considered as a cheat, use at your own risk!)")
 MACRO_CONFIG_INT(KaizoShowCharJumpsSize, kaizo_show_char_jumps_size, 30, 25, 100, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Size of double jump indicators")
 MACRO_CONFIG_INT(KaizoFreeMouse, kaizo_free_mouse, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Free mouse (WARNING: can be considered as a cheat, use at your own risk!)")
+
+//From RushieClient
+MACRO_CONFIG_INT(KaizoShowHitbox, kaizo_show_hitbox, 0, 0, 3, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Show hitbox (1-other's 2-everyone 3-self)")
+MACRO_CONFIG_INT(KaizoShowHitboxSize, kaizo_show_hitbox_size, 50, 1, 100, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Hitbox size")
+MACRO_CONFIG_INT(KaizoShowHitboxQuality, kaizo_show_hitbox_quality, 8, 1, 32, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Hitbox quality (segments)")
+MACRO_CONFIG_COL(KaizoShowHitboxColor, kaizo_show_hitbox_color, 4288086271, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Hitbox color")

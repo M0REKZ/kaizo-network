@@ -8,6 +8,8 @@ shield.png by Dune (license: CC BY-SA 3.0)
 
 rushieicon.png by Voix (license: CC BY-SA 3.0)
 
+ascendclient.png by WarHammer (license: CC BY-ND 4.0) (source: https://github.com/WarHammer-z/AscendClientLib/blob/main/ascendclient.png)
+
 emojis.json is made by ArkinSolomon, was taken from https://github.com/ArkinSolomon/discord-emoji-converter/blob/master/emojis.json and is under MIT License
 
 All other files are made by +KZ, they are under Copyright (c) Benjamín Gajardo:

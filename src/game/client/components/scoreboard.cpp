@@ -903,6 +903,10 @@ void CScoreboard::RenderScoreboard(CUIRect Scoreboard, int Team, int CountStart,
 					Image = IMAGE_KZ_RUSHIEICON;
 					Sprite = SPRITE_KZ_RUSHIEICON;
 					break;
+				case CUSTOM_CLIENT_ID_ASCENDCLIENT:
+					Image = IMAGE_KZ_ASCENDICON;
+					Sprite = SPRITE_KZ_ASCENDICON;
+					break;
 				}
 
 				if(Sprite != -1 && Image != -1)
