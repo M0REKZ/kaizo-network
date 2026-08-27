@@ -191,14 +191,6 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 			Left.HSplitTop(2.0f, nullptr, &Left);
 
 			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoRotatingHammer, Localize("Rotating hammer (like other weapons)"), g_KaizoConfig_KaizoRotatingHammer, &Button))
-			{
-				g_KaizoConfig_KaizoRotatingHammer ^= 1;
-			}
-
-			Left.HSplitTop(2.0f, nullptr, &Left);
-
-			Left.HSplitTop(20.0f, &Button, &Left);
 			if(DoButton_CheckBox(&g_KaizoConfig_KaizoHudRealPosition, Localize("If HUD player position is enabled, show real position"), g_KaizoConfig_KaizoHudRealPosition, &Button))
 			{
 				g_KaizoConfig_KaizoHudRealPosition ^= 1;
@@ -210,14 +202,6 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 			if(DoButton_CheckBox(&g_KaizoConfig_KaizoHudRealVelocity, Localize("If HUD player velocity is enabled, show real velocity"), g_KaizoConfig_KaizoHudRealVelocity, &Button))
 			{
 				g_KaizoConfig_KaizoHudRealVelocity ^= 1;
-			}
-
-			Left.HSplitTop(2.0f, nullptr, &Left);
-
-			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoChatInputBackground, Localize("Show background while typing in chat"), g_KaizoConfig_KaizoChatInputBackground, &Button))
-			{
-				g_KaizoConfig_KaizoChatInputBackground ^= 1;
 			}
 
 			Left.HSplitTop(2.0f, nullptr, &Left);
@@ -242,14 +226,6 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 			Left.HSplitTop(2.0f, nullptr, &Left);
 
 			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoKillingSpreeSparkles, Localize("Killing spree sparkles"), g_KaizoConfig_KaizoKillingSpreeSparkles, &Button))
-			{
-				g_KaizoConfig_KaizoKillingSpreeSparkles ^= 1;
-			}
-
-			Left.HSplitTop(2.0f, nullptr, &Left);
-
-			Left.HSplitTop(20.0f, &Button, &Left);
 			if(DoButton_CheckBox(&g_KaizoConfig_KaizoReplyTabbedOut, Localize("Reply when tabbed out"), g_KaizoConfig_KaizoReplyTabbedOut, &Button))
 			{
 				g_KaizoConfig_KaizoReplyTabbedOut ^= 1;
@@ -268,16 +244,6 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 				Left.HSplitTop(20.0f, &Button, &Left);
 				Ui()->DoEditBox(&s_TabbedOutInput, &Button, 14.0f);
 			}
-
-			Left.HSplitTop(2.0f, nullptr, &Left);
-
-			Left.HSplitTop(20.0f, &Button, &Left);
-			Ui()->DoScrollbarOption(&g_KaizoConfig_KaizoScoreboardStyle, &g_KaizoConfig_KaizoScoreboardStyle, &Button, Localize("Scoreboard style"), 0, 3, &CUi::ms_LogarithmicScrollbarScale, 0u, "");
-
-			Left.HSplitTop(2.0f, nullptr, &Left);
-
-			Left.HSplitTop(20.0f, &Button, &Left);
-			Ui()->DoScrollbarOption(&g_KaizoConfig_KaizoScoreboardShorten, &g_KaizoConfig_KaizoScoreboardShorten, &Button, Localize("Shorten scoreboard"), 0, 2, &CUi::ms_LogarithmicScrollbarScale, 0u, "");
 
 			Left.HSplitTop(2.0f, nullptr, &Left);
 
@@ -432,6 +398,14 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 			if(DoButton_CheckBox(&g_KaizoConfig_KaizoInstaShieldShield, Localize("InstaShield Shield (for \"iCTF)\")"), g_KaizoConfig_KaizoInstaShieldShield, &Button))
 			{
 				g_KaizoConfig_KaizoInstaShieldShield ^= 1;
+			}
+
+			Left.HSplitTop(2.0f, nullptr, &Left);
+
+			Left.HSplitTop(20.0f, &Button, &Left);
+			if(DoButton_CheckBox(&g_KaizoConfig_KaizoKillingSpreeSparkles, Localize("Killing spree sparkles"), g_KaizoConfig_KaizoKillingSpreeSparkles, &Button))
+			{
+				g_KaizoConfig_KaizoKillingSpreeSparkles ^= 1;
 			}
 
 			Left.HSplitTop(2.0f, nullptr, &Left);
@@ -644,6 +618,37 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 			{
 				g_KaizoConfig_KaizoDiscordLaunchSteam ^= 1;
 			}
+
+			//Visual-only
+			Right.HSplitTop(40.0f, &Label, &SettingsBox);
+			Ui()->DoLabel(&Label, Localize("Visual-only Settings"), 20.0f, TEXTALIGN_ML);
+			Right.HSplitTop(40.0f, &Label, &Right);
+
+			Right.HSplitTop(2.0f, nullptr, &Right);
+
+			Right.HSplitTop(20.0f, &Button, &Right);
+			if(DoButton_CheckBox(&g_KaizoConfig_KaizoChatInputBackground, Localize("Show background while typing in chat"), g_KaizoConfig_KaizoChatInputBackground, &Button))
+			{
+				g_KaizoConfig_KaizoChatInputBackground ^= 1;
+			}
+
+			Right.HSplitTop(2.0f, nullptr, &Right);
+
+			Right.HSplitTop(20.0f, &Button, &Right);
+			if(DoButton_CheckBox(&g_KaizoConfig_KaizoRotatingHammer, Localize("Rotating hammer (like other weapons)"), g_KaizoConfig_KaizoRotatingHammer, &Button))
+			{
+				g_KaizoConfig_KaizoRotatingHammer ^= 1;
+			}
+
+			Right.HSplitTop(2.0f, nullptr, &Right);
+
+			Right.HSplitTop(20.0f, &Button, &Right);
+			Ui()->DoScrollbarOption(&g_KaizoConfig_KaizoScoreboardStyle, &g_KaizoConfig_KaizoScoreboardStyle, &Button, Localize("Scoreboard style"), 0, 3, &CUi::ms_LogarithmicScrollbarScale, 0u, "");
+
+			Right.HSplitTop(2.0f, nullptr, &Right);
+
+			Right.HSplitTop(20.0f, &Button, &Right);
+			Ui()->DoScrollbarOption(&g_KaizoConfig_KaizoScoreboardShorten, &g_KaizoConfig_KaizoScoreboardShorten, &Button, Localize("Shorten scoreboard"), 0, 2, &CUi::ms_LogarithmicScrollbarScale, 0u, "");
 
 			break;
 		}
@@ -1105,6 +1110,12 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 			if(DoButton_CheckBox(&g_KaizoConfig_KaizoGlitchyInput, Localize("Make your own gameplay less accurate xD"), g_KaizoConfig_KaizoGlitchyInput, &Button))
 			{
 				g_KaizoConfig_KaizoGlitchyInput ^= 1;
+			}
+
+			Left.HSplitTop(20.0f, &Button, &Left);
+			if(DoButton_CheckBox(&g_KaizoConfig_KaizoShowTrackedAmmo, Localize("Track ammo and show it"), g_KaizoConfig_KaizoShowTrackedAmmo, &Button))
+			{
+				g_KaizoConfig_KaizoShowTrackedAmmo ^= 1;
 			}
 
 			//Freeze hitbox

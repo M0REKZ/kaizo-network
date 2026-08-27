@@ -31,6 +31,7 @@
 extern int g_KaizoConfig_KaizoSplitsX;
 extern int g_KaizoConfig_KaizoHudRealPosition;
 extern int g_KaizoConfig_KaizoHudRealVelocity;
+extern int g_KaizoConfig_KaizoShowTrackedAmmo;
 
 CHud::CHud()
 {
@@ -754,7 +755,38 @@ void CHud::RenderAmmoHealthAndArmor(const CNetObj_Character *pCharacter)
 	//From CMClient
 	float SplitsWidth = g_KaizoConfig_KaizoSplitsX == 0 ? m_SplitsLastWidth : 0.0f;
 
-	if(GameClient()->m_GameInfo.m_HudAmmo)
+	//+KZ
+	if(GameClient()->m_GameInfo.m_HudAmmo && g_KaizoConfig_KaizoShowTrackedAmmo)
+	{
+		float AmmoOffsetY = GameClient()->m_GameInfo.m_HudHealthArmor ? 24 : 0;
+		int CurWeapon = pCharacter->m_Weapon % NUM_WEAPONS;
+
+		static int TrackedAmmo[NUM_WEAPONS] = {-1};
+
+		TrackedAmmo[CurWeapon] = pCharacter->m_AmmoCount;
+
+		for(int i = 0; i < NUM_WEAPONS; i++)
+		{
+			char abuf[64] = {'\0'};
+			if(TrackedAmmo[i] >= 0)
+			{
+				str_format(abuf, sizeof(abuf), "%d", TrackedAmmo[i]);
+			}
+			else
+			{
+				str_format(abuf, sizeof(abuf), "%s", "Ꝏ");
+			}
+			if(GameClient()->m_GameSkin.m_aSpriteWeaponProjectiles[i].IsValid())
+			{
+				Graphics()->TextureSet(GameClient()->m_GameSkin.m_aSpriteWeaponProjectiles[i]);
+				{
+					Graphics()->RenderQuadContainerEx(m_HudQuadContainerIndex, m_aAmmoOffset[i] + QuadOffsetSixup, 1, i * 22.f, AmmoOffsetY > 0 ? AmmoOffsetY : 1.f);
+					TextRender()->Text(i * 23.f, AmmoOffsetY > 0 ? AmmoOffsetY + 11.f : 22.f, 6.f, abuf, 1000.f);
+				}
+			}
+		}
+	}
+	else if(GameClient()->m_GameInfo.m_HudAmmo)
 	{
 		// ammo display
 		float AmmoOffsetY = GameClient()->m_GameInfo.m_HudHealthArmor ? 24 : 0;
