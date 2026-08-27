@@ -33,7 +33,8 @@ This repo also uses code from the following mods that are NOT made by +KZ:
 
 Other credits:
 
-* Check [./data/kz/license.txt](./data/kz/license.txt) for credits and licenses for assets used in this modification.
+* `data/skins7/body/tufts.png`, `data/skins7/feet/runners.png` and `data/skins7/feet/runners.png` by [Pointer31](https://github.com/Pointer31) from Duck/Infclass Client (CC BY-SA 3.0)
+* Check [./data/kz/license.txt](./data/kz/license.txt) for other credits and licenses for assets used in this modification.
 
 Direct contributions to Kaizo Client:
 
