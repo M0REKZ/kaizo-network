@@ -1,0 +1,45 @@
+{"skin": {
+	"body": {
+		"filename": "greyfox_body",
+		"custom_colors": "true",
+		"hue": 19,
+		"sat": 0,
+		"lgt": 217
+	},
+	"marking": {
+		"filename": "greyfox_marking",
+		"custom_colors": "true",
+		"hue": 0,
+		"sat": 0,
+		"lgt": 148,
+		"alp": 73
+	},
+	"decoration": {
+		"filename": "hair",
+		"custom_colors": "true",
+		"hue": 0,
+		"sat": 0,
+		"lgt": 52
+	},
+	"hands": {
+		"filename": "standard",
+		"custom_colors": "true",
+		"hue": 120,
+		"sat": 0,
+		"lgt": 255
+	},
+	"feet": {
+		"filename": "standard",
+		"custom_colors": "true",
+		"hue": 0,
+		"sat": 0,
+		"lgt": 32
+	},
+	"eyes": {
+		"filename": "standard",
+		"custom_colors": "true",
+		"hue": 0,
+		"sat": 0,
+		"lgt": 0
+	}}
+}
