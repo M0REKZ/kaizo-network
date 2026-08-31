@@ -17,7 +17,7 @@ jobs:
         include:
         - os: ubuntu-22.04
           cmake-path: /usr/bin/
-          cmake-args: -G Ninja -DCLIENT=ON -DTOOLS=OFF -DPREFER_BUNDLED_LIBS=ON -Wno-error=dev
+          cmake-args: -G Ninja -DCLIENT=ON -DTOOLS=OFF -DPREFER_BUNDLED_LIBS=ON -DDISCORD_DYNAMIC=ON -Wno-error=dev
           cmake-init-env: CXXFLAGS=
           gtest-env: GTEST_FILTER=-*SQLite*
           package-file: "*-linux_x86_64.tar.xz"
