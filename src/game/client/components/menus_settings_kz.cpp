@@ -145,7 +145,7 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 		}
 		break;
 	case KAIZO_SETTINGS_TAB_DANGEROUS:
-		ScrollHeight = 700.f;
+		ScrollHeight = 750.f;
 		break;
 	default:
 		ScrollHeight = 0.f;
@@ -1116,6 +1116,23 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 			if(DoButton_CheckBox(&g_KaizoConfig_KaizoShowTrackedAmmo, Localize("Track ammo and show it"), g_KaizoConfig_KaizoShowTrackedAmmo, &Button))
 			{
 				g_KaizoConfig_KaizoShowTrackedAmmo ^= 1;
+			}
+
+			Left.HSplitTop(20.0f, &Button, &Left);
+			if(DoButton_CheckBox(&g_KaizoConfig_KaizoFasterHardcoreMouse, Localize("Enable fast hardcore mouse"), g_KaizoConfig_KaizoFasterHardcoreMouse, &Button))
+			{
+				g_KaizoConfig_KaizoFasterHardcoreMouse ^= 1;
+			}
+
+			if(g_KaizoConfig_KaizoFasterHardcoreMouse)
+			{
+				Left.HSplitTop(2.0f, nullptr, &Left);
+				Left.HSplitTop(20.0f, &Button, &Left);
+				Ui()->DoScrollbarOption(&g_KaizoConfig_KaizoFasterHardcoreMouseDistance, &g_KaizoConfig_KaizoFasterHardcoreMouseDistance, &Button, Localize("Hardcore mouse required distance (recommended: 400)"), 0, 700, &CUi::ms_LogarithmicScrollbarScale, 0u);
+
+				Left.HSplitTop(2.0f, nullptr, &Left);
+				Left.HSplitTop(20.0f, &Button, &Left);
+				Ui()->DoScrollbarOption(&g_KaizoConfig_KaizoFasterHardcoreMouseScale, &g_KaizoConfig_KaizoFasterHardcoreMouseScale, &Button, Localize("Hardcore mouse scale multiplier (recommended: 4)"), 0, 50, &CUi::ms_LogarithmicScrollbarScale, 0u);
 			}
 
 			//Freeze hitbox

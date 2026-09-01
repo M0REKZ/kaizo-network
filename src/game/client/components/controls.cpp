@@ -24,6 +24,9 @@
 //+KZ
 extern int g_KaizoConfig_KaizoHideAiming;
 extern int g_KaizoConfig_KaizoFreeMouse;
+extern int g_KaizoConfig_KaizoFasterHardcoreMouse;
+extern int g_KaizoConfig_KaizoFasterHardcoreMouseDistance;
+extern int g_KaizoConfig_KaizoFasterHardcoreMouseScale;
 
 CControls::CControls()
 {
@@ -433,6 +436,21 @@ bool CControls::OnCursorMove(float x, float y, IInput::ECursorType CursorType)
 
 	if(GameClient()->m_Snap.m_SpecInfo.m_Active && GameClient()->m_Snap.m_SpecInfo.m_SpectatorId < 0)
 		Factor *= GameClient()->m_Camera.m_Zoom;
+
+	//+KZ
+	if(g_KaizoConfig_KaizoFasterHardcoreMouse)
+	{
+		vec2 ExpectedFinalPos = m_aMousePos[g_Config.m_ClDummy] + vec2(x, y) * Factor;
+		float curdist = length(ExpectedFinalPos)/GameClient()->m_Camera.m_Zoom;
+		if(curdist < g_KaizoConfig_KaizoFasterHardcoreMouseDistance)
+		{
+			Factor *= (
+					(g_KaizoConfig_KaizoFasterHardcoreMouseDistance - curdist)
+					/ (float)g_KaizoConfig_KaizoFasterHardcoreMouseDistance
+				)
+				* g_KaizoConfig_KaizoFasterHardcoreMouseScale + 1;
+		}
+	}
 
 	m_aMousePos[g_Config.m_ClDummy] += vec2(x, y) * Factor;
 	GameClient()->m_Controls.m_aMouseInputType[g_Config.m_ClDummy] = CControls::EMouseInputType::RELATIVE;

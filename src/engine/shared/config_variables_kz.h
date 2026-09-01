@@ -200,6 +200,9 @@ MACRO_CONFIG_INT(KaizoHideAiming, kaizo_hide_aiming, 0, 0, 1, CFGFLAG_CLIENT | C
 MACRO_CONFIG_INT(KaizoFakeMaxZoom, kaizo_fake_max_zoom, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Make server think you have max zoom, may improve prediction (WARNING: can be considered as a cheat, use at your own risk!)")
 MACRO_CONFIG_INT(KaizoGlitchyInput, kaizo_glitchy_input, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Make your gameplay worse and inaccurate (WARNING: can be considered as a cheat, use at your own risk!)")
 MACRO_CONFIG_INT(KaizoShowTrackedAmmo, kaizo_show_tracked_ammo, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Show tracked ammo for all weapons (WARNING: can be considered as a cheat, use at your own risk!)")
+MACRO_CONFIG_INT(KaizoFasterHardcoreMouse, kaizo_faster_hardcore_mouse, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Enable fast hardcore mouse (WARNING: can be considered as a cheat, use at your own risk!)")
+MACRO_CONFIG_INT(KaizoFasterHardcoreMouseDistance, kaizo_faster_hardcore_mouse_distance, 0, 0, 1000, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Fast hardcore mouse work required distance (WARNING: can be considered as a cheat, use at your own risk!)")
+MACRO_CONFIG_INT(KaizoFasterHardcoreMouseScale, kaizo_faster_hardcore_mouse_scale, 4, 0, 50, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Fast hardcore mouse work scale multiplier (WARNING: can be considered as a cheat, use at your own risk!)")
 
 //From DuckDDNet
 MACRO_CONFIG_INT(KaizoShowCharFlags, kaizo_show_char_flags, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Show Character flags (Deep/Jetpack/etc) (WARNING: can be considered as a cheat, use at your own risk!)")
