@@ -850,6 +850,12 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 			//save button
 			CUIRect SaveButton;
 
+			//warning
+			SLabelProperties DangerLabelProps;
+			DangerLabelProps.SetColor(ColorRGBA(1.f,0.f,0.f));
+			Ui()->DoLabel(&Row, Localize("-> Warning: Passwords are saved in your config file! <-"), Row.h * CUi::ms_FontmodHeight * 0.8f, TEXTALIGN_MC, DangerLabelProps);
+			Row.y += Row.h;
+
 			//split text boxes and button
 			Row.VSplitRight(22.f, &Row, &SaveButton);
 			Row.w -= 2.f;
