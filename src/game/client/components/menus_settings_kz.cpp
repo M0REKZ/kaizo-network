@@ -1125,7 +1125,7 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 			}
 
 			Left.HSplitTop(20.0f, &Button, &Left);
-			if(DoButton_CheckBox(&g_KaizoConfig_KaizoFasterHardcoreMouse, Localize("Enable fast hardcore mouse"), g_KaizoConfig_KaizoFasterHardcoreMouse, &Button))
+			if(DoButton_CheckBox(&g_KaizoConfig_KaizoFasterHardcoreMouse, Localize("Enable hardcore mouse"), g_KaizoConfig_KaizoFasterHardcoreMouse, &Button))
 			{
 				g_KaizoConfig_KaizoFasterHardcoreMouse ^= 1;
 			}
@@ -1134,11 +1134,11 @@ void CMenus::RenderSettingsKaizo(CUIRect MainView)
 			{
 				Left.HSplitTop(2.0f, nullptr, &Left);
 				Left.HSplitTop(20.0f, &Button, &Left);
-				Ui()->DoScrollbarOption(&g_KaizoConfig_KaizoFasterHardcoreMouseDistance, &g_KaizoConfig_KaizoFasterHardcoreMouseDistance, &Button, Localize("Hardcore mouse required distance (recommended: 400)"), 0, 700, &CUi::ms_LogarithmicScrollbarScale, 0u);
+				Ui()->DoScrollbarOption(&g_KaizoConfig_KaizoFasterHardcoreMouseDistance, &g_KaizoConfig_KaizoFasterHardcoreMouseDistance, &Button, Localize("Hardcore mouse required distance (recommended: 350)"), 0, 700, &CUi::ms_LogarithmicScrollbarScale, 0u);
 
 				Left.HSplitTop(2.0f, nullptr, &Left);
 				Left.HSplitTop(20.0f, &Button, &Left);
-				Ui()->DoScrollbarOption(&g_KaizoConfig_KaizoFasterHardcoreMouseScale, &g_KaizoConfig_KaizoFasterHardcoreMouseScale, &Button, Localize("Hardcore mouse scale multiplier (recommended: 4)"), 0, 50, &CUi::ms_LogarithmicScrollbarScale, 0u);
+				Ui()->DoScrollbarOption(&g_KaizoConfig_KaizoFasterHardcoreMouseScale, &g_KaizoConfig_KaizoFasterHardcoreMouseScale, &Button, Localize("Hardcore mouse scale multiplier (recommended: 5)"), 0, 50, &CUi::ms_LogarithmicScrollbarScale, 0u);
 			}
 
 			//Freeze hitbox
