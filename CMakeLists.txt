@@ -1598,6 +1598,7 @@ set(EXPECTED_DATA
   countryflags/X-COALA.png
   countryflags/X-ENTITY.png
   countryflags/X-FINISH.png
+  countryflags/X-KAIZO-HAMSTER.png
   countryflags/X-LIMEKITTY.png
   countryflags/X-PINKY.png
   countryflags/X-PIRATE.png

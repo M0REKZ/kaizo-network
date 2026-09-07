@@ -6,6 +6,11 @@
 default
 == -1
 
+##### Kaizo Client #####
+
+X-KAIZO-HAMSTER
+== -945
+
 ##### unicode #####
 
 X-WHITE
