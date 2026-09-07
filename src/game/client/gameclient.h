@@ -840,6 +840,7 @@ public:
 
 		// pickups
 		IGraphics::CTextureHandle m_SpritePickupHealth;
+		IGraphics::CTextureHandle m_SpritePickupFreeze;
 		IGraphics::CTextureHandle m_SpritePickupArmor;
 		IGraphics::CTextureHandle m_SpritePickupArmorShotgun;
 		IGraphics::CTextureHandle m_SpritePickupArmorGrenade;
